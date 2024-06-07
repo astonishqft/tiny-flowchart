@@ -1,31 +1,25 @@
 <script setup lang="ts">
-const handleClick = () => {
-  alert('welcome')
-}
+import HeaderTools from './components/HeaderTools.vue'
+import ElementPanel from './components/ElementPanel.vue'
+import Editor from './components/Editor.vue'
+import Property from './components/Property.vue'
+import MiniMap from './components/MiniMap.vue'
 </script>
 
 <template>
-  <div class="ioc-container">
-    <p>Welcome to use ioc editor</p>
-    <button @click="handleClick">确认</button>
+  <div class="ioc-editor-container">
+    <HeaderTools />
+    <ElementPanel />
+    <Editor />
+    <Property />
+    <MiniMap />
   </div>
 </template>
 
 <style scoped lang="less">
-.ioc-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  p {
-    color: blue;
-    font-size: 24px;
-  }
-  button {
-    width: 120px;
-    border: 0;
-    background-color: cadetblue;
-    border-radius: 5px;
-  }
+.ioc-editor-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
 }
 </style>

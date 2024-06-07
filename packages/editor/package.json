@@ -16,5 +16,8 @@
   "devDependencies": {
     "less": "^4.2.0",
     "vue": "^3.4.21"
+  },
+  "dependencies": {
+    "element-plus": "^2.7.4"
   }
 }
