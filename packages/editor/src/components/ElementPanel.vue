@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { Component } from 'vue'
 import IconCircle from './icons/Circle.vue'
 import IconRect from './icons/Rect.vue'
 import IconRectRadius from './icons/RectRadius.vue'
@@ -24,6 +25,11 @@ import IconCross from './icons/Cross.vue'
 import IconMinus from './icons/Minus.vue'
 import IconTimes from './icons/Times.vue'
 import IconDivide from './icons/Divide.vue'
+
+export interface ElementItemType {
+  component: Component
+  nodeType: string
+}
 
 const elementList = [
   {
@@ -127,6 +133,12 @@ const elementList = [
     nodeType: 'divide'
   }
 ]
+
+const dragStart = (event: DragEvent, element: ElementItemType) => {
+  if (event.dataTransfer) {
+    event.dataTransfer.setData('addShape', JSON.stringify(element))
+  }
+}
 </script>
 
 <template>
@@ -137,6 +149,7 @@ const elementList = [
         v-for="element in elementList"
         :key="element.nodeType"
         :draggable="true"
+        @dragstart="dragStart($event, element)"
         class="element-item"
       >
         <component :is="element.component" class="svg-node" />

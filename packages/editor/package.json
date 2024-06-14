@@ -2,6 +2,7 @@
   "name": "@ioceditor/editor",
   "private": false,
   "version": "0.0.1",
+  "author": "qi.futao",
   "type": "module",
   "scripts": {
     "dev": "vite build --watch",
@@ -18,6 +19,7 @@
     "vue": "^3.4.21"
   },
   "dependencies": {
+    "@ioceditor/core": "workspace:^",
     "element-plus": "^2.7.4"
   }
 }
