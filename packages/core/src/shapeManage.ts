@@ -24,8 +24,9 @@ class ShapeManage {
     console.log('shapeManage init')
   }
 
-  addShape(type: string, options: { x: number, y: number }) {
-    const shape = getShape(type, options)
+  addShape(type: string, { x, y }: { x: number, y: number }) {
+    const {x: gX, y: gY} = this._layer
+    const shape = getShape(type, { x: x - gX, y: y - gY })
 
     const anchor = new Anchor(shape)
     shape.anchor = anchor

@@ -85,28 +85,30 @@ class LayerManage extends zrender.Group {
     })
 
     this._zr?.on('mousemove', (e) => {
+      offsetX = e.offsetX - startX
+      offsetY = e.offsetY - startY
       if (selectShape) {
-        offsetX = e.offsetX - startX
-        offsetY = e.offsetY - startY
+
         selectShape.anchor?.show()
         // 设置一个阈值，避免鼠标发生轻微位移时出现拖动浮层
         if (Math.abs(offsetX) > 2 || Math.abs(offsetY) > 2) {
           const group = new zrender.Group()
           const boundingBox = group.getBoundingRect([selectShape])
           this._dragFrameManage.initSize(boundingBox.width, boundingBox.height)
-          this._dragFrameManage.updatePosition(selectShape.oldX! + offsetX, selectShape.oldY! + offsetY)
+          this._dragFrameManage.updatePosition(selectShape.oldX! + offsetX + this.x, selectShape.oldY! + offsetY + this.y)
         }
       }
 
-      // 拖拽画布
-      if (drag && !e.target) {
+      // 拖拽画布(利用的原理是改变Group的 position 坐标)
+      if (drag && !selectShape) { // TODO: 排除没有点击到节点的情况，后续需要继续排除点击到连线等情况
         this.setCursorStyle('grabbing')
-        this.attr('x', this.x + offsetX)
-        this.attr('y', this.y + offsetY)
-        this.dirty()
+        this.attr('x', oldX + offsetX)
+        this.attr('y', oldY + offsetY)
       } else {
         this.setCursorStyle('grab')
       }
+
+      console.log('position:', [this.x, this.y])
     })
 
     this._zr?.on('mouseup', (e) => {
