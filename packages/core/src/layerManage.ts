@@ -1,9 +1,10 @@
 import * as zrender from 'zrender'
-import { injectable } from 'inversify'
-import type { IShape } from './types/interfaces/i-shape'
+import { injectable, inject } from 'inversify'
+import type { IShape } from './shapes'
+import type { IDragFrameManage  } from './dragFrameManage'
+import IDENTIFIER from './constants/identifiers'
 
 export interface ILayerManage extends zrender.Group {
-  // _zr: zrender.ZRenderType | null
   initZrender: (container: HTMLElement) => zrender.ZRenderType
   addToLayer: (shape: IShape) => void
 }
@@ -14,9 +15,7 @@ export type IMouseEvent = zrender.Element & { nodeType?: string }
 class LayerManage extends zrender.Group {
   private _zr: zrender.ZRenderType | null = null
   shapes: IShape[] = []
-  drag = false
-  dragNode = false
-  constructor() {
+  constructor(@inject(IDENTIFIER.DRAG_FRAME_MANAGE) private _dragFrameManage: IDragFrameManage) {
     super()
   }
 
@@ -28,7 +27,6 @@ class LayerManage extends zrender.Group {
   initZrender(container: HTMLElement) {
     this._zr = zrender.init(container, {})
     this._zr.add(this)
-
     this.initEvent()
 
     return this._zr
@@ -46,26 +44,36 @@ class LayerManage extends zrender.Group {
     })
   }
 
+  setCursorStyle(cursor: string) {
+    this._zr?.setCursorStyle(cursor)
+  }
+
   initEvent() {
     let selectShape: IShape | null = null
     let startX = 0
     let startY = 0
     let offsetX = 0
     let offsetY = 0
+    let drag = false
+    let oldX = 0
+    let oldY = 0
     this._zr?.on('mousedown', (e: zrender.ElementEvent) => {
-      this.drag = true
+      drag = true
       startX = e.offsetX
       startY = e.offsetY
+      oldX = this.x
+      oldY = this.y
       const target = e.target as IShape || null
 
       if (target && (target as IShape).nodeType === 'node') {
         // 当选中的是 shape 节点
         selectShape = target
-        selectShape.oldX = selectShape.x
-        selectShape.oldY = selectShape.y
       } else if (target && target.parent && target.parent.__hostTarget && (target.parent.__hostTarget as IShape).nodeType  === 'node') {
         // 当选中的是 shape 中的文本
         selectShape = target.parent.__hostTarget as IShape
+      }
+
+      if (selectShape) {
         selectShape.oldX = selectShape.x
         selectShape.oldY = selectShape.y
       }
@@ -77,18 +85,41 @@ class LayerManage extends zrender.Group {
     })
 
     this._zr?.on('mousemove', (e) => {
-      if (this.drag && selectShape) {
+      if (selectShape) {
         offsetX = e.offsetX - startX
         offsetY = e.offsetY - startY
-        selectShape?.attr('x', selectShape.oldX! + offsetX)
-        selectShape?.attr('y', selectShape.oldY! + offsetY)
+        selectShape.anchor?.show()
+        // 设置一个阈值，避免鼠标发生轻微位移时出现拖动浮层
+        if (Math.abs(offsetX) > 2 || Math.abs(offsetY) > 2) {
+          const group = new zrender.Group()
+          const boundingBox = group.getBoundingRect([selectShape])
+          this._dragFrameManage.initSize(boundingBox.width, boundingBox.height)
+          this._dragFrameManage.updatePosition(selectShape.oldX! + offsetX, selectShape.oldY! + offsetY)
+        }
+      }
+
+      // 拖拽画布
+      if (drag && !e.target) {
+        this.setCursorStyle('grabbing')
+        this.attr('x', this.x + offsetX)
+        this.attr('y', this.y + offsetY)
+        this.dirty()
+      } else {
+        this.setCursorStyle('grab')
       }
     })
 
-    this._zr?.on('mouseup', () => {
-      this.drag = false
-      this.dragNode = false
-      selectShape = null
+    this._zr?.on('mouseup', (e) => {
+      drag = false
+      if (selectShape) {
+        selectShape?.attr('x', selectShape.oldX! + e.offsetX - startX)
+        selectShape?.attr('y', selectShape.oldY! + e.offsetY - startY)
+        this._dragFrameManage.hide()
+        // 更新锚点位置
+        selectShape.createAnchors()
+        selectShape.anchor!.refresh()
+        selectShape = null
+      }
     })
   }
 }

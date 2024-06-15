@@ -2,13 +2,49 @@ import * as zrender from 'zrender'
 
 import { Rect } from './rect'
 import { Circle } from './circle'
+import type { Anchor } from '../anchor'
+
+export interface IShape extends zrender.Element {
+  selected: boolean
+  nodeType: string
+  anchors: IAnchor[]
+  anchor?: Anchor
+  oldX?: number
+  oldY?: number
+  createAnchors(): void
+  active(): void
+  unActive(): void
+  getAnchors(): IAnchor[]
+  getAnchorByIndex(index: number): IAnchor
+}
 
 export interface IShapeConfig {
   [key: string]: zrender.RectProps | zrender.EllipseProps
 }
 
-export interface IShape {
+export interface IShapeMap {
   [key: string]: any
+}
+
+export interface IShapeTextConfig {
+  textContent: zrender.Text
+  textConfig: zrender.ElementTextConfig
+}
+
+export interface IAnchor {
+  x: number
+  y: number
+  node: IShape
+  direct: string
+  index: number
+}
+
+export interface IAnchorPoint extends zrender.Circle {
+  point: IAnchor
+  node: IShape
+  mark: string
+  oldFillColor: string
+  anch: zrender.Circle
 }
 
 export const shapeConfig: IShapeConfig = {
@@ -42,7 +78,7 @@ export const shapeConfig: IShapeConfig = {
   }
 }
 
-const getShapeTextConfig = () => {
+const getShapeTextConfig = (): IShapeTextConfig => {
   return {
     textContent: new zrender.Text({
       style: {
@@ -52,7 +88,8 @@ const getShapeTextConfig = () => {
         fontFamily: 'Arial'
 
       },
-      z: 11
+      z: 11,
+      cursor: 'move'
     }),
     textConfig: {
       position: 'inside'
@@ -60,7 +97,7 @@ const getShapeTextConfig = () => {
   }
 }
 
-export const shapes: IShape = {
+export const shapes: IShapeMap = {
   rect: Rect,
   circle: Circle
 }

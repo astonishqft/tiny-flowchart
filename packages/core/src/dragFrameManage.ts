@@ -3,16 +3,17 @@ import { injectable } from 'inversify'
 
 export interface IDragFrameManage {
   addSelfToLayer(zr: zrender.ZRenderType): void
+  show(): void
+  hide(): void
+  updatePosition(x: number, y: number): void
+  initSize(width: number, height: number): void
 }
 
 @injectable()
 class DragFrameManage {
+  private _frame: zrender.Rect
   constructor() {
- 
-  }
-
-  addSelfToLayer(zr: zrender. ZRenderType) {
-    const frame = new zrender.Rect({
+    this._frame = new zrender.Rect({
       shape: {
         x: 0,
         y: 0,
@@ -20,10 +21,41 @@ class DragFrameManage {
         height: 100
       },
       style: {
-        fill: 'red'
-      }
+        fill: '#1971c2',
+        stroke: '#1971c2',
+        opacity: 0.3,
+        lineWidth: 1,
+        lineDash: [4, 4]
+      },
+      silent: true
     })
-    zr.add(frame) 
+
+    this._frame.hide()
+  }
+
+  addSelfToLayer(zr: zrender. ZRenderType) {
+    zr.add(this._frame) 
+  }
+
+  show() {
+    this._frame.show()
+  }
+
+  hide() {
+    this._frame.hide()
+  }
+
+  initSize(width: number, height: number) {
+    this._frame.setShape({
+      width,
+      height
+    })
+    this._frame.show()
+  }
+
+  updatePosition(x: number, y: number) {
+    this._frame.attr('x', x)
+    this._frame.attr('y', y)
   }
 }
 

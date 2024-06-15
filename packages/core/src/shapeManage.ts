@@ -1,10 +1,13 @@
 
 import { injectable, inject } from 'inversify'
+import * as zrender from 'zrender'
 import { Subject, Observable } from 'rxjs'
 import { getShape } from './shapes'
 import IDENTIFIER from './constants/identifiers'
+import { Anchor } from './anchor'
 import type { ILayerManage } from './layerManage'
-import type { IShape } from './types/interfaces/i-shape'
+import type { IShape } from './shapes'
+import type { IAnchorPoint } from './shapes'
 
 export interface IShapeManage {
   shapes: IShape[]
@@ -22,16 +25,33 @@ class ShapeManage {
   }
 
   addShape(type: string, options: { x: number, y: number }) {
-    console.log(type, options)
     const shape = getShape(type, options)
 
-    this.bindShapeEvent(shape)
+    const anchor = new Anchor(shape)
+    shape.anchor = anchor
+
+    shape.createAnchors()
+    shape.anchor.bars.forEach((bar: IAnchorPoint) => {
+      this._layer.add(bar)
+    })
+    shape.anchor.refresh()
+    this.initShapeEvent(shape)
     this._layer.addToLayer(shape)
   }
 
-  bindShapeEvent(shape: IShape) {
+  initShapeEvent(shape: IShape) {
     shape.on('click', () => {
-      this.clickShape$.next(shape)
+      // this.clickShape$.next(shape)
+      shape.active()
+    })
+
+    shape.on('mousemove', () => {
+      shape.anchor?.show();
+      (shape as unknown as zrender.Displayable).attr('cursor', 'move')
+    })
+
+    shape.on('mouseout', () => {
+      shape.anchor?.hide()
     })
   }
 
