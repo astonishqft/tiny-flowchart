@@ -1,7 +1,9 @@
 import * as zrender from 'zrender'
 import { injectable } from 'inversify'
+import { Disposable } from './disposable'
+import type { IDisposable } from './disposable'
 
-export interface IDragFrameManage {
+export interface IDragFrameManage extends IDisposable {
   addSelfToLayer(zr: zrender.ZRenderType): void
   show(): void
   hide(): void
@@ -10,9 +12,10 @@ export interface IDragFrameManage {
 }
 
 @injectable()
-class DragFrameManage {
+class DragFrameManage extends Disposable {
   private _frame: zrender.Rect
   constructor() {
+    super()
     this._frame = new zrender.Rect({
       shape: {
         x: 0,

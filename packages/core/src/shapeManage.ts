@@ -5,23 +5,25 @@ import { Subject, Observable } from 'rxjs'
 import { getShape } from './shapes'
 import IDENTIFIER from './constants/identifiers'
 import { Anchor } from './anchor'
+import { Disposable, IDisposable } from './disposable'
+
 import type { ILayerManage } from './layerManage'
 import type { IShape } from './shapes'
 import type { IAnchorPoint } from './shapes'
 
-export interface IShapeManage {
+export interface IShapeManage extends IDisposable {
   shapes: IShape[]
-  clickShape$: Observable<IShape>
+  updateClickShape$: Observable<IShape>
   addShape(type: string, options: { x: number, y: number }): void
-  destroy(): void
 }
 
 @injectable()
-class ShapeManage {
+class ShapeManage extends Disposable {
   shapes: IShape[] = []
-  clickShape$ = new Subject<IShape>()
+  updateClickShape$ = new Subject<IShape>()
   constructor(@inject(IDENTIFIER.LAYER_MANAGE) private _layer: ILayerManage) {
-    console.log('shapeManage init')
+    super()
+    this._disposables.push(this.updateClickShape$)
   }
 
   addShape(type: string, { x, y }: { x: number, y: number }) {
@@ -54,10 +56,6 @@ class ShapeManage {
     shape.on('mouseout', () => {
       shape.anchor?.hide()
     })
-  }
-
-  destroy() {
-    this.clickShape$.unsubscribe()
   }
 }
 

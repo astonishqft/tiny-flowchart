@@ -2,20 +2,31 @@ import * as zrender from 'zrender'
 import { injectable, inject } from 'inversify'
 import type { IShape } from './shapes'
 import type { IDragFrameManage  } from './dragFrameManage'
+import type { IGridManage } from './gridManage'
 import IDENTIFIER from './constants/identifiers'
 
 export interface ILayerManage extends zrender.Group {
+  _zr: zrender.ZRenderType | null
   initZrender: (container: HTMLElement) => zrender.ZRenderType
   addToLayer: (shape: IShape) => void
+  zoomIn: () => void
+  zoomOut: () => void
 }
 
 export type IMouseEvent = zrender.Element & { nodeType?: string }
 
 @injectable()
 class LayerManage extends zrender.Group {
-  private _zr: zrender.ZRenderType | null = null
+  _zr: zrender.ZRenderType | null = null
   shapes: IShape[] = []
-  constructor(@inject(IDENTIFIER.DRAG_FRAME_MANAGE) private _dragFrameManage: IDragFrameManage) {
+  maxScale = 4
+  minScale = 0.4
+  scaleStep = 0.2
+
+  constructor(
+    @inject(IDENTIFIER.DRAG_FRAME_MANAGE) private _dragFrameManage: IDragFrameManage,
+    @inject(IDENTIFIER.GRID_MANAGE) private _gridManage: IGridManage
+  ) {
     super()
   }
 
@@ -28,7 +39,6 @@ class LayerManage extends zrender.Group {
     this._zr = zrender.init(container, {})
     this._zr.add(this)
     this.initEvent()
-
     return this._zr
   }
 
@@ -46,6 +56,14 @@ class LayerManage extends zrender.Group {
 
   setCursorStyle(cursor: string) {
     this._zr?.setCursorStyle(cursor)
+  }
+
+  zoomIn() {
+    console.log('zoomIn')
+  }
+
+  zoomOut() {
+    console.log('zoomOut')
   }
 
   initEvent() {
@@ -87,8 +105,9 @@ class LayerManage extends zrender.Group {
     this._zr?.on('mousemove', (e) => {
       offsetX = e.offsetX - startX
       offsetY = e.offsetY - startY
+      // 拖拽节点
       if (selectShape) {
-
+        // this.setCursorStyle('move')
         selectShape.anchor?.show()
         // 设置一个阈值，避免鼠标发生轻微位移时出现拖动浮层
         if (Math.abs(offsetX) > 2 || Math.abs(offsetY) > 2) {
@@ -104,11 +123,8 @@ class LayerManage extends zrender.Group {
         this.setCursorStyle('grabbing')
         this.attr('x', oldX + offsetX)
         this.attr('y', oldY + offsetY)
-      } else {
-        this.setCursorStyle('grab')
+        this._gridManage.updateGrid(-this.x, -this.y)
       }
-
-      console.log('position:', [this.x, this.y])
     })
 
     this._zr?.on('mouseup', (e) => {

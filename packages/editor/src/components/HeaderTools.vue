@@ -1,7 +1,13 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, inject } from 'vue'
 import { ElSelect, ElOption } from 'element-plus'
+import { Container } from 'inversify'
+import { IDENTIFIER } from '@ioceditor/core'
+import type { ILayerManage } from '@ioceditor/core'
 import 'element-plus/es/components/select/style/css'
+
+const iocEditor = inject<Container>('iocEditor') as Container
+const layerMgr = iocEditor.get<ILayerManage>(IDENTIFIER.LAYER_MANAGE)
 
 const currentLineType = ref('ortogonalLine')
 
@@ -13,13 +19,13 @@ const toolsConfig = ref([
     disabled: true
   },
   {
-    name: 'open-file',
+    name: 'openFile',
     icon: 'icon-folder-open',
     desc: '打开文件',
     disabled: false
   },
   {
-    name: 'save-to-picture',
+    name: 'saveToPicture',
     icon: 'icon-image',
     desc: '保存为图片',
     disabled: true
@@ -37,13 +43,13 @@ const toolsConfig = ref([
     disabled: true
   },
   {
-    name: 'zoom-in',
+    name: 'zoomIn',
     icon: 'icon-zoomin',
     desc: '放大',
     disabled: false
   },
   {
-    name: 'zoom-out',
+    name: 'zoomOut',
     icon: 'icon-zoomout',
     desc: '缩小',
     disabled: false
@@ -91,6 +97,25 @@ const lineOptions = [
 
 const changeLineType = (value: string) => {
   currentLineType.value = value
+  command('lineType')
+}
+
+const command = (name: string) => {
+  switch(name) {
+    case 'zoomIn':
+      // 放大
+      layerMgr.zoomIn()
+      break
+    case 'zoomOut':
+      // 缩小
+      layerMgr.zoomOut()
+      break
+    case 'lineType':
+      // 线类型
+      break
+    default:
+      break
+  } 
 }
 </script>
 
@@ -102,6 +127,7 @@ const changeLineType = (value: string) => {
         [tool.icon]: true,
         disabled: tool.disabled
       }"
+      @click="command(tool.name)"
       v-for="tool in toolsConfig"
       :key="tool.name"
       :title="tool.desc"

@@ -7,6 +7,13 @@
   "keywords": [],
   "author": "qi.futao",
   "license": "ISC",
+  "scripts": {
+    "dev": "run-p core:dev editor:dev example:dev",
+    "all:build": "pnpm -r exec pnpm run build",
+    "core:dev": "pnpm -F @ioceditor/core dev",
+    "editor:dev": "pnpm -F @ioceditor/editor dev",
+    "example:dev": "pnpm -F @ioceditor/example dev"
+  },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.24.0",
     "@typescript-eslint/parser": "^5.24.0",
@@ -14,6 +21,7 @@
     "eslint": "^8.57.0",
     "tslib": "^2.6.2",
     "typescript": "^5.2.2",
+    "npm-run-all": "^4.1.5",
     "vite": "^5.2.8",
     "vue-tsc": "^2.0.6",
     "vite-plugin-dts": "^3.6.0"

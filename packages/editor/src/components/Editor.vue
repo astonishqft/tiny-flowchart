@@ -5,8 +5,8 @@ import { IocEditor } from '@ioceditor/core'
 const editor = ref<IocEditor>()
 
 onMounted(() => {
-  editor.value = new IocEditor({
-    container: document.getElementById('ioc-editor') as HTMLElement
+  editor.value = new IocEditor(document.getElementById('ioc-editor') as HTMLElement, {
+    zoomStep: 0.2325,
   })
 })
 
