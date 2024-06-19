@@ -4,7 +4,7 @@ import { Disposable } from './disposable'
 import type { IDisposable } from './disposable'
 
 export interface IDragFrameManage extends IDisposable {
-  addSelfToLayer(zr: zrender.ZRenderType): void
+  addSelfToZr(zr: zrender.ZRenderType): void
   show(): void
   hide(): void
   updatePosition(x: number, y: number): void
@@ -36,7 +36,7 @@ class DragFrameManage extends Disposable {
     this._frame.hide()
   }
 
-  addSelfToLayer(zr: zrender. ZRenderType) {
+  addSelfToZr(zr: zrender. ZRenderType) {
     zr.add(this._frame) 
   }
 

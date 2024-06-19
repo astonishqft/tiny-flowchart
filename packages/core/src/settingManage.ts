@@ -1,4 +1,4 @@
-import {injectable} from 'inversify'
+import { injectable } from 'inversify'
 import { Subject, Observable } from 'rxjs'
 import { Disposable } from './disposable'
 import type { IDisposable } from './disposable'
@@ -12,7 +12,7 @@ export interface IIocEditorConfig {
 
 export interface ISettingManage extends IDisposable {
   setDefaultConfig(config: IIocEditorConfig): void;
-  updatedSetting$: Observable<IIocEditorConfig>
+  updatedSetting$: Observable<Partial<IIocEditorConfig>>
   set<K extends keyof IIocEditorConfig>(key: K, value: IIocEditorConfig[K]): void
   get<K extends keyof IIocEditorConfig>(key: K): IIocEditorConfig[K]
 }
@@ -20,9 +20,9 @@ export interface ISettingManage extends IDisposable {
 @injectable()
 class SettingManage extends Disposable {
   private config: IIocEditorConfig = {
-    zoomStep: 0.2325,
-    zoomMin: 0.125,
-    zoomMax: 16,
+    zoomStep: 0.07,
+    zoomMin: 0.3,
+    zoomMax: 4,
     gridStep: 20 
   }
   updatedSetting$ = new Subject<Partial<IIocEditorConfig>>()

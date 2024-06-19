@@ -3,14 +3,14 @@ import { injectable, inject } from 'inversify'
 import IDENTIFIER from './constants/identifiers'
 import { Disposable } from './disposable'
 
-import type { ILayerManage } from './layerManage'
+import type { IViewPortManage } from './viewPortManage'
 import type { ISettingManage } from './settingManage'
 import type { IDisposable } from './disposable'
 
 export interface IGridManage extends IDisposable {
   x: number
   y: number
-  initGrid(_layer: ILayerManage): void
+  initGrid(zr: zrender.ZRenderType): void
   drawGrid(): void
   updateGrid(dx: number, dy: number): void
 }
@@ -25,18 +25,19 @@ class GridManage extends Disposable {
   xPoints: number[] = []
   yPoints: number[] = []
   points: zrender.Circle [] = []
-  _layer: ILayerManage | null = null
-  constructor(@inject(IDENTIFIER.SETTING_MANAGE) private _settingManage: ISettingManage) {
+  constructor(
+    @inject(IDENTIFIER.SETTING_MANAGE) private _settingManage: ISettingManage,
+    @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortManage: IViewPortManage,
+  ) {
     super()
     this.gridStep = this._settingManage.get('gridStep')
   }
 
-  initGrid(_layer: ILayerManage) {
-    this._layer = _layer
+  initGrid(zr: zrender.ZRenderType) {
     this.x = 0
     this.y = 0
-    this.width = this._layer._zr!.getWidth() as number
-    this.height = this._layer._zr!.getHeight() as number
+    this.width = zr.getWidth() as number
+    this.height = zr.getHeight() as number
 
     this.drawGrid()
   }
@@ -52,12 +53,17 @@ class GridManage extends Disposable {
   }
 
   drawGrid() {
+    const scaleX = this._viewPortManage.getScaleX()
+    const scaleY = this._viewPortManage.getScaleY()
     let startX = this.getClosestVal(this.x, this.gridStep)
-    let endX = this.getClosestVal(this.x + this.width, this.gridStep)
+    let endX = this.getClosestVal(this.x + this.width / scaleX, this.gridStep)
     let startY = this.getClosestVal(this.y, this.gridStep)
-    let endY = this.getClosestVal(this.y + this.height, this.gridStep)
+    let endY = this.getClosestVal(this.y + this.height / scaleY, this.gridStep)
     this.xPoints = []
     this.yPoints = []
+    this.points.forEach(p => {
+      this._viewPortManage.getViewPort().remove(p)
+    })
     this.points = []
 
     while (startX <= endX) {
@@ -69,13 +75,14 @@ class GridManage extends Disposable {
       this.yPoints.push(startY)
       startY += this.gridStep
     }
+
     for (let i = 0; i < this.yPoints.length; i ++) {
       for(let j = 0; j < this.xPoints.length; j ++) {
         const point = new zrender.Circle({
           shape: {
             r: 0.5,
-            cx: this.xPoints[j],
-            cy: this.yPoints[i]
+            cx: (this.xPoints[j]-this.x) * scaleX,
+            cy: (this.yPoints[i]-this.y) * scaleY
           },
           style: {
             stroke: '#868e96',
@@ -86,15 +93,13 @@ class GridManage extends Disposable {
         })
 
         this.points.push(point)
-        this._layer!.add(point)
+        this._viewPortManage.getViewPort().add(point)
       }
     }
   }
 
   updateGrid(dx: number, dy: number) {
-    this.points.forEach(p => {
-      this._layer!.remove(p)
-    })
+
     this.x = dx
     this.y = dy
     this.drawGrid()

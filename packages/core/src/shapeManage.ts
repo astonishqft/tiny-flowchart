@@ -7,44 +7,49 @@ import IDENTIFIER from './constants/identifiers'
 import { Anchor } from './anchor'
 import { Disposable, IDisposable } from './disposable'
 
-import type { ILayerManage } from './layerManage'
 import type { IShape } from './shapes'
 import type { IAnchorPoint } from './shapes'
+import type { IViewPortManage } from './viewPortManage'
 
 export interface IShapeManage extends IDisposable {
   shapes: IShape[]
-  updateClickShape$: Observable<IShape>
-  addShape(type: string, options: { x: number, y: number }): void
+  // updateAddShape$: Observable<IShape>
+  createShape(type: string, options: { x: number, y: number }): IShape
 }
 
 @injectable()
 class ShapeManage extends Disposable {
   shapes: IShape[] = []
-  updateClickShape$ = new Subject<IShape>()
-  constructor(@inject(IDENTIFIER.LAYER_MANAGE) private _layer: ILayerManage) {
+  // updateAddShape$ = new Subject<IShape>()
+  constructor(@inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPort: IViewPortManage) {
     super()
-    this._disposables.push(this.updateClickShape$)
+    // this._disposables.push(this.updateAddShape$)
   }
 
-  addShape(type: string, { x, y }: { x: number, y: number }) {
-    const {x: gX, y: gY} = this._layer
-    const shape = getShape(type, { x: x - gX, y: y - gY })
+  createShape(type: string, { x, y }: { x: number, y: number }): IShape {
+    const viewPortX = this._viewPort.getPositionX()
+    const viewPortY = this._viewPort.getPositionY()
+
+    const shape = getShape(type, { x: x - viewPortX, y: y - viewPortY })
 
     const anchor = new Anchor(shape)
     shape.anchor = anchor
 
+    // this.updateAddShape$.next(shape)
+
     shape.createAnchors()
     shape.anchor.bars.forEach((bar: IAnchorPoint) => {
-      this._layer.add(bar)
+      this._viewPort.addAnchorToViewPort(bar)
     })
     shape.anchor.refresh()
     this.initShapeEvent(shape)
-    this._layer.addToLayer(shape)
+    this._viewPort.addShapeToViewPort(shape)
+
+    return shape
   }
 
   initShapeEvent(shape: IShape) {
     shape.on('click', () => {
-      // this.clickShape$.next(shape)
       shape.active()
     })
 

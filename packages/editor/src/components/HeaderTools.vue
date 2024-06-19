@@ -3,11 +3,11 @@ import { ref, inject } from 'vue'
 import { ElSelect, ElOption } from 'element-plus'
 import { Container } from 'inversify'
 import { IDENTIFIER } from '@ioceditor/core'
-import type { ILayerManage } from '@ioceditor/core'
+import type { IZoomManage } from '@ioceditor/core'
 import 'element-plus/es/components/select/style/css'
 
 const iocEditor = inject<Container>('iocEditor') as Container
-const layerMgr = iocEditor.get<ILayerManage>(IDENTIFIER.LAYER_MANAGE)
+const zoomMgr = iocEditor.get<IZoomManage>(IDENTIFIER.ZOOM_MANAGE)
 
 const currentLineType = ref('ortogonalLine')
 
@@ -104,11 +104,11 @@ const command = (name: string) => {
   switch(name) {
     case 'zoomIn':
       // 放大
-      layerMgr.zoomIn()
+      zoomMgr.zoomIn()
       break
     case 'zoomOut':
       // 缩小
-      layerMgr.zoomOut()
+      zoomMgr.zoomOut()
       break
     case 'lineType':
       // 线类型

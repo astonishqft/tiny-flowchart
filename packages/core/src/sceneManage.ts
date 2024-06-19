@@ -1,45 +1,50 @@
 import * as zrender from 'zrender'
 import { injectable, inject } from 'inversify'
+import IDENTIFIER from './constants/identifiers'
+import { Disposable } from './disposable'
+import type { IDisposable } from './disposable'
 import type { IShape } from './shapes'
 import type { IDragFrameManage  } from './dragFrameManage'
 import type { IGridManage } from './gridManage'
-import IDENTIFIER from './constants/identifiers'
+import type { IViewPortManage } from './viewPortManage'
+import type { IShapeManage } from './shapeManage'
+import type { IZoomManage } from './zoomManage'
 
-export interface ILayerManage extends zrender.Group {
+export interface ISceneManage extends IDisposable {
   _zr: zrender.ZRenderType | null
-  initZrender: (container: HTMLElement) => zrender.ZRenderType
-  addToLayer: (shape: IShape) => void
-  zoomIn: () => void
-  zoomOut: () => void
+  init(zr: zrender.ZRenderType): void
+  addShape(type: string, options: { x: number, y: number }): void
 }
 
 export type IMouseEvent = zrender.Element & { nodeType?: string }
 
 @injectable()
-class LayerManage extends zrender.Group {
+class SceneManage extends Disposable {
   _zr: zrender.ZRenderType | null = null
   shapes: IShape[] = []
-  maxScale = 4
-  minScale = 0.4
-  scaleStep = 0.2
 
   constructor(
+    @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortManage: IViewPortManage,
     @inject(IDENTIFIER.DRAG_FRAME_MANAGE) private _dragFrameManage: IDragFrameManage,
-    @inject(IDENTIFIER.GRID_MANAGE) private _gridManage: IGridManage
-  ) {
+    @inject(IDENTIFIER.GRID_MANAGE) private _gridManage: IGridManage,
+    @inject(IDENTIFIER.SHAPE_MANAGE) private _shapeManage: IShapeManage,
+    @inject(IDENTIFIER.ZOOM_MANAGE) private _zoomManage: IZoomManage
+  )
+  {
     super()
   }
 
-  addToLayer(shape: IShape) {
-    this.add(shape)
+  addShape(type: string, options: { x: number, y: number }) {
+    const shape = this._shapeManage.createShape(type, options)
     this.shapes.push(shape)
   }
 
-  initZrender(container: HTMLElement) {
-    this._zr = zrender.init(container, {})
-    this._zr.add(this)
+  init(zr: zrender.ZRenderType) {
+    this._zr = zr
+    this._viewPortManage.addSelfToZr(this._zr)
+    this._dragFrameManage.addSelfToZr(this._zr)
+    this._gridManage.initGrid(this._zr)
     this.initEvent()
-    return this._zr
   }
 
   unActiveShapes() {
@@ -58,14 +63,6 @@ class LayerManage extends zrender.Group {
     this._zr?.setCursorStyle(cursor)
   }
 
-  zoomIn() {
-    console.log('zoomIn')
-  }
-
-  zoomOut() {
-    console.log('zoomOut')
-  }
-
   initEvent() {
     let selectShape: IShape | null = null
     let startX = 0
@@ -73,14 +70,15 @@ class LayerManage extends zrender.Group {
     let offsetX = 0
     let offsetY = 0
     let drag = false
-    let oldX = 0
-    let oldY = 0
+    let oldViewPortX = this._viewPortManage.getPositionX()
+    let oldViewPortY = this._viewPortManage.getPositionY()
     this._zr?.on('mousedown', (e: zrender.ElementEvent) => {
+      const zoom = this._zoomManage.getZoom()
       drag = true
-      startX = e.offsetX
-      startY = e.offsetY
-      oldX = this.x
-      oldY = this.y
+      startX = e.offsetX * zoom
+      startY = e.offsetY * zoom
+      oldViewPortX = this._viewPortManage.getPositionX()
+      oldViewPortY = this._viewPortManage.getPositionY()
       const target = e.target as IShape || null
 
       if (target && (target as IShape).nodeType === 'node') {
@@ -103,35 +101,39 @@ class LayerManage extends zrender.Group {
     })
 
     this._zr?.on('mousemove', (e) => {
-      offsetX = e.offsetX - startX
-      offsetY = e.offsetY - startY
+      const zoom = this._zoomManage.getZoom()
+      offsetX = (e.offsetX * zoom - startX)
+      offsetY = (e.offsetY * zoom - startY) 
       // 拖拽节点
       if (selectShape) {
         // this.setCursorStyle('move')
         selectShape.anchor?.show()
         // 设置一个阈值，避免鼠标发生轻微位移时出现拖动浮层
-        if (Math.abs(offsetX) > 2 || Math.abs(offsetY) > 2) {
+        if (Math.abs(offsetX) > 2 * zoom || Math.abs(offsetY) > 2 * zoom) {
           const group = new zrender.Group()
           const boundingBox = group.getBoundingRect([selectShape])
-          this._dragFrameManage.initSize(boundingBox.width, boundingBox.height)
-          this._dragFrameManage.updatePosition(selectShape.oldX! + offsetX + this.x, selectShape.oldY! + offsetY + this.y)
+          this._dragFrameManage.initSize(boundingBox.width * zoom, boundingBox.height * zoom)
+          this._dragFrameManage.updatePosition(
+            selectShape.oldX! + offsetX + this._viewPortManage.getPositionX(),
+            selectShape.oldY! + offsetY + this._viewPortManage.getPositionY()
+          )
         }
       }
 
       // 拖拽画布(利用的原理是改变Group的 position 坐标)
       if (drag && !selectShape) { // TODO: 排除没有点击到节点的情况，后续需要继续排除点击到连线等情况
         this.setCursorStyle('grabbing')
-        this.attr('x', oldX + offsetX)
-        this.attr('y', oldY + offsetY)
-        this._gridManage.updateGrid(-this.x, -this.y)
+        this._viewPortManage.setPosition(oldViewPortX + offsetX, oldViewPortY + offsetY)
+        this._gridManage.updateGrid(-this._viewPortManage.getPositionX(), -this._viewPortManage.getPositionY())
       }
     })
 
     this._zr?.on('mouseup', (e) => {
+      const zoom = this._zoomManage.getZoom()
       drag = false
       if (selectShape) {
-        selectShape?.attr('x', selectShape.oldX! + e.offsetX - startX)
-        selectShape?.attr('y', selectShape.oldY! + e.offsetY - startY)
+        selectShape?.attr('x', selectShape.oldX! + e.offsetX * zoom - startX)
+        selectShape?.attr('y', selectShape.oldY! + e.offsetY * zoom - startY)
         this._dragFrameManage.hide()
         // 更新锚点位置
         selectShape.createAnchors()
@@ -142,4 +144,4 @@ class LayerManage extends zrender.Group {
   }
 }
 
-export { LayerManage }
+export { SceneManage }
