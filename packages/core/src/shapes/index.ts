@@ -106,7 +106,8 @@ export const getShape = (type: string, option: { x: number, y: number }) => {
   const config = { ...shapeConfig[type], ...getShapeTextConfig() }
 
   const shape = new shapes[type](config)
-  shape.x = option.x
-  shape.y = option.y
+  shape.attr('x', option.x)
+  shape.attr('y', option.y)
+
   return shape
 }

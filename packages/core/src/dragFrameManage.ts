@@ -4,7 +4,7 @@ import { Disposable } from './disposable'
 import type { IDisposable } from './disposable'
 
 export interface IDragFrameManage extends IDisposable {
-  addSelfToZr(zr: zrender.ZRenderType): void
+  addSelfToViewPort(viewPort: zrender.Group): void
   show(): void
   hide(): void
   updatePosition(x: number, y: number): void
@@ -30,14 +30,15 @@ class DragFrameManage extends Disposable {
         lineWidth: 1,
         lineDash: [4, 4]
       },
-      silent: true
+      silent: true,
+      z: 100000
     })
 
     this._frame.hide()
   }
 
-  addSelfToZr(zr: zrender. ZRenderType) {
-    zr.add(this._frame) 
+  addSelfToViewPort(viewPort: zrender.Group) {
+    viewPort.add(this._frame) 
   }
 
   show() {

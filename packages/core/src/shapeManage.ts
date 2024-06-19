@@ -10,6 +10,7 @@ import { Disposable, IDisposable } from './disposable'
 import type { IShape } from './shapes'
 import type { IAnchorPoint } from './shapes'
 import type { IViewPortManage } from './viewPortManage'
+import type { IZoomManage } from './zoomManage'
 
 export interface IShapeManage extends IDisposable {
   shapes: IShape[]
@@ -21,7 +22,10 @@ export interface IShapeManage extends IDisposable {
 class ShapeManage extends Disposable {
   shapes: IShape[] = []
   // updateAddShape$ = new Subject<IShape>()
-  constructor(@inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPort: IViewPortManage) {
+  constructor(
+    @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPort: IViewPortManage,
+    @inject(IDENTIFIER.ZOOM_MANAGE) private _zoomManage: IZoomManage
+  ) {
     super()
     // this._disposables.push(this.updateAddShape$)
   }
@@ -29,8 +33,9 @@ class ShapeManage extends Disposable {
   createShape(type: string, { x, y }: { x: number, y: number }): IShape {
     const viewPortX = this._viewPort.getPositionX()
     const viewPortY = this._viewPort.getPositionY()
+    const zoom = this._zoomManage.getZoom()
 
-    const shape = getShape(type, { x: x - viewPortX, y: y - viewPortY })
+    const shape = getShape(type, { x: (x  - viewPortX) /zoom, y: (y - viewPortY) / zoom })
 
     const anchor = new Anchor(shape)
     shape.anchor = anchor

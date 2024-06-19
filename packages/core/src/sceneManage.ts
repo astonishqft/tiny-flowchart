@@ -42,7 +42,7 @@ class SceneManage extends Disposable {
   init(zr: zrender.ZRenderType) {
     this._zr = zr
     this._viewPortManage.addSelfToZr(this._zr)
-    this._dragFrameManage.addSelfToZr(this._zr)
+    this._dragFrameManage.addSelfToViewPort(this._viewPortManage.getViewPort())
     this._gridManage.initGrid(this._zr)
     this.initEvent()
   }
@@ -75,8 +75,8 @@ class SceneManage extends Disposable {
     this._zr?.on('mousedown', (e: zrender.ElementEvent) => {
       const zoom = this._zoomManage.getZoom()
       drag = true
-      startX = e.offsetX * zoom
-      startY = e.offsetY * zoom
+      startX = e.offsetX
+      startY = e.offsetY
       oldViewPortX = this._viewPortManage.getPositionX()
       oldViewPortY = this._viewPortManage.getPositionY()
       const target = e.target as IShape || null
@@ -102,20 +102,20 @@ class SceneManage extends Disposable {
 
     this._zr?.on('mousemove', (e) => {
       const zoom = this._zoomManage.getZoom()
-      offsetX = (e.offsetX * zoom - startX)
-      offsetY = (e.offsetY * zoom - startY) 
+      offsetX = e.offsetX - startX
+      offsetY = e.offsetY - startY
       // 拖拽节点
       if (selectShape) {
         // this.setCursorStyle('move')
         selectShape.anchor?.show()
         // 设置一个阈值，避免鼠标发生轻微位移时出现拖动浮层
-        if (Math.abs(offsetX) > 2 * zoom || Math.abs(offsetY) > 2 * zoom) {
+        if (Math.abs(offsetX / zoom) > 2 || Math.abs(offsetY / zoom) > 2) {
           const group = new zrender.Group()
           const boundingBox = group.getBoundingRect([selectShape])
-          this._dragFrameManage.initSize(boundingBox.width * zoom, boundingBox.height * zoom)
+          this._dragFrameManage.initSize(boundingBox.width, boundingBox.height)
           this._dragFrameManage.updatePosition(
-            selectShape.oldX! + offsetX + this._viewPortManage.getPositionX(),
-            selectShape.oldY! + offsetY + this._viewPortManage.getPositionY()
+            selectShape.oldX! + offsetX / zoom,
+            selectShape.oldY! + offsetY / zoom
           )
         }
       }
@@ -132,8 +132,8 @@ class SceneManage extends Disposable {
       const zoom = this._zoomManage.getZoom()
       drag = false
       if (selectShape) {
-        selectShape?.attr('x', selectShape.oldX! + e.offsetX * zoom - startX)
-        selectShape?.attr('y', selectShape.oldY! + e.offsetY * zoom - startY)
+        selectShape?.attr('x', selectShape.oldX! + (e.offsetX - startX) / zoom)
+        selectShape?.attr('y', selectShape.oldY! + (e.offsetY - startY) / zoom)
         this._dragFrameManage.hide()
         // 更新锚点位置
         selectShape.createAnchors()
