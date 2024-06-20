@@ -63,8 +63,8 @@ class ZoomManage extends Disposable {
     const positionY = this._viewPortManage.getPositionY()
 
     this._viewPortManage.setScale(scaleX * zoom, scaleY * zoom)
-    // this._gridManage.updateGrid(-positionX, -positionY)
     this._viewPortManage.setPosition(zoom * positionX + offsetX, zoom * positionY + offsetY)
+    this._gridManage.drawGrid(this.zoom)
   }
 
   getZoom() {

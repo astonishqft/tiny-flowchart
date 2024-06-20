@@ -1,7 +1,7 @@
 
 import { injectable, inject } from 'inversify'
 import * as zrender from 'zrender'
-import { Subject, Observable } from 'rxjs'
+// import { Subject, Observable } from 'rxjs'
 import { getShape } from './shapes'
 import IDENTIFIER from './constants/identifiers'
 import { Anchor } from './anchor'

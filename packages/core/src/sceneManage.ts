@@ -29,8 +29,7 @@ class SceneManage extends Disposable {
     @inject(IDENTIFIER.GRID_MANAGE) private _gridManage: IGridManage,
     @inject(IDENTIFIER.SHAPE_MANAGE) private _shapeManage: IShapeManage,
     @inject(IDENTIFIER.ZOOM_MANAGE) private _zoomManage: IZoomManage
-  )
-  {
+  ) {
     super()
   }
 
@@ -73,7 +72,6 @@ class SceneManage extends Disposable {
     let oldViewPortX = this._viewPortManage.getPositionX()
     let oldViewPortY = this._viewPortManage.getPositionY()
     this._zr?.on('mousedown', (e: zrender.ElementEvent) => {
-      const zoom = this._zoomManage.getZoom()
       drag = true
       startX = e.offsetX
       startY = e.offsetY
@@ -124,7 +122,7 @@ class SceneManage extends Disposable {
       if (drag && !selectShape) { // TODO: 排除没有点击到节点的情况，后续需要继续排除点击到连线等情况
         this.setCursorStyle('grabbing')
         this._viewPortManage.setPosition(oldViewPortX + offsetX, oldViewPortY + offsetY)
-        this._gridManage.updateGrid(-this._viewPortManage.getPositionX(), -this._viewPortManage.getPositionY())
+        this._gridManage.drawGrid(zoom)
       }
     })
 

@@ -11,8 +11,7 @@ export interface IGridManage extends IDisposable {
   x: number
   y: number
   initGrid(zr: zrender.ZRenderType): void
-  drawGrid(): void
-  updateGrid(dx: number, dy: number): void
+  drawGrid(zoom: number): void
 }
 
 @injectable()
@@ -27,7 +26,7 @@ class GridManage extends Disposable {
   points: zrender.Circle [] = []
   constructor(
     @inject(IDENTIFIER.SETTING_MANAGE) private _settingManage: ISettingManage,
-    @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortManage: IViewPortManage,
+    @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortManage: IViewPortManage
   ) {
     super()
     this.gridStep = this._settingManage.get('gridStep')
@@ -39,7 +38,7 @@ class GridManage extends Disposable {
     this.width = zr.getWidth() as number
     this.height = zr.getHeight() as number
 
-    this.drawGrid()
+    this.drawGrid(1)
   }
 
   /**
@@ -52,13 +51,13 @@ class GridManage extends Disposable {
     return value - left <= right - value ? left : right
   }
 
-  drawGrid() {
-    const scaleX = this._viewPortManage.getScaleX()
-    const scaleY = this._viewPortManage.getScaleY()
-    let startX = this.getClosestVal(this.x, this.gridStep)
-    let endX = this.getClosestVal(this.x + this.width / scaleX, this.gridStep)
-    let startY = this.getClosestVal(this.y, this.gridStep)
-    let endY = this.getClosestVal(this.y + this.height / scaleY, this.gridStep)
+  drawGrid(zoom = 1) {
+    const viewPortX = -this._viewPortManage.getPositionX() / zoom
+    const viewPortY = -this._viewPortManage.getPositionY() / zoom
+    let startX = this.getClosestVal(viewPortX, this.gridStep)
+    let endX = this.getClosestVal(viewPortX + this.width / zoom, this.gridStep)
+    let startY = this.getClosestVal(viewPortY, this.gridStep)
+    let endY = this.getClosestVal(viewPortY+ this.height / zoom, this.gridStep)
     this.xPoints = []
     this.yPoints = []
     this.points.forEach(p => {
@@ -81,8 +80,8 @@ class GridManage extends Disposable {
         const point = new zrender.Circle({
           shape: {
             r: 0.5,
-            cx: (this.xPoints[j]-this.x) * scaleX,
-            cy: (this.yPoints[i]-this.y) * scaleY
+            cx: (this.xPoints[j]),
+            cy: (this.yPoints[i])
           },
           style: {
             stroke: '#868e96',
@@ -96,13 +95,6 @@ class GridManage extends Disposable {
         this._viewPortManage.getViewPort().add(point)
       }
     }
-  }
-
-  updateGrid(dx: number, dy: number) {
-
-    this.x = dx
-    this.y = dy
-    this.drawGrid()
   }
 }
 
