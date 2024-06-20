@@ -30,7 +30,7 @@ class Anchor {
       (circle as IAnchorPoint).point = p;
       (circle as IAnchorPoint).mark = 'anch';
       (circle as IAnchorPoint).node = this.shape;
-      (circle as IAnchorPoint).anch = circle
+      (circle as IAnchorPoint).anch = circle as IAnchorPoint
       circle.on('mouseover', () => {
         console.log('anchor mouseover');
         (circle as IAnchorPoint).oldFillColor = circle.style.fill as string
@@ -41,6 +41,7 @@ class Anchor {
         })
         this.show()
       })
+
       circle.on('mouseout', () => {
         circle.attr({
           style: {
@@ -49,6 +50,7 @@ class Anchor {
         })
         this.hide()
       })
+
       circle.on('mousedown', () => {
         circle.attr({
           style: {
@@ -56,23 +58,27 @@ class Anchor {
           }
         })
       })
-            
+
       this.bars.push(circle as IAnchorPoint)
     })
   }
+
   getBarByIndex(index: number){
     return this.bars.filter(bar=>{return bar.point.index === index})[0]
   }
+
   show() {
     this.bars.forEach(b => {
       b.show()
     })
   }
+
   hide() {
     this.bars.forEach(b => {
       b.hide()
     })
   }
+
   refresh() {
     this.bars.forEach(bar => {
       let p = this.shape.getAnchorByIndex(bar.point.index)

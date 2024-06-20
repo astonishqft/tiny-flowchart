@@ -44,7 +44,7 @@ export interface IAnchorPoint extends zrender.Circle {
   node: IShape
   mark: string
   oldFillColor: string
-  anch: zrender.Circle
+  anch: IAnchorPoint
 }
 
 export const shapeConfig: IShapeConfig = {
