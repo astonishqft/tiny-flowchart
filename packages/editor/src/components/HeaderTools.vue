@@ -2,14 +2,15 @@
 import { ref, inject } from 'vue'
 import { ElSelect, ElOption } from 'element-plus'
 import { Container } from 'inversify'
-import { IDENTIFIER } from '@ioceditor/core'
-import type { IZoomManage } from '@ioceditor/core'
+import { IDENTIFIER, ConnectionType } from '@ioceditor/core'
+import type { IZoomManage, IConnectionManage } from '@ioceditor/core'
 import 'element-plus/es/components/select/style/css'
 
 const iocEditor = inject<Container>('iocEditor') as Container
 const zoomMgr = iocEditor.get<IZoomManage>(IDENTIFIER.ZOOM_MANAGE)
+const connectionMgr = iocEditor.get<IConnectionManage>(IDENTIFIER.CONNECTION_MANAGE)
 
-const currentLineType = ref('ortogonalLine')
+const currentLineType = ref(ConnectionType.OrtogonalLine)
 
 const toolsConfig = ref([
   {
@@ -82,20 +83,20 @@ const toolsConfig = ref([
 
 const lineOptions = [
   {
-    value: 'ortogonalLine',
+    value: ConnectionType.OrtogonalLine,
     label: '折线'
   },
   {
-    value: 'line',
+    value: ConnectionType.Line,
     label: '直线'
   },
   {
-    value: 'bezierCurve',
+    value: ConnectionType.BezierCurve,
     label: '曲线'
   }
 ]
 
-const changeLineType = (value: string) => {
+const changeLineType = (value: ConnectionType) => {
   currentLineType.value = value
   command('lineType')
 }
@@ -111,7 +112,8 @@ const command = (name: string) => {
       zoomMgr.zoomOut()
       break
     case 'lineType':
-      // 线类型
+      connectionMgr.setConnectionType(currentLineType.value)
+
       break
     default:
       break

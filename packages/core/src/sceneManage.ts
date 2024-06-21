@@ -2,7 +2,8 @@ import * as zrender from 'zrender'
 import { injectable, inject } from 'inversify'
 import IDENTIFIER from './constants/identifiers'
 import { Disposable } from './disposable'
-import { Connection } from './connection'
+import { ConnectionType } from './connection'
+
 import type { IDisposable } from './disposable'
 import type { IShape, IAnchorPoint } from './shapes'
 import type { IDragFrameManage  } from './dragFrameManage'
@@ -10,6 +11,7 @@ import type { IGridManage } from './gridManage'
 import type { IViewPortManage } from './viewPortManage'
 import type { IShapeManage } from './shapeManage'
 import type { IZoomManage } from './zoomManage'
+import type { IConnectionManage } from './connectionManage'
 import type { IConnection } from './connection'
 
 export interface ISceneManage extends IDisposable {
@@ -30,7 +32,8 @@ class SceneManage extends Disposable {
     @inject(IDENTIFIER.DRAG_FRAME_MANAGE) private _dragFrameManage: IDragFrameManage,
     @inject(IDENTIFIER.GRID_MANAGE) private _gridManage: IGridManage,
     @inject(IDENTIFIER.SHAPE_MANAGE) private _shapeManage: IShapeManage,
-    @inject(IDENTIFIER.ZOOM_MANAGE) private _zoomManage: IZoomManage
+    @inject(IDENTIFIER.ZOOM_MANAGE) private _zoomManage: IZoomManage,
+    @inject(IDENTIFIER.CONNECTION_MANAGE) private _connectionManage: IConnectionManage
   ) {
     super()
   }
@@ -99,7 +102,8 @@ class SceneManage extends Disposable {
       // 选中锚点
       if (e.target && (e.target as IAnchorPoint).mark === 'anch') {
         dragModel = 'anchor'
-        connection = new Connection(e.target as IAnchorPoint)
+        connection = this._connectionManage.createConnection((e.target as IAnchorPoint).node)
+        connection.setFromPoint((e.target as IAnchorPoint).point)
         connection.addSelfToViewPort(this._viewPortManage.getViewPort())
 
         console.log('选中锚点', e.target)
@@ -135,7 +139,8 @@ class SceneManage extends Disposable {
       }
 
       if (dragModel === 'anchor') {
-        connection?.move(e.offsetX, e.offsetY)
+        connection?.move((e.offsetX - oldViewPortX) / zoom, (e.offsetY - oldViewPortY) / zoom)
+        this.setCursorStyle('crosshair')
       }
 
       // 拖拽画布(利用的原理是改变Group的 position 坐标)
@@ -149,21 +154,42 @@ class SceneManage extends Disposable {
     this._zr?.on('mouseup', (e) => {
       const zoom = this._zoomManage.getZoom()
       drag = false
-      if (dragModel === 'shape') {
+      if (dragModel === 'shape' && selectShape) {
         selectShape?.attr('x', selectShape.oldX! + (e.offsetX - startX) / zoom)
         selectShape?.attr('y', selectShape.oldY! + (e.offsetY - startY) / zoom)
         this._dragFrameManage.hide();
         // 更新锚点位置
         (selectShape as IShape).createAnchors();
         (selectShape as IShape).anchor!.refresh()
+
+        // 更新连线
+        const conns = this._connectionManage.getConnectionByShape(selectShape)
+        console.log('需要更新的连线', conns)
+        conns.forEach(conn => {
+          if (conn.fromNode === selectShape) {
+            const fromPoint = selectShape.getAnchorByIndex(conn.fromPoint!.index)
+            conn.setFromPoint(fromPoint)
+            conn.refresh()
+          } else if (conn.toNode === selectShape) {
+            const toPoint = selectShape!.getAnchorByIndex(conn.toPoint!.index)
+            conn.setToPoint(toPoint)
+            conn.refresh()
+          }
+        })
+
         selectShape = null
       }
 
-      if (e.target && (e.target as IAnchorPoint).mark === 'anch') {
+      if (e.target && (e.target as IAnchorPoint).mark === 'anch' && connection && ((e.target as IAnchorPoint).node !== connection.fromNode)) { // 禁止和自身相连
         // 创建连线
-        
+        connection.setToPoint((e.target as IAnchorPoint).point)
+        connection.connect((e.target as IAnchorPoint).node)
+        this._connectionManage.addConnection(connection)
       }
-      connection?.cancel()
+
+      if (connection) {
+        connection.cancel()
+      }
 
       dragModel = 'scene'
     })

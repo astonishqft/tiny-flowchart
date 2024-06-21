@@ -5,7 +5,8 @@ const IDENTIFIER = {
   DRAG_FRAME_MANAGE: Symbol.for('DragFrameManage'),
   GRID_MANAGE: Symbol.for('GridManage'),
   VIEW_PORT_MANAGE: Symbol.for('ViewPortManage'),
-  ZOOM_MANAGE: Symbol.for('ZoomManage')
+  ZOOM_MANAGE: Symbol.for('ZoomManage'),
+  CONNECTION_MANAGE: Symbol.for('ConnectionManage')
 }
 
 export default IDENTIFIER
