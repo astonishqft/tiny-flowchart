@@ -90,12 +90,12 @@ importers:
 
   packages/core:
     dependencies:
+      '@ioceditor/orthogonal-connector':
+        specifier: workspace:^
+        version: link:../orthogonal-connector
       inversify:
         specifier: ^6.0.2
         version: 6.0.2
-      inversify-inject-decorators:
-        specifier: ^3.1.0
-        version: 3.1.0
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
@@ -128,6 +128,12 @@ importers:
       vue:
         specifier: ^3.4.21
         version: 3.4.27(typescript@5.4.2)
+
+  packages/orthogonal-connector:
+    devDependencies:
+      tslib:
+        specifier: ^2.6.2
+        version: 2.6.2
 
 packages:
 
@@ -2785,10 +2791,6 @@ packages:
       hasown: 2.0.2
       side-channel: 1.0.6
     dev: true
-
-  /inversify-inject-decorators@3.1.0:
-    resolution: {integrity: sha512-/seBlVp5bXrLQS3DpKEmlgeZL6C7Tf/QITd+IMQrbBBGuCbxb7k3hRAWu9XSreNpFzLgSboz3sClLSEmGwHphw==, tarball: https://registry.npmmirror.com/inversify-inject-decorators/-/inversify-inject-decorators-3.1.0.tgz}
-    dev: false
 
   /inversify@6.0.2:
     resolution: {integrity: sha512-i9m8j/7YIv4mDuYXUAcrpKPSaju/CIly9AHK5jvCBeoiM/2KEsuCQTTP+rzSWWpLYWRukdXFSl6ZTk2/uumbiA==, tarball: https://registry.npmmirror.com/inversify/-/inversify-6.0.2.tgz}

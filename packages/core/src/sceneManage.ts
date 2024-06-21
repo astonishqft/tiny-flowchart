@@ -2,7 +2,6 @@ import * as zrender from 'zrender'
 import { injectable, inject } from 'inversify'
 import IDENTIFIER from './constants/identifiers'
 import { Disposable } from './disposable'
-import { ConnectionType } from './connection'
 
 import type { IDisposable } from './disposable'
 import type { IShape, IAnchorPoint } from './shapes'
@@ -12,7 +11,7 @@ import type { IViewPortManage } from './viewPortManage'
 import type { IShapeManage } from './shapeManage'
 import type { IZoomManage } from './zoomManage'
 import type { IConnectionManage } from './connectionManage'
-import type { IConnection } from './connection'
+import type { IConnection, IControlPoint } from './connection'
 
 export interface ISceneManage extends IDisposable {
   _zr: zrender.ZRenderType | null
@@ -107,6 +106,10 @@ class SceneManage extends Disposable {
         connection.addSelfToViewPort(this._viewPortManage.getViewPort())
 
         console.log('选中锚点', e.target)
+      }
+
+      if (e.target && (e.target as IControlPoint).mark === 'controlPoint') {
+        dragModel = 'controlPoint'
       }
 
       if (!e.target) {

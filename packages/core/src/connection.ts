@@ -22,12 +22,16 @@ export enum ConnectionType {
   BezierCurve
 }
 
+export type IControlPoint = zrender.Circle & {
+  mark: string
+}
+
 class Connection extends zrender.Group {
   private _tempConnection: zrender.Line
   private _connectionType: ConnectionType = ConnectionType.Line
   private _line: zrender.Line | zrender.BezierCurve | zrender.Polyline | null = null
-  private _controlPoint1: zrender.Circle | null = null
-  private _controlPoint2: zrender.Circle | null = null
+  private _controlPoint1: IControlPoint | null = null
+  private _controlPoint2: IControlPoint | null = null
   private _controlLine1: zrender.Line | null = null
   private _controlLine2: zrender.Line | null = null
   fromNode: IShape
@@ -152,7 +156,8 @@ class Connection extends zrender.Group {
           },
           z: 40,
           draggable: true
-        })
+        }) as IControlPoint
+        this._controlPoint1.mark = 'controlPoint'
 
         this._controlPoint2 = new zrender.Circle({
           style: {
@@ -165,7 +170,8 @@ class Connection extends zrender.Group {
           },
           z: 40,
           draggable: true
-        })
+        }) as IControlPoint
+        this._controlPoint2.mark = 'controlPoint'
 
         this._controlLine1 = new zrender.Line({
           style: {
@@ -207,6 +213,10 @@ class Connection extends zrender.Group {
               y2: y + cy
             }
           })
+          this._line && (this._line as zrender.BezierCurve).setShape({
+            cpx1: x + cx,
+            cpy1: y + cy
+          })
         })
 
         this._controlPoint2.on('drag', (e: zrender.ElementEvent) => {
@@ -217,6 +227,11 @@ class Connection extends zrender.Group {
               x2: x + cx,
               y2: y + cy
             }
+          })
+
+          this._line && (this._line as zrender.BezierCurve).setShape({
+            cpx2: x + cx,
+            cpy2: y + cy
           })
         })
     
@@ -279,16 +294,16 @@ class Connection extends zrender.Group {
           shape: {
             x1: this.fromPoint!.x,
             y1: this.fromPoint!.y,
-            x2: cpx1,
-            y2: cpy1
+            x2: cpx1+this._controlPoint1!.x,
+            y2: cpy1+this._controlPoint1!.y
           }
         })
         this._controlLine2?.attr({
           shape: {
             x1: this.toPoint!.x,
             y1: this.toPoint!.y,
-            x2: cpx2,
-            y2: cpy2
+            x2: cpx2+this._controlPoint2!.x,
+            y2: cpy2+this._controlPoint2!.y
           }
         })
         break

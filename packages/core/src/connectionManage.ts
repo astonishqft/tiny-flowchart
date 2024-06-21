@@ -9,7 +9,6 @@ import type { IShape } from './shapes'
 import { ConnectionType } from './connection'
 
 export interface IConnectionManage extends IDisposable {
-  _connections: IConnection[]
   createConnection(fromNode: IShape): IConnection
   getConnectionByShape(shape: IShape): IConnection[]
   setConnectionType(type: ConnectionType): void
