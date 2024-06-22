@@ -201,12 +201,12 @@ function shortestPath(graph: PointGraph, origin: IPoint, destination: IPoint): I
 }
 
 function extrudeCp(cp: ConnectorPoint, shapeHorizontalMargin: number, shapeVerticalMargin: number): IPoint {
-  const { x, y } = cp
+  const { x, y, boundingBox } = cp
   switch (cp.direction) {
-    case 'top': return makePt(x, y - shapeVerticalMargin)
-    case 'right': return makePt(x + shapeHorizontalMargin, y)
-    case 'bottom': return makePt(x, y + shapeVerticalMargin)
-    case 'left': return makePt(x - shapeHorizontalMargin, y)
+    case 'top': return makePt(x, boundingBox.y - shapeVerticalMargin)
+    case 'right': return makePt(boundingBox.x + boundingBox.width + shapeHorizontalMargin, y)
+    case 'bottom': return makePt(x, boundingBox.y + boundingBox.height + shapeVerticalMargin)
+    case 'left': return makePt(boundingBox.x - shapeHorizontalMargin, y)
     default: return makePt(x, y)
   }
 }
@@ -276,6 +276,7 @@ class OrthogonalConnector {
 
   static connect(opts: IConnectotOpts): IPoint[] {
     const { shapeA, shapeB, globalBounds, globalBoundsMargin = 1 } = opts // globalBoundsMargin 最小设置为1
+
     let { shapeHorizontalMargin = 10, shapeVerticalMargin = 10 } = opts
     const verticals = []
     const horizontals = []
@@ -312,16 +313,16 @@ class OrthogonalConnector {
     for (const anchor of [shapeA, shapeB]) {
       switch (anchor.direction) {
         case 'top':
-          spots.push({ x: anchor.x, y: anchor.y - shapeVerticalMargin })
+          spots.push({ x: anchor.x, y: anchor.boundingBox.y - shapeVerticalMargin })
           break
         case 'bottom':
-          spots.push({ x: anchor.x, y: anchor.y + shapeVerticalMargin })
+          spots.push({ x: anchor.x, y: anchor.boundingBox.y + anchor.boundingBox.height + shapeVerticalMargin })
           break
         case 'left':
-          spots.push({ x: anchor.x - shapeHorizontalMargin, y: anchor.y })
+          spots.push({ x: anchor.boundingBox.x - shapeHorizontalMargin, y: anchor.y })
           break
         case 'right':
-          spots.push({ x: anchor.x + shapeHorizontalMargin, y: anchor.y })
+          spots.push({ x: anchor.boundingBox.x + anchor.boundingBox.width + shapeHorizontalMargin, y: anchor.y })
           break
         default:
           break

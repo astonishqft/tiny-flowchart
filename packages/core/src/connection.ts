@@ -1,5 +1,5 @@
 import * as zrender from 'zrender'
-
+import OrthogonalConnector from '@ioceditor/orthogonal-connector'
 import type { IShape, IAnchor } from './shapes'
 
 export interface IConnection {
@@ -34,12 +34,17 @@ class Connection extends zrender.Group {
   private _controlPoint2: IControlPoint | null = null
   private _controlLine1: zrender.Line | null = null
   private _controlLine2: zrender.Line | null = null
+  private _ortogonalLinePoints: number[][] = []
+  private _sceneWidth
+  private _sceneHeight
   fromNode: IShape
   toNode: IShape | null = null
   fromPoint: IAnchor | null = null
   toPoint: IAnchor | null = null
-  constructor(fromNode: IShape, type: ConnectionType) {
+  constructor(fromNode: IShape, type: ConnectionType, sceneWidth: number, sceneHeight: number) {
     super()
+    this._sceneWidth = sceneWidth
+    this._sceneHeight = sceneHeight
     this._tempConnection = new zrender.Line({
       shape: {
         x1: 0,
@@ -59,6 +64,14 @@ class Connection extends zrender.Group {
     this._connectionType = type
 
     this.add(this._tempConnection)
+  }
+
+  setFromNode(fromNode: IShape) {
+    this.fromNode = fromNode
+  }
+
+  setToNode(toNode: IShape) {
+    this.toNode = toNode
   }
 
   setFromPoint(point: IAnchor) {
@@ -110,6 +123,50 @@ class Connection extends zrender.Group {
     }
 
     return point
+  }
+
+  generateOrtogonalLinePath() {
+    const fromNodeBoundingBox = this.fromNode.getBoundingRect()
+    const fromNodeX = this.fromNode.x
+    const fromNodeY = this.fromNode.y
+    const toNodeBoundingBox = this.toNode!.getBoundingRect()
+    const toNodeX = this.toNode!.x
+    const toNodeY = this.toNode!.y
+
+    const paths = OrthogonalConnector.connect({
+      shapeA: {
+        x: this.fromPoint!.x,
+        y: this.fromPoint!.y,
+        direction: this.fromPoint!.direct,
+        boundingBox: {
+          x: fromNodeX + fromNodeBoundingBox.x,
+          y: fromNodeBoundingBox.y + fromNodeY,
+          width: fromNodeBoundingBox.width,
+          height: fromNodeBoundingBox.height
+        }
+      },
+      shapeB: {
+        x: this.toPoint!.x,
+        y: this.toPoint!.y,
+        direction: this.toPoint!.direct,
+        boundingBox: {
+          x: toNodeX + toNodeBoundingBox.x,
+          y: toNodeBoundingBox.y + toNodeY,
+          width: toNodeBoundingBox.width,
+          height: toNodeBoundingBox.height
+        }
+      },
+      shapeHorizontalMargin: 10,
+      shapeVerticalMargin: 10,
+      globalBoundsMargin: 10,
+      globalBounds: { x: 0, y: 0, width: this._sceneWidth, height: this._sceneHeight }
+    })
+
+    this._ortogonalLinePoints = []
+
+    paths.forEach((p: { x: number, y: number }) => {
+      this._ortogonalLinePoints.push([p.x, p.y])
+    })
   }
 
   createConnection() {
@@ -237,11 +294,12 @@ class Connection extends zrender.Group {
     
         break
       case ConnectionType.OrtogonalLine:
-        // this._connectionType = new zrender.Polyline({
-        //   shape: {
-            
-        //   }
-        // })
+        this.generateOrtogonalLinePath()
+        this._line = new zrender.Polyline({
+          shape: {
+            points: this._ortogonalLinePoints
+          }
+        })
         break
       default:
         break
@@ -265,19 +323,8 @@ class Connection extends zrender.Group {
         break
       case ConnectionType.BezierCurve:
         const [cpx1, cpy1] = this.calcControlPoint(this.fromPoint!)
-        const [cpx2, cpy2] = this.calcControlPoint(this.toPoint!);
-        (this._line as zrender.BezierCurve).attr({
-          shape: {
-            x1: this.fromPoint!.x,
-            y1: this.fromPoint!.y,
-            x2: this.toPoint!.x,
-            y2: this.toPoint!.y,
-            cpx1,
-            cpy1,
-            cpx2,
-            cpy2
-          }
-        })
+        const [cpx2, cpy2] = this.calcControlPoint(this.toPoint!)
+
         this._controlPoint1!.attr({
           shape: {
             cx: cpx1,
@@ -304,6 +351,26 @@ class Connection extends zrender.Group {
             y1: this.toPoint!.y,
             x2: cpx2+this._controlPoint2!.x,
             y2: cpy2+this._controlPoint2!.y
+          }
+        });
+        (this._line as zrender.BezierCurve).attr({
+          shape: {
+            x1: this.fromPoint!.x,
+            y1: this.fromPoint!.y,
+            x2: this.toPoint!.x,
+            y2: this.toPoint!.y,
+            cpx1: cpx1 + this._controlPoint1!.x,
+            cpy1: cpy1 + this._controlPoint1!.y,
+            cpx2: cpx2 + this._controlPoint2!.x,
+            cpy2: cpy2 + this._controlPoint2!.y
+          }
+        })
+        break
+      case ConnectionType.OrtogonalLine:
+        this.generateOrtogonalLinePath();
+        (this._line as zrender.Polyline).attr({
+          shape: {
+            points: this._ortogonalLinePoints
           }
         })
         break

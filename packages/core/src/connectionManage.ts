@@ -1,12 +1,13 @@
-import { injectable } from 'inversify'
+import { injectable, inject } from 'inversify'
 import { Subject, Observable } from 'rxjs'
 import { Disposable } from './disposable'
 import { Connection } from './connection'
-
+import { ConnectionType } from './connection'
+import IDENTIFIER from './constants/identifiers'
 import type { IDisposable } from './disposable'
 import type { IConnection } from './connection'
 import type { IShape } from './shapes'
-import { ConnectionType } from './connection'
+import type { IViewPortManage } from './viewPortManage'
 
 export interface IConnectionManage extends IDisposable {
   createConnection(fromNode: IShape): IConnection
@@ -19,20 +20,23 @@ export interface IConnectionManage extends IDisposable {
 @injectable()
 class ConnectionManage extends Disposable {
   private _connections: IConnection[] = []
-  private _connectionType: ConnectionType = ConnectionType.Line
+  private _connectionType: ConnectionType = ConnectionType.OrtogonalLine
   updateConnectionType$ = new Subject<ConnectionType>()
-  constructor() {
+  constructor(@inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortManage: IViewPortManage,) {
     super()
     this._disposables.push(this.updateConnectionType$)
   }
 
   setConnectionType(type: ConnectionType): void {
     this._connectionType = type
+
     console.log('切换连线类型', this._connectionType)
   }
 
   createConnection(fromNode: IShape): IConnection {
-    const conn: IConnection = new Connection(fromNode, this._connectionType)
+    const sceneWidth = this._viewPortManage.getSceneWidth()
+    const sceneHeight = this._viewPortManage.getSceneHeight()
+    const conn: IConnection = new Connection(fromNode, this._connectionType, sceneWidth, sceneHeight)
 
     return conn
   }
@@ -60,6 +64,10 @@ class ConnectionManage extends Disposable {
 
   getConnections() {
     return this._connections
+  }
+
+  getConnectionType(): ConnectionType {
+    return this._connectionType
   }
 }
 
