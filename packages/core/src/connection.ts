@@ -37,6 +37,7 @@ class Connection extends zrender.Group {
   private _ortogonalLinePoints: number[][] = []
   private _sceneWidth
   private _sceneHeight
+  private _arrow: zrender.Polygon | null = null
   fromNode: IShape
   toNode: IShape | null = null
   fromPoint: IAnchor | null = null
@@ -170,15 +171,17 @@ class Connection extends zrender.Group {
   }
 
   createConnection() {
+    this._arrow = new zrender.Polygon({
+      style: {
+        fill: '#000'
+      },
+      z: 40
+    })
+
+    this.add(this._arrow)
     switch(this._connectionType) {
       case ConnectionType.Line:
         this._line = new zrender.Line({
-          shape: {
-            x1: this.fromPoint!.x,
-            y1: this.fromPoint!.y,
-            x2: this.toPoint!.x,
-            y2: this.toPoint!.y
-          },
           style: {
             lineWidth: 1,
             stroke: '#333'
@@ -186,19 +189,10 @@ class Connection extends zrender.Group {
         })
         break
       case ConnectionType.BezierCurve:
-        const [cpx1, cpy1] = this.calcControlPoint(this.fromPoint!)
-        const [cpx2, cpy2] = this.calcControlPoint(this.toPoint!)
-
         this._line = new zrender.BezierCurve({
-          shape: {
-            x1: this.fromPoint!.x,
-            y1: this.fromPoint!.y,
-            x2: this.toPoint!.x,
-            y2: this.toPoint!.y,
-            cpx1,
-            cpy1,
-            cpx2,
-            cpy2
+          style: {
+            lineWidth: 1,
+            stroke: '#333'
           }
         })
 
@@ -207,9 +201,7 @@ class Connection extends zrender.Group {
             fill: 'red'
           },
           shape: {
-            r: 4,
-            cx: cpx1,
-            cy: cpy1
+            r: 4
           },
           z: 40,
           draggable: true
@@ -221,9 +213,7 @@ class Connection extends zrender.Group {
             fill: 'red'
           },
           shape: {
-            r: 4,
-            cx: cpx2,
-            cy: cpy2
+            r: 4
           },
           z: 40,
           draggable: true
@@ -234,24 +224,12 @@ class Connection extends zrender.Group {
           style: {
             stroke: '#ccc'
           },
-          shape: {
-            x1: this.fromPoint!.x,
-            y1: this.fromPoint!.y,
-            x2: cpx1,
-            y2: cpy1
-          },
           z: 39
         })
 
         this._controlLine2 = new zrender.Line({
           style: {
             stroke: '#ccc'
-          },
-          shape: {
-            x1: this.toPoint!.x,
-            y1: this.toPoint!.y,
-            x2: cpx2,
-            y2: cpy2
           },
           z: 39
         })
@@ -290,14 +268,16 @@ class Connection extends zrender.Group {
             cpx2: x + cx,
             cpy2: y + cy
           })
+
+          this.renderArrow([x + cx, y + cy])
         })
     
         break
       case ConnectionType.OrtogonalLine:
-        this.generateOrtogonalLinePath()
         this._line = new zrender.Polyline({
-          shape: {
-            points: this._ortogonalLinePoints
+          style: {
+            lineWidth: 1,
+            stroke: '#333'
           }
         })
         break
@@ -307,6 +287,8 @@ class Connection extends zrender.Group {
     if (this._line) {
       this.add(this._line!)
     }
+
+    this.refresh()
   }
 
   refresh() {
@@ -320,6 +302,8 @@ class Connection extends zrender.Group {
             y2: this.toPoint!.y
           }
         })
+
+        this.renderArrow([this.fromPoint!.x, this.fromPoint!.y])
         break
       case ConnectionType.BezierCurve:
         const [cpx1, cpy1] = this.calcControlPoint(this.fromPoint!)
@@ -365,6 +349,8 @@ class Connection extends zrender.Group {
             cpy2: cpy2 + this._controlPoint2!.y
           }
         })
+
+        this.renderArrow([cpx2 + this._controlPoint2!.x, cpy2 + this._controlPoint2!.y])
         break
       case ConnectionType.OrtogonalLine:
         this.generateOrtogonalLinePath();
@@ -373,10 +359,33 @@ class Connection extends zrender.Group {
             points: this._ortogonalLinePoints
           }
         })
+
+        this.renderArrow(this._ortogonalLinePoints[this._ortogonalLinePoints.length - 2])
         break
       default:
         break
     }
+  }
+
+  // 绘制连接线箭头
+  renderArrow(preNode: number[]) {
+    if (!preNode) return
+    const arrowLength = 10
+    const offsetAngle = Math.PI / 8
+    const [x1 , y1] = preNode
+  
+    const { x: x2, y: y2 } = this.toPoint!
+    const p1 = [x2, y2]
+  
+    const angle = Math.atan2(y2 - y1, x2 - x1)
+    const p2 = [x2 - arrowLength * Math.cos(angle + offsetAngle), y2 - arrowLength * Math.sin(angle + offsetAngle)]
+    const p3 = [x2 - arrowLength * Math.cos(angle - offsetAngle), y2 - arrowLength * Math.sin(angle - offsetAngle)]
+  
+    this._arrow!.attr({
+      shape: {
+        points: [p1, p2, p3]
+      }
+    })
   }
 
   connect(node: IShape) {

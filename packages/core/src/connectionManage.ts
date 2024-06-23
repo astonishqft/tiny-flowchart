@@ -29,8 +29,6 @@ class ConnectionManage extends Disposable {
 
   setConnectionType(type: ConnectionType): void {
     this._connectionType = type
-
-    console.log('切换连线类型', this._connectionType)
   }
 
   createConnection(fromNode: IShape): IConnection {
