@@ -15,6 +15,7 @@ export interface IConnectionManage extends IDisposable {
   setConnectionType(type: ConnectionType): void
   updateConnectionType$: Observable<ConnectionType>
   addConnection(connection: IConnection): void
+  clear(): void
 }
 
 @injectable()
@@ -62,6 +63,13 @@ class ConnectionManage extends Disposable {
 
   getConnections() {
     return this._connections
+  }
+
+  clear() {
+    this._connections.forEach((c: IConnection) => {
+      this._viewPortManage.getViewPort().remove(c)
+    })
+    this._connections = []
   }
 
   getConnectionType(): ConnectionType {

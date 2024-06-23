@@ -2,7 +2,7 @@ import * as zrender from 'zrender'
 import OrthogonalConnector from '@ioceditor/orthogonal-connector'
 import type { IShape, IAnchor } from './shapes'
 
-export interface IConnection {
+export interface IConnection extends zrender.Group {
   fromNode: IShape
   toNode: IShape | null
   fromPoint: IAnchor | null

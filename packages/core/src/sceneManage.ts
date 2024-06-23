@@ -17,6 +17,7 @@ export interface ISceneManage extends IDisposable {
   _zr: zrender.ZRenderType | null
   init(zr: zrender.ZRenderType): void
   addShape(type: string, options: { x: number, y: number }): void
+  clear(): void
 }
 
 export type IMouseEvent = zrender.Element & { nodeType?: string }
@@ -24,8 +25,6 @@ export type IMouseEvent = zrender.Element & { nodeType?: string }
 @injectable()
 class SceneManage extends Disposable {
   _zr: zrender.ZRenderType | null = null
-  shapes: IShape[] = []
-  connections: IConnection[] = []
   constructor(
     @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortManage: IViewPortManage,
     @inject(IDENTIFIER.DRAG_FRAME_MANAGE) private _dragFrameManage: IDragFrameManage,
@@ -38,8 +37,12 @@ class SceneManage extends Disposable {
   }
 
   addShape(type: string, options: { x: number, y: number }) {
-    const shape = this._shapeManage.createShape(type, options)
-    this.shapes.push(shape)
+    this._shapeManage.createShape(type, options)
+  }
+
+  clear() {
+    this._connectionManage.clear()
+    this._shapeManage.clear()
   }
 
   init(zr: zrender.ZRenderType) {
@@ -50,14 +53,18 @@ class SceneManage extends Disposable {
     this.initEvent()
   }
 
+  getShapes(): IShape[] {
+    return this._shapeManage.getShapes()
+  }
+
   unActiveShapes() {
-    this.shapes.forEach((shape: IShape) => {
+    this.getShapes().forEach((shape: IShape) => {
       shape.unActive()
     })
   }
 
   getActiveShapes() {
-    return this.shapes.filter((shape: IShape) => {
+    return this.getShapes().filter((shape: IShape) => {
       return shape.selected
     })
   }

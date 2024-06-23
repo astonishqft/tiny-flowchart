@@ -3,12 +3,13 @@ import { ref, inject } from 'vue'
 import { ElSelect, ElOption } from 'element-plus'
 import { Container } from 'inversify'
 import { IDENTIFIER, ConnectionType } from '@ioceditor/core'
-import type { IZoomManage, IConnectionManage } from '@ioceditor/core'
+import type { IZoomManage, IConnectionManage, ISceneManage } from '@ioceditor/core'
 import 'element-plus/es/components/select/style/css'
 
 const iocEditor = inject<Container>('iocEditor') as Container
 const zoomMgr = iocEditor.get<IZoomManage>(IDENTIFIER.ZOOM_MANAGE)
 const connectionMgr = iocEditor.get<IConnectionManage>(IDENTIFIER.CONNECTION_MANAGE)
+const sceneManage = iocEditor.get<ISceneManage>(IDENTIFIER.SCENE_MANAGE)
 
 const currentLineType = ref(ConnectionType.OrtogonalLine)
 
@@ -59,7 +60,7 @@ const toolsConfig = ref([
     name: 'clear',
     icon: 'icon-clear',
     desc: '清除画布',
-    disabled: true
+    disabled: false
   },
   {
     name: 'group',
@@ -113,7 +114,9 @@ const command = (name: string) => {
       break
     case 'lineType':
       connectionMgr.setConnectionType(currentLineType.value)
-
+      break
+    case 'clear':
+      sceneManage.clear()
       break
     default:
       break

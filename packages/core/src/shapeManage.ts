@@ -13,14 +13,15 @@ import type { IViewPortManage } from './viewPortManage'
 import type { IZoomManage } from './zoomManage'
 
 export interface IShapeManage extends IDisposable {
-  shapes: IShape[]
   // updateAddShape$: Observable<IShape>
   createShape(type: string, options: { x: number, y: number }): IShape
+  clear(): void
+  getShapes(): IShape[]
 }
 
 @injectable()
 class ShapeManage extends Disposable {
-  shapes: IShape[] = []
+  _shapes: IShape[] = []
   // updateAddShape$ = new Subject<IShape>()
   constructor(
     @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPort: IViewPortManage,
@@ -50,7 +51,22 @@ class ShapeManage extends Disposable {
     this.initShapeEvent(shape)
     this._viewPort.addShapeToViewPort(shape)
 
+    this._shapes.push(shape)
     return shape
+  }
+
+  clear() {
+    this._shapes.forEach((shape: IShape) => {
+      this._viewPort.getViewPort().remove(shape)
+      shape.anchor?.bars.forEach((bar: IAnchorPoint) => {
+        this._viewPort.getViewPort().remove(bar)
+      })
+    })
+    this._shapes = []
+  }
+
+  getShapes(): IShape[] {
+    return this._shapes
   }
 
   initShapeEvent(shape: IShape) {
