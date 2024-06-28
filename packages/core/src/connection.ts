@@ -271,7 +271,7 @@ class Connection extends zrender.Group {
 
           this.renderArrow([x + cx, y + cy])
         })
-    
+
         break
       case ConnectionType.OrtogonalLine:
         this._line = new zrender.Polyline({

@@ -9,6 +9,7 @@ export interface IDragFrameManage extends IDisposable {
   hide(): void
   updatePosition(x: number, y: number): void
   initSize(width: number, height: number): void
+  getFrame(): zrender.Rect
 }
 
 @injectable()
@@ -27,7 +28,7 @@ class DragFrameManage extends Disposable {
         fill: '#1971c2',
         stroke: '#1971c2',
         opacity: 0.3,
-        lineWidth: 1,
+        lineWidth: 0,
         lineDash: [4, 4]
       },
       silent: true,
@@ -60,6 +61,10 @@ class DragFrameManage extends Disposable {
   updatePosition(x: number, y: number) {
     this._frame.attr('x', x)
     this._frame.attr('y', y)
+  }
+
+  getFrame() {
+    return this._frame
   }
 }
 

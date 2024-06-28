@@ -6,7 +6,8 @@ const IDENTIFIER = {
   GRID_MANAGE: Symbol.for('GridManage'),
   VIEW_PORT_MANAGE: Symbol.for('ViewPortManage'),
   ZOOM_MANAGE: Symbol.for('ZoomManage'),
-  CONNECTION_MANAGE: Symbol.for('ConnectionManage')
+  CONNECTION_MANAGE: Symbol.for('ConnectionManage'),
+  REF_LINE_MANAGE: Symbol.for('RefLineManage')
 }
 
 export default IDENTIFIER

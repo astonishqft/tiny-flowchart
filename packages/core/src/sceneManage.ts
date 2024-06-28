@@ -12,6 +12,7 @@ import type { IShapeManage } from './shapeManage'
 import type { IZoomManage } from './zoomManage'
 import type { IConnectionManage } from './connectionManage'
 import type { IConnection, IControlPoint } from './connection'
+import type { IRefLineManage } from './refLineManage'
 
 export interface ISceneManage extends IDisposable {
   _zr: zrender.ZRenderType | null
@@ -31,7 +32,8 @@ class SceneManage extends Disposable {
     @inject(IDENTIFIER.GRID_MANAGE) private _gridManage: IGridManage,
     @inject(IDENTIFIER.SHAPE_MANAGE) private _shapeManage: IShapeManage,
     @inject(IDENTIFIER.ZOOM_MANAGE) private _zoomManage: IZoomManage,
-    @inject(IDENTIFIER.CONNECTION_MANAGE) private _connectionManage: IConnectionManage
+    @inject(IDENTIFIER.CONNECTION_MANAGE) private _connectionManage: IConnectionManage,
+    @inject(IDENTIFIER.REF_LINE_MANAGE) private _refLineManage: IRefLineManage,
   ) {
     super()
   }
@@ -84,6 +86,8 @@ class SceneManage extends Disposable {
     let oldViewPortY = this._viewPortManage.getPositionY()
     let dragModel = 'canvas'
     let connection: IConnection | null = null
+    let magneticOffsetX = 0
+    let magneticOffsetY = 0
     this._zr?.on('mousedown', (e: zrender.ElementEvent) => {
       drag = true
       startX = e.offsetX
@@ -103,6 +107,9 @@ class SceneManage extends Disposable {
         (selectShape as IShape).oldX = selectShape.x;
         (selectShape as IShape).oldY = selectShape.y
         dragModel = 'shape'
+
+        // 创建参考线
+        this._refLineManage.cacheRefLines()
       }
 
       // 选中锚点
@@ -145,6 +152,10 @@ class SceneManage extends Disposable {
             (selectShape as IShape).oldX! + offsetX / zoom,
             (selectShape as IShape).oldY! + offsetY / zoom
           )
+          // 拖拽浮层的时候同时更新对其参考线
+          const magneticOffset = this._refLineManage.updateRefLines()
+          magneticOffsetX = magneticOffset.magneticOffsetX
+          magneticOffsetY = magneticOffset.magneticOffsetY
         }
       }
 
@@ -165,8 +176,8 @@ class SceneManage extends Disposable {
       const zoom = this._zoomManage.getZoom()
       drag = false
       if (dragModel === 'shape' && selectShape) {
-        selectShape?.attr('x', selectShape.oldX! + (e.offsetX - startX) / zoom)
-        selectShape?.attr('y', selectShape.oldY! + (e.offsetY - startY) / zoom)
+        selectShape?.attr('x', selectShape.oldX! + (e.offsetX - startX) / zoom + magneticOffsetX / zoom)
+        selectShape?.attr('y', selectShape.oldY! + (e.offsetY - startY) / zoom + magneticOffsetY / zoom)
         this._dragFrameManage.hide();
         // 更新锚点位置
         (selectShape as IShape).createAnchors();
@@ -174,7 +185,7 @@ class SceneManage extends Disposable {
 
         // 更新连线
         const conns = this._connectionManage.getConnectionByShape(selectShape)
-        console.log('需要更新的连线', conns)
+  
         conns.forEach(conn => {
           if (conn.fromNode === selectShape) {
             const fromPoint = selectShape.getAnchorByIndex(conn.fromPoint!.index)
@@ -187,6 +198,7 @@ class SceneManage extends Disposable {
           }
         })
 
+        this._refLineManage.clearRefPointAndRefs()
         selectShape = null
       }
 
