@@ -110,10 +110,7 @@ class SceneManage extends Disposable {
       }
 
       if (selectShape) {
-        // (selectShape as IShape).oldX = selectShape.x;
-        // (selectShape as IShape).oldY = selectShape.y
         dragModel = 'shape'
-
         if (this._shapeManage.isInActiveShape(selectShape as IShape)) {
           targetShapes = [...this._shapeManage.getActiveShapes()]
         } else {
