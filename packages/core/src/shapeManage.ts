@@ -16,7 +16,12 @@ export interface IShapeManage extends IDisposable {
   // updateAddShape$: Observable<IShape>
   createShape(type: string, options: { x: number, y: number }): IShape
   clear(): void
+  unActive(): void
   getShapes(): IShape[]
+  getActiveShapes(): IShape[]
+  isInActiveShape(shape: IShape): boolean
+  getShapesBoundingBox(shapes: IShape[]): zrender.BoundingRect
+  getMinPosition(shapes: IShape[]): number[]
 }
 
 @injectable()
@@ -82,6 +87,47 @@ class ShapeManage extends Disposable {
     shape.on('mouseout', () => {
       shape.anchor?.hide()
     })
+  }
+  
+  unActive() {
+    this._shapes.forEach((shape: IShape) => {
+      shape.unActive()
+    })
+  }
+
+  getActiveShapes(): IShape[] {
+    return this._shapes.filter((shape: IShape) => {
+      return shape.selected
+    })
+  }
+
+  isInActiveShape(shape: IShape) {
+    for(const sh of this.getActiveShapes()) {
+      if (sh === shape) {
+        return true
+      }
+    }
+    return false
+  }
+
+  getShapesBoundingBox(shapes: IShape[]): zrender.BoundingRect {
+    const g = new zrender.Group()
+    return g.getBoundingRect(shapes)
+  }
+
+  getMinPosition(shapes: IShape[]): number[] {
+    let minX = Infinity
+    let minY = Infinity
+    shapes.forEach(shape => {
+      if (shape.oldX! < minX) {
+        minX = shape.oldX!
+      }
+      if (shape.oldY! < minY) {
+        minY = shape.oldY!
+      }
+    })
+
+    return [minX, minY]
   }
 }
 

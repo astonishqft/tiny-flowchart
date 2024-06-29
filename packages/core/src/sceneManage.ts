@@ -13,6 +13,7 @@ import type { IZoomManage } from './zoomManage'
 import type { IConnectionManage } from './connectionManage'
 import type { IConnection, IControlPoint } from './connection'
 import type { IRefLineManage } from './refLineManage'
+import type { ISelectFrameManage } from './selectFrameManage'
 
 export interface ISceneManage extends IDisposable {
   _zr: zrender.ZRenderType | null
@@ -34,6 +35,7 @@ class SceneManage extends Disposable {
     @inject(IDENTIFIER.ZOOM_MANAGE) private _zoomManage: IZoomManage,
     @inject(IDENTIFIER.CONNECTION_MANAGE) private _connectionManage: IConnectionManage,
     @inject(IDENTIFIER.REF_LINE_MANAGE) private _refLineManage: IRefLineManage,
+    @inject(IDENTIFIER.SELECT_FRAME_MANAGE) private _selectFrameManage: ISelectFrameManage
   ) {
     super()
   }
@@ -50,19 +52,11 @@ class SceneManage extends Disposable {
   init(zr: zrender.ZRenderType) {
     this._zr = zr
     this._viewPortManage.addSelfToZr(this._zr)
-    this._dragFrameManage.addSelfToViewPort(this._viewPortManage.getViewPort())
-    this._gridManage.initGrid(this._zr)
     this.initEvent()
   }
 
   getShapes(): IShape[] {
     return this._shapeManage.getShapes()
-  }
-
-  unActiveShapes() {
-    this.getShapes().forEach((shape: IShape) => {
-      shape.unActive()
-    })
   }
 
   getActiveShapes() {
@@ -88,12 +82,24 @@ class SceneManage extends Disposable {
     let connection: IConnection | null = null
     let magneticOffsetX = 0
     let magneticOffsetY = 0
+    let selectFrameStatus = false
+    let zoom = 1
+    let targetShapes: IShape[] = [] // 当前选中的节点，拖拽移动的节点，需要考虑单独移动一个节点和框选中多个节点进行批量移动
+
     this._zr?.on('mousedown', (e: zrender.ElementEvent) => {
       drag = true
       startX = e.offsetX
       startY = e.offsetY
       oldViewPortX = this._viewPortManage.getPositionX()
       oldViewPortY = this._viewPortManage.getPositionY()
+      zoom = this._zoomManage.getZoom()
+      selectFrameStatus = this._selectFrameManage.getSelectFrameStatus() // 是否是选中框
+
+      if (selectFrameStatus) {
+        this._selectFrameManage.setPosition((startX - oldViewPortX) / zoom, (startY - oldViewPortY) / zoom)
+        this._selectFrameManage.resize(0, 0)
+        this._selectFrameManage.show()
+      }
 
       if (e.target && (e.target as IShape).nodeType === 'node') {
         // 当选中的是 shape 节点
@@ -104,10 +110,21 @@ class SceneManage extends Disposable {
       }
 
       if (selectShape) {
-        (selectShape as IShape).oldX = selectShape.x;
-        (selectShape as IShape).oldY = selectShape.y
+        // (selectShape as IShape).oldX = selectShape.x;
+        // (selectShape as IShape).oldY = selectShape.y
         dragModel = 'shape'
 
+        if (this._shapeManage.isInActiveShape(selectShape as IShape)) {
+          targetShapes = [...this._shapeManage.getActiveShapes()]
+        } else {
+          targetShapes = [selectShape as IShape]
+        }
+
+        targetShapes.forEach((shape: IShape) => {
+          shape.oldX = shape.x
+          shape.oldY = shape.y
+        })
+    
         // 创建参考线
         this._refLineManage.cacheRefLines()
       }
@@ -118,8 +135,6 @@ class SceneManage extends Disposable {
         connection = this._connectionManage.createConnection((e.target as IAnchorPoint).node)
         connection.setFromPoint((e.target as IAnchorPoint).point)
         connection.addSelfToViewPort(this._viewPortManage.getViewPort())
-
-        console.log('选中锚点', e.target)
       }
 
       if (e.target && (e.target as IControlPoint).mark === 'controlPoint') {
@@ -128,7 +143,7 @@ class SceneManage extends Disposable {
 
       if (!e.target) {
         // 如果什么都没选中的话
-        this.unActiveShapes()
+        this._shapeManage.unActive()
         dragModel = 'scene'
       }
 
@@ -136,7 +151,6 @@ class SceneManage extends Disposable {
     })
 
     this._zr?.on('mousemove', (e) => {
-      const zoom = this._zoomManage.getZoom()
       offsetX = e.offsetX - startX
       offsetY = e.offsetY - startY
       // 拖拽节点
@@ -145,12 +159,12 @@ class SceneManage extends Disposable {
         (selectShape as IShape).anchor?.show()
         // 设置一个阈值，避免鼠标发生轻微位移时出现拖动浮层
         if (Math.abs(offsetX / zoom) > 2 || Math.abs(offsetY / zoom) > 2) {
-          const group = new zrender.Group()
-          const boundingBox = group.getBoundingRect([selectShape as IShape])
+
+          const boundingBox = this._shapeManage.getShapesBoundingBox(targetShapes)
           this._dragFrameManage.initSize(boundingBox.width, boundingBox.height)
           this._dragFrameManage.updatePosition(
-            (selectShape as IShape).oldX! + offsetX / zoom,
-            (selectShape as IShape).oldY! + offsetY / zoom
+            this._shapeManage.getMinPosition(targetShapes)[0] + offsetX / zoom,
+            this._shapeManage.getMinPosition(targetShapes)[1] + offsetY / zoom
           )
           // 拖拽浮层的时候同时更新对其参考线
           const magneticOffset = this._refLineManage.updateRefLines()
@@ -165,10 +179,15 @@ class SceneManage extends Disposable {
       }
 
       // 拖拽画布(利用的原理是改变Group的 position 坐标)
-      if (drag && dragModel === 'scene') { // TODO: 排除没有点击到节点的情况，后续需要继续排除点击到连线等情况
+      if (drag && dragModel === 'scene' && !selectFrameStatus) { // TODO: 排除没有点击到节点的情况，后续需要继续排除点击到连线等情况
         this.setCursorStyle('grabbing')
         this._viewPortManage.setPosition(oldViewPortX + offsetX, oldViewPortY + offsetY)
         this._gridManage.drawGrid(zoom)
+      }
+
+      if (selectFrameStatus) {
+        // 框选
+        this._selectFrameManage.resize(offsetX / zoom, offsetY / zoom)
       }
     })
 
@@ -176,29 +195,33 @@ class SceneManage extends Disposable {
       const zoom = this._zoomManage.getZoom()
       drag = false
       if (dragModel === 'shape' && selectShape) {
-        selectShape?.attr('x', selectShape.oldX! + (e.offsetX - startX) / zoom + magneticOffsetX / zoom)
-        selectShape?.attr('y', selectShape.oldY! + (e.offsetY - startY) / zoom + magneticOffsetY / zoom)
-        this._dragFrameManage.hide();
-        // 更新锚点位置
-        (selectShape as IShape).createAnchors();
-        (selectShape as IShape).anchor!.refresh()
-
-        // 更新连线
-        const conns = this._connectionManage.getConnectionByShape(selectShape)
+        targetShapes.forEach(s => {
+          s?.attr('x', s.oldX! + (e.offsetX - startX) / zoom + magneticOffsetX / zoom)
+          s?.attr('y', s.oldY! + (e.offsetY - startY) / zoom + magneticOffsetY / zoom);
+          // 更新锚点位置
+          (s as IShape).createAnchors();
+          (s as IShape).anchor!.refresh()
   
-        conns.forEach(conn => {
-          if (conn.fromNode === selectShape) {
-            const fromPoint = selectShape.getAnchorByIndex(conn.fromPoint!.index)
-            conn.setFromPoint(fromPoint)
-            conn.refresh()
-          } else if (conn.toNode === selectShape) {
-            const toPoint = selectShape!.getAnchorByIndex(conn.toPoint!.index)
-            conn.setToPoint(toPoint)
-            conn.refresh()
-          }
+          // 更新连线
+          const conns = this._connectionManage.getConnectionByShape(s)
+    
+          conns.forEach(conn => {
+            if (conn.fromNode === s) {
+              const fromPoint = s.getAnchorByIndex(conn.fromPoint!.index)
+              conn.setFromPoint(fromPoint)
+              conn.refresh()
+            } else if (conn.toNode === s) {
+              const toPoint = s!.getAnchorByIndex(conn.toPoint!.index)
+              conn.setToPoint(toPoint)
+              conn.refresh()
+            }
+          })
         })
 
         this._refLineManage.clearRefPointAndRefs()
+        magneticOffsetX = 0
+        magneticOffsetY = 0
+        this._dragFrameManage.hide()
         selectShape = null
       }
 
@@ -213,6 +236,13 @@ class SceneManage extends Disposable {
         connection.cancel()
       }
 
+      if (selectFrameStatus) {
+        this._selectFrameManage.multiSelect()
+        this._selectFrameManage.setSelectFrameStatus(false)
+        this._selectFrameManage.hide()
+      }
+
+      targetShapes = []
       dragModel = 'scene'
     })
   }

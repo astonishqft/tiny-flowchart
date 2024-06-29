@@ -1,7 +1,9 @@
 import * as zrender from 'zrender'
-import { injectable } from 'inversify'
+import { injectable, inject } from 'inversify'
 import { Disposable } from './disposable'
+import IDENTIFIER from './constants/identifiers'
 import type { IDisposable } from './disposable'
+import type { IViewPortManage } from './viewPortManage'
 
 export interface IDragFrameManage extends IDisposable {
   addSelfToViewPort(viewPort: zrender.Group): void
@@ -15,7 +17,9 @@ export interface IDragFrameManage extends IDisposable {
 @injectable()
 class DragFrameManage extends Disposable {
   private _frame: zrender.Rect
-  constructor() {
+  constructor(
+    @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortManage: IViewPortManage
+  ) {
     super()
     this._frame = new zrender.Rect({
       shape: {
@@ -34,6 +38,8 @@ class DragFrameManage extends Disposable {
       silent: true,
       z: 100000
     })
+
+    this._viewPortManage.getViewPort().add(this._frame)
 
     this._frame.hide()
   }

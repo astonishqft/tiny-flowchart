@@ -11,7 +11,6 @@ import type { ISettingManage } from './settingManage'
 import type { IZoomManage } from './zoomManage'
 
 export interface IRefLineManage {
-  // initRefLine(zr: zrender.ZRenderType)
   updateRefLines(): { magneticOffsetX: number, magneticOffsetY: number }
   cacheRefLines(): void
   clearRefPointAndRefs(): void
@@ -151,9 +150,9 @@ class RefLineManage {
 
     const closestYDist = Math.min(distMinVt, distMinVm, distMinVb)
 
-    const minAdSpacing = this._settingManage.get('minAdSpacing') / this._zoomManage.getZoom()
+    const magneticSpacing = this._settingManage.get('magneticSpacing') / this._zoomManage.getZoom()
 
-    if (closestXDist <= minAdSpacing) {
+    if (closestXDist <= magneticSpacing) {
       if (isEqualNum(closestXDist, distMinHl)) {
         offsetX = closestHl - hl
       } else if (isEqualNum(closestXDist, distMinHm)) {
@@ -163,7 +162,7 @@ class RefLineManage {
       }
     }
 
-    if (closestYDist <= minAdSpacing) {
+    if (closestYDist <= magneticSpacing) {
       if (isEqualNum(closestYDist, distMinVt)) {
         offsetY = closestVt - vt
       } else if (isEqualNum(closestYDist, distMinVm)) {
@@ -293,7 +292,6 @@ class RefLineManage {
   }
 
   drawRefPoint(x: number, y: number) {
-
     const lineL = new zrender.Line({
       shape: {
         x1: x - this._refPointSize,

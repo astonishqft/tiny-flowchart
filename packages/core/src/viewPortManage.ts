@@ -12,6 +12,7 @@ export interface IViewPortManage {
   addShapeToViewPort(shape: IShape): void
   addAnchorToViewPort(anchor: IAnchorPoint): void
   getViewPort(): zrender.Group
+  getZr(): zrender.ZRenderType
   setScale(x: number, y: number): void
   getScaleX(): number
   getScaleY(): number
@@ -74,6 +75,10 @@ class ViewPortManage extends Disposable {
 
   getSceneHeight() {
     return this.viewPort.__zr.getHeight()
+  }
+
+  getZr() {
+    return this.viewPort.__zr
   }
 }
 

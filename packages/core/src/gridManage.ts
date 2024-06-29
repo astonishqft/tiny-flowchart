@@ -10,7 +10,6 @@ import type { IDisposable } from './disposable'
 export interface IGridManage extends IDisposable {
   x: number
   y: number
-  initGrid(zr: zrender.ZRenderType): void
   drawGrid(zoom: number): void
 }
 
@@ -30,15 +29,14 @@ class GridManage extends Disposable {
   ) {
     super()
     this.gridStep = this._settingManage.get('gridStep')
-  }
 
-  initGrid(zr: zrender.ZRenderType) {
-    this.x = 0
-    this.y = 0
-    this.width = zr.getWidth() as number
-    this.height = zr.getHeight() as number
-
-    this.drawGrid(1)
+    setTimeout(() => {
+      this.x = 0
+      this.y = 0
+      this.width = this._viewPortManage.getSceneWidth()
+      this.height = this._viewPortManage.getSceneHeight()
+      this.drawGrid(1)
+    }, 0)
   }
 
   /**

@@ -8,9 +8,10 @@ export interface IIocEditorConfig {
   zoomMax: number
   zoomMin: number
   gridStep: number
-  minAdSpacing: number // 磁吸最小吸附距离
+  magneticSpacing: number // 磁吸最小吸附距离
   refPointSize: number // 磁吸点大小
   refLineColor: string // 参考线的颜色
+  selectFrameColor: string // 选中框的颜色
 }
 
 export interface ISettingManage extends IDisposable {
@@ -27,9 +28,10 @@ class SettingManage extends Disposable {
     zoomMin: 0.3,
     zoomMax: 4,
     gridStep: 20,
-    minAdSpacing: 5,
+    magneticSpacing: 5,
     refPointSize: 2,
-    refLineColor: '#fa5252'
+    refLineColor: '#fa5252',
+    selectFrameColor: '#1971c2'
   }
   updatedSetting$ = new Subject<Partial<IIocEditorConfig>>()
   constructor() {

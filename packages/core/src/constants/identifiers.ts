@@ -7,7 +7,8 @@ const IDENTIFIER = {
   VIEW_PORT_MANAGE: Symbol.for('ViewPortManage'),
   ZOOM_MANAGE: Symbol.for('ZoomManage'),
   CONNECTION_MANAGE: Symbol.for('ConnectionManage'),
-  REF_LINE_MANAGE: Symbol.for('RefLineManage')
+  REF_LINE_MANAGE: Symbol.for('RefLineManage'),
+  SELECT_FRAME_MANAGE: Symbol.for('SelectFrame')
 }
 
 export default IDENTIFIER
