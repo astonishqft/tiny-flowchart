@@ -13,6 +13,7 @@ export interface IConnectionManage extends IDisposable {
   createConnection(fromNode: IShape): IConnection
   getConnectionByShape(shape: IShape): IConnection[]
   setConnectionType(type: ConnectionType): void
+  refreshConnection(shape: IShape): void
   updateConnectionType$: Observable<ConnectionType>
   addConnection(connection: IConnection): void
   clear(): void
@@ -42,13 +43,32 @@ class ConnectionManage extends Disposable {
 
   getConnectionByShape(shape: IShape) {
     const conns: IConnection[] = []
+
     this._connections.forEach((connection: IConnection) => {
-      if (connection.fromNode === shape || connection.toNode === shape) {
+      if (connection.fromNode.id === shape.id || connection.toNode!.id === shape.id) {
         conns.push(connection)
       }
     })
 
     return conns
+  }
+
+  refreshConnection(shape: IShape) {
+    shape.createAnchors()
+    shape.anchor!.refresh()
+    const conns = this.getConnectionByShape(shape)
+
+    conns.forEach(conn => {
+      if (conn.fromNode.id === shape.id) {
+        const fromPoint = shape.getAnchorByIndex(conn.fromPoint!.index)
+        conn.setFromPoint(fromPoint)
+        conn.refresh()
+      } else if (conn.toNode!.id === shape.id) {
+        const toPoint = shape.getAnchorByIndex(conn.toPoint!.index)
+        conn.setToPoint(toPoint)
+        conn.refresh()
+      }
+    })
   }
 
   // TODO

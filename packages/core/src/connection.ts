@@ -58,7 +58,8 @@ class Connection extends zrender.Group {
         lineWidth: 1,
         lineDash: [4, 4]
       },
-      silent: true // 禁止触发事件，否则会导致拖拽，节点无法响应mouseover事件
+      silent: true, // 禁止触发事件，否则会导致拖拽，节点无法响应mouseover事件
+      z: 4
     })
 
     this.fromNode = fromNode
@@ -185,7 +186,8 @@ class Connection extends zrender.Group {
           style: {
             lineWidth: 1,
             stroke: '#333'
-          }
+          },
+          z: 4
         })
         break
       case ConnectionType.BezierCurve:
@@ -193,7 +195,8 @@ class Connection extends zrender.Group {
           style: {
             lineWidth: 1,
             stroke: '#333'
-          }
+          },
+          z: 4
         })
 
         this._controlPoint1 = new zrender.Circle({
@@ -278,7 +281,8 @@ class Connection extends zrender.Group {
           style: {
             lineWidth: 1,
             stroke: '#333'
-          }
+          },
+          z: 4
         })
         break
       default:

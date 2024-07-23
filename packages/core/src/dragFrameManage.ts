@@ -12,6 +12,8 @@ export interface IDragFrameManage extends IDisposable {
   updatePosition(x: number, y: number): void
   initSize(width: number, height: number): void
   getFrame(): zrender.Rect
+  getBoundingBox(): zrender.BoundingRect
+  isIntersect(shapesBoundingBox: zrender.BoundingRect): boolean
 }
 
 @injectable()
@@ -71,6 +73,20 @@ class DragFrameManage extends Disposable {
 
   getFrame() {
     return this._frame
+  }
+
+  getBoundingBox() {
+    const g = new zrender.Group()
+    const boundingBox: zrender.BoundingRect = g.getBoundingRect([this._frame])
+    boundingBox.x = this._frame.x
+    boundingBox.y = this._frame.y
+
+    return boundingBox
+  }
+
+  // 判断是否相交
+  isIntersect(shapesBoundingBox: zrender.BoundingRect) {
+    return shapesBoundingBox.intersect(this.getBoundingBox())
   }
 }
 

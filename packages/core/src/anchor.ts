@@ -32,7 +32,6 @@ class Anchor {
       (circle as IAnchorPoint).node = this.shape;
       (circle as IAnchorPoint).anch = circle as IAnchorPoint
       circle.on('mouseover', () => {
-        console.log('anchor mouseover');
         (circle as IAnchorPoint).oldFillColor = circle.style.fill as string
         circle.attr({
           style: {

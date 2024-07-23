@@ -11,6 +11,7 @@ import { ZoomManage } from '../zoomManage'
 import { ConnectionManage } from '../connectionManage'
 import { RefLineManage } from '../refLineManage'
 import { SelectFrameManage } from '../selectFrameManage'
+import { GroupManage } from '../groupManage'
 
 import type { ISceneManage } from '../sceneManage'
 import type { IShapeManage } from '../shapeManage'
@@ -22,6 +23,7 @@ import type { IZoomManage } from '../zoomManage'
 import type { IConnectionManage } from '../connectionManage'
 import type { IRefLineManage } from '../refLineManage'
 import type { ISelectFrameManage } from '../selectFrameManage'
+import type { IGroupManage } from '../groupManage'
 
 // Added new feature to disable base class checking https://github.com/inversify/InversifyJS/pull/841
 const container = new Container({ skipBaseClassChecks: true})
@@ -36,5 +38,6 @@ container.bind<IZoomManage>(IDENTIFIER.ZOOM_MANAGE).to(ZoomManage).inSingletonSc
 container.bind<IConnectionManage>(IDENTIFIER.CONNECTION_MANAGE).to(ConnectionManage).inSingletonScope()
 container.bind<IRefLineManage>(IDENTIFIER.REF_LINE_MANAGE).to(RefLineManage).inSingletonScope()
 container.bind<ISelectFrameManage>(IDENTIFIER.SELECT_FRAME_MANAGE).to(SelectFrameManage).inSingletonScope()
+container.bind<IGroupManage>(IDENTIFIER.GROUP_MANAGE).to(GroupManage).inSingletonScope()
 
 export default container

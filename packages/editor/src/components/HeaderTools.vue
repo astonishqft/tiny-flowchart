@@ -3,7 +3,7 @@ import { ref, inject } from 'vue'
 import { ElSelect, ElOption } from 'element-plus'
 import { Container } from 'inversify'
 import { IDENTIFIER, ConnectionType } from '@ioceditor/core'
-import type { IZoomManage, IConnectionManage, ISceneManage, ISelectFrameManage } from '@ioceditor/core'
+import type { IZoomManage, IConnectionManage, ISceneManage, ISelectFrameManage, IGroupManage } from '@ioceditor/core'
 import 'element-plus/es/components/select/style/css'
 
 const iocEditor = inject<Container>('iocEditor') as Container
@@ -11,6 +11,7 @@ const zoomMgr = iocEditor.get<IZoomManage>(IDENTIFIER.ZOOM_MANAGE)
 const connectionMgr = iocEditor.get<IConnectionManage>(IDENTIFIER.CONNECTION_MANAGE)
 const sceneManage = iocEditor.get<ISceneManage>(IDENTIFIER.SCENE_MANAGE)
 const selectFrameMgr = iocEditor.get<ISelectFrameManage>(IDENTIFIER.SELECT_FRAME_MANAGE)
+const groupMgr = iocEditor.get<IGroupManage>(IDENTIFIER.GROUP_MANAGE)
 
 const currentLineType = ref(ConnectionType.OrtogonalLine)
 
@@ -67,13 +68,13 @@ const toolsConfig = ref([
     name: 'group',
     icon: 'icon-group',
     desc: '组合',
-    disabled: true
+    disabled: false
   },
   {
     name: 'ungroup',
     icon: 'icon-ungroup',
     desc: '取消组合',
-    disabled: true
+    disabled: false
   },
   {
     name: 'select',
@@ -122,6 +123,9 @@ const command = (name: string) => {
     case 'select':
       selectFrameMgr.setSelectFrameStatus(true)
       break
+    case 'group':
+      groupMgr.createGroup()
+      break;
     default:
       break
   } 

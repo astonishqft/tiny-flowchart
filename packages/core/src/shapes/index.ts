@@ -3,6 +3,7 @@ import * as zrender from 'zrender'
 import { Rect } from './rect'
 import { Circle } from './circle'
 import type { Anchor } from '../anchor'
+import type { INodeGroup } from './nodeGroup'
 
 export interface IShape extends zrender.Element {
   selected: boolean
@@ -11,6 +12,7 @@ export interface IShape extends zrender.Element {
   anchor?: Anchor
   oldX?: number
   oldY?: number
+  parentGroup?: INodeGroup
   createAnchors(): void
   active(): void
   unActive(): void
@@ -60,7 +62,8 @@ export const shapeConfig: IShapeConfig = {
       y: 0,
       width: 60,
       height: 60
-    }
+    },
+    z: 2
   },
   circle: {
     style: {
@@ -74,7 +77,8 @@ export const shapeConfig: IShapeConfig = {
       cy: 30,
       rx: 30,
       ry: 30
-    }
+    },
+    z: 2
   }
 }
 

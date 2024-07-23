@@ -8,7 +8,8 @@ const IDENTIFIER = {
   ZOOM_MANAGE: Symbol.for('ZoomManage'),
   CONNECTION_MANAGE: Symbol.for('ConnectionManage'),
   REF_LINE_MANAGE: Symbol.for('RefLineManage'),
-  SELECT_FRAME_MANAGE: Symbol.for('SelectFrame')
+  SELECT_FRAME_MANAGE: Symbol.for('SelectFrame'),
+  GROUP_MANAGE: Symbol.for('GroupManage')
 }
 
 export default IDENTIFIER

@@ -3,7 +3,6 @@ import * as zrender from 'zrender'
 import IDENTIFIER from './constants/identifiers'
 import { getClosestValInSortedArr, isEqualNum } from './utils'
 
-import type { IShapeManage } from './shapeManage'
 import type { IShape } from './shapes'
 import type { IDragFrameManage } from './dragFrameManage'
 import type { IViewPortManage } from './viewPortManage'
@@ -12,52 +11,134 @@ import type { IZoomManage } from './zoomManage'
 
 export interface IRefLineManage {
   updateRefLines(): { magneticOffsetX: number, magneticOffsetY: number }
+  addNode(node: IShape): void
   cacheRefLines(): void
-  clearRefPointAndRefs(): void
+  removeNode(node: IShape): void
+  clearRefPointAndRefLines(): void
 }
 interface IVerticalLine { // 有多个端点的垂直线
-  x: number;
-  ys: number[];
+  x: number
+  ys: number[]
 }
 
 interface IHorizontalLine { // 有多个端点的水平线
-  y: number;
-  xs: number[];
+  y: number
+  xs: number[]
 }
 
 @injectable()
 class RefLineManage {
-  // 参考图形产生的水平照线，对于其中的同一条线，y 相同（作为 key），x 不同（作为 value）
+  // 参考图形产生的水平参照线，对于其中的同一条线，y 相同（作为 key），x 不同（作为 value）
   private _hLineMap = new Map<number, number[]>()
   // 参考图形产生的垂直参照线。对于其中的同一条线，x 相同（作为 key），y 不同（作为 value）
-  private _vLineMap = new Map<number, number[]>() 
+  private _vLineMap = new Map<number, number[]>()
 
   // 对 hLineMap 的 key 排序，方便高效二分查找，找到最近的线
-  private _sortedXs: number[] = [] 
+  private _sortedXs: number[] = []
   // 对 vLineMap 的 key 排序
-  private _sortedYs: number[] = [] 
+  private _sortedYs: number[] = []
 
   private _toDrawVLines: IVerticalLine[] = [] // 等待绘制的垂直参照线
   private _toDrawHLines: IHorizontalLine[] = [] // 等待绘制的水平参照线
 
-  private _refPoints: zrender.Line[] = []
-  private _refLines: zrender.Line[] = []
+  private _refPoints: number[][] = []
+  private _refLines: number[][] = []
   private _refPointSize: number
   private _refLineColor: string
 
+  private _refLinePool: zrender.Line[] = []
+  private _refPointPool: zrender.Line[][] = []
+
+  private _magneticSpacing = 0
+
+  private _nodes: IShape[] = []
+
   constructor(
-    @inject(IDENTIFIER.SHAPE_MANAGE) private _shapeManage: IShapeManage,
     @inject(IDENTIFIER.DRAG_FRAME_MANAGE) private _dragFrameManage: IDragFrameManage,
     @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortManage: IViewPortManage,
     @inject(IDENTIFIER.SETTING_MANAGE) private _settingManage: ISettingManage,
-    @inject(IDENTIFIER.ZOOM_MANAGE) private _zoomManage: IZoomManage
+    @inject(IDENTIFIER.ZOOM_MANAGE) private _zoomManage: IZoomManage,
   ) {
     this._refPointSize = this._settingManage.get('refPointSize')
     this._refLineColor = this._settingManage.get('refLineColor')
+
+    this. _magneticSpacing = this._settingManage.get('magneticSpacing') / this._zoomManage.getZoom()
+    this.createRefLinePool()
+    this.createRefPointPool()
   }
 
-  // 添加水平线，水平线的x值都相等
-  addHLines(x: number, ys: number[]) {
+  addNode(node: IShape) {
+    this._nodes.push(node)
+  }
+
+  removeNode(node: IShape) {
+    this._nodes = this._nodes.filter((n) => n !== node)
+  }
+
+  createRefLinePool() {
+    for (let i = 0; i < 6; i++) {
+      const l = new zrender.Line({
+        shape: {
+          x1: 0,
+          y1: 0,
+          x2: 0,
+          y2: 0
+        },
+        style: {
+          stroke: this._refLineColor,
+          lineWidth: 1
+        },
+        silent: true,
+        z: 100000,
+        invisible: true
+      })
+  
+      this._viewPortManage.getViewPort().add(l)
+      this._refLinePool.push(l) 
+    }
+  }
+
+  createRefPointPool() {
+    for (let i = 0; i < 21; i++) {
+      const lineL = new zrender.Line({
+        shape: {
+          x1: 0,
+          y1: 0,
+          x2: 0,
+          y2: 0
+        },
+        style: {
+          stroke: this._refLineColor,
+          lineWidth: 1
+        },
+        silent: true,
+        z: 100000,
+        invisible: true
+      })
+      const lineR = new zrender.Line({
+        shape: {
+          x1: 0,
+          y1: 0,
+          x2: 0,
+          y2: 0
+        },
+        style: {
+          stroke: this._refLineColor,
+          lineWidth: 1
+        },
+        silent: true,
+        z: 100000,
+        invisible: true
+      })
+
+      this._viewPortManage.getViewPort().add(lineL)
+      this._viewPortManage.getViewPort().add(lineR)
+      this._refPointPool.push([lineL, lineR])
+    }
+  }
+
+  // 添加垂直线，垂直线的x值都相等
+  addVLines(x: number, ys: number[]) {
     const hline = this._hLineMap.get(x)
     if (hline) {
       hline.push(...ys)
@@ -66,7 +147,7 @@ class RefLineManage {
     }
   }
 
-  addVLines(y: number, xs: number[]) {
+  addHLines(y: number, xs: number[]) {
     const vline = this._vLineMap.get(y)
     if (vline) {
       vline.push(...xs)
@@ -77,7 +158,7 @@ class RefLineManage {
 
   cacheRefLines() {
     this.clear()
-    this._shapeManage.getShapes().forEach((shape: IShape) => {
+    this._nodes.forEach((shape: IShape) => {
       const { x, y, width, height } = shape.getBoundingRect()
       const hl = x + shape.x
       const hm = hl + width / 2
@@ -86,29 +167,37 @@ class RefLineManage {
       const vm = vt + height / 2
       const vb = vt + height
       // 水平线(y值相同，x值不同)
-      this.addHLines(vt, [hl, hr])
-      this.addHLines(vm, [hl, hr])
-      this.addHLines(vb, [hl, hr])
+      this.addVLines(vt, [hl, hr])
+      this.addVLines(vm, [hl, hr])
+      this.addVLines(vb, [hl, hr])
 
       // 垂直线(x值相同，y值不同)
-      this.addVLines(hl, [vt, vb])
-      this.addVLines(hm, [vt, vb])
-      this.addVLines(hr, [vt, vb])
+      this.addHLines(hl, [vt, vb])
+      this.addHLines(hm, [vt, vb])
+      this.addHLines(hr, [vt, vb])
     })
 
     this._sortedXs = Array.from(this._vLineMap.keys()).sort((a, b) => a - b)
     this._sortedYs = Array.from(this._hLineMap.keys()).sort((a, b) => a - b)
   }
 
-  clearRefPointAndRefs() {
-    this._refPoints.forEach((point: zrender.Line) => this._viewPortManage.getViewPort().remove(point))
-    this._refLines.forEach((line: zrender.Line) => this._viewPortManage.getViewPort().remove(line)) 
+  clearRefPointAndRefLines() {
+    this._refLines.forEach((_, i) => {
+      this._refLinePool[i].invisible = true
+    })
+
+    this._refPoints.forEach((_, i) => {
+      this._refPointPool[i][0].invisible = true
+      this._refPointPool[i][1].invisible = true
+    })
+    this._refPoints = []
+    this._refLines = []
   }
 
   updateRefLines(): { magneticOffsetX: number, magneticOffsetY: number } {
     this._toDrawVLines = []
     this._toDrawHLines = []
-    this.clearRefPointAndRefs()
+    this.clearRefPointAndRefLines()
 
     const frame = this._dragFrameManage.getFrame()
     const { x, y, width, height } = frame.getBoundingRect()
@@ -150,9 +239,7 @@ class RefLineManage {
 
     const closestYDist = Math.min(distMinVt, distMinVm, distMinVb)
 
-    const magneticSpacing = this._settingManage.get('magneticSpacing') / this._zoomManage.getZoom()
-
-    if (closestXDist <= magneticSpacing) {
+    if (closestXDist <= this._magneticSpacing) {
       if (isEqualNum(closestXDist, distMinHl)) {
         offsetX = closestHl - hl
       } else if (isEqualNum(closestXDist, distMinHm)) {
@@ -162,7 +249,7 @@ class RefLineManage {
       }
     }
 
-    if (closestYDist <= magneticSpacing) {
+    if (closestYDist <= this._magneticSpacing) {
       if (isEqualNum(closestYDist, distMinVt)) {
         offsetY = closestVt - vt
       } else if (isEqualNum(closestYDist, distMinVm)) {
@@ -261,10 +348,11 @@ class RefLineManage {
           continue
         }
         pointsSet.add(key)
-    
-        this.drawRefPoint(x, y)
+
+        this._refPoints.push([x, y])
       }
-      this.drawRefLine(x, minY, x, maxY)
+
+      this._refLines.push([x, minY, x, maxY])
     }
 
     for(const { y, xs = [] } of this._toDrawHLines) {
@@ -279,72 +367,51 @@ class RefLineManage {
           continue
         }
         pointsSet.add(key)
-    
-        this.drawRefPoint(x, y)
+
+        this._refPoints.push([x, y])
       }
-      this.drawRefLine(minX, y, maxX, y)
+
+      this._refLines.push([minX, y, maxX, y])
     }
+
+    this._refLines.forEach(([x1, y1, x2, y2], i) => {
+      this._refLinePool[i].attr({
+        shape: {
+          x1,
+          y1,
+          x2,
+          y2
+        },
+        invisible: false
+      })
+    })
+
+    this._refPoints.forEach(([x, y], i) => {
+      this._refPointPool[i][0].attr({
+        shape: {
+          x1: x - this._refPointSize,
+          y1: y - this._refPointSize,
+          x2: x + this._refPointSize,
+          y2: y + this._refPointSize
+        },
+        invisible: false
+      })
+
+      this._refPointPool[i][1].attr({
+        shape: {
+          x1: x + this._refPointSize,
+          y1: y - this._refPointSize,
+          x2: x - this._refPointSize,
+          y2: y + this._refPointSize
+        },
+        invisible: false
+      })
+    })
 
     return {
       magneticOffsetX: offsetX,
       magneticOffsetY: offsetY
     }
-  }
-
-  drawRefPoint(x: number, y: number) {
-    const lineL = new zrender.Line({
-      shape: {
-        x1: x - this._refPointSize,
-        y1: y - this._refPointSize,
-        x2: x + this._refPointSize,
-        y2: y + this._refPointSize
-      },
-      style: {
-        stroke: this._refLineColor,
-        lineWidth: 1
-      },
-      silent: true,
-      z: 100000
-    })
-    const lineR = new zrender.Line({
-      shape: {
-        x1: x + this._refPointSize,
-        y1: y - this._refPointSize,
-        x2: x - this._refPointSize,
-        y2: y + this._refPointSize
-      },
-      style: {
-        stroke: this._refLineColor,
-        lineWidth: 1
-      },
-      silent: true,
-      z: 100000
-    })
-
-    this._viewPortManage.getViewPort().add(lineL)
-    this._viewPortManage.getViewPort().add(lineR)
-    this._refPoints.push(lineL)
-    this._refPoints.push(lineR)
-  }
-
-  drawRefLine(x1: number, y1: number, x2: number, y2: number) {
-    const l = new zrender.Line({
-      shape: {
-        x1,
-        y1,
-        x2,
-        y2
-      },
-      style: {
-        stroke: this._refLineColor,
-        lineWidth: 1
-      },
-      silent: true,
-      z: 100000
-    })
-
-    this._viewPortManage.getViewPort().add(l)
-    this._refLines.push(l)
   }
 
   clear() {

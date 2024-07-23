@@ -7,12 +7,15 @@ import container from './config/iocConfig'
 import IDENTIFIER from './constants/identifiers'
 import { SelectFrameManage } from './selectFrameManage'
 import { ConnectionType } from './connection'
+import { GroupManage } from './groupManage'
+
 import type { ISceneManage } from './sceneManage'
 import type { IZoomManage } from './zoomManage'
 import type { IConnectionManage } from './connectionManage'
 import type { ISelectFrameManage } from './selectFrameManage'
+import type { IGroupManage  } from './groupManage'
 
 zrender.registerPainter('canvas', CanvasPainter)
 
-export { IocEditor, container, IDENTIFIER, ConnectionType, SelectFrameManage }
-export type { ISceneManage, IZoomManage, IConnectionManage, ISelectFrameManage }
+export { IocEditor, container, IDENTIFIER, ConnectionType, SelectFrameManage, GroupManage }
+export type { ISceneManage, IZoomManage, IConnectionManage, ISelectFrameManage, IGroupManage }

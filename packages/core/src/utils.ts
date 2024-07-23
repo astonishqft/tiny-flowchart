@@ -1,3 +1,5 @@
+import type { IShape } from './shapes'
+
 export const getClosestValInSortedArr = (
   sortedArr: number[],
   target: number,
@@ -41,4 +43,19 @@ export const getClosestValInSortedArr = (
 
 export const isEqualNum = (num1: number, num2: number) => {
   return Math.abs(num1 - num2) < 0.00001
+}
+
+export const getMinPosition = (shapes: IShape[]): number[] => {
+  let minX = Infinity
+  let minY = Infinity
+  shapes.forEach(shape => {
+    if (shape.x < minX) {
+      minX = shape.x
+    }
+    if (shape.y < minY) {
+      minY = shape.y
+    }
+  })
+
+  return [minX, minY]
 }
