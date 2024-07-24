@@ -122,6 +122,8 @@ class ShapeManage extends Disposable {
       // 取消事件监听
       document.removeEventListener('mousemove', mouseMove)
       document.removeEventListener('mouseup', mouseUp)
+
+      this.updateGroupSize(shape)
     }
 
     shape.on('click', () => {
@@ -185,6 +187,16 @@ class ShapeManage extends Disposable {
   getBoundingBox(shapes: IShape[]): zrender.BoundingRect {
     const g = new zrender.Group()
     return g.getBoundingRect(shapes)
+  }
+
+  updateGroupSize(shape: IShape) {
+    if (shape.parentGroup) {
+      shape.parentGroup.resizeNodeGroup()
+      shape.parentGroup.createAnchors()
+      shape.parentGroup.anchor!.refresh()
+      this._connectionMgr.refreshConnection(shape.parentGroup)
+      this.updateGroupSize(shape.parentGroup)
+    }
   }
 }
 

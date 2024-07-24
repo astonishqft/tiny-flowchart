@@ -10,11 +10,11 @@ export interface INodeGroup extends IShape {
   boundingBox: zrender.BoundingRect 
   shapes: IShape[]
   canRemove: boolean
-  updateBoundingBox(x: number, y: number, width: number, height: number): void
+  // updateBoundingBox(x: number, y: number, width: number, height: number): void
   refresh(): void
   getBoundingBox(): zrender.BoundingRect
   removeShapeFromGroup(shape: IShape): void
-  setIntersectStatus(intersect: boolean): void
+  resizeNodeGroup(): void
 }
 
 class NodeGroup extends zrender.Group {
@@ -137,12 +137,12 @@ class NodeGroup extends zrender.Group {
     })
   }
 
-  updateBoundingBox(x: number, y: number, width: number, height: number) {
-    this.boundingBox.x = x
-    this.boundingBox.y = y
-    this.boundingBox.width = width
-    this.boundingBox.height = height
-  }
+  // updateBoundingBox(x: number, y: number, width: number, height: number) {
+  //   this.boundingBox.x = x
+  //   this.boundingBox.y = y
+  //   this.boundingBox.width = width
+  //   this.boundingBox.height = height
+  // }
 
   createAnchors() {
     this.anchors = []
@@ -211,14 +211,10 @@ class NodeGroup extends zrender.Group {
 
   }
 
-  setIntersectStatus(intersect: boolean) {
-    if (!intersect) {
-      this.setCanRemoveStyle()
-      this.canRemove = true
-    } else {
-      this.setCommonStyle()
-      this.canRemove = false
-    }
+  resizeNodeGroup() {
+    const g = new zrender.Group()
+    this.boundingBox = g.getBoundingRect(this.shapes)
+    this.refresh()
   }
 }
 

@@ -86,7 +86,7 @@ class GridManage extends Disposable {
             fill: '#868e96',
             lineWidth: 1
           },
-          z: -1
+          z: -100
         })
 
         this.points.push(point)

@@ -40,6 +40,8 @@ class GroupManage {
       return
     }
 
+    activeShapes.forEach(shape => { shape.unActive()})
+
     const minPostion = getMinPosition(activeShapes)
 
     const g = new zrender.Group()
@@ -101,6 +103,8 @@ class GroupManage {
 
       document.removeEventListener('mousemove', mouseMove)
       document.removeEventListener('mouseup', mouseUp)
+
+      this.updateGroupSize(nodeGroup)
     }
 
     nodeGroup.on('click', () => {
@@ -117,6 +121,7 @@ class GroupManage {
     })
 
     nodeGroup.on('mousedown', (e) => {
+      console.log('nodeGroup mousedown', nodeGroup)
       startX = e.offsetX
       startY = e.offsetY
 
@@ -175,6 +180,16 @@ class GroupManage {
         this.setShapesOldPosition(shape as NodeGroup)
       }
     })
+  }
+
+  updateGroupSize(shape: IShape) {
+    if (shape.parentGroup) {
+      shape.parentGroup.resizeNodeGroup()
+      shape.parentGroup.createAnchors()
+      shape.parentGroup.anchor!.refresh()
+      this._connectionMgr.refreshConnection(shape.parentGroup)
+      this.updateGroupSize(shape.parentGroup)
+    }
   }
 }
 
