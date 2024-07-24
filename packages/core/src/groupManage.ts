@@ -3,7 +3,7 @@ import * as zrender from 'zrender'
 import IDENTIFIER from './constants/identifiers'
 import { NodeGroup } from './shapes/nodeGroup'
 import { Anchor } from './anchor'
-import { getMinPosition } from './utils'
+import { getMinPosition, getMinZLevel } from './utils'
 
 import type { IViewPortManage } from './viewPortManage'
 import type { IShapeManage } from './shapeManage'
@@ -11,11 +11,13 @@ import type { IDragFrameManage } from './dragFrameManage'
 import type { IRefLineManage } from './refLineManage'
 import type { IConnectionManage } from './connectionManage'
 import type { IZoomManage } from './zoomManage'
-import type { IAnchorPoint } from './shapes'
+import type { IAnchorPoint, IShape } from './shapes'
 
 export interface IGroupManage {
   createGroup(): void
   unActive(): void
+  getGroups(): NodeGroup[]
+  getActiveGroups(): NodeGroup[]
 }
 
 @injectable()
@@ -31,7 +33,9 @@ class GroupManage {
   ) {}
 
   createGroup() {
-    const activeShapes = this._shapeMgr.getActiveShapes()
+    let activeShapes = this._shapeMgr.getActiveShapes()
+    const activeGroups = this.getActiveGroups()
+    activeShapes = activeShapes.concat(activeGroups)
     if (activeShapes.length < 2) {
       return
     }
@@ -42,7 +46,11 @@ class GroupManage {
     const boundingBox = g.getBoundingRect(activeShapes)
     boundingBox.x = minPostion[0]
     boundingBox.y = minPostion[1]
+
+    const minZLevel = getMinZLevel(activeShapes)
+
     const groupNode = new NodeGroup(boundingBox, activeShapes)
+    groupNode.setZ(minZLevel - 1)
 
     const anchor = new Anchor(groupNode)
     groupNode.anchor = anchor
@@ -63,8 +71,6 @@ class GroupManage {
   initShapeEvent(nodeGroup: NodeGroup) {
     let startX = 0
     let startY = 0
-    let oldViewPortX = 0
-    let oldViewPortY = 0
     let zoom = 1
     let magneticOffsetX = 0
     let magneticOffsetY = 0
@@ -86,22 +92,13 @@ class GroupManage {
 
     const mouseUp = (e: MouseEvent) => {
       this._dragFrameMgr.hide()
-      nodeGroup.attr('x', nodeGroup.oldX! + (e.offsetX - startX) / zoom + magneticOffsetX / zoom)
-      nodeGroup.attr('y', nodeGroup.oldY! + (e.offsetY - startY) / zoom + magneticOffsetY / zoom)
-
-      this._connectionMgr.refreshConnection(nodeGroup)
 
       this._refLineMgr.clearRefPointAndRefLines()
       magneticOffsetX = 0
       magneticOffsetY = 0
 
-      nodeGroup.shapes.forEach((shape) => {
-        shape.attr('x', shape.oldX! + (e.offsetX - startX) / zoom + magneticOffsetX / zoom)
-        shape.attr('y', shape.oldY! + (e.offsetY - startY) / zoom + magneticOffsetY / zoom)
-        shape.createAnchors()
-        shape.anchor!.refresh()
-        this._connectionMgr.refreshConnection(shape)
-      })
+      this.updateGroupShapes(nodeGroup, e.offsetX, e.offsetY, startX, startY, zoom, magneticOffsetX, magneticOffsetY)
+
       document.removeEventListener('mousemove', mouseMove)
       document.removeEventListener('mouseup', mouseUp)
     }
@@ -122,14 +119,8 @@ class GroupManage {
     nodeGroup.on('mousedown', (e) => {
       startX = e.offsetX
       startY = e.offsetY
-      nodeGroup.oldX = nodeGroup.x
-      nodeGroup.oldY = nodeGroup.y
-      nodeGroup.shapes.forEach(shape => {
-        shape.oldX = shape.x
-        shape.oldY = shape.y
-      })
-      oldViewPortX = this._viewPortMgr.getPositionX()
-      oldViewPortY = this._viewPortMgr.getPositionY()
+
+      this.setShapesOldPosition(nodeGroup)
       zoom = this._zoomMgr.getZoom()
       const { width, height, x, y } = nodeGroup.getBoundingBox()
 
@@ -145,6 +136,44 @@ class GroupManage {
   unActive() {
     this._groups.forEach((group) => {
       group.unActive()
+    })
+  }
+
+  getGroups() {
+    return this._groups
+  }
+
+  getActiveGroups(): NodeGroup[] {
+    return this._groups.filter((group: NodeGroup) => {
+      return group.selected
+    })
+  }
+
+  updateGroupShapes(nodeGroup: NodeGroup, offsetX: number, offsetY: number, startX: number, startY: number, zoom: number, magneticOffsetX: number, magneticOffsetY: number) {
+    nodeGroup.attr('x', nodeGroup.oldX! + (offsetX - startX) / zoom + magneticOffsetX / zoom)
+    nodeGroup.attr('y', nodeGroup.oldY! + (offsetY - startY) / zoom + magneticOffsetY / zoom)
+    this._connectionMgr.refreshConnection(nodeGroup)
+    nodeGroup.shapes.forEach((shape: IShape) => {
+      shape.attr('x', shape.oldX! + (offsetX - startX) / zoom + magneticOffsetX / zoom)
+      shape.attr('y', shape.oldY! + (offsetY - startY) / zoom + magneticOffsetY / zoom)
+      shape.createAnchors()
+      shape.anchor!.refresh()
+      this._connectionMgr.refreshConnection(shape)
+      if (shape.nodeType === 'nodeGroup') {
+        this.updateGroupShapes(shape as NodeGroup, offsetX, offsetY, startX, startY, zoom, magneticOffsetX, magneticOffsetY)
+      }
+    })
+  }
+
+  setShapesOldPosition(nodeGroup: NodeGroup) {
+    nodeGroup.oldX = nodeGroup.x
+    nodeGroup.oldY = nodeGroup.y
+    nodeGroup.shapes.forEach((shape: IShape) => {
+      shape.oldX = shape.x
+      shape.oldY = shape.y
+      if (shape.nodeType === 'nodeGroup') {
+        this.setShapesOldPosition(shape as NodeGroup)
+      }
     })
   }
 }

@@ -2,9 +2,9 @@ import * as zrender from 'zrender'
 import type { IShape, IAnchor } from './index'
 import type { Anchor } from '../anchor'
 
-export type IZrenderGroup = zrender.Rect & {
-  nodeType: string
-}
+// export type IZrenderGroup = zrender.Rect & {
+//   nodeType: string
+// }
 
 export interface INodeGroup extends IShape {
   boundingBox: zrender.BoundingRect 
@@ -19,8 +19,8 @@ export interface INodeGroup extends IShape {
 
 class NodeGroup extends zrender.Group {
   nodeType = 'nodeGroup'
-  groupRect: IZrenderGroup | null = null
-  groupHead: IZrenderGroup | null = null
+  groupRect: zrender.Rect | null = null
+  groupHead: zrender.Rect | null = null
   textContent: zrender.Text | null = null
   boundingBox: zrender.BoundingRect
   shapes: IShape[]
@@ -32,6 +32,7 @@ class NodeGroup extends zrender.Group {
   canRemove: boolean = false
   oldX: number = 0
   oldY: number = 0
+  z = 1
 
   constructor(boundingBox: zrender.BoundingRect, shapes: IShape[]) {
     super()
@@ -53,10 +54,8 @@ class NodeGroup extends zrender.Group {
         stroke: '#ccc',
         lineDash: [4, 2]
       },
-      z: 1
-    }) as IZrenderGroup
-
-    this.groupRect.nodeType = 'nodeGroup'
+      z: this.z
+    })
 
     this.textContent = new zrender.Text({
       style: {
@@ -66,7 +65,7 @@ class NodeGroup extends zrender.Group {
         fontFamily: 'Arial',
         padding: [6, 6]
       },
-      z: 1
+      z: this.z
     })
 
     this.groupHead = new zrender.Rect({
@@ -80,14 +79,19 @@ class NodeGroup extends zrender.Group {
       textConfig: {
         position: 'insideLeft'
       },
-      z: 1
-    }) as IZrenderGroup
-
-    this.groupHead.nodeType = 'nodeGroup'
+      z: this.z
+    })
 
     this.add(this.groupRect)
     this.add(this.groupHead)
     this.refresh()
+  }
+
+  setZ(z: number) {
+    this.z = z
+    this.groupRect?.attr('z', z)
+    this.groupHead?.attr('z', z)
+    this.textContent?.attr('z', z)
   }
 
   refresh() {
@@ -169,12 +173,12 @@ class NodeGroup extends zrender.Group {
 
   active() {
     this.selected = true
-    // this.groupRect!.attr({
-    //   style:{
-    //     // shadowColor: 'yellow',
-    //     // shadowBlur: 3
-    //   }
-    // })
+    this.groupRect!.attr({
+      style:{
+        shadowColor: 'yellow',
+        shadowBlur: 3
+      }
+    })
     this.anchor?.show()
     this.shapes.forEach(shape => {
       shape.unActive()
@@ -182,12 +186,12 @@ class NodeGroup extends zrender.Group {
   }
   unActive() {
     this.selected = false
-    // this.groupRect!.attr({
-    //   style:{
-    //     shadowColor: '',
-    //     shadowBlur: 0
-    //   }
-    // })
+    this.groupRect!.attr({
+      style:{
+        shadowColor: '',
+        shadowBlur: 0
+      }
+    })
     this.anchor?.hide()
   }
 

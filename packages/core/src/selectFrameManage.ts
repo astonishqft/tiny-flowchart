@@ -5,6 +5,7 @@ import IDENTIFIER from './constants/identifiers'
 import type { IViewPortManage } from './viewPortManage'
 import type { ISettingManage } from './settingManage'
 import type { IShapeManage } from './shapeManage'
+import type { IGroupManage } from './groupManage'
 
 export interface ISelectFrameManage {
   getSelectFrame(): zrender.Rect
@@ -25,7 +26,8 @@ class SelectFrameManage {
   constructor(
     @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortManage: IViewPortManage,
     @inject(IDENTIFIER.SETTING_MANAGE) private _settingManage: ISettingManage,
-    @inject(IDENTIFIER.SHAPE_MANAGE) private _shapeManage: IShapeManage
+    @inject(IDENTIFIER.SHAPE_MANAGE) private _shapeManage: IShapeManage,
+    @inject(IDENTIFIER.GROUP_MANAGE) private _groupMgr: IGroupManage
   ) {
     this._selectFrame = new zrender.Rect({
       shape: {
@@ -64,9 +66,10 @@ class SelectFrameManage {
 
   multiSelect() {
     const selectFrameBoundingBox = this._selectFrame.getBoundingRect()
+    const groups = this._groupMgr.getGroups()
     selectFrameBoundingBox.x = this._selectFrame.x
     selectFrameBoundingBox.y = this._selectFrame.y
-    this._shapeManage.getShapes().forEach(shape => {
+    this._shapeManage.getShapes().concat(groups).forEach(shape => {
       const shapeBoundingBox = shape.getBoundingRect()
       shapeBoundingBox.x = shape.x
       shapeBoundingBox.y = shape.y

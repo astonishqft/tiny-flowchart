@@ -59,3 +59,14 @@ export const getMinPosition = (shapes: IShape[]): number[] => {
 
   return [minX, minY]
 }
+
+export const getMinZLevel = (shapes: IShape[]) => {
+  let minZLevel = Infinity
+  shapes.forEach(shape => {
+    if (shape.z! < minZLevel) {
+      minZLevel = shape.z!
+    }
+  })
+
+  return minZLevel
+}

@@ -125,7 +125,7 @@ class ShapeManage extends Disposable {
     }
 
     shape.on('click', () => {
-      console.log('shape click')
+      console.log('shape click', shape)
       shape.active()
     })
 

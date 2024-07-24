@@ -12,6 +12,7 @@ export interface IShape extends zrender.Element {
   anchor?: Anchor
   oldX?: number
   oldY?: number
+  z?: number
   parentGroup?: INodeGroup
   createAnchors(): void
   active(): void

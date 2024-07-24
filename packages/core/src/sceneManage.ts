@@ -12,7 +12,7 @@ import type { IZoomManage } from './zoomManage'
 import type { IConnectionManage } from './connectionManage'
 import type { IConnection, IControlPoint } from './connection'
 import type { ISelectFrameManage } from './selectFrameManage'
-import type { INodeGroup } from './shapes/nodeGroup'
+// import type { INodeGroup } from './shapes/nodeGroup'
 import type { IGroupManage } from './groupManage'
 
 export interface ISceneManage extends IDisposable {
@@ -69,7 +69,7 @@ class SceneManage extends Disposable {
   }
 
   initEvent() {
-    let selectShape: IShape | INodeGroup | null = null
+    // let selectShape: IShape | INodeGroup | null = null
     let startX = 0
     let startY = 0
     let offsetX = 0
@@ -81,8 +81,8 @@ class SceneManage extends Disposable {
     let connection: IConnection | null = null
     let selectFrameStatus = false
     let zoom = 1
-    let targetShapes: IShape[] = [] // 当前选中的节点，拖拽移动的节点，需要考虑单独移动一个节点和框选中多个节点进行批量移动
-    let isIntersect = false // 当从一个group里面往外拖动一个节点时，判断这个节点是否和Group的边界相交，也就是是否已经将这个节点拖动到Group外面
+    // let targetShapes: IShape[] = [] // 当前选中的节点，拖拽移动的节点，需要考虑单独移动一个节点和框选中多个节点进行批量移动
+    // let isIntersect = false // 当从一个group里面往外拖动一个节点时，判断这个节点是否和Group的边界相交，也就是是否已经将这个节点拖动到Group外面
 
     this._zr?.on('mousedown', (e: zrender.ElementEvent) => {
       drag = true
@@ -201,7 +201,7 @@ class SceneManage extends Disposable {
     })
 
     this._zr?.on('mouseup', (e) => {
-      const zoom = this._zoomManage.getZoom()
+      // const zoom = this._zoomManage.getZoom()
       drag = false
       // if (['shape', 'nodeGroup'].includes(dragModel)) {
       //   targetShapes.forEach(s => {
@@ -248,7 +248,7 @@ class SceneManage extends Disposable {
         this._selectFrameManage.hide()
       }
 
-      targetShapes = []
+      // targetShapes = []
       dragModel = 'scene'
     })
   }

@@ -73,7 +73,7 @@ class ConnectionManage extends Disposable {
 
   // TODO
   changeConnection(Connection: IConnection, type: ConnectionType) {
-    const conn = this._connections.filter(c => c === Connection)[0]
+    // const conn = this._connections.filter(c => c === Connection)[0]
     // conn.setConnectionType(type)
   }
 
