@@ -9,7 +9,8 @@ const IDENTIFIER = {
   CONNECTION_MANAGE: Symbol.for('ConnectionManage'),
   REF_LINE_MANAGE: Symbol.for('RefLineManage'),
   SELECT_FRAME_MANAGE: Symbol.for('SelectFrame'),
-  GROUP_MANAGE: Symbol.for('GroupManage')
+  GROUP_MANAGE: Symbol.for('GroupManage'),
+  STORAGE_MANAGE: Symbol.for('StorageManage')
 }
 
 export default IDENTIFIER

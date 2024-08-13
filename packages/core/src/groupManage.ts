@@ -6,36 +6,30 @@ import { Anchor } from './anchor'
 import { getMinPosition, getMinZLevel } from './utils'
 
 import type { IViewPortManage } from './viewPortManage'
-import type { IShapeManage } from './shapeManage'
 import type { IDragFrameManage } from './dragFrameManage'
 import type { IRefLineManage } from './refLineManage'
 import type { IConnectionManage } from './connectionManage'
-import type { IZoomManage } from './zoomManage'
+import type { IStorageManage } from './storageManage'
 import type { IAnchorPoint, IShape } from './shapes'
 
 export interface IGroupManage {
   createGroup(): void
+  unGroup(): void
   unActive(): void
-  getGroups(): NodeGroup[]
-  getActiveGroups(): NodeGroup[]
 }
 
 @injectable()
 class GroupManage {
-  private _groups: NodeGroup[] = []
   constructor(
     @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortMgr: IViewPortManage,
-    @inject(IDENTIFIER.SHAPE_MANAGE) private _shapeMgr: IShapeManage,
     @inject(IDENTIFIER.DRAG_FRAME_MANAGE) private _dragFrameMgr: IDragFrameManage,
     @inject(IDENTIFIER.REF_LINE_MANAGE) private _refLineMgr: IRefLineManage,
     @inject(IDENTIFIER.CONNECTION_MANAGE) private _connectionMgr: IConnectionManage,
-    @inject(IDENTIFIER.ZOOM_MANAGE) private _zoomMgr: IZoomManage,
+    @inject(IDENTIFIER.STORAGE_MANAGE) private _storageMgr: IStorageManage,
   ) {}
 
   createGroup() {
-    let activeShapes = this._shapeMgr.getActiveShapes()
-    const activeGroups = this.getActiveGroups()
-    activeShapes = activeShapes.concat(activeGroups)
+    const activeShapes = this._storageMgr.getActiveShapes().concat(this._storageMgr.getActiveGroups())
     if (activeShapes.length < 2) {
       return
     }
@@ -63,11 +57,14 @@ class GroupManage {
     })
     groupNode.anchor.refresh()
     this.initShapeEvent(groupNode)
-    this._groups.push(groupNode)
+    this._storageMgr.addGroup(groupNode)
     this._viewPortMgr.getViewPort().add(groupNode)
-    // 创建一个节点之后，就立即提前缓存参考线
-    // TODO 只要元素发生变化都需要更新
-    this._refLineMgr.addNode(groupNode)
+  }
+
+  unGroup() {
+    const activeGroup = this._storageMgr.getActiveGroups()
+
+
   }
 
   initShapeEvent(nodeGroup: NodeGroup) {
@@ -126,7 +123,7 @@ class GroupManage {
       startY = e.offsetY
 
       this.setShapesOldPosition(nodeGroup)
-      zoom = this._zoomMgr.getZoom()
+      zoom = this._storageMgr.getZoom()
       const { width, height, x, y } = nodeGroup.getBoundingBox()
 
       this._dragFrameMgr.updatePosition(x, y)
@@ -139,18 +136,8 @@ class GroupManage {
   }
 
   unActive() {
-    this._groups.forEach((group) => {
+    this._storageMgr.getGroups().forEach((group) => {
       group.unActive()
-    })
-  }
-
-  getGroups() {
-    return this._groups
-  }
-
-  getActiveGroups(): NodeGroup[] {
-    return this._groups.filter((group: NodeGroup) => {
-      return group.selected
     })
   }
 

@@ -7,13 +7,14 @@ import type { IShape } from './shapes'
 import type { IDragFrameManage } from './dragFrameManage'
 import type { IViewPortManage } from './viewPortManage'
 import type { ISettingManage } from './settingManage'
-import type { IZoomManage } from './zoomManage'
+import type { IStorageManage } from './storageManage'
+import type { INodeGroup } from './shapes/nodeGroup'
 
 export interface IRefLineManage {
   updateRefLines(): { magneticOffsetX: number, magneticOffsetY: number }
-  addNode(node: IShape): void
+  // addNode(node: IShape): void
   cacheRefLines(): void
-  removeNode(node: IShape): void
+  // removeNode(node: IShape): void
   clearRefPointAndRefLines(): void
 }
 interface IVerticalLine { // 有多个端点的垂直线
@@ -51,29 +52,29 @@ class RefLineManage {
 
   private _magneticSpacing = 0
 
-  private _nodes: IShape[] = []
+  // private _nodes: IShape[] = []
 
   constructor(
     @inject(IDENTIFIER.DRAG_FRAME_MANAGE) private _dragFrameManage: IDragFrameManage,
     @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortManage: IViewPortManage,
     @inject(IDENTIFIER.SETTING_MANAGE) private _settingManage: ISettingManage,
-    @inject(IDENTIFIER.ZOOM_MANAGE) private _zoomManage: IZoomManage,
+    @inject(IDENTIFIER.STORAGE_MANAGE) private _storageMgr: IStorageManage,
   ) {
     this._refPointSize = this._settingManage.get('refPointSize')
     this._refLineColor = this._settingManage.get('refLineColor')
 
-    this. _magneticSpacing = this._settingManage.get('magneticSpacing') / this._zoomManage.getZoom()
+    this. _magneticSpacing = this._settingManage.get('magneticSpacing') / this._storageMgr.getZoom()
     this.createRefLinePool()
     this.createRefPointPool()
   }
 
-  addNode(node: IShape) {
-    this._nodes.push(node)
-  }
+  // addNode(node: IShape) {
+  //   this._nodes.push(node)
+  // }
 
-  removeNode(node: IShape) {
-    this._nodes = this._nodes.filter((n) => n !== node)
-  }
+  // removeNode(node: IShape) {
+  //   this._nodes = this._nodes.filter((n) => n !== node)
+  // }
 
   createRefLinePool() {
     for (let i = 0; i < 6; i++) {
@@ -156,9 +157,13 @@ class RefLineManage {
     }
   }
 
+  getAllNodes(): (IShape | INodeGroup)[] {
+    return [...this._storageMgr.getShapes(), ...this._storageMgr.getGroups()]
+  }
+
   cacheRefLines() {
     this.clear()
-    this._nodes.forEach((shape: IShape) => {
+    this.getAllNodes().forEach((shape: IShape) => {
       const { x, y, width, height } = shape.getBoundingRect()
       const hl = x + shape.x
       const hm = hl + width / 2

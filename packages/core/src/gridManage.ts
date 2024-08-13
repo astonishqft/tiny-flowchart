@@ -6,11 +6,12 @@ import { Disposable } from './disposable'
 import type { IViewPortManage } from './viewPortManage'
 import type { ISettingManage } from './settingManage'
 import type { IDisposable } from './disposable'
+import type { IStorageManage } from './storageManage'
 
 export interface IGridManage extends IDisposable {
   x: number
   y: number
-  drawGrid(zoom: number): void
+  drawGrid(): void
 }
 
 @injectable()
@@ -25,7 +26,8 @@ class GridManage extends Disposable {
   points: zrender.Circle [] = []
   constructor(
     @inject(IDENTIFIER.SETTING_MANAGE) private _settingManage: ISettingManage,
-    @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortManage: IViewPortManage
+    @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortManage: IViewPortManage,
+    @inject(IDENTIFIER.STORAGE_MANAGE) private _storageMgr: IStorageManage
   ) {
     super()
     this.gridStep = this._settingManage.get('gridStep')
@@ -35,7 +37,7 @@ class GridManage extends Disposable {
       this.y = 0
       this.width = this._viewPortManage.getSceneWidth()
       this.height = this._viewPortManage.getSceneHeight()
-      this.drawGrid(1)
+      this.drawGrid()
     }, 0)
   }
 
@@ -49,7 +51,8 @@ class GridManage extends Disposable {
     return value - left <= right - value ? left : right
   }
 
-  drawGrid(zoom = 1) {
+  drawGrid() {
+    const zoom = this._storageMgr.getZoom()
     const viewPortX = -this._viewPortManage.getPositionX() / zoom
     const viewPortY = -this._viewPortManage.getPositionY() / zoom
     let startX = this.getClosestVal(viewPortX, this.gridStep)
@@ -95,6 +98,5 @@ class GridManage extends Disposable {
     }
   }
 }
-
 
 export { GridManage }

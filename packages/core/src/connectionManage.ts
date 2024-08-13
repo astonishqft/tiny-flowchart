@@ -8,6 +8,7 @@ import type { IDisposable } from './disposable'
 import type { IConnection } from './connection'
 import type { IShape } from './shapes'
 import type { IViewPortManage } from './viewPortManage'
+import type { IStorageManage } from './storageManage'
 
 export interface IConnectionManage extends IDisposable {
   createConnection(fromNode: IShape): IConnection
@@ -21,10 +22,12 @@ export interface IConnectionManage extends IDisposable {
 
 @injectable()
 class ConnectionManage extends Disposable {
-  private _connections: IConnection[] = []
   private _connectionType: ConnectionType = ConnectionType.OrtogonalLine
   updateConnectionType$ = new Subject<ConnectionType>()
-  constructor(@inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortManage: IViewPortManage,) {
+  constructor(
+    @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortManage: IViewPortManage,
+    @inject(IDENTIFIER.STORAGE_MANAGE) private _storageMgr: IStorageManage
+  ) {
     super()
     this._disposables.push(this.updateConnectionType$)
   }
@@ -44,7 +47,7 @@ class ConnectionManage extends Disposable {
   getConnectionByShape(shape: IShape) {
     const conns: IConnection[] = []
 
-    this._connections.forEach((connection: IConnection) => {
+    this._storageMgr.getConnections().forEach((connection: IConnection) => {
       if (connection.fromNode.id === shape.id || connection.toNode!.id === shape.id) {
         conns.push(connection)
       }
@@ -78,18 +81,14 @@ class ConnectionManage extends Disposable {
   }
 
   addConnection(connection: IConnection) {
-    this._connections.push(connection)
-  }
-
-  getConnections() {
-    return this._connections
+    this._storageMgr.addConnection(connection)
   }
 
   clear() {
-    this._connections.forEach((c: IConnection) => {
+    this._storageMgr.getConnections().forEach((c: IConnection) => {
       this._viewPortManage.getViewPort().remove(c)
     })
-    this._connections = []
+    this._storageMgr.clearConnections()
   }
 
   getConnectionType(): ConnectionType {

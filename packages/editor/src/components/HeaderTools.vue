@@ -125,7 +125,10 @@ const command = (name: string) => {
       break
     case 'group':
       groupMgr.createGroup()
-      break;
+      break
+    case 'ungroup':
+      groupMgr.unGroup()
+      break
     default:
       break
   } 

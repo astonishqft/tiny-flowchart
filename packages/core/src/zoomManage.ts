@@ -6,11 +6,11 @@ import type { IViewPortManage } from './viewPortManage'
 import type { ISettingManage } from './settingManage'
 import type { IGridManage } from './gridManage'
 import type { IDisposable } from './disposable'
+import type { IStorageManage } from './storageManage'
 
 export interface IZoomManage extends IDisposable {
   zoomIn(): void
   zoomOut(): void
-  getZoom(): number
 }
 
 @injectable()
@@ -18,12 +18,12 @@ class ZoomManage extends Disposable {
   private zoomStep: number
   private minZoom: number
   private maxZoom: number
-  private zoom: number = 1 // 放大系数
 
   constructor(
     @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortManage: IViewPortManage,
     @inject(IDENTIFIER.SETTING_MANAGE) private _settingManage: ISettingManage,
-    @inject(IDENTIFIER.GRID_MANAGE) private _gridManage: IGridManage
+    @inject(IDENTIFIER.GRID_MANAGE) private _gridManage: IGridManage,
+    @inject(IDENTIFIER.STORAGE_MANAGE) private _storageMgr: IStorageManage
   ) {
     super()
 
@@ -49,12 +49,12 @@ class ZoomManage extends Disposable {
   }
 
   setZoom(zoom: number, offsetX: number, offsetY: number) {
-    this.zoom = parseFloat((this.zoom * zoom).toFixed(3))
-    if (this.zoom > this.maxZoom) {
-      this.zoom = this.maxZoom
+    this._storageMgr.setZoom(parseFloat((this.getZoom() * zoom).toFixed(3)))
+    if (this.getZoom() > this.maxZoom) {
+      this._storageMgr.setZoom(this.maxZoom)
       return
-    } else if (this.zoom < this.minZoom) {
-      this.zoom = this.minZoom
+    } else if (this.getZoom() < this.minZoom) {
+      this._storageMgr.setZoom(this.minZoom)
       return
     }
     const scaleX = this._viewPortManage.getScaleX()
@@ -64,11 +64,11 @@ class ZoomManage extends Disposable {
 
     this._viewPortManage.setScale(scaleX * zoom, scaleY * zoom)
     this._viewPortManage.setPosition(zoom * positionX + offsetX, zoom * positionY + offsetY)
-    this._gridManage.drawGrid(this.zoom)
+    this._gridManage.drawGrid()
   }
 
   getZoom() {
-    return this.zoom
+    return this._storageMgr.getZoom()
   }
 }
 

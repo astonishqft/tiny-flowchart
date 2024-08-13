@@ -10,7 +10,6 @@ export interface INodeGroup extends IShape {
   boundingBox: zrender.BoundingRect 
   shapes: IShape[]
   canRemove: boolean
-  // updateBoundingBox(x: number, y: number, width: number, height: number): void
   refresh(): void
   getBoundingBox(): zrender.BoundingRect
   removeShapeFromGroup(shape: IShape): void
@@ -136,13 +135,6 @@ class NodeGroup extends zrender.Group {
       }
     })
   }
-
-  // updateBoundingBox(x: number, y: number, width: number, height: number) {
-  //   this.boundingBox.x = x
-  //   this.boundingBox.y = y
-  //   this.boundingBox.width = width
-  //   this.boundingBox.height = height
-  // }
 
   createAnchors() {
     this.anchors = []
