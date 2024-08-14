@@ -50,6 +50,7 @@ class SceneManage extends Disposable {
   init(zr: zrender.ZRenderType) {
     this._zr = zr
     this._viewPortManage.addSelfToZr(this._zr)
+    this._gridManage.addSelfToZr(this._zr)
     this.initEvent()
   }
 
@@ -126,6 +127,7 @@ class SceneManage extends Disposable {
       if (drag && dragModel === 'scene' && !selectFrameStatus) { // TODO: 排除没有点击到节点的情况，后续需要继续排除点击到连线等情况
         this.setCursorStyle('grabbing')
         this._viewPortManage.setPosition(oldViewPortX + offsetX, oldViewPortY + offsetY)
+        this._gridManage.setPosition(oldViewPortX + offsetX, oldViewPortY + offsetY)
         this._gridManage.drawGrid()
       }
 

@@ -62,9 +62,12 @@ class GroupManage {
   }
 
   unGroup() {
-    const activeGroup = this._storageMgr.getActiveGroups()
+    const activeGroups = this._storageMgr.getActiveGroups()
 
-
+    if (activeGroups.length === 1) {
+      const activeGroup = activeGroups[0]
+      this._viewPortMgr.getViewPort().remove(activeGroup)
+    }
   }
 
   initShapeEvent(nodeGroup: NodeGroup) {

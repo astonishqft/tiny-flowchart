@@ -22,63 +22,63 @@ export interface IViewPortManage {
 
 @injectable()
 class ViewPortManage extends Disposable {
-  private viewPort: zrender.Group = new zrender.Group()
+  private _viewPort: zrender.Group = new zrender.Group()
   constructor() {
     super()
   }
 
   getViewPort(): zrender.Group {
-    return this.viewPort
+    return this._viewPort
   }
 
   setScale(x: number, y: number) {
-    this.viewPort.attr('scaleX', x)
-    this.viewPort.attr('scaleY', y)
+    this._viewPort.attr('scaleX', x)
+    this._viewPort.attr('scaleY', y)
   }
 
   getScaleX() {
-    return this.viewPort.scaleX
+    return this._viewPort.scaleX
   }
 
   getScaleY() {
-    return this.viewPort.scaleY
+    return this._viewPort.scaleY
   }
 
   setPosition(x: number, y: number) {
-    this.viewPort.attr('x', x)
-    this.viewPort.attr('y', y)
+    this._viewPort.attr('x', x)
+    this._viewPort.attr('y', y)
   }
 
   getPositionX(): number {
-    return this.viewPort.x
+    return this._viewPort.x
   }
 
   getPositionY(): number {
-    return this.viewPort.y
+    return this._viewPort.y
   }
 
   addSelfToZr(zr: zrender.ZRenderType) {
-    zr.add(this.viewPort)
+    zr.add(this._viewPort)
   }
 
   addShapeToViewPort(shape: IShape) {
-    this.viewPort.add(shape)
+    this._viewPort.add(shape)
   }
 
   addAnchorToViewPort(anchor: IAnchorPoint) {
-    this.viewPort.add(anchor)
+    this._viewPort.add(anchor)
   }
 
   getSceneWidth() {
-    return this.viewPort.__zr.getWidth()
+    return this._viewPort.__zr.getWidth()
   }
 
   getSceneHeight() {
-    return this.viewPort.__zr.getHeight()
+    return this._viewPort.__zr.getHeight()
   }
 
   getZr() {
-    return this.viewPort.__zr
+    return this._viewPort.__zr
   }
 }
 

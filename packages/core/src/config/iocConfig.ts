@@ -35,7 +35,7 @@ container.bind<ISceneManage>(IDENTIFIER.SCENE_MANAGE).to(SceneManage).inSingleto
 container.bind<IShapeManage>(IDENTIFIER.SHAPE_MANAGE).to(ShapeManage).inTransientScope()
 container.bind<IDragFrameManage>(IDENTIFIER.DRAG_FRAME_MANAGE).to(DragFrameManage).inSingletonScope()
 container.bind<IViewPortManage>(IDENTIFIER.VIEW_PORT_MANAGE).to(ViewPortManage).inSingletonScope()
-container.bind<IGridManage>(IDENTIFIER.GRID_MANAGE).to(GridManage).inTransientScope()
+container.bind<IGridManage>(IDENTIFIER.GRID_MANAGE).to(GridManage).inSingletonScope()
 container.bind<IZoomManage>(IDENTIFIER.ZOOM_MANAGE).to(ZoomManage).inTransientScope()
 container.bind<IConnectionManage>(IDENTIFIER.CONNECTION_MANAGE).to(ConnectionManage).inTransientScope()
 container.bind<IRefLineManage>(IDENTIFIER.REF_LINE_MANAGE).to(RefLineManage).inSingletonScope()

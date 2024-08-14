@@ -9,41 +9,120 @@ import type { IDisposable } from './disposable'
 import type { IStorageManage } from './storageManage'
 
 export interface IGridManage extends IDisposable {
-  x: number
-  y: number
+  addSelfToZr(zr: zrender.ZRenderType): void
   drawGrid(): void
+  setPosition(x: number, y: number): void
+  setScale(x: number, y: number): void
+}
+
+class PointsPool {
+  private _points: zrender.Circle[] = []
+  private _size: number
+  private _layer: zrender.Group
+  constructor(size: number, layer: zrender.Group) {
+    this._size = size
+    this._layer = layer
+    this.initPool()
+  }
+
+  createPoint() {
+    const p = new zrender.Circle({
+      shape: {
+        r: 0.5,
+        cx: 0,
+        cy: 0
+      },
+      style: {
+        stroke: '#868e96',
+        fill: '#868e96',
+        lineWidth: 1
+      },
+      z: -100
+    })
+
+    this._layer.add(p)
+
+    return p
+  }
+
+  initPool() {
+    for(let i = 0; i < this._size; i ++) {
+      this._points.push(this.createPoint())
+    }
+  }
+
+  /**
+   * 调整点池的大小
+   * 
+   * 当指定的大小与当前点池的大小不一致时，会根据需要增加或减少点的数量
+   * 如果大小增加，则添加新点到池中；如果大小减小，则从池中移除多余的点
+   * 
+   * @param size 想要调整到的点池大小
+   */
+  resizePool(size: number) {
+    if (size > this._size) {
+      for (let i = 0; i < size - this._size; i++) {
+        this._points.push(this.createPoint())
+      }
+    } else if (size < this._size) {
+      const newPoints = this._points.splice(0, size)
+
+      for (let i = 0; i < (this._size - size); i++) {
+        this._layer.remove(this._points[i])
+      }
+      this._points = newPoints
+    }
+    this._size = size
+  }
+
+  getPoints() {
+    return this._points
+  }
+
+  updatePosition(index: number, cx: number, cy: number) {
+    this._points[index].attr({
+      shape: {
+        cx,
+        cy
+      }
+    })
+  }
 }
 
 @injectable()
 class GridManage extends Disposable {
-  gridStep: number
-  x: number = 0
-  y: number = 0
-  width: number = 0
-  height: number = 0
-  xPoints: number[] = []
-  yPoints: number[] = []
-  points: zrender.Circle [] = []
+  private _gridStep: number
+  private _width: number = 0
+  private _height: number = 0
+  private _xPoints: number[] = []
+  private _yPoints: number[] = []
+  private _gridLayer: zrender.Group
+  private _pointsPool: PointsPool
   constructor(
     @inject(IDENTIFIER.SETTING_MANAGE) private _settingManage: ISettingManage,
     @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortManage: IViewPortManage,
     @inject(IDENTIFIER.STORAGE_MANAGE) private _storageMgr: IStorageManage
   ) {
     super()
-    this.gridStep = this._settingManage.get('gridStep')
+    this._gridStep = this._settingManage.get('gridStep')
+    this._gridLayer = new zrender.Group()
+
+    this._pointsPool = new PointsPool(1000, this._gridLayer)
 
     setTimeout(() => {
-      this.x = 0
-      this.y = 0
-      this.width = this._viewPortManage.getSceneWidth()
-      this.height = this._viewPortManage.getSceneHeight()
+      this._width = this._viewPortManage.getSceneWidth()
+      this._height = this._viewPortManage.getSceneHeight()
       this.drawGrid()
     }, 0)
   }
 
+  addSelfToZr(zr: zrender.ZRenderType) {
+    zr.add(this._gridLayer)
+  }
+
   /**
- * 找出离 value 最近的 segment 的倍数值
- */
+  * 找出离 value 最近的 segment 的倍数值
+  */
   getClosestVal(value: number, segment: number) {
     const n = Math.floor(value / segment)
     const left = segment * n
@@ -51,49 +130,42 @@ class GridManage extends Disposable {
     return value - left <= right - value ? left : right
   }
 
+  setPosition(x: number, y: number) {
+    this._gridLayer.attr('x', x)
+    this._gridLayer.attr('y', y)
+  }
+
+  setScale(x: number, y: number) {
+    this._gridLayer.attr('scaleX', x)
+    this._gridLayer.attr('scaleY', y)
+  }
+
   drawGrid() {
     const zoom = this._storageMgr.getZoom()
-    const viewPortX = -this._viewPortManage.getPositionX() / zoom
-    const viewPortY = -this._viewPortManage.getPositionY() / zoom
-    let startX = this.getClosestVal(viewPortX, this.gridStep)
-    let endX = this.getClosestVal(viewPortX + this.width / zoom, this.gridStep)
-    let startY = this.getClosestVal(viewPortY, this.gridStep)
-    let endY = this.getClosestVal(viewPortY+ this.height / zoom, this.gridStep)
-    this.xPoints = []
-    this.yPoints = []
-    this.points.forEach(p => {
-      this._viewPortManage.getViewPort().remove(p)
-    })
-    this.points = []
+    let startX = this.getClosestVal(-this._gridLayer.x / zoom, this._gridStep)
+    let endX = this.getClosestVal(-this._gridLayer.x / zoom + this._width / zoom, this._gridStep)
+    let startY = this.getClosestVal(-this._gridLayer.y / zoom, this._gridStep)
+    let endY = this.getClosestVal(-this._gridLayer.y / zoom + this._height / zoom, this._gridStep)
+    this._xPoints = []
+    this._yPoints = []
 
     while (startX <= endX) {
-      this.xPoints.push(startX)
-      startX += this.gridStep
+      this._xPoints.push(startX)
+      startX += this._gridStep
     }
 
     while (startY <= endY) {
-      this.yPoints.push(startY)
-      startY += this.gridStep
+      this._yPoints.push(startY)
+      startY += this._gridStep
     }
 
-    for (let i = 0; i < this.yPoints.length; i ++) {
-      for(let j = 0; j < this.xPoints.length; j ++) {
-        const point = new zrender.Circle({
-          shape: {
-            r: 0.5,
-            cx: (this.xPoints[j]),
-            cy: (this.yPoints[i])
-          },
-          style: {
-            stroke: '#868e96',
-            fill: '#868e96',
-            lineWidth: 1
-          },
-          z: -100
-        })
+    this._pointsPool.resizePool(this._yPoints.length * this._xPoints.length)
 
-        this.points.push(point)
-        this._viewPortManage.getViewPort().add(point)
+    let index = 0
+    for (let i = 0; i < this._yPoints.length; i ++) {
+      for(let j = 0; j < this._xPoints.length; j ++) {
+        this._pointsPool.updatePosition(index, this._xPoints[j], this._yPoints[i])
+        index ++
       }
     }
   }

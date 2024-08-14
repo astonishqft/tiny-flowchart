@@ -49,14 +49,13 @@ class ZoomManage extends Disposable {
   }
 
   setZoom(zoom: number, offsetX: number, offsetY: number) {
-    this._storageMgr.setZoom(parseFloat((this.getZoom() * zoom).toFixed(3)))
-    if (this.getZoom() > this.maxZoom) {
-      this._storageMgr.setZoom(this.maxZoom)
+    const currentZoom = parseFloat((this.getZoom() * zoom).toFixed(3))
+    if (currentZoom > this.maxZoom) {
       return
-    } else if (this.getZoom() < this.minZoom) {
-      this._storageMgr.setZoom(this.minZoom)
+    } else if (currentZoom < this.minZoom) {
       return
     }
+    this._storageMgr.setZoom(currentZoom)
     const scaleX = this._viewPortManage.getScaleX()
     const scaleY = this._viewPortManage.getScaleY()
     const positionX = this._viewPortManage.getPositionX()
@@ -64,6 +63,8 @@ class ZoomManage extends Disposable {
 
     this._viewPortManage.setScale(scaleX * zoom, scaleY * zoom)
     this._viewPortManage.setPosition(zoom * positionX + offsetX, zoom * positionY + offsetY)
+    this._gridManage.setScale(scaleX * zoom, scaleY * zoom)
+    this._gridManage.setPosition(zoom * positionX + offsetX, zoom * positionY + offsetY)
     this._gridManage.drawGrid()
   }
 
