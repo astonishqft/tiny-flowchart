@@ -11,6 +11,7 @@ import type { IRefLineManage } from './refLineManage'
 import type { IConnectionManage } from './connectionManage'
 import type { IStorageManage } from './storageManage'
 import type { IAnchorPoint, IShape } from './shapes'
+import type { INodeGroup } from './shapes/nodeGroup'
 
 export interface IGroupManage {
   createGroup(): void
@@ -34,7 +35,7 @@ class GroupManage {
       return
     }
 
-    activeShapes.forEach(shape => { shape.unActive()})
+    activeShapes.forEach(shape => { shape.unActive() })
 
     const minPostion = getMinPosition(activeShapes)
 
@@ -53,12 +54,12 @@ class GroupManage {
 
     groupNode.createAnchors()
     groupNode.anchor.bars.forEach((bar: IAnchorPoint) => {
-      this._viewPortMgr.addAnchorToViewPort(bar)
+      this._viewPortMgr.addElementToViewPort(bar)
     })
     groupNode.anchor.refresh()
     this.initShapeEvent(groupNode)
     this._storageMgr.addGroup(groupNode)
-    this._viewPortMgr.getViewPort().add(groupNode)
+    this._viewPortMgr.addElementToViewPort(groupNode)
   }
 
   unGroup() {
@@ -67,10 +68,31 @@ class GroupManage {
     if (activeGroups.length === 1) {
       const activeGroup = activeGroups[0]
       this._viewPortMgr.getViewPort().remove(activeGroup)
+      activeGroup.anchor!.bars.forEach((bar: IAnchorPoint) => {
+        this._viewPortMgr.removeElementFromViewPort(bar)
+      })
+      activeGroup.shapes.forEach((shape: IShape) => {
+        delete shape.parentGroup
+        if (activeGroup.parentGroup) {
+          shape.parentGroup = activeGroup.parentGroup
+          activeGroup.parentGroup.shapes.push(shape)
+          activeGroup.parentGroup.shapes = activeGroup.parentGroup.shapes.filter(item => item !== activeGroup)
+        }
+      })
+      this.removeAssociatedConnection(activeGroup)
+      this._storageMgr.removeGroup(activeGroup)
     }
   }
 
-  initShapeEvent(nodeGroup: NodeGroup) {
+  removeAssociatedConnection(nodeGroup: INodeGroup) {
+    this._storageMgr.getConnections().forEach(connection => {
+      if (connection.fromNode.id === nodeGroup.id || connection.toNode!.id === nodeGroup.id) {
+        this._connectionMgr.removeConnection(connection)
+      }
+    })
+  }
+
+  initShapeEvent(nodeGroup: INodeGroup) {
     let startX = 0
     let startY = 0
     let zoom = 1
@@ -144,7 +166,7 @@ class GroupManage {
     })
   }
 
-  updateGroupShapes(nodeGroup: NodeGroup, offsetX: number, offsetY: number, startX: number, startY: number, zoom: number, magneticOffsetX: number, magneticOffsetY: number) {
+  updateGroupShapes(nodeGroup: INodeGroup, offsetX: number, offsetY: number, startX: number, startY: number, zoom: number, magneticOffsetX: number, magneticOffsetY: number) {
     nodeGroup.attr('x', nodeGroup.oldX! + (offsetX - startX) / zoom + magneticOffsetX / zoom)
     nodeGroup.attr('y', nodeGroup.oldY! + (offsetY - startY) / zoom + magneticOffsetY / zoom)
     this._connectionMgr.refreshConnection(nodeGroup)
@@ -160,14 +182,14 @@ class GroupManage {
     })
   }
 
-  setShapesOldPosition(nodeGroup: NodeGroup) {
+  setShapesOldPosition(nodeGroup: INodeGroup) {
     nodeGroup.oldX = nodeGroup.x
     nodeGroup.oldY = nodeGroup.y
     nodeGroup.shapes.forEach((shape: IShape) => {
       shape.oldX = shape.x
       shape.oldY = shape.y
       if (shape.nodeType === 'nodeGroup') {
-        this.setShapesOldPosition(shape as NodeGroup)
+        this.setShapesOldPosition(shape as INodeGroup)
       }
     })
   }

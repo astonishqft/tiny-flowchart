@@ -11,23 +11,23 @@ import type { ISettingManage, IIocEditorConfig } from './settingManage'
 export class IocEditor {
   _zr: zrender.ZRenderType
   _manageList: Disposable[] = []
-  private get _sceneManage(): ISceneManage {
+  private get _sceneMgr(): ISceneManage {
     return container.get<ISceneManage>(IDENTIFIER.SCENE_MANAGE)
   }
 
-  private get _shapeManage(): IShapeManage {
+  private get _shapeMgr(): IShapeManage {
     return container.get<IShapeManage>(IDENTIFIER.SHAPE_MANAGE)
   }
 
-  private get _settingManage(): ISettingManage {
+  private get _settingMgr(): ISettingManage {
     return container.get<ISettingManage>(IDENTIFIER.SETTING_MANAGE)
   }
 
-  private get _gridManage(): IGridManage {
+  private get _gridMgr(): IGridManage {
     return container.get<IGridManage>(IDENTIFIER.GRID_MANAGE)
   }
 
-  private get _viewPortManage() {
+  private get _viewPortMgr() {
     return container.get<any>(IDENTIFIER.VIEW_PORT_MANAGE)
   }
 
@@ -36,21 +36,21 @@ export class IocEditor {
   }
 
   constructor(dom: HTMLElement, config: IIocEditorConfig) {
-    this._settingManage.setDefaultConfig(config)
+    this._settingMgr.setDefaultConfig(config)
     this._zr = this.initZr(dom)
-    this._sceneManage.init(this._zr)
+    this._sceneMgr.init(this._zr)
   }
 
   addShape(type: string, options: { x: number, y: number }) {
-    this._sceneManage.addShape(type, options)
+    this._sceneMgr.addShape(type, options)
   }
 
   destroy() {
-    this._sceneManage.dispose()
-    this._shapeManage.dispose()
-    this._gridManage.dispose()
-    this._viewPortManage.dispose()
-    this._settingManage.dispose()
+    this._sceneMgr.dispose()
+    this._shapeMgr.dispose()
+    this._gridMgr.dispose()
+    this._viewPortMgr.dispose()
+    this._settingMgr.dispose()
     this._zr.dispose()
   }
 }

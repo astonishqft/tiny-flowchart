@@ -27,30 +27,30 @@ export type IMouseEvent = zrender.Element & { nodeType?: string }
 class SceneManage extends Disposable {
   _zr: zrender.ZRenderType | null = null
   constructor(
-    @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortManage: IViewPortManage,
-    @inject(IDENTIFIER.GRID_MANAGE) private _gridManage: IGridManage,
-    @inject(IDENTIFIER.SHAPE_MANAGE) private _shapeManage: IShapeManage,
-    @inject(IDENTIFIER.CONNECTION_MANAGE) private _connectionManage: IConnectionManage,
-    @inject(IDENTIFIER.SELECT_FRAME_MANAGE) private _selectFrameManage: ISelectFrameManage,
-    @inject(IDENTIFIER.GROUP_MANAGE) private _groupManage: IGroupManage,
+    @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortMgr: IViewPortManage,
+    @inject(IDENTIFIER.GRID_MANAGE) private _gridMgr: IGridManage,
+    @inject(IDENTIFIER.SHAPE_MANAGE) private _shapeMgr: IShapeManage,
+    @inject(IDENTIFIER.CONNECTION_MANAGE) private _connectionMgr: IConnectionManage,
+    @inject(IDENTIFIER.SELECT_FRAME_MANAGE) private _selectFrameMgr: ISelectFrameManage,
+    @inject(IDENTIFIER.GROUP_MANAGE) private _groupMgr: IGroupManage,
     @inject(IDENTIFIER.STORAGE_MANAGE) private _storageMgr: IStorageManage
   ) {
     super()
   }
 
   addShape(type: string, options: { x: number, y: number }) {
-    this._shapeManage.createShape(type, options)
+    this._shapeMgr.createShape(type, options)
   }
 
   clear() {
-    this._connectionManage.clear()
-    this._shapeManage.clear()
+    this._connectionMgr.clear()
+    this._shapeMgr.clear()
   }
 
   init(zr: zrender.ZRenderType) {
     this._zr = zr
-    this._viewPortManage.addSelfToZr(this._zr)
-    this._gridManage.addSelfToZr(this._zr)
+    this._viewPortMgr.addSelfToZr(this._zr)
+    this._gridMgr.addSelfToZr(this._zr)
     this.initEvent()
   }
 
@@ -70,8 +70,8 @@ class SceneManage extends Disposable {
     let offsetX = 0
     let offsetY = 0
     let drag = false
-    let oldViewPortX = this._viewPortManage.getPositionX()
-    let oldViewPortY = this._viewPortManage.getPositionY()
+    let oldViewPortX = this._viewPortMgr.getPositionX()
+    let oldViewPortY = this._viewPortMgr.getPositionY()
     let dragModel = 'canvas'
     let connection: IConnection | null = null
     let selectFrameStatus = false
@@ -84,22 +84,21 @@ class SceneManage extends Disposable {
       if (e.target) {
         drag = false
       }
-      oldViewPortX = this._viewPortManage.getPositionX()
-      oldViewPortY = this._viewPortManage.getPositionY()
+      oldViewPortX = this._viewPortMgr.getPositionX()
+      oldViewPortY = this._viewPortMgr.getPositionY()
       zoom = this._storageMgr.getZoom()
-      selectFrameStatus = this._selectFrameManage.getSelectFrameStatus() // 是否是选中框
+      selectFrameStatus = this._selectFrameMgr.getSelectFrameStatus() // 是否是选中框
       if (selectFrameStatus) {
-        this._selectFrameManage.setPosition((startX - oldViewPortX) / zoom, (startY - oldViewPortY) / zoom)
-        this._selectFrameManage.resize(0, 0)
-        this._selectFrameManage.show()
+        this._selectFrameMgr.setPosition((startX - oldViewPortX) / zoom, (startY - oldViewPortY) / zoom)
+        this._selectFrameMgr.resize(0, 0)
+        this._selectFrameMgr.show()
       }
 
       // 选中锚点
       if (e.target && (e.target as IAnchorPoint).mark === 'anch') {
         dragModel = 'anchor'
-        connection = this._connectionManage.createConnection((e.target as IAnchorPoint).node)
+        connection = this._connectionMgr.createConnection((e.target as IAnchorPoint).node)
         connection.setFromPoint((e.target as IAnchorPoint).point)
-        connection.addSelfToViewPort(this._viewPortManage.getViewPort())
       }
 
       if (e.target && (e.target as IControlPoint).mark === 'controlPoint') {
@@ -108,8 +107,8 @@ class SceneManage extends Disposable {
 
       if (!e.target) {
         // 如果什么都没选中的话
-        this._shapeManage.unActive()
-        this._groupManage.unActive()
+        this._shapeMgr.unActive()
+        this._groupMgr.unActive()
         dragModel = 'scene'
       }
     })
@@ -126,14 +125,14 @@ class SceneManage extends Disposable {
       // 拖拽画布(利用的原理是改变Group的 position 坐标)
       if (drag && dragModel === 'scene' && !selectFrameStatus) { // TODO: 排除没有点击到节点的情况，后续需要继续排除点击到连线等情况
         this.setCursorStyle('grabbing')
-        this._viewPortManage.setPosition(oldViewPortX + offsetX, oldViewPortY + offsetY)
-        this._gridManage.setPosition(oldViewPortX + offsetX, oldViewPortY + offsetY)
-        this._gridManage.drawGrid()
+        this._viewPortMgr.setPosition(oldViewPortX + offsetX, oldViewPortY + offsetY)
+        this._gridMgr.setPosition(oldViewPortX + offsetX, oldViewPortY + offsetY)
+        this._gridMgr.drawGrid()
       }
 
       if (selectFrameStatus) {
         // 框选
-        this._selectFrameManage.resize(offsetX / zoom, offsetY / zoom)
+        this._selectFrameMgr.resize(offsetX / zoom, offsetY / zoom)
       }
     })
 
@@ -144,7 +143,6 @@ class SceneManage extends Disposable {
         // 创建连线
         connection.setToPoint((e.target as IAnchorPoint).point)
         connection.connect((e.target as IAnchorPoint).node)
-        this._connectionManage.addConnection(connection)
       }
 
       if (connection) {
@@ -152,9 +150,9 @@ class SceneManage extends Disposable {
       }
 
       if (selectFrameStatus) {
-        this._selectFrameManage.multiSelect()
-        this._selectFrameManage.setSelectFrameStatus(false)
-        this._selectFrameManage.hide()
+        this._selectFrameMgr.multiSelect()
+        this._selectFrameMgr.setSelectFrameStatus(false)
+        this._selectFrameMgr.hide()
       }
 
       dragModel = 'scene'

@@ -6,7 +6,6 @@ import type { IDisposable } from './disposable'
 import type { IViewPortManage } from './viewPortManage'
 
 export interface IDragFrameManage extends IDisposable {
-  addSelfToViewPort(viewPort: zrender.Group): void
   show(): void
   hide(): void
   updatePosition(x: number, y: number): void
@@ -20,7 +19,7 @@ export interface IDragFrameManage extends IDisposable {
 class DragFrameManage extends Disposable {
   private _frame: zrender.Rect
   constructor(
-    @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortManage: IViewPortManage
+    @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortMgr: IViewPortManage
   ) {
     super()
     this._frame = new zrender.Rect({
@@ -41,13 +40,9 @@ class DragFrameManage extends Disposable {
       z: 100000
     })
 
-    this._viewPortManage.getViewPort().add(this._frame)
+    this._viewPortMgr.addElementToViewPort(this._frame)
 
     this._frame.hide()
-  }
-
-  addSelfToViewPort(viewPort: zrender.Group) {
-    viewPort.add(this._frame) 
   }
 
   show() {

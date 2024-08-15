@@ -23,8 +23,8 @@ class SelectFrameManage {
   private _selectFrameStatus: boolean = false
 
   constructor(
-    @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortManage: IViewPortManage,
-    @inject(IDENTIFIER.SETTING_MANAGE) private _settingManage: ISettingManage,
+    @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortMgr: IViewPortManage,
+    @inject(IDENTIFIER.SETTING_MANAGE) private _settingMgr: ISettingManage,
     @inject(IDENTIFIER.STORAGE_MANAGE) private _storageMgr: IStorageManage
   ) {
     this._selectFrame = new zrender.Rect({
@@ -35,7 +35,7 @@ class SelectFrameManage {
         height: 0
       },
       style: {
-        fill: this._settingManage.get('selectFrameColor'),
+        fill: this._settingMgr.get('selectFrameColor'),
         opacity: 0.2,
         lineDash: [4, 4]
       },
@@ -43,7 +43,7 @@ class SelectFrameManage {
       z: 100000
     })
 
-    this._viewPortManage.getViewPort().add(this._selectFrame)
+    this._viewPortMgr.addElementToViewPort(this._selectFrame)
 
     this.hide()
   }

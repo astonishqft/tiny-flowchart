@@ -99,19 +99,19 @@ class GridManage extends Disposable {
   private _gridLayer: zrender.Group
   private _pointsPool: PointsPool
   constructor(
-    @inject(IDENTIFIER.SETTING_MANAGE) private _settingManage: ISettingManage,
-    @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortManage: IViewPortManage,
+    @inject(IDENTIFIER.SETTING_MANAGE) private _settingMgr: ISettingManage,
+    @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortMgr: IViewPortManage,
     @inject(IDENTIFIER.STORAGE_MANAGE) private _storageMgr: IStorageManage
   ) {
     super()
-    this._gridStep = this._settingManage.get('gridStep')
+    this._gridStep = this._settingMgr.get('gridStep')
     this._gridLayer = new zrender.Group()
 
     this._pointsPool = new PointsPool(1000, this._gridLayer)
 
     setTimeout(() => {
-      this._width = this._viewPortManage.getSceneWidth()
-      this._height = this._viewPortManage.getSceneHeight()
+      this._width = this._viewPortMgr.getSceneWidth()
+      this._height = this._viewPortMgr.getSceneHeight()
       this.drawGrid()
     }, 0)
   }

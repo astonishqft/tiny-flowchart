@@ -6,10 +6,12 @@ import type { IConnection } from './connection'
 export interface IStorageManage {
   addShape(shape: IShape): void
   addGroup(group: INodeGroup): void
+  removeGroup(group: INodeGroup): void
   getShapes(): IShape[]
   getGroups(): INodeGroup[]
   getConnections(): IConnection[]
   addConnection(connection: IConnection): void
+  removeConnection(connection: IConnection): void
   setZoom(zoom: number): void
   getZoom(): number
   clearShapes(): void
@@ -34,6 +36,10 @@ class StorageManage {
   addGroup(group: INodeGroup) {
     this._groups.push(group)
   }
+
+  removeGroup(group: INodeGroup) {
+    this._groups = this._groups.filter(item => item !== group)
+  }
   getShapes() {
     return this._shapes
   }
@@ -47,6 +53,10 @@ class StorageManage {
 
   getConnections() {
     return this._connections
+  }
+
+  removeConnection(connection: IConnection) {
+    this._connections = this._connections.filter(item => item !== connection)
   }
 
   clearConnections() {

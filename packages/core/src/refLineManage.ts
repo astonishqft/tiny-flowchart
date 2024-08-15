@@ -55,26 +55,18 @@ class RefLineManage {
   // private _nodes: IShape[] = []
 
   constructor(
-    @inject(IDENTIFIER.DRAG_FRAME_MANAGE) private _dragFrameManage: IDragFrameManage,
-    @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortManage: IViewPortManage,
-    @inject(IDENTIFIER.SETTING_MANAGE) private _settingManage: ISettingManage,
+    @inject(IDENTIFIER.DRAG_FRAME_MANAGE) private _dragFrameMgr: IDragFrameManage,
+    @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortMgr: IViewPortManage,
+    @inject(IDENTIFIER.SETTING_MANAGE) private _settingMgr: ISettingManage,
     @inject(IDENTIFIER.STORAGE_MANAGE) private _storageMgr: IStorageManage,
   ) {
-    this._refPointSize = this._settingManage.get('refPointSize')
-    this._refLineColor = this._settingManage.get('refLineColor')
+    this._refPointSize = this._settingMgr.get('refPointSize')
+    this._refLineColor = this._settingMgr.get('refLineColor')
 
-    this. _magneticSpacing = this._settingManage.get('magneticSpacing') / this._storageMgr.getZoom()
+    this. _magneticSpacing = this._settingMgr.get('magneticSpacing') / this._storageMgr.getZoom()
     this.createRefLinePool()
     this.createRefPointPool()
   }
-
-  // addNode(node: IShape) {
-  //   this._nodes.push(node)
-  // }
-
-  // removeNode(node: IShape) {
-  //   this._nodes = this._nodes.filter((n) => n !== node)
-  // }
 
   createRefLinePool() {
     for (let i = 0; i < 6; i++) {
@@ -94,13 +86,13 @@ class RefLineManage {
         invisible: true
       })
   
-      this._viewPortManage.getViewPort().add(l)
+      this._viewPortMgr.addElementToViewPort(l)
       this._refLinePool.push(l) 
     }
   }
 
   createRefPointPool() {
-    for (let i = 0; i < 21; i++) {
+    for (let i = 0; i < 23; i++) {
       const lineL = new zrender.Line({
         shape: {
           x1: 0,
@@ -132,8 +124,8 @@ class RefLineManage {
         invisible: true
       })
 
-      this._viewPortManage.getViewPort().add(lineL)
-      this._viewPortManage.getViewPort().add(lineR)
+      this._viewPortMgr.addElementToViewPort(lineL)
+      this._viewPortMgr.addElementToViewPort(lineR)
       this._refPointPool.push([lineL, lineR])
     }
   }
@@ -204,7 +196,7 @@ class RefLineManage {
     this._toDrawHLines = []
     this.clearRefPointAndRefLines()
 
-    const frame = this._dragFrameManage.getFrame()
+    const frame = this._dragFrameMgr.getFrame()
     const { x, y, width, height } = frame.getBoundingRect()
     const hl = x + frame.x
     const hm = hl + width / 2
@@ -334,9 +326,9 @@ class RefLineManage {
 
     // 修正拖动浮层的位置，产生磁吸的效果
     if (offsetX || offsetY) {
-      this._dragFrameManage.updatePosition(
-        this._dragFrameManage.getFrame().x + offsetX,
-        this._dragFrameManage.getFrame().y + offsetY
+      this._dragFrameMgr.updatePosition(
+        this._dragFrameMgr.getFrame().x + offsetX,
+        this._dragFrameMgr.getFrame().y + offsetY
       )
     }
 

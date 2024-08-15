@@ -27,7 +27,6 @@ class ShapeManage extends Disposable {
   // updateAddShape$ = new Subject<IShape>()
   constructor(
     @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortMgr: IViewPortManage,
-    // @inject(IDENTIFIER.ZOOM_MANAGE) private _zoomMgr: IZoomManage,
     @inject(IDENTIFIER.DRAG_FRAME_MANAGE) private _dragFrameMgr: IDragFrameManage,
     @inject(IDENTIFIER.CONNECTION_MANAGE) private _connectionMgr: IConnectionManage,
     @inject(IDENTIFIER.REF_LINE_MANAGE) private _refLineMgr: IRefLineManage,
@@ -51,11 +50,11 @@ class ShapeManage extends Disposable {
 
     shape.createAnchors()
     shape.anchor.bars.forEach((bar: IAnchorPoint) => {
-      this._viewPortMgr.addAnchorToViewPort(bar)
+      this._viewPortMgr.addElementToViewPort(bar)
     })
     shape.anchor.refresh()
     this.initShapeEvent(shape)
-    this._viewPortMgr.addShapeToViewPort(shape)
+    this._viewPortMgr.addElementToViewPort(shape)
 
     this._storageMgr.addShape(shape)
 
@@ -64,9 +63,9 @@ class ShapeManage extends Disposable {
 
   clear() {
     this._storageMgr.getShapes().forEach((shape: IShape) => {
-      this._viewPortMgr.getViewPort().remove(shape)
+      this._viewPortMgr.removeElementFromViewPort(shape)
       shape.anchor?.bars.forEach((bar: IAnchorPoint) => {
-        this._viewPortMgr.getViewPort().remove(bar)
+        this._viewPortMgr.removeElementFromViewPort(bar)
       })
     })
     this._storageMgr.clearShapes()

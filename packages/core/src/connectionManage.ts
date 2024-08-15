@@ -15,8 +15,8 @@ export interface IConnectionManage extends IDisposable {
   getConnectionByShape(shape: IShape): IConnection[]
   setConnectionType(type: ConnectionType): void
   refreshConnection(shape: IShape): void
+  removeConnection(connection: IConnection): void
   updateConnectionType$: Observable<ConnectionType>
-  addConnection(connection: IConnection): void
   clear(): void
 }
 
@@ -25,7 +25,7 @@ class ConnectionManage extends Disposable {
   private _connectionType: ConnectionType = ConnectionType.OrtogonalLine
   updateConnectionType$ = new Subject<ConnectionType>()
   constructor(
-    @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortManage: IViewPortManage,
+    @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortMgr: IViewPortManage,
     @inject(IDENTIFIER.STORAGE_MANAGE) private _storageMgr: IStorageManage
   ) {
     super()
@@ -37,11 +37,18 @@ class ConnectionManage extends Disposable {
   }
 
   createConnection(fromNode: IShape): IConnection {
-    const sceneWidth = this._viewPortManage.getSceneWidth()
-    const sceneHeight = this._viewPortManage.getSceneHeight()
+    const sceneWidth = this._viewPortMgr.getSceneWidth()
+    const sceneHeight = this._viewPortMgr.getSceneHeight()
     const conn: IConnection = new Connection(fromNode, this._connectionType, sceneWidth, sceneHeight)
 
+    this._storageMgr.addConnection(conn)
+    this._viewPortMgr.addElementToViewPort(conn)
     return conn
+  }
+
+  removeConnection(connection: IConnection) {
+    this._viewPortMgr.removeElementFromViewPort(connection)
+    this._storageMgr.removeConnection(connection)
   }
 
   getConnectionByShape(shape: IShape) {
@@ -80,13 +87,9 @@ class ConnectionManage extends Disposable {
     // conn.setConnectionType(type)
   }
 
-  addConnection(connection: IConnection) {
-    this._storageMgr.addConnection(connection)
-  }
-
   clear() {
     this._storageMgr.getConnections().forEach((c: IConnection) => {
-      this._viewPortManage.getViewPort().remove(c)
+      this._viewPortMgr.removeElementFromViewPort(c)
     })
     this._storageMgr.clearConnections()
   }

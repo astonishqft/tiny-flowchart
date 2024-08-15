@@ -2,15 +2,13 @@ import { injectable } from 'inversify'
 import { Disposable } from './disposable'
 import * as zrender from 'zrender'
 
-import type { IShape, IAnchorPoint } from './shapes'
-
 export interface IViewPortManage {
   setPosition(x: number, y: number): void
   getPositionX(): number
   getPositionY(): number
   addSelfToZr(zr: zrender.ZRenderType): void
-  addShapeToViewPort(shape: IShape): void
-  addAnchorToViewPort(anchor: IAnchorPoint): void
+  removeElementFromViewPort(element: zrender.Element): void
+  addElementToViewPort(element: zrender.Element): void
   getViewPort(): zrender.Group
   getZr(): zrender.ZRenderType
   setScale(x: number, y: number): void
@@ -61,12 +59,12 @@ class ViewPortManage extends Disposable {
     zr.add(this._viewPort)
   }
 
-  addShapeToViewPort(shape: IShape) {
-    this._viewPort.add(shape)
+  removeElementFromViewPort(element: zrender.Element) {
+    this._viewPort.remove(element)
   }
 
-  addAnchorToViewPort(anchor: IAnchorPoint) {
-    this._viewPort.add(anchor)
+  addElementToViewPort(element: zrender.Element) {
+    this._viewPort.add(element)
   }
 
   getSceneWidth() {

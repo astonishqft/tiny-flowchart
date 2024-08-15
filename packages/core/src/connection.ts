@@ -7,7 +7,6 @@ export interface IConnection extends zrender.Group {
   toNode: IShape | null
   fromPoint: IAnchor | null
   toPoint: IAnchor | null
-  addSelfToViewPort(viewPort: zrender.Group): void
   cancel(): void
   move(x: number, y: number): void
   connect(node: IShape): void
@@ -93,10 +92,6 @@ class Connection extends zrender.Group {
         y2: y
       }
     })
-  }
-
-  addSelfToViewPort(viewPort: zrender.Group) {
-    viewPort.add(this)
   }
 
   cancel() {
