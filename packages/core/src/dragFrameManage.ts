@@ -2,6 +2,7 @@ import * as zrender from 'zrender'
 import { injectable, inject } from 'inversify'
 import { Disposable } from './disposable'
 import IDENTIFIER from './constants/identifiers'
+
 import type { IDisposable } from './disposable'
 import type { IViewPortManage } from './viewPortManage'
 

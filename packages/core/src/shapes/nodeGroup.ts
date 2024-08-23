@@ -1,10 +1,8 @@
 import * as zrender from 'zrender'
+import { getBoundingRect } from '../utils'
+
 import type { IShape, IAnchor } from './index'
 import type { Anchor } from '../anchor'
-
-// export type IZrenderGroup = zrender.Rect & {
-//   nodeType: string
-// }
 
 export interface INodeGroup extends IShape {
   boundingBox: zrender.BoundingRect 
@@ -14,6 +12,8 @@ export interface INodeGroup extends IShape {
   getBoundingBox(): zrender.BoundingRect
   removeShapeFromGroup(shape: IShape): void
   resizeNodeGroup(): void
+  setAlertStyle(): void
+  setCommonStyle(): void
 }
 
 class NodeGroup extends zrender.Group {
@@ -21,6 +21,7 @@ class NodeGroup extends zrender.Group {
   groupRect: zrender.Rect | null = null
   groupHead: zrender.Rect | null = null
   textContent: zrender.Text | null = null
+  headLine: zrender.Line | null = null
   boundingBox: zrender.BoundingRect
   shapes: IShape[]
   headHeight: number = 30 // 头部高度
@@ -70,9 +71,8 @@ class NodeGroup extends zrender.Group {
     this.groupHead = new zrender.Rect({
       style: {
         fill: '#fafafa',
-        lineWidth: 1,
-        stroke: '#ccc',
-        lineDash: [4, 2]
+        lineWidth: 0,
+        stroke: '#ccc'
       },
       textContent: this.textContent,
       textConfig: {
@@ -81,8 +81,19 @@ class NodeGroup extends zrender.Group {
       z: this.z
     })
 
+    this.headLine = new zrender.Line({
+      style: {
+        fill: '#fafafa',
+        lineWidth: 1,
+        stroke: '#ccc',
+        lineDash: [4, 2]
+      },
+      z: this.z
+    })
+
     this.add(this.groupRect)
     this.add(this.groupHead)
+    this.add(this.headLine)
     this.refresh()
   }
 
@@ -106,10 +117,19 @@ class NodeGroup extends zrender.Group {
 
     this.groupHead?.attr({
       shape: {
-        x: 0,
-        y: 0,
-        width: width + this.padding * 2,
-        height: this.headHeight
+        x: 1,
+        y: 1,
+        width: width + this.padding * 2 - 2,
+        height: this.headHeight - 2
+      }
+    })
+
+    this.headLine?.attr({
+      shape: {
+        x1: 0,
+        y1: this.headHeight,
+        x2: width + this.padding * 2,
+        y2: this.headHeight
       }
     })
 
@@ -124,14 +144,6 @@ class NodeGroup extends zrender.Group {
     this.groupRect?.attr({
       style: {
         stroke: '#ccc'
-      }
-    })
-  }
-
-  setCanRemoveStyle () {
-    this.groupRect?.attr({
-      style: {
-        stroke: '#f00'
       }
     })
   }
@@ -176,6 +188,7 @@ class NodeGroup extends zrender.Group {
       shape.unActive()
     })
   }
+
   unActive() {
     this.selected = false
     this.groupRect!.attr({
@@ -185,6 +198,14 @@ class NodeGroup extends zrender.Group {
       }
     })
     this.anchor?.hide()
+  }
+
+  setAlertStyle() {
+    this.groupRect!.attr({
+      style:{
+        stroke: 'red'
+      }
+    })
   }
 
   getBoundingBox() {
@@ -200,13 +221,13 @@ class NodeGroup extends zrender.Group {
     this.shapes = this.shapes.filter(item => item !== shape)
 
     shape.parentGroup = undefined
-
   }
 
   resizeNodeGroup() {
-    const g = new zrender.Group()
-    this.boundingBox = g.getBoundingRect(this.shapes)
-    this.refresh()
+    this.boundingBox = getBoundingRect(this.shapes)
+    this.refresh() // 重新计算组的大小
+    this.createAnchors()
+    this.anchor!.refresh()
   }
 }
 

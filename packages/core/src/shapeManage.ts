@@ -5,6 +5,7 @@ import * as zrender from 'zrender'
 import { getShape } from './shapes'
 import IDENTIFIER from './constants/identifiers'
 import { Anchor } from './anchor'
+import { isLeave, isEnter, getBoundingRect } from './utils'
 import { Disposable, IDisposable } from './disposable'
 
 import type { IShape } from './shapes'
@@ -14,6 +15,7 @@ import type { IDragFrameManage } from './dragFrameManage'
 import type { IConnectionManage } from './connectionManage'
 import type { IRefLineManage } from './refLineManage'
 import type { IStorageManage } from './storageManage'
+import { INodeGroup } from 'shapes/nodeGroup'
 
 export interface IShapeManage extends IDisposable {
   // updateAddShape$: Observable<IShape>
@@ -71,12 +73,50 @@ class ShapeManage extends Disposable {
     this._storageMgr.clearShapes()
   }
 
+  dragLeave(isDragLeave: boolean, shape: IShape) {
+    console.log('isDragLeave', isDragLeave)
+    if (isDragLeave) {
+      shape.parentGroup!.setAlertStyle()
+    } else {
+      shape.parentGroup!.setCommonStyle()
+    }
+  }
+
+  dragEnter(isDragEnter: boolean, dragEnterGroups: INodeGroup[]) {
+    console.log('isDragEnter', isDragEnter)
+    if (isDragEnter) {
+      dragEnterGroups[0].setAlertStyle()
+    } else {
+      this._storageMgr.getGroups().forEach(g => g.setCommonStyle())
+    }
+  }
+
+  removeShapeFromGroup(shape: IShape) {
+    if (shape.parentGroup) {
+      if (shape.parentGroup!.shapes.length === 1) return // 确保组内至少有一个元素
+      shape.parentGroup!.shapes = shape.parentGroup!.shapes.filter(item => item !== shape)
+      shape.parentGroup!.resizeNodeGroup()
+      delete shape.parentGroup
+    }
+  }
+
+  addShapeToGroup(shape: IShape, dragEnterGroups: INodeGroup[]) {
+    dragEnterGroups[0].shapes.push(shape)
+    dragEnterGroups[0].resizeNodeGroup()
+  }
+
   initShapeEvent(shape: IShape) {
     let startX = 0
     let startY = 0
     let zoom = 1
     let magneticOffsetX = 0
     let magneticOffsetY = 0
+    let isDragLeave = false
+    let isDragEnter = false
+    let oldIsDragLeave = false
+    let oldIsDragEnter = false
+    let dragEnterGroups: INodeGroup[] = []
+
     const mouseMove = (e: MouseEvent) => {
       const nodeName = (e.target as HTMLElement).nodeName
       if (nodeName !== 'CANVAS') return
@@ -86,6 +126,25 @@ class ShapeManage extends Disposable {
       // 设置一个阈值，避免鼠标发生轻微位移时出现拖动浮层
       if (Math.abs(offsetX / zoom) > 2 || Math.abs(offsetY / zoom) > 2) {
         this._dragFrameMgr.updatePosition(shape.x + stepX / zoom, shape.y + stepY / zoom)
+        if (shape.parentGroup) {
+          isDragLeave = isLeave(this._dragFrameMgr.getBoundingBox(), shape.parentGroup!.getBoundingBox())
+          if (isDragLeave !== oldIsDragLeave) {
+            this.dragLeave(isDragLeave, shape)
+            oldIsDragLeave = isDragLeave
+          }
+        }
+
+        // this.getEnterGroup(this._dragFrameMgr.getBoundingBox())
+        dragEnterGroups = this._storageMgr.getGroups().filter((g) => isEnter(this._dragFrameMgr.getBoundingBox(), g.getBoundingBox()))
+        if (dragEnterGroups.length !== 0) {
+          isDragEnter = true
+        } else {
+          isDragEnter = false
+        }
+        if (isDragEnter !== oldIsDragEnter) {
+          this.dragEnter(isDragEnter, dragEnterGroups)
+          oldIsDragEnter = isDragEnter
+        }
       }
       // 拖拽浮层的时候同时更新对其参考线
       const magneticOffset = this._refLineMgr.updateRefLines()
@@ -108,6 +167,13 @@ class ShapeManage extends Disposable {
       document.removeEventListener('mouseup', mouseUp)
 
       this.updateGroupSize(shape)
+
+      if (isDragLeave) {
+        this.removeShapeFromGroup(shape)
+      }
+      if (isDragEnter) {
+        this.addShapeToGroup(shape, dragEnterGroups)
+      }
     }
 
     shape.on('click', () => {
@@ -134,7 +200,7 @@ class ShapeManage extends Disposable {
       zoom = this._storageMgr.getZoom()
       this._dragFrameMgr.updatePosition(shape.x, shape.y)
       this._dragFrameMgr.show()
-      const { width, height } = this.getBoundingBox([shape])
+      const { width, height } = getBoundingRect([shape])
       this._dragFrameMgr.initSize(width, height)
 
       this._refLineMgr.cacheRefLines()
@@ -153,16 +219,9 @@ class ShapeManage extends Disposable {
     })
   }
 
-  getBoundingBox(shapes: IShape[]): zrender.BoundingRect {
-    const g = new zrender.Group()
-    return g.getBoundingRect(shapes)
-  }
-
   updateGroupSize(shape: IShape) {
     if (shape.parentGroup) {
       shape.parentGroup.resizeNodeGroup()
-      shape.parentGroup.createAnchors()
-      shape.parentGroup.anchor!.refresh()
       this._connectionMgr.refreshConnection(shape.parentGroup)
       this.updateGroupSize(shape.parentGroup)
     }

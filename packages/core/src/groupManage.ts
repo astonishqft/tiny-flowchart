@@ -3,7 +3,7 @@ import * as zrender from 'zrender'
 import IDENTIFIER from './constants/identifiers'
 import { NodeGroup } from './shapes/nodeGroup'
 import { Anchor } from './anchor'
-import { getMinPosition, getMinZLevel } from './utils'
+import { getMinPosition, getMinZLevel, getBoundingRect } from './utils'
 
 import type { IViewPortManage } from './viewPortManage'
 import type { IDragFrameManage } from './dragFrameManage'
@@ -39,8 +39,7 @@ class GroupManage {
 
     const minPostion = getMinPosition(activeShapes)
 
-    const g = new zrender.Group()
-    const boundingBox = g.getBoundingRect(activeShapes)
+    const boundingBox = getBoundingRect(activeShapes)
     boundingBox.x = minPostion[0]
     boundingBox.y = minPostion[1]
 
@@ -197,8 +196,6 @@ class GroupManage {
   updateGroupSize(shape: IShape) {
     if (shape.parentGroup) {
       shape.parentGroup.resizeNodeGroup()
-      shape.parentGroup.createAnchors()
-      shape.parentGroup.anchor!.refresh()
       this._connectionMgr.refreshConnection(shape.parentGroup)
       this.updateGroupSize(shape.parentGroup)
     }
