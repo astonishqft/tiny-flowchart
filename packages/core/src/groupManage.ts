@@ -3,7 +3,15 @@ import * as zrender from 'zrender'
 import IDENTIFIER from './constants/identifiers'
 import { NodeGroup } from './shapes/nodeGroup'
 import { Anchor } from './anchor'
-import { getMinPosition, getMinZLevel, getBoundingRect } from './utils'
+import {
+  isLeave,
+  isEnter,
+  getTopGroup,
+  getMinPosition,
+  getMinZLevel,
+  getBoundingRect,
+  getGroupMaxZLevel
+} from './utils'
 
 import type { IViewPortManage } from './viewPortManage'
 import type { IDragFrameManage } from './dragFrameManage'
@@ -91,12 +99,49 @@ class GroupManage {
     })
   }
 
+  dragLeave(isDragLeave: boolean, shape: IShape) {
+    console.log('groupNode dragLeave', isDragLeave)
+    if (isDragLeave) {
+      shape.parentGroup!.setAlertStyle()
+    } else {
+      shape.parentGroup!.setCommonStyle()
+    }
+  }
+
+  dragEnter(isDragEnter: boolean, targetGroup: INodeGroup) {
+    console.log('groupNode dragEnter', isDragEnter)
+    if (isDragEnter) {
+      targetGroup.setAlertStyle()
+      this._storageMgr.getGroups().filter(g => g.id !== targetGroup.id).forEach(g => g.setCommonStyle())
+    } else {
+      this._storageMgr.getGroups().forEach(g => g.setCommonStyle())
+    }
+  }
+
+  removeShapeFromGroup(shape: INodeGroup) {
+    if (shape.parentGroup) {
+      if (shape.parentGroup!.shapes.length === 1) return // 确保组内至少有一个元素
+      shape.parentGroup!.shapes = shape.parentGroup!.shapes.filter(item => item.id !== shape.id)
+      shape.parentGroup!.resizeNodeGroup()
+      delete shape.parentGroup
+    }
+  }
+
+  addShapeToGroup(shape: INodeGroup, targetGroup: INodeGroup) {
+    shape.parentGroup = targetGroup
+    targetGroup.shapes.push(shape)
+    targetGroup.resizeNodeGroup()
+  }
+
   initShapeEvent(nodeGroup: INodeGroup) {
     let startX = 0
     let startY = 0
     let zoom = 1
     let magneticOffsetX = 0
     let magneticOffsetY = 0
+    let isDragLeave = false
+    let isDragEnter = false
+    let dragEnterGroups: INodeGroup[] = []
     const mouseMove = (e: MouseEvent) => {
       const nodeName = (e.target as HTMLElement).nodeName
       if (nodeName !== 'CANVAS') return
@@ -106,6 +151,21 @@ class GroupManage {
       // 设置一个阈值，避免鼠标发生轻微位移时出现拖动浮层
       if (Math.abs(offsetX / zoom) > 2 || Math.abs(offsetY / zoom) > 2) {
         this._dragFrameMgr.updatePosition(nodeGroup.x + stepX / zoom, nodeGroup.y + stepY / zoom)
+        if (nodeGroup.parentGroup) {
+          isDragLeave = isLeave(this._dragFrameMgr.getBoundingBox(), nodeGroup.parentGroup!.getBoundingBox())
+          this.dragLeave(isDragLeave, nodeGroup) 
+        } else {
+          // 需要把自身排除在外
+          dragEnterGroups = this._storageMgr.getGroups().filter(g => g.id !== nodeGroup.id).filter((g) => isEnter(this._dragFrameMgr.getBoundingBox(), g.getBoundingBox()))
+
+          if (dragEnterGroups.length !== 0) {
+            isDragEnter = true
+          } else {
+            isDragEnter = false
+          }
+  
+          this.dragEnter(isDragEnter, getTopGroup(dragEnterGroups))
+        }
       }
       // 拖拽浮层的时候同时更新对其参考线
       const magneticOffset = this._refLineMgr.updateRefLines()
@@ -124,6 +184,18 @@ class GroupManage {
 
       document.removeEventListener('mousemove', mouseMove)
       document.removeEventListener('mouseup', mouseUp)
+
+
+      if (isDragLeave) {
+        this.removeShapeFromGroup(nodeGroup)
+        isDragLeave = false
+      }
+      if (isDragEnter) {
+        const maxZ = getGroupMaxZLevel(this._storageMgr.getGroups())
+        nodeGroup.setZ(maxZ + 1)
+        this.addShapeToGroup(nodeGroup, getTopGroup(dragEnterGroups))
+        isDragEnter = false
+      }
 
       this.updateGroupSize(nodeGroup)
     }

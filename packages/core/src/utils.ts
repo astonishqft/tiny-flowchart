@@ -1,3 +1,4 @@
+import { INodeGroup } from 'shapes/nodeGroup'
 import type { IShape } from './shapes'
 import * as zrender from 'zrender'
 
@@ -72,6 +73,17 @@ export const getMinZLevel = (shapes: IShape[]) => {
   return minZLevel
 }
 
+export const getGroupMaxZLevel = (groups: INodeGroup[]) => {
+  let maxZLevel  = -Infinity
+  groups.forEach(g => {
+    if (g.z > maxZLevel) {
+      maxZLevel = g.z
+    }
+  })
+
+  return maxZLevel
+}
+
 export const getBoundingRect = (shapes: IShape[]): zrender.BoundingRect => {
   const g = new zrender.Group()
   return g.getBoundingRect(shapes)
@@ -80,10 +92,27 @@ export const getBoundingRect = (shapes: IShape[]): zrender.BoundingRect => {
 export const isEnter = (a: zrender.BoundingRect, b: zrender.BoundingRect) => {
   const centerX = a.x + a.width / 2
   const centerY = a.y + a.height / 2
+  // 如果a的尺寸大于b的尺寸则直接返回false
+  if (a.width >= b.width || a.height >= b.height) {
+    return false
+  }
 
   return centerX >= b.x && centerX <= (b.x + b.width) && centerY >= b.y && centerY <= (b.y + b.height)
 }
 
 export const isLeave = (a: zrender.BoundingRect, b: zrender.BoundingRect) => {
   return ((a.x + a.width) < b.x) || (a.x  > (b.x + b.width)) || ((a.y + a.height) < b.y) || (a.y > (b.y + b.height))
+}
+
+export const getTopGroup = (groups: INodeGroup[]): INodeGroup => {
+  if (groups.length === 1) {
+    return groups[0]
+  }
+  let maxGroup = groups[0]
+  groups.forEach((g: INodeGroup) => {
+    if (g.z > maxGroup.z) {
+      maxGroup = g
+    }
+  })
+  return maxGroup
 }

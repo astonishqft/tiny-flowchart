@@ -5,7 +5,7 @@ import * as zrender from 'zrender'
 import { getShape } from './shapes'
 import IDENTIFIER from './constants/identifiers'
 import { Anchor } from './anchor'
-import { isLeave, isEnter, getBoundingRect } from './utils'
+import { isLeave, isEnter, getBoundingRect, getTopGroup } from './utils'
 import { Disposable, IDisposable } from './disposable'
 
 import type { IShape } from './shapes'
@@ -82,10 +82,11 @@ class ShapeManage extends Disposable {
     }
   }
 
-  dragEnter(isDragEnter: boolean, dragEnterGroups: INodeGroup[]) {
+  dragEnter(isDragEnter: boolean, targetGroup: INodeGroup) {
     console.log('isDragEnter', isDragEnter)
     if (isDragEnter) {
-      dragEnterGroups[0].setAlertStyle()
+      targetGroup.setAlertStyle()
+      this._storageMgr.getGroups().filter(g => g.id !== targetGroup.id).forEach(g => g.setCommonStyle())
     } else {
       this._storageMgr.getGroups().forEach(g => g.setCommonStyle())
     }
@@ -94,15 +95,16 @@ class ShapeManage extends Disposable {
   removeShapeFromGroup(shape: IShape) {
     if (shape.parentGroup) {
       if (shape.parentGroup!.shapes.length === 1) return // 确保组内至少有一个元素
-      shape.parentGroup!.shapes = shape.parentGroup!.shapes.filter(item => item !== shape)
+      shape.parentGroup!.shapes = shape.parentGroup!.shapes.filter(item => item.id !== shape.id)
       shape.parentGroup!.resizeNodeGroup()
       delete shape.parentGroup
     }
   }
 
-  addShapeToGroup(shape: IShape, dragEnterGroups: INodeGroup[]) {
-    dragEnterGroups[0].shapes.push(shape)
-    dragEnterGroups[0].resizeNodeGroup()
+  addShapeToGroup(shape: IShape, targetGroup: INodeGroup) {
+    shape.parentGroup = targetGroup
+    targetGroup.shapes.push(shape)
+    targetGroup.resizeNodeGroup()
   }
 
   initShapeEvent(shape: IShape) {
@@ -113,8 +115,6 @@ class ShapeManage extends Disposable {
     let magneticOffsetY = 0
     let isDragLeave = false
     let isDragEnter = false
-    let oldIsDragLeave = false
-    let oldIsDragEnter = false
     let dragEnterGroups: INodeGroup[] = []
 
     const mouseMove = (e: MouseEvent) => {
@@ -126,24 +126,19 @@ class ShapeManage extends Disposable {
       // 设置一个阈值，避免鼠标发生轻微位移时出现拖动浮层
       if (Math.abs(offsetX / zoom) > 2 || Math.abs(offsetY / zoom) > 2) {
         this._dragFrameMgr.updatePosition(shape.x + stepX / zoom, shape.y + stepY / zoom)
+
         if (shape.parentGroup) {
           isDragLeave = isLeave(this._dragFrameMgr.getBoundingBox(), shape.parentGroup!.getBoundingBox())
-          if (isDragLeave !== oldIsDragLeave) {
-            this.dragLeave(isDragLeave, shape)
-            oldIsDragLeave = isDragLeave
-          }
-        }
-
-        // this.getEnterGroup(this._dragFrameMgr.getBoundingBox())
-        dragEnterGroups = this._storageMgr.getGroups().filter((g) => isEnter(this._dragFrameMgr.getBoundingBox(), g.getBoundingBox()))
-        if (dragEnterGroups.length !== 0) {
-          isDragEnter = true
         } else {
-          isDragEnter = false
-        }
-        if (isDragEnter !== oldIsDragEnter) {
-          this.dragEnter(isDragEnter, dragEnterGroups)
-          oldIsDragEnter = isDragEnter
+          dragEnterGroups = this._storageMgr.getGroups().filter((g) => isEnter(this._dragFrameMgr.getBoundingBox(), g.getBoundingBox()))
+
+          if (dragEnterGroups.length !== 0) {
+            isDragEnter = true
+          } else {
+            isDragEnter = false
+          }
+
+          this.dragEnter(isDragEnter, getTopGroup(dragEnterGroups))
         }
       }
       // 拖拽浮层的时候同时更新对其参考线
@@ -166,20 +161,22 @@ class ShapeManage extends Disposable {
       document.removeEventListener('mousemove', mouseMove)
       document.removeEventListener('mouseup', mouseUp)
 
-      this.updateGroupSize(shape)
-
       if (isDragLeave) {
         this.removeShapeFromGroup(shape)
+        isDragLeave = false
       }
       if (isDragEnter) {
-        this.addShapeToGroup(shape, dragEnterGroups)
+        (shape as unknown as zrender.Displayable).attr('z', (getTopGroup(dragEnterGroups).z + 1))
+        this.addShapeToGroup(shape, getTopGroup(dragEnterGroups))
+        isDragEnter = false
       }
+
+      this.updateGroupSize(shape)
     }
 
     shape.on('click', () => {
       console.log('shape click', shape)
       this.unActive()
-      // this._groupMgr.unActive()
       shape.active()
     })
 

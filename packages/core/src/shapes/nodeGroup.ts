@@ -14,6 +14,8 @@ export interface INodeGroup extends IShape {
   resizeNodeGroup(): void
   setAlertStyle(): void
   setCommonStyle(): void
+  setZ(z: number): void
+  z: number
 }
 
 class NodeGroup extends zrender.Group {
@@ -102,6 +104,12 @@ class NodeGroup extends zrender.Group {
     this.groupRect?.attr('z', z)
     this.groupHead?.attr('z', z)
     this.textContent?.attr('z', z)
+    this.headLine?.attr('z', z)
+    this.shapes.forEach(s => (s as unknown as zrender.Displayable).attr('z', z + 1))
+  }
+
+  getZ() {
+    return this.z
   }
 
   refresh() {
@@ -143,6 +151,7 @@ class NodeGroup extends zrender.Group {
   setCommonStyle() {
     this.groupRect?.attr({
       style: {
+        lineWidth: 1,
         stroke: '#ccc'
       }
     })
@@ -203,6 +212,7 @@ class NodeGroup extends zrender.Group {
   setAlertStyle() {
     this.groupRect!.attr({
       style:{
+        lineWidth: 2,
         stroke: 'red'
       }
     })
