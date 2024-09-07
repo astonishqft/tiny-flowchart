@@ -17,6 +17,7 @@ export interface IConnectionManage extends IDisposable {
   refreshConnection(shape: IShape): void
   removeConnection(connection: IConnection): void
   updateConnectionType$: Observable<ConnectionType>
+  updateSelectConnection$: Observable<IConnection>
   clear(): void
 }
 
@@ -24,12 +25,14 @@ export interface IConnectionManage extends IDisposable {
 class ConnectionManage extends Disposable {
   private _connectionType: ConnectionType = ConnectionType.OrtogonalLine
   updateConnectionType$ = new Subject<ConnectionType>()
+  updateSelectConnection$ = new Subject<IConnection>()
   constructor(
     @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortMgr: IViewPortManage,
     @inject(IDENTIFIER.STORAGE_MANAGE) private _storageMgr: IStorageManage
   ) {
     super()
     this._disposables.push(this.updateConnectionType$)
+    this._disposables.push(this.updateSelectConnection$)
   }
 
   setConnectionType(type: ConnectionType): void {
@@ -43,7 +46,14 @@ class ConnectionManage extends Disposable {
 
     this._storageMgr.addConnection(conn)
     this._viewPortMgr.addElementToViewPort(conn)
+    this.initEvent(conn)
     return conn
+  }
+
+  initEvent(conn: IConnection) {
+    conn.on('click', () => {
+      this.updateSelectConnection$.next(conn)
+    })
   }
 
   removeConnection(connection: IConnection) {

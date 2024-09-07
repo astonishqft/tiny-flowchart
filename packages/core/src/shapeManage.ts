@@ -1,7 +1,7 @@
 
 import { injectable, inject } from 'inversify'
 import * as zrender from 'zrender'
-// import { Subject, Observable } from 'rxjs'
+import { Subject, Observable } from 'rxjs'
 import { getShape } from './shapes'
 import IDENTIFIER from './constants/identifiers'
 import { Anchor } from './anchor'
@@ -18,7 +18,7 @@ import type { IStorageManage } from './storageManage'
 import { INodeGroup } from 'shapes/nodeGroup'
 
 export interface IShapeManage extends IDisposable {
-  // updateAddShape$: Observable<IShape>
+  updateSelectShape$: Observable<IShape>
   createShape(type: string, options: { x: number, y: number }): IShape
   clear(): void
   unActive(): void
@@ -26,7 +26,7 @@ export interface IShapeManage extends IDisposable {
 
 @injectable()
 class ShapeManage extends Disposable {
-  // updateAddShape$ = new Subject<IShape>()
+  updateSelectShape$ = new Subject<IShape>()
   constructor(
     @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortMgr: IViewPortManage,
     @inject(IDENTIFIER.DRAG_FRAME_MANAGE) private _dragFrameMgr: IDragFrameManage,
@@ -35,7 +35,7 @@ class ShapeManage extends Disposable {
     @inject(IDENTIFIER.STORAGE_MANAGE) private _storageMgr: IStorageManage 
   ) {
     super()
-    // this._disposables.push(this.updateAddShape$)
+    this._disposables.push(this.updateSelectShape$)
   }
 
   createShape(type: string, { x, y }: { x: number, y: number }): IShape {
@@ -47,8 +47,6 @@ class ShapeManage extends Disposable {
 
     const anchor = new Anchor(shape)
     shape.anchor = anchor
-
-    // this.updateAddShape$.next(shape)
 
     shape.createAnchors()
     shape.anchor.bars.forEach((bar: IAnchorPoint) => {
@@ -178,6 +176,7 @@ class ShapeManage extends Disposable {
       console.log('shape click', shape)
       this.unActive()
       shape.active()
+      this.updateSelectShape$.next(shape)
     })
 
     shape.on('mousemove', () => {

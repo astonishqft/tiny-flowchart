@@ -11,6 +11,7 @@ import { GroupManage } from './groupManage'
 
 import type { ISceneManage } from './sceneManage'
 import type { IZoomManage } from './zoomManage'
+import type { IShapeManage } from './shapeManage'
 import type { IConnectionManage } from './connectionManage'
 import type { ISelectFrameManage } from './selectFrameManage'
 import type { IGroupManage  } from './groupManage'
@@ -18,4 +19,4 @@ import type { IGroupManage  } from './groupManage'
 zrender.registerPainter('canvas', CanvasPainter)
 
 export { IocEditor, container, IDENTIFIER, ConnectionType, SelectFrameManage, GroupManage }
-export type { ISceneManage, IZoomManage, IConnectionManage, ISelectFrameManage, IGroupManage }
+export type { ISceneManage, IZoomManage, IConnectionManage, ISelectFrameManage, IGroupManage, IShapeManage }

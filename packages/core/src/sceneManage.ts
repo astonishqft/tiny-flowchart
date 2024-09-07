@@ -2,6 +2,7 @@ import * as zrender from 'zrender'
 import { injectable, inject } from 'inversify'
 import IDENTIFIER from './constants/identifiers'
 import { Disposable } from './disposable'
+import { Subject, Observable } from 'rxjs'
 
 import type { IDisposable } from './disposable'
 import type { IShape, IAnchorPoint } from './shapes'
@@ -16,6 +17,7 @@ import type { IStorageManage } from './storageManage'
 
 export interface ISceneManage extends IDisposable {
   _zr: zrender.ZRenderType | null
+  updateSelectScene$: Observable<null>
   init(zr: zrender.ZRenderType): void
   addShape(type: string, options: { x: number, y: number }): void
   clear(): void
@@ -26,6 +28,7 @@ export type IMouseEvent = zrender.Element & { nodeType?: string }
 @injectable()
 class SceneManage extends Disposable {
   _zr: zrender.ZRenderType | null = null
+  updateSelectScene$ = new Subject<null>()
   constructor(
     @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortMgr: IViewPortManage,
     @inject(IDENTIFIER.GRID_MANAGE) private _gridMgr: IGridManage,
@@ -36,6 +39,7 @@ class SceneManage extends Disposable {
     @inject(IDENTIFIER.STORAGE_MANAGE) private _storageMgr: IStorageManage
   ) {
     super()
+    this._disposables.push(this.updateSelectScene$)
   }
 
   addShape(type: string, options: { x: number, y: number }) {
@@ -110,6 +114,7 @@ class SceneManage extends Disposable {
         this._shapeMgr.unActive()
         this._groupMgr.unActive()
         dragModel = 'scene'
+        this.updateSelectScene$.next(null)
       }
     })
 

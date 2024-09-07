@@ -1,12 +1,51 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, inject } from 'vue'
+import { Container } from 'inversify'
+import SceneProperty from './elementProperty/SceneProperty.vue'
+import NodeProperty from './elementProperty/NodeProperty.vue'
+import ConnectionProperty from './elementProperty/ConnectionProperty.vue'
+import { IDENTIFIER } from '@ioceditor/core'
 
-const title = ref('节点属性')
+import type { ISceneManage, IShapeManage, IConnectionManage } from '@ioceditor/core'
+const type = ref('scene')
+
+const iocEditor = inject<Container>('iocEditor') as Container
+
+const sceneMgr = iocEditor.get<ISceneManage>(IDENTIFIER.SCENE_MANAGE)
+const shapeMgr = iocEditor.get<IShapeManage>(IDENTIFIER.SHAPE_MANAGE)
+const connectionMgr = iocEditor.get<IConnectionManage>(IDENTIFIER.CONNECTION_MANAGE)
+
+sceneMgr.updateSelectScene$.subscribe(() => {
+  console.log('选中画布')
+  type.value = 'scene'
+})
+
+shapeMgr.updateSelectShape$.subscribe(shape => {
+  console.log('选中节点')
+  type.value = 'shape'
+})
+
+connectionMgr.updateSelectConnection$.subscribe(connection => {
+  console.log('选中连线')
+  type.value = 'connection'
+})
+
+const selectNameMap: Record<string, string> = {
+  scene: '画布属性',
+  shape: '节点属性',
+  connection: '连线属性'
+}
+
 </script>
 
 <template>
   <div class="property">
-    <div class="property-title">{{ title }}</div>
+    <div class="property-title">{{ selectNameMap[type] }}</div>
+    <div class="property-content">
+      <SceneProperty v-show="type === 'scene'" />
+      <NodeProperty v-show="type === 'shape'" />
+      <ConnectionProperty v-show="type === 'connection'" />
+    </div>
   </div>
 </template>
 

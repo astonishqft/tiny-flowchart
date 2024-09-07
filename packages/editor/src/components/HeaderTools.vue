@@ -4,7 +4,6 @@ import { ElSelect, ElOption } from 'element-plus'
 import { Container } from 'inversify'
 import { IDENTIFIER, ConnectionType } from '@ioceditor/core'
 import type { IZoomManage, IConnectionManage, ISceneManage, ISelectFrameManage, IGroupManage } from '@ioceditor/core'
-import 'element-plus/es/components/select/style/css'
 
 const iocEditor = inject<Container>('iocEditor') as Container
 const zoomMgr = iocEditor.get<IZoomManage>(IDENTIFIER.ZOOM_MANAGE)
