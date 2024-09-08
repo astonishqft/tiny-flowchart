@@ -15,8 +15,12 @@ import type { IShapeManage } from './shapeManage'
 import type { IConnectionManage } from './connectionManage'
 import type { ISelectFrameManage } from './selectFrameManage'
 import type { IGroupManage  } from './groupManage'
+import type { IShape } from './shapes'
+import type { IConnection } from './connection'
+
+type Displayable = zrender.Displayable
 
 zrender.registerPainter('canvas', CanvasPainter)
 
 export { IocEditor, container, IDENTIFIER, ConnectionType, SelectFrameManage, GroupManage }
-export type { ISceneManage, IZoomManage, IConnectionManage, ISelectFrameManage, IGroupManage, IShapeManage }
+export type { ISceneManage, IZoomManage, IConnectionManage, ISelectFrameManage, IGroupManage, IShapeManage, IShape, IConnection, Displayable }

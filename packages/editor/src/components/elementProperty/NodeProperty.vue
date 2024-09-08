@@ -1,27 +1,25 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-import { ElSelect, ElInputNumber, ElDivider, ElColorPicker, ElInput } from 'element-plus'
+import { ref, inject } from 'vue'
+import { Container } from 'inversify'
+import { ElSelect, ElOption, ElInputNumber, ElDivider, ElColorPicker, ElInput } from 'element-plus'
+import { convertLineDashToStrokeType, convertStrokeTypeToLineDash } from '../../utils/utils'
+import { IDENTIFIER } from '@ioceditor/core'
+import type { IShapeManage, IShape, Displayable } from '@ioceditor/core'
+
+const bgColorList = ['transparent', '#ffc9c9', '#b2f2bb', '#a5d8ff', '#ffec99']
+const strokeColorList = ['#1e1e1e', '#e03131', '#2f9e44', '#1971c2', '#f08c00']
+
+const iocEditor = inject<Container>('iocEditor') as Container
+
+const shapeMgr = iocEditor.get<IShapeManage>(IDENTIFIER.SHAPE_MANAGE)
+
+const activeShape = ref<Displayable>()
 
 interface ITextPosition {
   name: string
   icon: string
   desc: string
 }
-
-// watch(
-//   () => editorStore.selectedShape,
-//   (newValue) => {
-//     lineWidth.value = newValue?.lineWidth || 1
-//     fontSize.value = newValue?.fontSize || 12
-//     strokeType.value = newValue?.strokeType || 'solid'
-//     fontSize.value = newValue?.fontSize || 12
-//     currentPosition.value = newValue?.textPosition || 'inside'
-//     nodeText.value = newValue?.nodeText || ''
-//     fontColor.value = newValue?.fontColor || '#333'
-//     bgColor.value = newValue?.fillColor || undefined
-//     strokeColor.value = newValue?.strokeColor || undefined
-//   }
-// )
 
 const lineWidthOpts = [1, 2, 3, 4, 5]
 const lineTypeOpt = [
@@ -77,43 +75,69 @@ const textPosition: ITextPosition[] = [
     desc: '置左'
   }
 ]
+const lineWidth = ref(1)
+const fontSize = ref(12)
+const strokeType = ref('solid')
+const nodeText = ref('')
+const bgColor = ref('')
+const strokeColor = ref('')
+const fontColor = ref('')
 
-const bgColorList = ['transparent', '#ffc9c9', '#b2f2bb', '#a5d8ff', '#ffec99']
-const strokeColorList = ['#1e1e1e', '#e03131', '#2f9e44', '#1971c2', '#f08c00']
-// const lineWidth = ref(propertyStore.shapeLineWidth || 1)
-// const fontSize = ref(propertyStore.shapeFontSize || 12)
-// const strokeType = ref(propertyStore.shapeStrokeType || 'solid')
-// const currentPosition = ref(propertyStore.shapeTextPosition || 'inside')
-// const nodeText = ref(propertyStore.shapeText || '')
-// const bgColor = ref(propertyStore.shapeBgColor || undefined)
-// const strokeColor = ref(propertyStore.shapeStrokeColor || undefined)
-// const fontColor = ref(propertyStore.shapeFontColor || '#333')
+shapeMgr.updateSelectShape$.subscribe((shape: IShape) => {
+  activeShape.value = shape as unknown as Displayable
+  lineWidth.value = activeShape.value.style.lineWidth
+  fontSize.value = activeShape.value.getTextContent().style.fontSize as number
+  strokeType.value = convertLineDashToStrokeType(activeShape.value.style.lineDash || [0, 0])
+  nodeText.value = activeShape.value.getTextContent().style.text || ''
+  bgColor.value = activeShape.value.style.fill
+  strokeColor.value = activeShape.value.style.stroke
+  fontColor.value = activeShape.value.getTextContent().style.fill || '#333'
+})
 
 const changeShapeBgColor = (color: string | null) => {
-  propertyStore.setShapeBgColor(color)
+  activeShape.value!.setStyle({
+    fill: color
+  })
   bgColor.value = color as string
 }
 
 const changeShapeStrokeColor = (color: string | null) => {
-  propertyStore.setShapeStrokeColor(color)
+  activeShape.value!.setStyle({
+    stroke: color
+  })
   strokeColor.value = color as string
 }
 
 const changeShapeFontColor = (color: string | null) => {
-  propertyStore.setShapeFontColor(color as string)
+  if (!color) return
+  activeShape.value!.getTextContent()?.setStyle({
+    fill: color
+  })
   fontColor.value = color as string
 }
 
 const changeShapeFontSize = (size: number | undefined) => {
-  propertyStore.setShapeFontSize(size as number)
+  if (!size) return
+  activeShape.value!.getTextContent()?.setStyle({
+    fontSize: size
+  })
+
+  fontSize.value = size
 }
 
 const changeShapeLineWidth = (width: number) => {
-  propertyStore.setShapeLineWidth(width)
+  activeShape.value!.setStyle({
+    lineWidth: width
+  })
+  lineWidth.value = width
 }
 
 const changeShapeStrokeType = (type: string) => {
-  propertyStore.setShapeStrokeType(type)
+  activeShape.value!.setStyle({
+    lineDash: convertStrokeTypeToLineDash(type)
+  })
+
+  strokeType.value = type
 }
 
 const changeShapeTextPosition = (position: tinyEditor.BuiltinTextPosition) => {
@@ -130,7 +154,11 @@ const changeShapeFontStyle = (style: string) => {
 }
 
 const changeShapeText = (text: string) => {
-  propertyStore.setShapeText(text)
+  activeShape.value!.getTextContent()?.setStyle({
+    text
+  })
+
+  nodeText.value = text
 }
 </script>
 <template>
@@ -146,7 +174,7 @@ const changeShapeText = (text: string) => {
           @click="() => changeShapeBgColor(color)"
         />
         <el-divider style="margin: 0 4px; height: 20px" direction="vertical" />
-        <el-color-picker v-model="bgColor" @change="changeShapeBgColor" />
+        <el-color-picker v-model="bgColor" @change="changeShapeBgColor" size="small" />
       </div>
     </div>
     <div class="property-item">
@@ -160,7 +188,7 @@ const changeShapeText = (text: string) => {
           @click="() => changeShapeStrokeColor(color)"
         />
         <el-divider style="margin: 0 4px; height: 20px" direction="vertical" />
-        <el-color-picker v-model="strokeColor" @change="changeShapeStrokeColor" />
+        <el-color-picker v-model="strokeColor" @change="changeShapeStrokeColor" size="small"  />
       </div>
     </div>
     <div class="property-item">
@@ -208,7 +236,7 @@ const changeShapeText = (text: string) => {
           @click="() => changeShapeFontColor(color)"
         />
         <el-divider style="margin: 0 4px; height: 20px" direction="vertical" />
-        <el-color-picker v-model="fontColor" @change="changeShapeFontColor" />
+        <el-color-picker v-model="fontColor" @change="changeShapeFontColor" size="small" />
       </div>
     </div>
     <div class="property-item">
@@ -255,14 +283,14 @@ const changeShapeText = (text: string) => {
     <div class="property-item">
       <div class="property-name">文字位置</div>
       <div class="property-value">
-        <span
+        <!-- <span
           class="icon iconfont position-icon"
           :class="[position.icon, { active: currentPosition === position.name }]"
           v-for="position in textPosition"
           :key="position.name"
           :title="position.desc"
           @click="() => changeShapeTextPosition(position.name)"
-        />
+        /> -->
       </div>
     </div>
   </div>
