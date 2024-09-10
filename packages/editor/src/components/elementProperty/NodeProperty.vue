@@ -4,7 +4,7 @@ import { Container } from 'inversify'
 import { ElSelect, ElOption, ElInputNumber, ElDivider, ElColorPicker, ElInput } from 'element-plus'
 import { convertLineDashToStrokeType, convertStrokeTypeToLineDash } from '../../utils/utils'
 import { IDENTIFIER } from '@ioceditor/core'
-import type { IShapeManage, IShape, Displayable } from '@ioceditor/core'
+import type { IShapeManage, IShape, Displayable, BuiltinTextPosition, FontWeight, FontStyle } from '@ioceditor/core'
 
 const bgColorList = ['transparent', '#ffc9c9', '#b2f2bb', '#a5d8ff', '#ffec99']
 const strokeColorList = ['#1e1e1e', '#e03131', '#2f9e44', '#1971c2', '#f08c00']
@@ -36,19 +36,8 @@ const lineTypeOpt = [
     value: 'dotted'
   }
 ]
-const fontStyle = [
-  {
-    name: 'fontItalic',
-    icon: 'icon-zitiyangshi_xieti',
-    desc: '斜体'
-  },
-  {
-    name: 'fontWeight',
-    icon: 'icon-zitiyangshi_jiacu',
-    desc: '加粗'
-  }
-]
-const textPosition: ITextPosition[] = [
+
+const textPositionList: ITextPosition[] = [
   {
     name: 'inside',
     icon: 'icon-sInLineVertical',
@@ -82,6 +71,9 @@ const nodeText = ref('')
 const bgColor = ref('')
 const strokeColor = ref('')
 const fontColor = ref('')
+const textPosition = <BuiltinTextPosition>ref('inside')
+const fontWeight = ref<FontWeight>('normal')
+const fontStyle = ref<FontStyle>('normal')
 
 shapeMgr.updateSelectShape$.subscribe((shape: IShape) => {
   activeShape.value = shape as unknown as Displayable
@@ -92,6 +84,9 @@ shapeMgr.updateSelectShape$.subscribe((shape: IShape) => {
   bgColor.value = activeShape.value.style.fill
   strokeColor.value = activeShape.value.style.stroke
   fontColor.value = activeShape.value.getTextContent().style.fill || '#333'
+  textPosition.value = activeShape.value.textConfig?.position || 'inside'
+  fontStyle.value = activeShape.value.getTextContent().style.fontStyle || 'normal'
+  fontWeight.value = activeShape.value.getTextContent().style.fontWeight || 'normal'
 })
 
 const changeShapeBgColor = (color: string | null) => {
@@ -140,16 +135,29 @@ const changeShapeStrokeType = (type: string) => {
   strokeType.value = type
 }
 
-const changeShapeTextPosition = (position: tinyEditor.BuiltinTextPosition) => {
-  propertyStore.setShapeTextPosition(position)
-  currentPosition.value = position
+const changeShapeTextPosition = (position: BuiltinTextPosition) => {
+  activeShape.value!.setTextConfig({
+    position
+  })
+
+  textPosition.value = position
 }
 
 const changeShapeFontStyle = (style: string) => {
+  const fWeight = activeShape.value!.getTextContent().style.fontWeight || 'normal'
+  const fStyle = activeShape.value!.getTextContent().style.fontStyle || 'normal'
   if (style === 'fontWeight') {
-    propertyStore.setShapeFontWeight()
+    activeShape.value!.getTextContent()?.setStyle({
+      fontWeight: fWeight === 'normal' ? 'bold' : 'normal'
+    })
+
+    fontWeight.value = fWeight === 'normal' ? 'bold' : 'normal'
   } else {
-    propertyStore.setShapeFontItalic()
+    activeShape.value!.getTextContent()?.setStyle({
+      fontStyle: fStyle === 'normal' ? 'italic' : 'normal'
+    })
+
+    fontStyle.value = fStyle === 'normal' ? 'italic' : 'normal'
   }
 }
 
@@ -271,26 +279,30 @@ const changeShapeText = (text: string) => {
       <div class="property-name">文字样式</div>
       <div class="property-value">
         <span
-          class="icon iconfont font-style-icon"
-          :class="[style.icon]"
-          v-for="style in fontStyle"
-          :key="style.name"
-          :title="style.desc"
-          @click="() => changeShapeFontStyle(style.name)"
+          class="icon iconfont font-style-icon icon-zitiyangshi_jiacu"
+          :class="{ active: fontWeight === 'bold' }"
+          :title="'加粗'"
+          @click="() => changeShapeFontStyle('fontWeight')"
+        />
+        <span
+          class="icon iconfont font-style-icon icon-zitiyangshi_xieti"
+          :class="{ active: fontStyle === 'italic' }"
+          :title="'斜体'"
+          @click="() => changeShapeFontStyle('fontStyle')"
         />
       </div>
     </div>
     <div class="property-item">
       <div class="property-name">文字位置</div>
       <div class="property-value">
-        <!-- <span
+        <span
           class="icon iconfont position-icon"
-          :class="[position.icon, { active: currentPosition === position.name }]"
-          v-for="position in textPosition"
+          :class="[position.icon, { active: textPosition === position.name }]"
+          v-for="position in textPositionList"
           :key="position.name"
           :title="position.desc"
           @click="() => changeShapeTextPosition(position.name)"
-        /> -->
+        />
       </div>
     </div>
   </div>
@@ -359,6 +371,11 @@ const changeShapeText = (text: string) => {
   padding: 3px;
   border: 1px solid rgb(217, 217, 217);
   border-radius: 5px;
+
+}
+.font-style-icon.active {
+  background-color: #1971c2;
+  color: #fff;
 }
 :global(.el-color-picker) {
   width: 20px;

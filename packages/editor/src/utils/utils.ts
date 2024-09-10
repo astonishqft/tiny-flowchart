@@ -19,18 +19,10 @@ export const convertStrokeTypeToLineDash = (type: string): number[] => {
 
 export const convertLineDashToStrokeType = (lineDash: number[]): string => {
   let strokeType = 'solid'
-  switch (lineDash) {
-    case [0, 0]:
-      strokeType = 'solid'
-      break
-    case [5, 5]:
-      strokeType = 'dashed'
-      break
-    case [2, 2]:
-      strokeType = 'dotted'
-      break
-    default:
-      break
+  if (lineDash[0] === 5 && lineDash[1] === 5) {
+    strokeType = 'dashed'
+  } else if (lineDash[0] === 5 && lineDash[1] === 5) {
+    strokeType = 'dotted'
   }
 
   return strokeType

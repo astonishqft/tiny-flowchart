@@ -46,9 +46,9 @@ const selectNameMap: Record<string, string> = {
   <div class="property">
     <div class="property-title">{{ selectNameMap[type] }}</div>
     <div class="property-content">
-      <SceneProperty v-if="type === 'scene'" />
-      <NodeProperty v-if="type === 'shape'" />
-      <ConnectionProperty v-if="type === 'connection'" />
+      <SceneProperty v-show="type === 'scene'" />
+      <NodeProperty v-show="type === 'shape'" />
+      <ConnectionProperty v-show="type === 'connection'" />
     </div>
   </div>
 </template>

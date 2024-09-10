@@ -17,10 +17,24 @@ import type { ISelectFrameManage } from './selectFrameManage'
 import type { IGroupManage  } from './groupManage'
 import type { IShape } from './shapes'
 import type { IConnection } from './connection'
+import type { FontStyle, FontWeight, BuiltinTextPosition } from 'zrender/lib/core/types'
 
 type Displayable = zrender.Displayable
 
 zrender.registerPainter('canvas', CanvasPainter)
 
 export { IocEditor, container, IDENTIFIER, ConnectionType, SelectFrameManage, GroupManage }
-export type { ISceneManage, IZoomManage, IConnectionManage, ISelectFrameManage, IGroupManage, IShapeManage, IShape, IConnection, Displayable }
+export type {
+  ISceneManage,
+  IZoomManage,
+  IConnectionManage,
+  ISelectFrameManage,
+  IGroupManage,
+  IShapeManage,
+  IShape,
+  IConnection,
+  Displayable,
+  FontStyle,
+  FontWeight,
+  BuiltinTextPosition
+}

@@ -10,6 +10,7 @@ export default defineConfig({
     })
   ],
   build: {
+    sourcemap: 'inline',
     lib: {
       entry: resolve(__dirname, './src/index.ts'), // TS库入口文件
       name: 'ioc-editor-core', // 挂载到全局的变量名，CDN导入的时候可以直接使用Counter变量
