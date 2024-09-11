@@ -13,6 +13,14 @@ export interface IConnection extends zrender.Group {
   setFromPoint(point: IAnchor): void
   setToPoint(point: IAnchor): void
   refresh(): void
+  setLineWidth(lineWidth: number): void
+  getLineWidth(): number | undefined
+  setLineColor(color: string): void
+  getLineColor(): string | undefined
+  setLineDash(type: number[]): void
+  getLineDash(): number[]
+  getLineType(): ConnectionType
+  setLineType(type: ConnectionType): void
 }
 
 export enum ConnectionType {
@@ -175,7 +183,7 @@ class Connection extends zrender.Group {
     })
 
     this.add(this._arrow)
-    switch(this._connectionType) {
+    switch (this._connectionType) {
       case ConnectionType.Line:
         this._line = new zrender.Line({
           style: {
@@ -238,7 +246,7 @@ class Connection extends zrender.Group {
         this.add(this._controlLine2)
 
         this._controlPoint1.on('drag', (e: zrender.ElementEvent) => {
-          const { x, y, shape: { cx, cy} } = e.target as zrender.Circle
+          const { x, y, shape: { cx, cy } } = e.target as zrender.Circle
 
           this._controlLine1!.attr({
             shape: {
@@ -253,7 +261,7 @@ class Connection extends zrender.Group {
         })
 
         this._controlPoint2.on('drag', (e: zrender.ElementEvent) => {
-          const { x, y, shape: { cx, cy} } = e.target as zrender.Circle
+          const { x, y, shape: { cx, cy } } = e.target as zrender.Circle
 
           this._controlLine2!.attr({
             shape: {
@@ -324,16 +332,16 @@ class Connection extends zrender.Group {
           shape: {
             x1: this.fromPoint!.x,
             y1: this.fromPoint!.y,
-            x2: cpx1+this._controlPoint1!.x,
-            y2: cpy1+this._controlPoint1!.y
+            x2: cpx1 + this._controlPoint1!.x,
+            y2: cpy1 + this._controlPoint1!.y
           }
         })
         this._controlLine2?.attr({
           shape: {
             x1: this.toPoint!.x,
             y1: this.toPoint!.y,
-            x2: cpx2+this._controlPoint2!.x,
-            y2: cpy2+this._controlPoint2!.y
+            x2: cpx2 + this._controlPoint2!.x,
+            y2: cpy2 + this._controlPoint2!.y
           }
         });
         (this._line as zrender.BezierCurve).attr({
@@ -371,15 +379,15 @@ class Connection extends zrender.Group {
     if (!preNode) return
     const arrowLength = 10
     const offsetAngle = Math.PI / 8
-    const [x1 , y1] = preNode
-  
+    const [x1, y1] = preNode
+
     const { x: x2, y: y2 } = this.toPoint!
     const p1 = [x2, y2]
-  
+
     const angle = Math.atan2(y2 - y1, x2 - x1)
     const p2 = [x2 - arrowLength * Math.cos(angle + offsetAngle), y2 - arrowLength * Math.sin(angle + offsetAngle)]
     const p3 = [x2 - arrowLength * Math.cos(angle - offsetAngle), y2 - arrowLength * Math.sin(angle - offsetAngle)]
-  
+
     this._arrow!.attr({
       shape: {
         points: [p1, p2, p3]
@@ -389,6 +397,126 @@ class Connection extends zrender.Group {
 
   connect(node: IShape) {
     this.toNode = node
+    this.createConnection()
+  }
+
+  // 计算正交连线的中点坐标
+  calcOrtogonalLineMidPoint() {
+    if (this.ortogonalLinePoints.length === 0) {
+      return [this.fromAnchor!.x, this.fromAnchor!.y]
+    }
+    let accList: number[] = [0]
+    let directionList = []
+    for (let i = 1; i < this.ortogonalLinePoints.length; i++) {
+      const p1 = this.ortogonalLinePoints[i - 1]
+      const p2 = this.ortogonalLinePoints[i]
+      const dist = zrender.vector.dist(p1, p2)
+      accList.push(accList[i - 1] + dist)
+
+      if (p1[0] === p2[0]) {
+        directionList.push('vertical')
+      } else {
+        directionList.push('horizontal')
+      }
+    }
+
+    const midLength = accList[accList.length - 1] / 2
+
+    let index = 0
+    for (let i = 1; i < accList.length; i++) {
+      if (midLength <= accList[i]) {
+        index = i
+        break
+      }
+    }
+
+    // 判断中点所在的线段的方向
+    const currentDirection = directionList[index - 1]
+    const preNode = this.ortogonalLinePoints[index - 1]
+    const nextNode = this.ortogonalLinePoints[index]
+    const offsetLength = midLength - accList[index - 1]
+
+    if (currentDirection === 'horizontal') {
+      const delta = (nextNode[0] - preNode[0]) > 0 ? 1 : -1
+      return [preNode[0] + offsetLength * delta, preNode[1]]
+    } else {
+      const delta = (nextNode[1] - preNode[1]) > 0 ? 1 : -1
+      return [preNode[0], preNode[1] + offsetLength * delta]
+    }
+  }
+
+  renderText() {
+    if (this._connectionType === ConnectionType.BezierCurve) {
+      const point = this._line && (this._line as zrender.BezierCurve).pointAt(0.5)
+
+      if (point) {
+        this.textPoints = point
+      }
+    } else if (this._connectionType === ConnectionType.OrtogonalLine) {
+      this.textPoints = this.calcOrtogonalLineMidPoint()
+    } else {
+      this.textPoints = [
+        (this.fromAnchor!.x + this.toAnchor!.x) / 2,
+        (this.fromAnchor!.y + this.toAnchor!.y) / 2
+      ]
+    }
+
+    this.linkText?.setStyle({
+      x: this.textPoints[0],
+      y: this.textPoints[1]
+    })
+  }
+
+  setLineWidth(lineWidth: number) {
+    this._line!.setStyle({
+      lineWidth
+    })
+  }
+
+  getLineWidth() {
+    return this._line!.style.lineWidth
+  }
+
+  setLineColor(color: string) {
+    this._line!.setStyle({
+      stroke: color
+    })
+  }
+
+  getLineColor() {
+    return this._line!.style.stroke as (string | undefined)
+  }
+
+  setLineDash(type: number[]) {
+    this._line?.setStyle({
+      lineDash: type
+    })
+  }
+
+  getLineDash() {
+    return this._line!.style.lineDash as number[] || [0, 0]
+  }
+
+  getLineType() {
+    return this._connectionType
+  }
+
+  setLineType(type: ConnectionType) {
+    this._connectionType = type
+    this.remove(this._line!)
+    this.remove(this._arrow!)
+    if (this._controlPoint1) {
+      this.remove(this._controlPoint1)
+    }
+    if (this._controlPoint2) {
+      this.add(this._controlPoint2)
+    }
+    if (this._controlLine1) {
+      this.add(this._controlLine1)
+    }
+    if (this._controlLine2) {
+      this.add(this._controlLine2)
+    }
     this.createConnection()
   }
 }

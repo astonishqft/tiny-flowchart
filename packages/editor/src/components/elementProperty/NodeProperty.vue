@@ -4,6 +4,7 @@ import { Container } from 'inversify'
 import { ElSelect, ElOption, ElInputNumber, ElDivider, ElColorPicker, ElInput } from 'element-plus'
 import { convertLineDashToStrokeType, convertStrokeTypeToLineDash } from '../../utils/utils'
 import { IDENTIFIER } from '@ioceditor/core'
+
 import type { IShapeManage, IShape, Displayable, BuiltinTextPosition, FontWeight, FontStyle } from '@ioceditor/core'
 
 const bgColorList = ['transparent', '#ffc9c9', '#b2f2bb', '#a5d8ff', '#ffec99']

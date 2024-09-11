@@ -6,8 +6,8 @@ import CanvasPainter from 'zrender/lib/canvas/Painter.js'
 import container from './config/iocConfig'
 import IDENTIFIER from './constants/identifiers'
 import { SelectFrameManage } from './selectFrameManage'
-import { ConnectionType } from './connection'
 import { GroupManage } from './groupManage'
+import { ConnectionType } from './connection'
 
 import type { ISceneManage } from './sceneManage'
 import type { IZoomManage } from './zoomManage'
@@ -23,7 +23,7 @@ type Displayable = zrender.Displayable
 
 zrender.registerPainter('canvas', CanvasPainter)
 
-export { IocEditor, container, IDENTIFIER, ConnectionType, SelectFrameManage, GroupManage }
+export { IocEditor, container, IDENTIFIER, SelectFrameManage, GroupManage, ConnectionType }
 export type {
   ISceneManage,
   IZoomManage,

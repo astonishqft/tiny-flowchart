@@ -1,21 +1,36 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-import { ElSelect, ElInputNumber, ElDivider, ElColorPicker, ElInput } from 'element-plus'
+import { ref, inject } from 'vue'
+import { Container } from 'inversify'
+import { ElSelect, ElOption, ElInputNumber, ElDivider, ElColorPicker, ElInput } from 'element-plus'
+import { IDENTIFIER, ConnectionType } from '@ioceditor/core'
+import { convertStrokeTypeToLineDash, convertLineDashToStrokeType } from '../../utils/utils'
+
+import type { IConnectionManage, IConnection } from '@ioceditor/core'
+
+const iocEditor = inject<Container>('iocEditor') as Container
+
+const connectionMgr = iocEditor.get<IConnectionManage>(IDENTIFIER.CONNECTION_MANAGE)
 
 const lineTypes = [
   {
-    value: 'ortogonalLine',
+    value: ConnectionType.OrtogonalLine,
     label: '折线'
   },
   {
-    value: 'line',
+    value: ConnectionType.Line,
     label: '直线'
   },
   {
-    value: 'bezierCurve',
+    value: ConnectionType.BezierCurve,
     label: '曲线'
   }
 ]
+
+const activeConnection = ref<IConnection | null>(null)
+const lineWidth = ref<number | undefined>(1)
+const lineColor = ref<string | undefined>('#1e1e1e')
+const lineDash = ref('solid')
+const lineType = ref<ConnectionType>(ConnectionType.OrtogonalLine)
 
 // watch(
 //   () => editorStore.selectedLink,
@@ -30,8 +45,16 @@ const lineTypes = [
 //   }
 // )
 
+connectionMgr.updateSelectConnection$.subscribe((connection: IConnection) => {
+  activeConnection.value = connection
+  lineColor.value = connection.getLineColor()
+  lineDash.value = convertLineDashToStrokeType(connection.getLineDash())
+  lineWidth.value = connection.getLineWidth()
+  lineType.value = connection.getLineType()
+})
+
 const lineWidthOpts = [1, 2, 3, 4, 5]
-const lineTypeOpt = [
+const lineDashList = [
   {
     label: '实线',
     value: 'solid'
@@ -58,7 +81,7 @@ const fontStyle = [
   }
 ]
 
-// const strokeColorList = ['#1e1e1e', '#e03131', '#2f9e44', '#1971c2', '#f08c00']
+const strokeColorList = ['#1e1e1e', '#e03131', '#2f9e44', '#1971c2', '#f08c00']
 // const linkWidth = ref(propertyStore.linkWidth || 1)
 // const linkFontSize = ref(propertyStore.linkFontSize || 12)
 // const linkStrokeType = ref(propertyStore.linkStrokeType || 'solid')
@@ -67,18 +90,19 @@ const fontStyle = [
 // const strokeColor = ref(propertyStore.linkStrokeColor || '#1e1e1e')
 // const linkFontColor = ref(propertyStore.linkFontColor || '#333')
 
-const changeStrokeColor = (color: string | null) => {
-  propertyStore.setLinkStrokeColor(color as string)
-  strokeColor.value = color as string
+const changeLineColor = (color: string | null) => {
+  activeConnection.value?.setLineColor(color as string)
+  lineColor.value = color as string
 }
 
-const changeLinkWidth = (width: number) => {
-  linkWidth.value = width
-  propertyStore.setLinkWidth(width)
+const changeLineWidth = (width: number) => {
+  lineWidth.value = width
+  activeConnection.value?.setLineWidth(width)
 }
 
-const changeLinkStrokeType = (type: string) => {
-  propertyStore.setLinkStrokeType(type)
+const changeLineDash = (type: string) => {
+  lineDash.value = type
+  activeConnection.value?.setLineDash(convertStrokeTypeToLineDash(type))
 }
 const changeLinkFontColor = (color: string | null) => {
   propertyStore.setLinkFontColor(color as string)
@@ -101,8 +125,9 @@ const changeLinkFontSize = (size: number | undefined) => {
   propertyStore.setLinkFontSize(size as number)
 }
 
-const changeShapeLinkType = (type: string) => {
-  propertyStore.changeShapeLinkType(type)
+const changeLineType = (type: ConnectionType) => {
+  lineType.value = type
+  activeConnection.value?.setLineType(type)
 }
 </script>
 <template>
@@ -115,20 +140,20 @@ const changeShapeLinkType = (type: string) => {
           :style="{ backgroundColor: color }"
           v-for="color in strokeColorList"
           :key="color"
-          @click="() => changeStrokeColor(color)"
+          @click="() => changeLineColor(color)"
         />
         <el-divider style="margin: 0 4px; height: 20px" direction="vertical" />
-        <el-color-picker v-model="strokeColor" @change="changeStrokeColor" />
+        <el-color-picker v-model="lineColor" @change="changeLineColor" size="small"/>
       </div>
     </div>
     <div class="property-item">
       <div class="property-name">线条宽度</div>
       <div class="property-value">
         <el-select
-          v-model="linkWidth"
+          v-model="lineWidth"
           size="small"
           style="width: 157px; margin-right: 5px"
-          @change="changeLinkWidth"
+          @change="changeLineWidth"
         >
           <el-option v-for="item in lineWidthOpts" :key="item" :label="`${item}px`" :value="item" />
         </el-select>
@@ -139,13 +164,13 @@ const changeShapeLinkType = (type: string) => {
       <div class="property-value">
         <el-select
           placeholder="Select"
-          v-model="linkStrokeType"
+          v-model="lineDash"
           size="small"
           style="width: 157px; margin-right: 5px"
-          @change="changeLinkStrokeType"
+          @change="changeLineDash"
         >
           <el-option
-            v-for="item in lineTypeOpt"
+            v-for="item in lineDashList"
             :key="item.value"
             :label="item.label"
             :value="item.value"
@@ -160,10 +185,10 @@ const changeShapeLinkType = (type: string) => {
       <div class="property-value">
         <el-select
           placeholder="Select"
-          v-model="shapeLinkType"
+          v-model="lineType"
           size="small"
           style="width: 157px; margin-right: 5px"
-          @change="changeShapeLinkType"
+          @change="changeLineType"
         >
           <el-option
             v-for="item in lineTypes"
