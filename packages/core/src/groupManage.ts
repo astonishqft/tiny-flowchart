@@ -202,6 +202,7 @@ class GroupManage {
 
     nodeGroup.on('click', () => {
       nodeGroup.active()
+      this._connectionMgr.unActiveConnections()
     })
 
     nodeGroup.on('mousemove', () => {

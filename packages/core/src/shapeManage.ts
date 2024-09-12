@@ -175,6 +175,7 @@ class ShapeManage extends Disposable {
     shape.on('click', () => {
       console.log('shape click', shape)
       this.unActive()
+      this._connectionMgr.unActiveConnections()
       shape.active()
       this.updateSelectShape$.next(shape)
     })

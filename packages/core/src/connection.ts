@@ -13,6 +13,8 @@ export interface IConnection extends zrender.Group {
   setFromPoint(point: IAnchor): void
   setToPoint(point: IAnchor): void
   refresh(): void
+  active(): void
+  unActive(): void;
   setLineWidth(lineWidth: number): void
   getLineWidth(): number | undefined
   setLineColor(color: string): void
@@ -104,6 +106,34 @@ class Connection extends zrender.Group {
 
   cancel() {
     this.remove(this._tempConnection)
+  }
+
+  active() {
+    if (this._controlLine1 && this._controlLine2 && this._controlPoint1 && this._controlPoint2) {
+      this._controlLine1!.show()
+      this._controlLine2!.show()
+      this._controlPoint1!.show()
+      this._controlPoint2!.show()
+    }
+
+    this._line?.setStyle({
+      shadowColor: '#e85827',
+      shadowBlur: 4
+    })
+  }
+
+  unActive() {
+    if (this._controlLine1 && this._controlLine2 && this._controlPoint1 && this._controlPoint2) {
+      this._controlLine1!.hide()
+      this._controlLine2!.hide()
+      this._controlPoint1!.hide()
+      this._controlPoint2!.hide() 
+    }
+
+    this._line?.setStyle({
+      shadowColor: 'none',
+      shadowBlur: undefined
+    })
   }
 
   calcControlPoint(anchorPoint: IAnchor): number[] {

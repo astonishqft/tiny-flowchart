@@ -19,6 +19,7 @@ export interface IConnectionManage extends IDisposable {
   updateConnectionType$: Observable<ConnectionType>
   updateSelectConnection$: Observable<IConnection>
   clear(): void
+  unActiveConnections(): void
 }
 
 @injectable()
@@ -50,9 +51,17 @@ class ConnectionManage extends Disposable {
     return conn
   }
 
+  unActiveConnections() {
+    this._storageMgr.getConnections().forEach((conn: IConnection) => {
+      conn.unActive()
+    })
+  }
+
   initEvent(conn: IConnection) {
     conn.on('click', () => {
+      this.unActiveConnections()
       this.updateSelectConnection$.next(conn)
+      conn.active()
     })
   }
 
