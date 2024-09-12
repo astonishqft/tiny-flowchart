@@ -35,7 +35,7 @@ export class IocEditor {
     return zrender.init(dom)
   }
 
-  constructor(dom: HTMLElement, config: IIocEditorConfig) {
+  constructor(dom: HTMLElement, config: Partial<IIocEditorConfig>) {
     this._settingMgr.setDefaultConfig(config)
     this._zr = this.initZr(dom)
     this._sceneMgr.init(this._zr)

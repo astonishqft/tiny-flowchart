@@ -54,7 +54,6 @@ class SceneManage extends Disposable {
   init(zr: zrender.ZRenderType) {
     this._zr = zr
     this._viewPortMgr.addSelfToZr(this._zr)
-    this._gridMgr.addSelfToZr(this._zr)
     this.initEvent()
   }
 

@@ -31,21 +31,27 @@ const dragOver = (event: DragEvent) => {
 </script>
 
 <template>
-  <div class="ioc-editor" @drop="drop" @dragover="dragOver">
+  <div class="ioc-editor-container" @drop="drop" @dragover="dragOver">
+    <div id="ioc-editor-grid"></div>
     <div id="ioc-editor"></div>
+
   </div>
 </template>
 
 <style scoped lang="less">
-.ioc-editor {
+.ioc-editor-container {
   height: calc(100% - 40px);
   position: absolute;
   width: calc(100% - 445px);
   left: 185px;
   border-right: 1px solid #dadce0;
   #ioc-editor {
+    background-color: rgba(255, 255, 255, 0);
+  }
+  #ioc-editor,#ioc-editor-grid {
     width: 100%;
     height: 100%;
+    position: absolute;
   }
 }
 </style>

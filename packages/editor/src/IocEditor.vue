@@ -7,7 +7,7 @@ import MiniMap from './components/MiniMap.vue'
 </script>
 
 <template>
-  <div class="ioc-editor-container">
+  <div class="ioc-editor">
     <HeaderTools />
     <ElementPanel />
     <Editor />
@@ -17,7 +17,7 @@ import MiniMap from './components/MiniMap.vue'
 </template>
 
 <style scoped lang="less">
-.ioc-editor-container {
+.ioc-editor {
   width: 100%;
   height: 100%;
   position: relative;

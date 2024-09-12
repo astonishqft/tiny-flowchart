@@ -9,7 +9,7 @@ import type { IDisposable } from './disposable'
 import type { IStorageManage } from './storageManage'
 
 export interface IGridManage extends IDisposable {
-  addSelfToZr(zr: zrender.ZRenderType): void
+  init(): void
   drawGrid(): void
   setPosition(x: number, y: number): void
   setScale(x: number, y: number): void
@@ -96,8 +96,9 @@ class GridManage extends Disposable {
   private _height: number = 0
   private _xPoints: number[] = []
   private _yPoints: number[] = []
-  private _gridLayer: zrender.Group
-  private _pointsPool: PointsPool
+  private _gridLayer: zrender.Group | null = null
+  private _pointsPool: PointsPool | null = null
+  private _gridZr: zrender.ZRenderType | null = null
   constructor(
     @inject(IDENTIFIER.SETTING_MANAGE) private _settingMgr: ISettingManage,
     @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortMgr: IViewPortManage,
@@ -105,19 +106,16 @@ class GridManage extends Disposable {
   ) {
     super()
     this._gridStep = this._settingMgr.get('gridStep')
-    this._gridLayer = new zrender.Group()
-
-    this._pointsPool = new PointsPool(1000, this._gridLayer)
 
     setTimeout(() => {
+      this._gridZr = zrender.init(document.getElementById('ioc-editor-grid') as HTMLElement)
+      this._gridLayer = new zrender.Group()
+      this._gridZr.add(this._gridLayer)
+      this._pointsPool = new PointsPool(1000, this._gridLayer)
       this._width = this._viewPortMgr.getSceneWidth()
       this._height = this._viewPortMgr.getSceneHeight()
       this.drawGrid()
     }, 0)
-  }
-
-  addSelfToZr(zr: zrender.ZRenderType) {
-    zr.add(this._gridLayer)
   }
 
   /**
@@ -131,21 +129,21 @@ class GridManage extends Disposable {
   }
 
   setPosition(x: number, y: number) {
-    this._gridLayer.attr('x', x)
-    this._gridLayer.attr('y', y)
+    this._gridLayer?.attr('x', x)
+    this._gridLayer?.attr('y', y)
   }
 
   setScale(x: number, y: number) {
-    this._gridLayer.attr('scaleX', x)
-    this._gridLayer.attr('scaleY', y)
+    this._gridLayer?.attr('scaleX', x)
+    this._gridLayer?.attr('scaleY', y)
   }
 
   drawGrid() {
     const zoom = this._storageMgr.getZoom()
-    let startX = this.getClosestVal(-this._gridLayer.x / zoom, this._gridStep)
-    let endX = this.getClosestVal(-this._gridLayer.x / zoom + this._width / zoom, this._gridStep)
-    let startY = this.getClosestVal(-this._gridLayer.y / zoom, this._gridStep)
-    let endY = this.getClosestVal(-this._gridLayer.y / zoom + this._height / zoom, this._gridStep)
+    let startX = this.getClosestVal(-this._gridLayer!.x / zoom, this._gridStep)
+    let endX = this.getClosestVal(-this._gridLayer!.x / zoom + this._width / zoom, this._gridStep)
+    let startY = this.getClosestVal(-this._gridLayer!.y / zoom, this._gridStep)
+    let endY = this.getClosestVal(-this._gridLayer!.y / zoom + this._height / zoom, this._gridStep)
     this._xPoints = []
     this._yPoints = []
 
@@ -159,12 +157,12 @@ class GridManage extends Disposable {
       startY += this._gridStep
     }
 
-    this._pointsPool.resizePool(this._yPoints.length * this._xPoints.length)
+    this._pointsPool?.resizePool(this._yPoints.length * this._xPoints.length)
 
     let index = 0
     for (let i = 0; i < this._yPoints.length; i ++) {
       for(let j = 0; j < this._xPoints.length; j ++) {
-        this._pointsPool.updatePosition(index, this._xPoints[j], this._yPoints[i])
+        this._pointsPool?.updatePosition(index, this._xPoints[j], this._yPoints[i])
         index ++
       }
     }
