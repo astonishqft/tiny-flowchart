@@ -146,12 +146,13 @@ class SceneManage extends Disposable {
 
       if (e.target && (e.target as IAnchorPoint).mark === 'anch' && connection && ((e.target as IAnchorPoint).node !== connection.fromNode)) { // 禁止和自身相连
         // 创建连线
-        connection.setToPoint((e.target as IAnchorPoint).point)
-        connection.connect((e.target as IAnchorPoint).node)
+        this._connectionMgr.connect(e.target as IAnchorPoint)
       }
 
       if (connection) {
-        connection.cancel()
+        // 取消连线创建的临时直线
+        this._connectionMgr.cancelConnect()
+        connection = null
       }
 
       if (selectFrameStatus) {

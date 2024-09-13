@@ -125,18 +125,20 @@ class ShapeManage extends Disposable {
       if (Math.abs(offsetX / zoom) > 2 || Math.abs(offsetY / zoom) > 2) {
         this._dragFrameMgr.updatePosition(shape.x + stepX / zoom, shape.y + stepY / zoom)
 
-        if (shape.parentGroup) {
-          isDragLeave = isLeave(this._dragFrameMgr.getBoundingBox(), shape.parentGroup!.getBoundingBox())
-        } else {
-          dragEnterGroups = this._storageMgr.getGroups().filter((g) => isEnter(this._dragFrameMgr.getBoundingBox(), g.getBoundingBox()))
-
-          if (dragEnterGroups.length !== 0) {
-            isDragEnter = true
+        if (this._storageMgr.getGroups().length !==0) {
+          if (shape.parentGroup) {
+            isDragLeave = isLeave(this._dragFrameMgr.getBoundingBox(), shape.parentGroup!.getBoundingBox())
           } else {
-            isDragEnter = false
+            dragEnterGroups = this._storageMgr.getGroups().filter((g) => isEnter(this._dragFrameMgr.getBoundingBox(), g.getBoundingBox()))
+  
+            if (dragEnterGroups.length !== 0) {
+              isDragEnter = true
+            } else {
+              isDragEnter = false
+            }
+  
+            this.dragEnter(isDragEnter, getTopGroup(dragEnterGroups))
           }
-
-          this.dragEnter(isDragEnter, getTopGroup(dragEnterGroups))
         }
       }
       // 拖拽浮层的时候同时更新对其参考线

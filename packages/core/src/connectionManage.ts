@@ -6,7 +6,7 @@ import { ConnectionType } from './connection'
 import IDENTIFIER from './constants/identifiers'
 import type { IDisposable } from './disposable'
 import type { IConnection } from './connection'
-import type { IShape } from './shapes'
+import type { IShape, IAnchorPoint } from './shapes'
 import type { IViewPortManage } from './viewPortManage'
 import type { IStorageManage } from './storageManage'
 
@@ -16,10 +16,12 @@ export interface IConnectionManage extends IDisposable {
   setConnectionType(type: ConnectionType): void
   refreshConnection(shape: IShape): void
   removeConnection(connection: IConnection): void
+  connect(anchorPoint: IAnchorPoint): void
   updateConnectionType$: Observable<ConnectionType>
   updateSelectConnection$: Observable<IConnection>
   clear(): void
   unActiveConnections(): void
+  cancelConnect(): void
 }
 
 @injectable()
@@ -27,6 +29,8 @@ class ConnectionManage extends Disposable {
   private _connectionType: ConnectionType = ConnectionType.OrtogonalLine
   updateConnectionType$ = new Subject<ConnectionType>()
   updateSelectConnection$ = new Subject<IConnection>()
+
+  newConnection: IConnection | null = null
   constructor(
     @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortMgr: IViewPortManage,
     @inject(IDENTIFIER.STORAGE_MANAGE) private _storageMgr: IStorageManage
@@ -43,12 +47,26 @@ class ConnectionManage extends Disposable {
   createConnection(fromNode: IShape): IConnection {
     const sceneWidth = this._viewPortMgr.getSceneWidth()
     const sceneHeight = this._viewPortMgr.getSceneHeight()
-    const conn: IConnection = new Connection(fromNode, this._connectionType, sceneWidth, sceneHeight)
+    this.newConnection = new Connection(fromNode, this._connectionType, sceneWidth, sceneHeight)
 
-    this._storageMgr.addConnection(conn)
-    this._viewPortMgr.addElementToViewPort(conn)
-    this.initEvent(conn)
-    return conn
+    this._viewPortMgr.addElementToViewPort(this.newConnection)
+    this.initEvent(this.newConnection)
+    return this.newConnection
+  }
+
+  connect(anchorPoint: IAnchorPoint) {
+    if (this.newConnection) {
+      this.newConnection.setToPoint(anchorPoint.point)
+      this.newConnection.connect(anchorPoint.node)
+      this._storageMgr.addConnection(this.newConnection)
+    }
+  }
+
+  cancelConnect() {
+    if (this.newConnection) {
+      this.newConnection.cancelConnect()
+      this.newConnection = null
+    }
   }
 
   unActiveConnections() {
@@ -98,12 +116,6 @@ class ConnectionManage extends Disposable {
         conn.refresh()
       }
     })
-  }
-
-  // TODO
-  changeConnection(Connection: IConnection, type: ConnectionType) {
-    // const conn = this._connections.filter(c => c === Connection)[0]
-    // conn.setConnectionType(type)
   }
 
   clear() {

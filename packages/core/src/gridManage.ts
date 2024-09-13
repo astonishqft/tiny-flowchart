@@ -37,7 +37,7 @@ class PointsPool {
         fill: '#868e96',
         lineWidth: 1
       },
-      z: -100
+      silent: true
     })
 
     this._layer.add(p)

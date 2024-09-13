@@ -5,7 +5,7 @@ import { ElSelect, ElOption, ElInputNumber, ElDivider, ElColorPicker, ElInput } 
 import { IDENTIFIER, ConnectionType } from '@ioceditor/core'
 import { convertStrokeTypeToLineDash, convertLineDashToStrokeType } from '../../utils/utils'
 
-import type { IConnectionManage, IConnection } from '@ioceditor/core'
+import type { IConnectionManage, IConnection, FontWeight, FontStyle } from '@ioceditor/core'
 
 const iocEditor = inject<Container>('iocEditor') as Container
 
@@ -31,19 +31,11 @@ const lineWidth = ref<number | undefined>(1)
 const lineColor = ref<string | undefined>('#1e1e1e')
 const lineDash = ref('solid')
 const lineType = ref<ConnectionType>(ConnectionType.OrtogonalLine)
-
-// watch(
-//   () => editorStore.selectedLink,
-//   (newValue) => {
-//     strokeColor.value = newValue?.strokeLinkColor || '#1e1e1e'
-//     linkWidth.value = newValue?.linkWidth || 1
-//     linkStrokeType.value = newValue?.linkStrokeType || 'solid'
-//     linkFontColor.value = newValue?.linkFontColor || '#333'
-//     linkFontSize.value = newValue?.linkFontSize || 12
-//     linkFontText.value = newValue?.linkFontText || ''
-//     shapeLinkType.value = newValue?.lineType || 'ortogonalLine'
-//   }
-// )
+const lineTextContent = ref<string | undefined>(undefined)
+const lineTextFontSize = ref<number | undefined>(undefined)
+const lineTextFontColor = ref<string | undefined>('#333')
+const fontWeight = ref<FontWeight | undefined>('normal')
+const fontStyle = ref<FontStyle | undefined>('normal')
 
 connectionMgr.updateSelectConnection$.subscribe((connection: IConnection) => {
   activeConnection.value = connection
@@ -51,6 +43,11 @@ connectionMgr.updateSelectConnection$.subscribe((connection: IConnection) => {
   lineDash.value = convertLineDashToStrokeType(connection.getLineDash())
   lineWidth.value = connection.getLineWidth()
   lineType.value = connection.getLineType()
+  lineTextContent.value = connection.getLineTextContent()
+  lineTextFontSize.value = connection.getLineTextFontSize() as number
+  lineTextFontColor.value = connection.getLineTextFontColor()
+  fontStyle.value = connection.getLineFontStyle()
+  fontWeight.value = connection.getLineFontWeight()
 })
 
 const lineWidthOpts = [1, 2, 3, 4, 5]
@@ -68,27 +65,8 @@ const lineDashList = [
     value: 'dotted'
   }
 ]
-const fontStyle = [
-  {
-    name: 'fontItalic',
-    icon: 'icon-zitiyangshi_xieti',
-    desc: '斜体'
-  },
-  {
-    name: 'fontWeight',
-    icon: 'icon-zitiyangshi_jiacu',
-    desc: '加粗'
-  }
-]
 
 const strokeColorList = ['#1e1e1e', '#e03131', '#2f9e44', '#1971c2', '#f08c00']
-// const linkWidth = ref(propertyStore.linkWidth || 1)
-// const linkFontSize = ref(propertyStore.linkFontSize || 12)
-// const linkStrokeType = ref(propertyStore.linkStrokeType || 'solid')
-// const shapeLinkType = ref(propertyStore.shapeLinkType || 'ortogonalLine')
-// const linkFontText = ref(propertyStore.linkFontText || '')
-// const strokeColor = ref(propertyStore.linkStrokeColor || '#1e1e1e')
-// const linkFontColor = ref(propertyStore.linkFontColor || '#333')
 
 const changeLineColor = (color: string | null) => {
   activeConnection.value?.setLineColor(color as string)
@@ -105,24 +83,29 @@ const changeLineDash = (type: string) => {
   activeConnection.value?.setLineDash(convertStrokeTypeToLineDash(type))
 }
 const changeLinkFontColor = (color: string | null) => {
-  propertyStore.setLinkFontColor(color as string)
-  linkFontColor.value = color as string
+  activeConnection.value?.setLineTextFontColor(color as string)
 }
 
-const changeLinkFontStyle = (style: string) => {
+const changeLineFontStyle = (style: string) => {
+  const fWeight = activeConnection.value?.getLineFontWeight() || 'normal'
+  const fStyle = activeConnection.value?.getLineFontStyle() || 'normal'
   if (style === 'fontWeight') {
-    propertyStore.setLinkFontWeight()
+    activeConnection.value?.setLineFontWeight(fWeight === 'normal' ? 'bold' : 'normal')
+
+    fontWeight.value = fWeight === 'normal' ? 'bold' : 'normal'
   } else {
-    propertyStore.setLinkFontItalic()
+    activeConnection.value?.setLineFontStyle(fStyle === 'normal' ? 'italic' : 'normal')
+
+    fontStyle.value = fStyle === 'normal' ? 'italic' : 'normal'
   }
 }
 
-const changeLinkText = (text: string) => {
-  propertyStore.setLinkText(text)
+const changeLineTextContent = (text: string) => {
+  activeConnection.value?.setLineTextContent(text)
 }
 
-const changeLinkFontSize = (size: number | undefined) => {
-  propertyStore.setLinkFontSize(size as number)
+const changeLineFontSize = (size: number | undefined) => {
+  activeConnection.value?.setLineTextFontSize(size)
 }
 
 const changeLineType = (type: ConnectionType) => {
@@ -143,7 +126,7 @@ const changeLineType = (type: ConnectionType) => {
           @click="() => changeLineColor(color)"
         />
         <el-divider style="margin: 0 4px; height: 20px" direction="vertical" />
-        <el-color-picker v-model="lineColor" @change="changeLineColor" size="small"/>
+        <el-color-picker v-model="lineColor" @change="changeLineColor" size="small" />
       </div>
     </div>
     <div class="property-item">
@@ -212,19 +195,19 @@ const changeLineType = (type: ConnectionType) => {
           @click="() => changeLinkFontColor(color)"
         />
         <el-divider style="margin: 0 4px; height: 20px" direction="vertical" />
-        <el-color-picker v-model="linkFontColor" @change="changeLinkFontColor" />
+        <el-color-picker v-model="lineTextFontColor" @change="changeLinkFontColor" size="small" />
       </div>
     </div>
     <div class="property-item">
       <div class="property-name">文本内容</div>
       <div class="property-value">
         <el-input
-          v-model="linkFontText"
+          v-model="lineTextContent"
           :min="12"
           :max="30"
           size="small"
           :step="1"
-          @input="changeLinkText"
+          @input="changeLineTextContent"
           style="width: 157px; margin-right: 5px"
         />
       </div>
@@ -233,12 +216,12 @@ const changeLineType = (type: ConnectionType) => {
       <div class="property-name">文字大小</div>
       <div class="property-value">
         <el-input-number
-          v-model="linkFontSize"
+          v-model="lineTextFontSize"
           :min="12"
           :max="30"
           size="small"
           :step="1"
-          @change="changeLinkFontSize"
+          @change="changeLineFontSize"
           style="width: 157px; margin-right: 5px"
         />
       </div>
@@ -247,12 +230,16 @@ const changeLineType = (type: ConnectionType) => {
       <div class="property-name">文字样式</div>
       <div class="property-value">
         <span
-          class="icon iconfont font-style-icon"
-          :class="[style.icon]"
-          v-for="style in fontStyle"
-          :key="style.name"
-          :title="style.desc"
-          @click="() => changeLinkFontStyle(style.name)"
+          class="icon iconfont font-style-icon icon-zitiyangshi_jiacu"
+          :class="{ active: fontWeight === 'bold' }"
+          :title="'加粗'"
+          @click="() => changeLineFontStyle('fontWeight')"
+        />
+        <span
+          class="icon iconfont font-style-icon icon-zitiyangshi_xieti"
+          :class="{ active: fontStyle === 'italic' }"
+          :title="'斜体'"
+          @click="() => changeLineFontStyle('fontStyle')"
         />
       </div>
     </div>
@@ -306,6 +293,10 @@ const changeLineType = (type: ConnectionType) => {
   padding: 3px;
   border: 1px solid rgb(217, 217, 217);
   border-radius: 5px;
+}
+.font-style-icon.active {
+  background-color: #1971c2;
+  color: #fff;
 }
 :global(.el-color-picker) {
   width: 20px;
