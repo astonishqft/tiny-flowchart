@@ -2,6 +2,7 @@ import { inject, injectable } from 'inversify'
 import * as zrender from 'zrender'
 import IDENTIFIER from './constants/identifiers'
 import { NodeGroup } from './shapes/nodeGroup'
+import { Subject, Observable } from 'rxjs'
 import { Anchor } from './anchor'
 import {
   isLeave,
@@ -12,6 +13,7 @@ import {
   getBoundingRect,
   getGroupMaxZLevel
 } from './utils'
+import { Disposable, IDisposable } from './disposable'
 
 import type { IViewPortManage } from './viewPortManage'
 import type { IDragFrameManage } from './dragFrameManage'
@@ -21,21 +23,26 @@ import type { IStorageManage } from './storageManage'
 import type { IAnchorPoint, IShape } from './shapes'
 import type { INodeGroup } from './shapes/nodeGroup'
 
-export interface IGroupManage {
+export interface IGroupManage extends IDisposable {
+  updateSelectGroup$: Observable<INodeGroup>
   createGroup(): void
   unGroup(): void
   unActive(): void
 }
 
 @injectable()
-class GroupManage {
+class GroupManage extends Disposable {
+  updateSelectGroup$ = new Subject<INodeGroup>()
   constructor(
     @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortMgr: IViewPortManage,
     @inject(IDENTIFIER.DRAG_FRAME_MANAGE) private _dragFrameMgr: IDragFrameManage,
     @inject(IDENTIFIER.REF_LINE_MANAGE) private _refLineMgr: IRefLineManage,
     @inject(IDENTIFIER.CONNECTION_MANAGE) private _connectionMgr: IConnectionManage,
     @inject(IDENTIFIER.STORAGE_MANAGE) private _storageMgr: IStorageManage,
-  ) {}
+  ) {
+    super()
+    this._disposables.push(this.updateSelectGroup$)
+  }
 
   createGroup() {
     const activeShapes = this._storageMgr.getActiveShapes().concat(this._storageMgr.getActiveGroups())
@@ -201,8 +208,10 @@ class GroupManage {
     }
 
     nodeGroup.on('click', () => {
+      this.unActive()
       nodeGroup.active()
       this._connectionMgr.unActiveConnections()
+      this.updateSelectGroup$.next(nodeGroup)
     })
 
     nodeGroup.on('mousemove', () => {

@@ -5,16 +5,16 @@ import { ElSelect, ElOption, ElInputNumber, ElDivider, ElColorPicker, ElInput } 
 import { convertLineDashToStrokeType, convertStrokeTypeToLineDash } from '../../utils/utils'
 import { IDENTIFIER } from '@ioceditor/core'
 
-import type { IShapeManage, IShape, Displayable, BuiltinTextPosition, FontWeight, FontStyle } from '@ioceditor/core'
+import type { IGroupManage, INodeGroup, BuiltinTextPosition, FontWeight, FontStyle } from '@ioceditor/core'
 
 const bgColorList = ['transparent', '#ffc9c9', '#b2f2bb', '#a5d8ff', '#ffec99']
 const strokeColorList = ['#1e1e1e', '#e03131', '#2f9e44', '#1971c2', '#f08c00']
 
 const iocEditor = inject<Container>('iocEditor') as Container
 
-const shapeMgr = iocEditor.get<IShapeManage>(IDENTIFIER.SHAPE_MANAGE)
+const groupMgr = iocEditor.get<IGroupManage>(IDENTIFIER.GROUP_MANAGE)
 
-const activeShape = ref<Displayable>()
+const activeGroup = ref<INodeGroup>()
 
 interface ITextPosition {
   name: string
@@ -40,30 +40,20 @@ const lineTypeOpt = [
 
 const textPositionList: ITextPosition[] = [
   {
+    name: 'insideLeft',
+    icon: 'icon-align-left',
+    desc: '居左'
+  },
+  {
     name: 'inside',
-    icon: 'icon-sInLineVertical',
-    desc: '内置'
+    icon: 'icon-align-center',
+    desc: '居中'
   },
   {
-    name: 'top',
-    icon: 'icon-LineUp',
-    desc: '置顶'
+    name: 'insideRight',
+    icon: 'icon-align-right',
+    desc: '居右'
   },
-  {
-    name: 'right',
-    icon: 'icon-LineRight',
-    desc: '置右'
-  },
-  {
-    name: 'bottom',
-    icon: 'icon-LineDown',
-    desc: '置底'
-  },
-  {
-    name: 'left',
-    icon: 'icon-LineLeft',
-    desc: '置左'
-  }
 ]
 const lineWidth = ref(1)
 const fontSize = ref(12)
@@ -76,85 +66,87 @@ const textPosition = <BuiltinTextPosition>ref('inside')
 const fontWeight = ref<FontWeight>('normal')
 const fontStyle = ref<FontStyle>('normal')
 
-shapeMgr.updateSelectShape$.subscribe((shape: IShape) => {
-  activeShape.value = shape as unknown as Displayable
-  lineWidth.value = activeShape.value.style.lineWidth
-  fontSize.value = activeShape.value.getTextContent().style.fontSize as number
-  strokeType.value = convertLineDashToStrokeType(activeShape.value.style.lineDash || [0, 0])
-  nodeText.value = activeShape.value.getTextContent().style.text || ''
-  bgColor.value = activeShape.value.style.fill
-  strokeColor.value = activeShape.value.style.stroke
-  fontColor.value = activeShape.value.getTextContent().style.fill || '#333'
-  textPosition.value = activeShape.value.textConfig?.position || 'inside'
-  fontStyle.value = activeShape.value.getTextContent().style.fontStyle || 'normal'
-  fontWeight.value = activeShape.value.getTextContent().style.fontWeight || 'normal'
+groupMgr.updateSelectGroup$.subscribe((group: INodeGroup) => {
+  activeGroup.value = group
+
+  
+  bgColor.value = activeGroup.value.groupRect?.style.fill as string
+  strokeColor.value = activeGroup.value.groupRect?.style.stroke as string
+  fontColor.value = activeGroup.value.groupHead?.getTextContent().style.fill || '#333'
+  lineWidth.value = activeGroup.value.groupRect?.style.lineWidth || 1
+  strokeType.value = convertLineDashToStrokeType(activeGroup.value.groupRect?.style.lineDash as number[] || [0, 0])
+  nodeText.value = activeGroup.value.groupHead?.getTextContent().style.text || ''
+  fontSize.value = activeGroup.value.groupHead?.getTextContent().style.fontSize as number
+  fontStyle.value = activeGroup.value.groupHead?.getTextContent().style.fontStyle || 'normal'
+  fontWeight.value = activeGroup.value.groupHead?.getTextContent().style.fontWeight || 'normal'
+  textPosition.value = activeGroup.value.groupHead?.textConfig?.position || 'insideLeft'
 })
 
-const changeShapeBgColor = (color: string | null) => {
-  activeShape.value!.setStyle({
-    fill: color
+const changeGroupBgColor = (color: string | null) => {
+  activeGroup.value!.groupRect?.setStyle({
+    fill: color as string
   })
   bgColor.value = color as string
 }
 
-const changeShapeStrokeColor = (color: string | null) => {
-  activeShape.value!.setStyle({
-    stroke: color
+const changeGroupStrokeColor = (color: string | null) => {
+  activeGroup.value!.groupRect?.setStyle({
+    stroke: color as string
   })
   strokeColor.value = color as string
 }
 
-const changeShapeFontColor = (color: string | null) => {
+const changeGroupHeadFontColor = (color: string | null) => {
   if (!color) return
-  activeShape.value!.getTextContent()?.setStyle({
+  activeGroup.value!.groupHead?.getTextContent()?.setStyle({
     fill: color
   })
   fontColor.value = color as string
 }
 
-const changeShapeFontSize = (size: number | undefined) => {
+const changeGroupFontSize = (size: number | undefined) => {
   if (!size) return
-  activeShape.value!.getTextContent()?.setStyle({
+  activeGroup.value!.groupHead?.getTextContent()?.setStyle({
     fontSize: size
   })
 
   fontSize.value = size
 }
 
-const changeShapeLineWidth = (width: number) => {
-  activeShape.value!.setStyle({
+const changeGroupLineWidth = (width: number) => {
+  activeGroup.value!.groupRect?.setStyle({
     lineWidth: width
   })
   lineWidth.value = width
 }
 
-const changeShapeStrokeType = (type: string) => {
-  activeShape.value!.setStyle({
+const changeGroupStrokeType = (type: string) => {
+  activeGroup.value!.groupRect?.setStyle({
     lineDash: convertStrokeTypeToLineDash(type)
   })
 
   strokeType.value = type
 }
 
-const changeShapeTextPosition = (position: BuiltinTextPosition) => {
-  activeShape.value!.setTextConfig({
+const changeGroupTextPosition = (position: BuiltinTextPosition) => {
+  activeGroup.value!.groupHead?.setTextConfig({
     position
   })
 
   textPosition.value = position
 }
 
-const changeShapeFontStyle = (style: string) => {
-  const fWeight = activeShape.value!.getTextContent().style.fontWeight || 'normal'
-  const fStyle = activeShape.value!.getTextContent().style.fontStyle || 'normal'
+const changeGroupFontStyle = (style: string) => {
+  const fWeight = activeGroup.value!.groupHead?.getTextContent().style.fontWeight || 'normal'
+  const fStyle = activeGroup.value!.groupHead?.getTextContent().style.fontStyle || 'normal'
   if (style === 'fontWeight') {
-    activeShape.value!.getTextContent()?.setStyle({
+    activeGroup.value!.groupHead?.getTextContent()?.setStyle({
       fontWeight: fWeight === 'normal' ? 'bold' : 'normal'
     })
 
     fontWeight.value = fWeight === 'normal' ? 'bold' : 'normal'
   } else {
-    activeShape.value!.getTextContent()?.setStyle({
+    activeGroup.value!.groupHead?.getTextContent()?.setStyle({
       fontStyle: fStyle === 'normal' ? 'italic' : 'normal'
     })
 
@@ -162,8 +154,8 @@ const changeShapeFontStyle = (style: string) => {
   }
 }
 
-const changeShapeText = (text: string) => {
-  activeShape.value!.getTextContent()?.setStyle({
+const changeGroupText = (text: string) => {
+  activeGroup.value!.groupHead?.getTextContent()?.setStyle({
     text
   })
 
@@ -180,10 +172,10 @@ const changeShapeText = (text: string) => {
           :style="{ backgroundColor: color }"
           v-for="color in bgColorList"
           :key="color"
-          @click="() => changeShapeBgColor(color)"
+          @click="() => changeGroupBgColor(color)"
         />
         <el-divider style="margin: 0 4px; height: 20px" direction="vertical" />
-        <el-color-picker v-model="bgColor" @change="changeShapeBgColor" size="small" />
+        <el-color-picker v-model="bgColor" @change="changeGroupBgColor" size="small" />
       </div>
     </div>
     <div class="property-item">
@@ -194,10 +186,10 @@ const changeShapeText = (text: string) => {
           :style="{ backgroundColor: color }"
           v-for="color in strokeColorList"
           :key="color"
-          @click="() => changeShapeStrokeColor(color)"
+          @click="() => changeGroupStrokeColor(color)"
         />
         <el-divider style="margin: 0 4px; height: 20px" direction="vertical" />
-        <el-color-picker v-model="strokeColor" @change="changeShapeStrokeColor" size="small"  />
+        <el-color-picker v-model="strokeColor" @change="changeGroupStrokeColor" size="small"  />
       </div>
     </div>
     <div class="property-item">
@@ -207,7 +199,7 @@ const changeShapeText = (text: string) => {
           v-model="lineWidth"
           size="small"
           style="width: 157px; margin-right: 5px"
-          @change="changeShapeLineWidth"
+          @change="changeGroupLineWidth"
         >
           <el-option v-for="item in lineWidthOpts" :key="item" :label="`${item}px`" :value="item" />
         </el-select>
@@ -221,7 +213,7 @@ const changeShapeText = (text: string) => {
           v-model="strokeType"
           size="small"
           style="width: 157px; margin-right: 5px"
-          @change="changeShapeStrokeType"
+          @change="changeGroupStrokeType"
         >
           <el-option
             v-for="item in lineTypeOpt"
@@ -242,10 +234,10 @@ const changeShapeText = (text: string) => {
           :style="{ backgroundColor: color }"
           v-for="color in strokeColorList"
           :key="color"
-          @click="() => changeShapeFontColor(color)"
+          @click="() => changeGroupHeadFontColor(color)"
         />
         <el-divider style="margin: 0 4px; height: 20px" direction="vertical" />
-        <el-color-picker v-model="fontColor" @change="changeShapeFontColor" size="small" />
+        <el-color-picker v-model="fontColor" @change="changeGroupHeadFontColor" size="small" />
       </div>
     </div>
     <div class="property-item">
@@ -257,7 +249,7 @@ const changeShapeText = (text: string) => {
           :max="30"
           size="small"
           :step="1"
-          @input="changeShapeText"
+          @input="changeGroupText"
           style="width: 157px; margin-right: 5px"
         />
       </div>
@@ -271,7 +263,7 @@ const changeShapeText = (text: string) => {
           :max="30"
           size="small"
           :step="1"
-          @change="changeShapeFontSize"
+          @change="changeGroupFontSize"
           style="width: 157px; margin-right: 5px"
         />
       </div>
@@ -283,13 +275,13 @@ const changeShapeText = (text: string) => {
           class="icon iconfont font-style-icon icon-zitiyangshi_jiacu"
           :class="{ active: fontWeight === 'bold' }"
           :title="'加粗'"
-          @click="() => changeShapeFontStyle('fontWeight')"
+          @click="() => changeGroupFontStyle('fontWeight')"
         />
         <span
           class="icon iconfont font-style-icon icon-zitiyangshi_xieti"
           :class="{ active: fontStyle === 'italic' }"
           :title="'斜体'"
-          @click="() => changeShapeFontStyle('fontStyle')"
+          @click="() => changeGroupFontStyle('fontStyle')"
         />
       </div>
     </div>
@@ -302,7 +294,7 @@ const changeShapeText = (text: string) => {
           v-for="position in textPositionList"
           :key="position.name"
           :title="position.desc"
-          @click="() => changeShapeTextPosition(position.name)"
+          @click="() => changeGroupTextPosition(position.name)"
         />
       </div>
     </div>

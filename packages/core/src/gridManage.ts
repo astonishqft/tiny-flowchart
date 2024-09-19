@@ -9,7 +9,6 @@ import type { IDisposable } from './disposable'
 import type { IStorageManage } from './storageManage'
 
 export interface IGridManage extends IDisposable {
-  init(): void
   drawGrid(): void
   setPosition(x: number, y: number): void
   setScale(x: number, y: number): void

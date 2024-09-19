@@ -17,6 +17,7 @@ import type { ISelectFrameManage } from './selectFrameManage'
 import type { IGroupManage  } from './groupManage'
 import type { IShape } from './shapes'
 import type { IConnection } from './connection'
+import type { INodeGroup } from './shapes/nodeGroup'
 import type { FontStyle, FontWeight, BuiltinTextPosition } from 'zrender/lib/core/types'
 
 type Displayable = zrender.Displayable
@@ -31,6 +32,7 @@ export type {
   ISelectFrameManage,
   IGroupManage,
   IShapeManage,
+  INodeGroup,
   IShape,
   IConnection,
   Displayable,

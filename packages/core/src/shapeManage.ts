@@ -128,6 +128,7 @@ class ShapeManage extends Disposable {
         if (this._storageMgr.getGroups().length !==0) {
           if (shape.parentGroup) {
             isDragLeave = isLeave(this._dragFrameMgr.getBoundingBox(), shape.parentGroup!.getBoundingBox())
+            this.dragLeave(isDragLeave, shape)
           } else {
             dragEnterGroups = this._storageMgr.getGroups().filter((g) => isEnter(this._dragFrameMgr.getBoundingBox(), g.getBoundingBox()))
   

@@ -16,6 +16,8 @@ export interface INodeGroup extends IShape {
   setCommonStyle(): void
   setZ(z: number): void
   z: number
+  groupRect: zrender.Rect | null
+  groupHead: zrender.Rect | null
 }
 
 class NodeGroup extends zrender.Group {
@@ -54,7 +56,7 @@ class NodeGroup extends zrender.Group {
         fill: '#fafafa',
         lineWidth: 1,
         stroke: '#ccc',
-        lineDash: [4, 2]
+        lineDash: [5, 5]
       },
       z: this.z
     })
@@ -88,7 +90,7 @@ class NodeGroup extends zrender.Group {
         fill: '#fafafa',
         lineWidth: 1,
         stroke: '#ccc',
-        lineDash: [4, 2]
+        lineDash: [5, 5]
       },
       z: this.z
     })

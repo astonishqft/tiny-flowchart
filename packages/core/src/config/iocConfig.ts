@@ -40,7 +40,7 @@ container.bind<IZoomManage>(IDENTIFIER.ZOOM_MANAGE).to(ZoomManage).inTransientSc
 container.bind<IConnectionManage>(IDENTIFIER.CONNECTION_MANAGE).to(ConnectionManage).inSingletonScope()
 container.bind<IRefLineManage>(IDENTIFIER.REF_LINE_MANAGE).to(RefLineManage).inSingletonScope()
 container.bind<ISelectFrameManage>(IDENTIFIER.SELECT_FRAME_MANAGE).to(SelectFrameManage).inSingletonScope()
-container.bind<IGroupManage>(IDENTIFIER.GROUP_MANAGE).to(GroupManage).inTransientScope()
+container.bind<IGroupManage>(IDENTIFIER.GROUP_MANAGE).to(GroupManage).inSingletonScope()
 container.bind<IStorageManage>(IDENTIFIER.STORAGE_MANAGE).to(StorageManage).inSingletonScope()
 
 export default container

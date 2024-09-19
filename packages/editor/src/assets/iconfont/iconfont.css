@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 4308437 */
-  src: url('iconfont.woff2?t=1711292979008') format('woff2'),
-       url('iconfont.woff?t=1711292979008') format('woff'),
-       url('iconfont.ttf?t=1711292979008') format('truetype');
+  src: url('iconfont.woff2?t=1726758478322') format('woff2'),
+       url('iconfont.woff?t=1726758478322') format('woff'),
+       url('iconfont.ttf?t=1726758478322') format('truetype');
 }
 
 .iconfont {
@@ -11,6 +11,18 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-align-right:before {
+  content: "\e7f5";
+}
+
+.icon-align-center:before {
+  content: "\e7f6";
+}
+
+.icon-align-left:before {
+  content: "\e7f7";
 }
 
 .icon-zitiyangshi_xieti:before {
