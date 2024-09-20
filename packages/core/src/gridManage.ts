@@ -12,6 +12,8 @@ export interface IGridManage extends IDisposable {
   drawGrid(): void
   setPosition(x: number, y: number): void
   setScale(x: number, y: number): void
+  hideGrid(): void
+  showGrid(): void
 }
 
 class PointsPool {
@@ -90,7 +92,7 @@ class PointsPool {
 
 @injectable()
 class GridManage extends Disposable {
-  private _gridStep: number
+  private _gridStep: number = 20
   private _width: number = 0
   private _height: number = 0
   private _xPoints: number[] = []
@@ -104,7 +106,6 @@ class GridManage extends Disposable {
     @inject(IDENTIFIER.STORAGE_MANAGE) private _storageMgr: IStorageManage
   ) {
     super()
-    this._gridStep = this._settingMgr.get('gridStep')
 
     setTimeout(() => {
       this._gridZr = zrender.init(document.getElementById('ioc-editor-grid') as HTMLElement)
@@ -138,6 +139,7 @@ class GridManage extends Disposable {
   }
 
   drawGrid() {
+    this._gridStep = this._settingMgr.get('gridStep')
     const zoom = this._storageMgr.getZoom()
     let startX = this.getClosestVal(-this._gridLayer!.x / zoom, this._gridStep)
     let endX = this.getClosestVal(-this._gridLayer!.x / zoom + this._width / zoom, this._gridStep)
@@ -165,6 +167,14 @@ class GridManage extends Disposable {
         index ++
       }
     }
+  }
+
+  hideGrid() {
+    this._gridLayer?.hide()
+  }
+
+  showGrid() {
+    this._gridLayer?.show()
   }
 }
 

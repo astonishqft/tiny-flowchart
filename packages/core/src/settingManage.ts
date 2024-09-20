@@ -12,6 +12,7 @@ export interface IIocEditorConfig {
   refPointSize: number // 磁吸点大小
   refLineColor: string // 参考线的颜色
   selectFrameColor: string // 选中框的颜色
+  showGrid: boolean
 }
 
 export interface ISettingManage extends IDisposable {
@@ -28,6 +29,7 @@ class SettingManage extends Disposable {
     zoomMin: 0.3,
     zoomMax: 4,
     gridStep: 20,
+    showGrid: true,
     magneticSpacing: 5,
     refPointSize: 2,
     refLineColor: '#fa5252',

@@ -15,6 +15,8 @@ import type { IShapeManage } from './shapeManage'
 import type { IConnectionManage } from './connectionManage'
 import type { ISelectFrameManage } from './selectFrameManage'
 import type { IGroupManage  } from './groupManage'
+import type { ISettingManage } from './settingManage'
+import type { IGridManage } from './gridManage'
 import type { IShape } from './shapes'
 import type { IConnection } from './connection'
 import type { INodeGroup } from './shapes/nodeGroup'
@@ -38,5 +40,7 @@ export type {
   Displayable,
   FontStyle,
   FontWeight,
-  BuiltinTextPosition
+  BuiltinTextPosition,
+  ISettingManage,
+  IGridManage
 }
