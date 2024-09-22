@@ -98,6 +98,7 @@ class ShapeManage extends Disposable {
       if (shape.parentGroup!.shapes.length === 1) return // 确保组内至少有一个元素
       shape.parentGroup!.shapes = shape.parentGroup!.shapes.filter(item => item.id !== shape.id)
       shape.parentGroup!.resizeNodeGroup()
+      this._connectionMgr.refreshConnection(shape.parentGroup)
       delete shape.parentGroup
     }
   }
