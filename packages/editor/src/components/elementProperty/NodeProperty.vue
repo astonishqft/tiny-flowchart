@@ -1,18 +1,16 @@
 <script setup lang="ts">
-import { ref, inject } from 'vue'
-import { Container } from 'inversify'
+import { ref } from 'vue'
 import { ElSelect, ElOption, ElInputNumber, ElDivider, ElColorPicker, ElInput } from 'element-plus'
 import { convertLineDashToStrokeType, convertStrokeTypeToLineDash } from '../../utils/utils'
-import { IDENTIFIER } from '@ioceditor/core'
 
-import type { IShapeManage, IShape, Displayable, BuiltinTextPosition, FontWeight, FontStyle } from '@ioceditor/core'
+import type { IShape, Displayable, BuiltinTextPosition, FontWeight, FontStyle, IocEditor } from '@ioceditor/core'
+
+const props = defineProps<{
+  iocEditor: IocEditor
+}>()
 
 const bgColorList = ['transparent', '#ffc9c9', '#b2f2bb', '#a5d8ff', '#ffec99']
 const strokeColorList = ['#1e1e1e', '#e03131', '#2f9e44', '#1971c2', '#f08c00']
-
-const iocEditor = inject<Container>('iocEditor') as Container
-
-const shapeMgr = iocEditor.get<IShapeManage>(IDENTIFIER.SHAPE_MANAGE)
 
 const activeShape = ref<Displayable>()
 
@@ -76,7 +74,7 @@ const textPosition = <BuiltinTextPosition>ref('inside')
 const fontWeight = ref<FontWeight>('normal')
 const fontStyle = ref<FontStyle>('normal')
 
-shapeMgr.updateSelectShape$.subscribe((shape: IShape) => {
+props.iocEditor._shapeMgr.updateSelectShape$.subscribe((shape: IShape) => {
   activeShape.value = shape as unknown as Displayable
   lineWidth.value = activeShape.value.style.lineWidth
   fontSize.value = activeShape.value.getTextContent().style.fontSize as number

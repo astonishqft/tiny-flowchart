@@ -1,8 +1,9 @@
-import { injectable } from 'inversify'
 import { Disposable } from './disposable'
 import * as zrender from 'zrender'
 
-export interface IViewPortManage {
+import type { IDisposable } from './disposable'
+
+export interface IViewPortManage extends IDisposable {
   setPosition(x: number, y: number): void
   getPositionX(): number
   getPositionY(): number
@@ -18,7 +19,6 @@ export interface IViewPortManage {
   getSceneHeight(): number
 }
 
-@injectable()
 class ViewPortManage extends Disposable {
   private _viewPort: zrender.Group = new zrender.Group()
   constructor() {

@@ -1,12 +1,11 @@
 import * as zrender from 'zrender'
-import { injectable, inject } from 'inversify'
-import IDENTIFIER from './constants/identifiers'
 import { Disposable } from './disposable'
 
 import type { IViewPortManage } from './viewPortManage'
 import type { ISettingManage } from './settingManage'
 import type { IDisposable } from './disposable'
 import type { IStorageManage } from './storageManage'
+import type { IocEditor } from './iocEditor'
 
 export interface IGridManage extends IDisposable {
   drawGrid(): void
@@ -90,7 +89,6 @@ class PointsPool {
   }
 }
 
-@injectable()
 class GridManage extends Disposable {
   private _gridStep: number = 20
   private _width: number = 0
@@ -100,12 +98,14 @@ class GridManage extends Disposable {
   private _gridLayer: zrender.Group | null = null
   private _pointsPool: PointsPool | null = null
   private _gridZr: zrender.ZRenderType | null = null
-  constructor(
-    @inject(IDENTIFIER.SETTING_MANAGE) private _settingMgr: ISettingManage,
-    @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortMgr: IViewPortManage,
-    @inject(IDENTIFIER.STORAGE_MANAGE) private _storageMgr: IStorageManage
-  ) {
+  private _settingMgr: ISettingManage
+  private _viewPortMgr: IViewPortManage
+  private _storageMgr: IStorageManage
+  constructor(iocEditor: IocEditor) {
     super()
+    this._settingMgr = iocEditor._settingMgr
+    this._viewPortMgr = iocEditor._viewPortMgr
+    this._storageMgr = iocEditor._storageMgr
 
     setTimeout(() => {
       this._gridZr = zrender.init(document.getElementById('ioc-editor-grid') as HTMLElement)

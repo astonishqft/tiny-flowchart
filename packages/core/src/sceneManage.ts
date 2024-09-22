@@ -1,6 +1,4 @@
 import * as zrender from 'zrender'
-import { injectable, inject } from 'inversify'
-import IDENTIFIER from './constants/identifiers'
 import { Disposable } from './disposable'
 import { Subject, Observable } from 'rxjs'
 
@@ -14,36 +12,42 @@ import type { IConnection, IControlPoint } from './connection'
 import type { ISelectFrameManage } from './selectFrameManage'
 import type { IGroupManage } from './groupManage'
 import type { IStorageManage } from './storageManage'
+import type { IocEditor } from './iocEditor'
 
 export interface ISceneManage extends IDisposable {
   _zr: zrender.ZRenderType | null
   updateSelectScene$: Observable<null>
   init(zr: zrender.ZRenderType): void
-  addShape(type: string, options: { x: number, y: number }): void
+  addShape(type: string, options: { x: number, y: number }): IShape
   clear(): void
 }
 
 export type IMouseEvent = zrender.Element & { nodeType?: string }
 
-@injectable()
 class SceneManage extends Disposable {
+  private _viewPortMgr: IViewPortManage
+  private _gridMgr: IGridManage
+  private _shapeMgr: IShapeManage
+  private _connectionMgr: IConnectionManage
+  private _selectFrameMgr: ISelectFrameManage
+  private _groupMgr: IGroupManage
+  private _storageMgr: IStorageManage
   _zr: zrender.ZRenderType | null = null
   updateSelectScene$ = new Subject<null>()
-  constructor(
-    @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortMgr: IViewPortManage,
-    @inject(IDENTIFIER.GRID_MANAGE) private _gridMgr: IGridManage,
-    @inject(IDENTIFIER.SHAPE_MANAGE) private _shapeMgr: IShapeManage,
-    @inject(IDENTIFIER.CONNECTION_MANAGE) private _connectionMgr: IConnectionManage,
-    @inject(IDENTIFIER.SELECT_FRAME_MANAGE) private _selectFrameMgr: ISelectFrameManage,
-    @inject(IDENTIFIER.GROUP_MANAGE) private _groupMgr: IGroupManage,
-    @inject(IDENTIFIER.STORAGE_MANAGE) private _storageMgr: IStorageManage
-  ) {
+  constructor(iocEditor: IocEditor) {
     super()
+    this._connectionMgr = iocEditor._connectionMgr
+    this._gridMgr = iocEditor._gridMgr
+    this._storageMgr = iocEditor._storageMgr
+    this._viewPortMgr = iocEditor._viewPortMgr
+    this._shapeMgr = iocEditor._shapeMgr
+    this._groupMgr = iocEditor._groupMgr
+    this._selectFrameMgr = iocEditor._selectFrameMgr
     this._disposables.push(this.updateSelectScene$)
   }
 
   addShape(type: string, options: { x: number, y: number }) {
-    this._shapeMgr.createShape(type, options)
+    return this._shapeMgr.createShape(type, options)
   }
 
   clear() {

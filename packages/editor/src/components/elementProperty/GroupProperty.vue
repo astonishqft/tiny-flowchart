@@ -1,18 +1,16 @@
 <script setup lang="ts">
-import { ref, inject } from 'vue'
-import { Container } from 'inversify'
+import { ref } from 'vue'
 import { ElSelect, ElOption, ElInputNumber, ElDivider, ElColorPicker, ElInput } from 'element-plus'
 import { convertLineDashToStrokeType, convertStrokeTypeToLineDash } from '../../utils/utils'
-import { IDENTIFIER } from '@ioceditor/core'
 
-import type { IGroupManage, INodeGroup, BuiltinTextPosition, FontWeight, FontStyle } from '@ioceditor/core'
+import type { INodeGroup, BuiltinTextPosition, FontWeight, FontStyle, IocEditor } from '@ioceditor/core'
+
+const props = defineProps<{
+  iocEditor: IocEditor
+}>()
 
 const bgColorList = ['transparent', '#ffc9c9', '#b2f2bb', '#a5d8ff', '#ffec99']
 const strokeColorList = ['#1e1e1e', '#e03131', '#2f9e44', '#1971c2', '#f08c00']
-
-const iocEditor = inject<Container>('iocEditor') as Container
-
-const groupMgr = iocEditor.get<IGroupManage>(IDENTIFIER.GROUP_MANAGE)
 
 const activeGroup = ref<INodeGroup>()
 
@@ -66,7 +64,7 @@ const textPosition = <BuiltinTextPosition>ref('inside')
 const fontWeight = ref<FontWeight>('normal')
 const fontStyle = ref<FontStyle>('normal')
 
-groupMgr.updateSelectGroup$.subscribe((group: INodeGroup) => {
+props.iocEditor._groupMgr.updateSelectGroup$.subscribe((group: INodeGroup) => {
   activeGroup.value = group
 
   

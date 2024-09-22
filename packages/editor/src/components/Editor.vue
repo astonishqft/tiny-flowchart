@@ -1,15 +1,9 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import { IocEditor } from '@ioceditor/core'
+import type { IocEditor } from '@ioceditor/core';
 
-const editor = ref<IocEditor>()
-
-onMounted(() => {
-  editor.value = new IocEditor(document.getElementById('ioc-editor') as HTMLElement, {
-    zoomStep: 0.2325,
-  })
-})
-
+const props = defineProps<{
+  iocEditor?: IocEditor
+}>()
 const drop = (event: DragEvent) => {
   // 阻止默认行为（会作为某些元素的链接打开）
   event.preventDefault()
@@ -19,8 +13,8 @@ const drop = (event: DragEvent) => {
 
   const { nodeType } = JSON.parse(data)
 
-  if (editor.value) {
-    editor.value.addShape(nodeType, {x: offsetX, y: offsetY})
+  if (props.iocEditor) {
+    props.iocEditor.addShape(nodeType, {x: offsetX, y: offsetY})
   }
 }
 
@@ -34,7 +28,6 @@ const dragOver = (event: DragEvent) => {
   <div class="ioc-editor-container" @drop="drop" @dragover="dragOver">
     <div id="ioc-editor-grid"></div>
     <div id="ioc-editor"></div>
-
   </div>
 </template>
 

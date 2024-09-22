@@ -1,10 +1,6 @@
-import 'reflect-metadata'
-
 import { IocEditor } from './iocEditor'
 import * as zrender from 'zrender'
 import CanvasPainter from 'zrender/lib/canvas/Painter.js'
-import container from './config/iocConfig'
-import IDENTIFIER from './constants/identifiers'
 import { SelectFrameManage } from './selectFrameManage'
 import { GroupManage } from './groupManage'
 import { ConnectionType } from './connection'
@@ -26,7 +22,7 @@ type Displayable = zrender.Displayable
 
 zrender.registerPainter('canvas', CanvasPainter)
 
-export { IocEditor, container, IDENTIFIER, SelectFrameManage, GroupManage, ConnectionType }
+export { IocEditor, SelectFrameManage, GroupManage, ConnectionType }
 export type {
   ISceneManage,
   IZoomManage,

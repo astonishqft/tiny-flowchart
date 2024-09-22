@@ -1,14 +1,14 @@
-import { injectable, inject } from 'inversify'
 import { Subject, Observable } from 'rxjs'
 import { Disposable } from './disposable'
 import { Connection } from './connection'
 import { ConnectionType } from './connection'
-import IDENTIFIER from './constants/identifiers'
+
 import type { IDisposable } from './disposable'
 import type { IConnection } from './connection'
 import type { IShape, IAnchorPoint } from './shapes'
 import type { IViewPortManage } from './viewPortManage'
 import type { IStorageManage } from './storageManage'
+import type { IocEditor } from './iocEditor'
 
 export interface IConnectionManage extends IDisposable {
   createConnection(fromNode: IShape): IConnection
@@ -24,18 +24,18 @@ export interface IConnectionManage extends IDisposable {
   cancelConnect(): void
 }
 
-@injectable()
 class ConnectionManage extends Disposable {
+  private _viewPortMgr: IViewPortManage
+  private _storageMgr: IStorageManage
   private _connectionType: ConnectionType = ConnectionType.OrtogonalLine
   updateConnectionType$ = new Subject<ConnectionType>()
   updateSelectConnection$ = new Subject<IConnection>()
 
   newConnection: IConnection | null = null
-  constructor(
-    @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortMgr: IViewPortManage,
-    @inject(IDENTIFIER.STORAGE_MANAGE) private _storageMgr: IStorageManage
-  ) {
+  constructor(iocEditor: IocEditor) {
     super()
+    this._viewPortMgr = iocEditor._viewPortMgr
+    this._storageMgr = iocEditor._storageMgr
     this._disposables.push(this.updateConnectionType$)
     this._disposables.push(this.updateSelectConnection$)
   }

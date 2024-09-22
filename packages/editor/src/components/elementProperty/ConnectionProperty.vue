@@ -1,15 +1,14 @@
 <script setup lang="ts">
-import { ref, inject } from 'vue'
-import { Container } from 'inversify'
+import { ref } from 'vue'
 import { ElSelect, ElOption, ElInputNumber, ElDivider, ElColorPicker, ElInput } from 'element-plus'
-import { IDENTIFIER, ConnectionType } from '@ioceditor/core'
+import { ConnectionType } from '@ioceditor/core'
 import { convertStrokeTypeToLineDash, convertLineDashToStrokeType } from '../../utils/utils'
 
-import type { IConnectionManage, IConnection, FontWeight, FontStyle } from '@ioceditor/core'
+import type {  IConnection, FontWeight, FontStyle, IocEditor } from '@ioceditor/core'
 
-const iocEditor = inject<Container>('iocEditor') as Container
-
-const connectionMgr = iocEditor.get<IConnectionManage>(IDENTIFIER.CONNECTION_MANAGE)
+const props = defineProps<{
+  iocEditor: IocEditor
+}>()
 
 const lineTypes = [
   {
@@ -37,7 +36,7 @@ const lineTextFontColor = ref<string | undefined>('#333')
 const fontWeight = ref<FontWeight | undefined>('normal')
 const fontStyle = ref<FontStyle | undefined>('normal')
 
-connectionMgr.updateSelectConnection$.subscribe((connection: IConnection) => {
+props.iocEditor._connectionMgr.updateSelectConnection$.subscribe((connection: IConnection) => {
   activeConnection.value = connection
   lineColor.value = connection.getLineColor()
   lineDash.value = convertLineDashToStrokeType(connection.getLineDash())

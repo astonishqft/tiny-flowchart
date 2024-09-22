@@ -1,4 +1,3 @@
-import { injectable } from 'inversify'
 import type { INodeGroup } from './shapes/nodeGroup'
 import type { IShape } from './shapes'
 import type { IConnection } from './connection'
@@ -20,7 +19,6 @@ export interface IStorageManage {
   getActiveGroups(): INodeGroup[]
 }
 
-@injectable()
 class StorageManage {
   _shapes: IShape[] = []
   _groups: INodeGroup[] = []

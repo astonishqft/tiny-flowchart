@@ -1,4 +1,3 @@
-import { injectable } from 'inversify'
 import { Subject, Observable } from 'rxjs'
 import { Disposable } from './disposable'
 import type { IDisposable } from './disposable'
@@ -22,7 +21,6 @@ export interface ISettingManage extends IDisposable {
   get<K extends keyof IIocEditorConfig>(key: K): IIocEditorConfig[K]
 }
 
-@injectable()
 class SettingManage extends Disposable {
   private config: IIocEditorConfig = {
     zoomStep: 0.07,

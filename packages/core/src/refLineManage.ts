@@ -1,6 +1,4 @@
-import { injectable, inject } from 'inversify'
 import * as zrender from 'zrender'
-import IDENTIFIER from './constants/identifiers'
 import { getClosestValInSortedArr, isEqualNum } from './utils'
 
 import type { IShape } from './shapes'
@@ -9,6 +7,7 @@ import type { IViewPortManage } from './viewPortManage'
 import type { ISettingManage } from './settingManage'
 import type { IStorageManage } from './storageManage'
 import type { INodeGroup } from './shapes/nodeGroup'
+import type { IocEditor } from './iocEditor'
 
 export interface IRefLineManage {
   updateRefLines(): { magneticOffsetX: number, magneticOffsetY: number }
@@ -27,7 +26,6 @@ interface IHorizontalLine { // 有多个端点的水平线
   xs: number[]
 }
 
-@injectable()
 class RefLineManage {
   // 参考图形产生的水平参照线，对于其中的同一条线，y 相同（作为 key），x 不同（作为 value）
   private _hLineMap = new Map<number, number[]>()
@@ -52,14 +50,17 @@ class RefLineManage {
 
   private _magneticSpacing = 0
 
-  // private _nodes: IShape[] = []
+  private _settingMgr: ISettingManage
+  private _storageMgr: IStorageManage
+  private _viewPortMgr: IViewPortManage
+  private _dragFrameMgr: IDragFrameManage
 
-  constructor(
-    @inject(IDENTIFIER.DRAG_FRAME_MANAGE) private _dragFrameMgr: IDragFrameManage,
-    @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortMgr: IViewPortManage,
-    @inject(IDENTIFIER.SETTING_MANAGE) private _settingMgr: ISettingManage,
-    @inject(IDENTIFIER.STORAGE_MANAGE) private _storageMgr: IStorageManage,
-  ) {
+  constructor(iocEditor: IocEditor) {
+    this._settingMgr = iocEditor._settingMgr
+    this._storageMgr = iocEditor._storageMgr
+    this._viewPortMgr = iocEditor._viewPortMgr
+    this._dragFrameMgr = iocEditor._dragFrameMgr
+    
     this._refPointSize = this._settingMgr.get('refPointSize')
     this._refLineColor = this._settingMgr.get('refLineColor')
 

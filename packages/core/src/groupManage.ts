@@ -1,6 +1,4 @@
-import { inject, injectable } from 'inversify'
 import * as zrender from 'zrender'
-import IDENTIFIER from './constants/identifiers'
 import { NodeGroup } from './shapes/nodeGroup'
 import { Subject, Observable } from 'rxjs'
 import { Anchor } from './anchor'
@@ -22,6 +20,7 @@ import type { IConnectionManage } from './connectionManage'
 import type { IStorageManage } from './storageManage'
 import type { IAnchorPoint, IShape } from './shapes'
 import type { INodeGroup } from './shapes/nodeGroup'
+import type { IocEditor } from './iocEditor'
 
 export interface IGroupManage extends IDisposable {
   updateSelectGroup$: Observable<INodeGroup>
@@ -30,17 +29,20 @@ export interface IGroupManage extends IDisposable {
   unActive(): void
 }
 
-@injectable()
 class GroupManage extends Disposable {
+  private _viewPortMgr: IViewPortManage
+  private _dragFrameMgr: IDragFrameManage
+  private _refLineMgr: IRefLineManage
+  private _connectionMgr: IConnectionManage
+  private _storageMgr: IStorageManage
   updateSelectGroup$ = new Subject<INodeGroup>()
-  constructor(
-    @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortMgr: IViewPortManage,
-    @inject(IDENTIFIER.DRAG_FRAME_MANAGE) private _dragFrameMgr: IDragFrameManage,
-    @inject(IDENTIFIER.REF_LINE_MANAGE) private _refLineMgr: IRefLineManage,
-    @inject(IDENTIFIER.CONNECTION_MANAGE) private _connectionMgr: IConnectionManage,
-    @inject(IDENTIFIER.STORAGE_MANAGE) private _storageMgr: IStorageManage,
-  ) {
+  constructor(iocEditor: IocEditor) {
     super()
+    this._connectionMgr = iocEditor._connectionMgr
+    this._viewPortMgr = iocEditor._viewPortMgr
+    this._dragFrameMgr = iocEditor._dragFrameMgr
+    this._refLineMgr = iocEditor._refLineMgr
+    this._storageMgr = iocEditor._storageMgr
     this._disposables.push(this.updateSelectGroup$)
   }
 

@@ -19,6 +19,7 @@ export interface IShape extends zrender.Element {
   unActive(): void
   getAnchors(): IAnchor[]
   getAnchorByIndex(index: number): IAnchor
+  getData?(): any
 }
 
 export interface IShapeConfig {

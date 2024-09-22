@@ -1,8 +1,7 @@
 import * as zrender from 'zrender'
-import { injectable, inject } from 'inversify'
 import { Disposable } from './disposable'
-import IDENTIFIER from './constants/identifiers'
 
+import type { IocEditor } from './iocEditor'
 import type { IDisposable } from './disposable'
 import type { IViewPortManage } from './viewPortManage'
 
@@ -16,13 +15,12 @@ export interface IDragFrameManage extends IDisposable {
   isIntersect(shapesBoundingBox: zrender.BoundingRect): boolean
 }
 
-@injectable()
 class DragFrameManage extends Disposable {
   private _frame: zrender.Rect
-  constructor(
-    @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortMgr: IViewPortManage
-  ) {
+  private _viewPortMgr: IViewPortManage
+  constructor(iocEditor: IocEditor) {
     super()
+    this._viewPortMgr = iocEditor._viewPortMgr
     this._frame = new zrender.Rect({
       shape: {
         x: 0,

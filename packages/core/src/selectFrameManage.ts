@@ -1,10 +1,9 @@
-import { injectable, inject } from 'inversify'
 import * as zrender from 'zrender'
-import IDENTIFIER from './constants/identifiers'
 
 import type { IViewPortManage } from './viewPortManage'
 import type { ISettingManage } from './settingManage'
 import type { IStorageManage } from './storageManage'
+import type { IocEditor } from './iocEditor'
 
 export interface ISelectFrameManage {
   getSelectFrame(): zrender.Rect
@@ -17,16 +16,17 @@ export interface ISelectFrameManage {
   hide(): void
 }
 
-@injectable()
 class SelectFrameManage {
   private _selectFrame: zrender.Rect
   private _selectFrameStatus: boolean = false
+  private _settingMgr: ISettingManage
+  private _viewPortMgr: IViewPortManage
+  private _storageMgr: IStorageManage
 
-  constructor(
-    @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortMgr: IViewPortManage,
-    @inject(IDENTIFIER.SETTING_MANAGE) private _settingMgr: ISettingManage,
-    @inject(IDENTIFIER.STORAGE_MANAGE) private _storageMgr: IStorageManage
-  ) {
+  constructor(iocEditor: IocEditor) {
+    this._viewPortMgr = iocEditor._viewPortMgr
+    this._settingMgr = iocEditor._settingMgr
+    this._storageMgr = iocEditor._storageMgr
     this._selectFrame = new zrender.Rect({
       shape: {
         x: 0,

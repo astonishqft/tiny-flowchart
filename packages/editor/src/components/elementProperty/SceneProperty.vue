@@ -1,31 +1,30 @@
 <script setup lang="ts">
-import { ref, inject } from 'vue'
-import { Container } from 'inversify'
+import { ref, } from 'vue'
 import { ElSwitch, ElInputNumber } from 'element-plus'
-import { IDENTIFIER } from '@ioceditor/core'
 
-import type { ISettingManage, IGridManage } from '@ioceditor/core'
+import type { IocEditor } from '@ioceditor/core'
 
-const iocEditor = inject<Container>('iocEditor') as Container
-const gridMgr = iocEditor.get<IGridManage>(IDENTIFIER.GRID_MANAGE)
-const settingMgr = iocEditor.get<ISettingManage>(IDENTIFIER.SETTING_MANAGE)
+const props = defineProps<{
+  iocEditor: IocEditor
+}>()
+
 const showGrid = ref(true)
-const gridStep = ref(settingMgr.get('gridStep'))
+const gridStep = ref(props.iocEditor._settingMgr.get('gridStep'))
 
 const changeShowGrid = (isShow: boolean | string | number) => {
   showGrid.value = isShow as boolean
-  settingMgr.set('showGrid', showGrid.value)
+  props.iocEditor._settingMgr.set('showGrid', showGrid.value)
   if (isShow) {
-    gridMgr.showGrid()
+    props.iocEditor._gridMgr.showGrid()
   } else {
-    gridMgr.hideGrid()
+    props.iocEditor._gridMgr.hideGrid()
   }
 }
 
 const changeGridStep = (step: number | undefined) => {
   if (step) {
-    settingMgr.set('gridStep', step)
-    gridMgr.drawGrid()
+    props.iocEditor._settingMgr.set('gridStep', step)
+    props.iocEditor._gridMgr.drawGrid()
   }
 }
 </script>

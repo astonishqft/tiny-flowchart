@@ -1,16 +1,13 @@
 <script setup lang="ts">
-import { ref, inject } from 'vue'
+import { ref } from 'vue'
 import { ElSelect, ElOption } from 'element-plus'
-import { Container } from 'inversify'
-import { IDENTIFIER, ConnectionType } from '@ioceditor/core'
-import type { IZoomManage, IConnectionManage, ISceneManage, ISelectFrameManage, IGroupManage } from '@ioceditor/core'
+import { ConnectionType } from '@ioceditor/core'
 
-const iocEditor = inject<Container>('iocEditor') as Container
-const zoomMgr = iocEditor.get<IZoomManage>(IDENTIFIER.ZOOM_MANAGE)
-const connectionMgr = iocEditor.get<IConnectionManage>(IDENTIFIER.CONNECTION_MANAGE)
-const sceneManage = iocEditor.get<ISceneManage>(IDENTIFIER.SCENE_MANAGE)
-const selectFrameMgr = iocEditor.get<ISelectFrameManage>(IDENTIFIER.SELECT_FRAME_MANAGE)
-const groupMgr = iocEditor.get<IGroupManage>(IDENTIFIER.GROUP_MANAGE)
+import type { IocEditor } from '@ioceditor/core'
+
+const props = defineProps<{
+  iocEditor: IocEditor
+}>()
 
 const currentLineType = ref(ConnectionType.OrtogonalLine)
 
@@ -107,26 +104,26 @@ const command = (name: string) => {
   switch(name) {
     case 'zoomIn':
       // 放大
-      zoomMgr.zoomIn()
+      props.iocEditor._zoomMgr.zoomIn()
       break
     case 'zoomOut':
       // 缩小
-      zoomMgr.zoomOut()
+      props.iocEditor._zoomMgr.zoomOut()
       break
     case 'lineType':
-      connectionMgr.setConnectionType(currentLineType.value)
+      props.iocEditor._connectionMgr.setConnectionType(currentLineType.value)
       break
     case 'clear':
-      sceneManage.clear()
+      props.iocEditor._sceneMgr.clear()
       break
     case 'select':
-      selectFrameMgr.setSelectFrameStatus(true)
+      props.iocEditor._selectFrameMgr.setSelectFrameStatus(true)
       break
     case 'group':
-      groupMgr.createGroup()
+      props.iocEditor._groupMgr.createGroup()
       break
     case 'ungroup':
-      groupMgr.unGroup()
+      props.iocEditor._groupMgr.unGroup()
       break
     default:
       break

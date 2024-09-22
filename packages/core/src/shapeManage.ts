@@ -1,12 +1,10 @@
 
-import { injectable, inject } from 'inversify'
 import * as zrender from 'zrender'
-import { Subject, Observable } from 'rxjs'
 import { getShape } from './shapes'
-import IDENTIFIER from './constants/identifiers'
 import { Anchor } from './anchor'
 import { isLeave, isEnter, getBoundingRect, getTopGroup } from './utils'
 import { Disposable, IDisposable } from './disposable'
+import { Subject, Observable } from 'rxjs'
 
 import type { IShape } from './shapes'
 import type { IAnchorPoint } from './shapes'
@@ -15,7 +13,8 @@ import type { IDragFrameManage } from './dragFrameManage'
 import type { IConnectionManage } from './connectionManage'
 import type { IRefLineManage } from './refLineManage'
 import type { IStorageManage } from './storageManage'
-import { INodeGroup } from 'shapes/nodeGroup'
+import type { INodeGroup } from 'shapes/nodeGroup'
+import type { IocEditor } from './iocEditor'
 
 export interface IShapeManage extends IDisposable {
   updateSelectShape$: Observable<IShape>
@@ -24,17 +23,21 @@ export interface IShapeManage extends IDisposable {
   unActive(): void
 }
 
-@injectable()
 class ShapeManage extends Disposable {
+  private _viewPortMgr: IViewPortManage
+  private _dragFrameMgr: IDragFrameManage
+  private _storageMgr: IStorageManage
+  private _connectionMgr: IConnectionManage
+  private _refLineMgr: IRefLineManage
+
   updateSelectShape$ = new Subject<IShape>()
-  constructor(
-    @inject(IDENTIFIER.VIEW_PORT_MANAGE) private _viewPortMgr: IViewPortManage,
-    @inject(IDENTIFIER.DRAG_FRAME_MANAGE) private _dragFrameMgr: IDragFrameManage,
-    @inject(IDENTIFIER.CONNECTION_MANAGE) private _connectionMgr: IConnectionManage,
-    @inject(IDENTIFIER.REF_LINE_MANAGE) private _refLineMgr: IRefLineManage,
-    @inject(IDENTIFIER.STORAGE_MANAGE) private _storageMgr: IStorageManage 
-  ) {
+  constructor(iocEditor: IocEditor) {
     super()
+    this._viewPortMgr = iocEditor._viewPortMgr
+    this._dragFrameMgr = iocEditor._dragFrameMgr
+    this._storageMgr = iocEditor._storageMgr
+    this._connectionMgr = iocEditor._connectionMgr
+    this._refLineMgr = iocEditor._refLineMgr
     this._disposables.push(this.updateSelectShape$)
   }
 
@@ -43,7 +46,7 @@ class ShapeManage extends Disposable {
     const viewPortY = this._viewPortMgr.getPositionY()
     const zoom = this._storageMgr.getZoom()
 
-    const shape = getShape(type, { x: (x  - viewPortX) /zoom, y: (y - viewPortY) / zoom })
+    const shape = getShape(type, { x: (x  - viewPortX) / zoom, y: (y - viewPortY) / zoom })
 
     const anchor = new Anchor(shape)
     shape.anchor = anchor
