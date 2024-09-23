@@ -12,6 +12,8 @@ import { ZoomManage } from './zoomManage'
 import { DragFrameManage } from './dragFrameManage'
 import { RefLineManage } from './refLineManage'
 import { SelectFrameManage } from './selectFrameManage'
+import { SettingManage } from './settingManage'
+import { downloadFile } from './utils'
 
 import type { IRefLineManage } from './refLineManage'
 import type { IDragFrameManage } from './dragFrameManage'
@@ -24,7 +26,10 @@ import type { IGridManage } from './gridManage'
 import type { IViewPortManage } from './viewPortManage'
 import type { IStorageManage } from './storageManage'
 import type { ISelectFrameManage } from './selectFrameManage'
-import { type ISettingManage, type IIocEditorConfig, SettingManage } from './settingManage'
+import type { IIocEditorConfig, ISettingManage } from './settingManage'
+import type { IShape } from './shapes'
+import type { INodeGroup } from './shapes/nodeGroup'
+import type { IConnection } from './connection'
 
 export class IocEditor {
   _zr: zrender.ZRenderType
@@ -68,18 +73,66 @@ export class IocEditor {
 
   addShape(type: string, options: { x: number, y: number }) {
     const shape = this._sceneMgr.addShape(type, options)
-    shape.getData = () => {
-      console.log('111', shape)
-    }
 
-    this.getJSONData()
     return shape
   }
 
-  getJSONData() {
-    // const shapes = this._storageMgr.getShapes().map(shape => shape!.getData())
+  initFlowChart(data: any) {
+    console.log(data)
+    this._sceneMgr.clear()
+
+    this._viewPortMgr.setPosition(0, 0)
+    this._gridMgr.setPosition(0, 0)
+    this._gridMgr.drawGrid()
     
-    // console.log('getJSONData', shapes)
+    const { shapes = [], connections = [], groups = [] } = data
+
+    shapes.forEach((shape: IShape) => {
+      const newShape = this._shapeMgr.createShape(shape.type, shape)
+      // newShape.setData(shape)
+    })
+  }
+
+  exportFile() {
+    const shapes = this._storageMgr.getShapes().map((shape: IShape) => shape.getData!())
+    const connections = this._storageMgr.getConnections().map((connection: IConnection) => connection.getData!())
+    const groups = this._storageMgr.getGroups().map((group: INodeGroup) => group.getData!())
+
+    const data = {
+      shapes,
+      connections,
+      groups
+    }
+
+    const str=JSON.stringify(data)
+    downloadFile(str, 'ioc-chart-flow.json')
+
+    return data
+  }
+
+  openFile() {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = '.json'
+    input.onchange = (e: Event) => {
+      const target = e.target as HTMLInputElement
+      const file = target.files![0]
+      const reader = new FileReader()
+      reader.readAsText(file)
+    
+      reader.addEventListener('load', (e: ProgressEvent<FileReader>) => {
+        const flowData = e.target!.result as string
+        try {
+          if (flowData) {
+            this.initFlowChart(JSON.parse(flowData))
+          }
+        } catch(e){
+          console.log('导入的JSON数据解析出错!')
+        }
+      })
+    }
+
+    input.click()
   }
 
   destroy() {

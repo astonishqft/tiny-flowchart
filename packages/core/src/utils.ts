@@ -47,7 +47,7 @@ export const isEqualNum = (num1: number, num2: number) => {
   return Math.abs(num1 - num2) < 0.00001
 }
 
-export const getMinPosition = (shapes: IShape[]): number[] => {
+export const getMinPosition = (shapes: (IShape | INodeGroup)[]): number[] => {
   let minX = Infinity
   let minY = Infinity
   shapes.forEach(shape => {
@@ -62,7 +62,7 @@ export const getMinPosition = (shapes: IShape[]): number[] => {
   return [minX, minY]
 }
 
-export const getMinZLevel = (shapes: IShape[]) => {
+export const getMinZLevel = (shapes: (IShape | INodeGroup)[]) => {
   let minZLevel = Infinity
   shapes.forEach(shape => {
     if (shape.z! < minZLevel) {
@@ -84,7 +84,7 @@ export const getGroupMaxZLevel = (groups: INodeGroup[]) => {
   return maxZLevel
 }
 
-export const getBoundingRect = (shapes: IShape[]): zrender.BoundingRect => {
+export const getBoundingRect = (shapes: (IShape | INodeGroup)[]): zrender.BoundingRect => {
   const g = new zrender.Group()
   return g.getBoundingRect(shapes)
 }
@@ -115,4 +115,14 @@ export const getTopGroup = (groups: INodeGroup[]): INodeGroup => {
     }
   })
   return maxGroup
+}
+
+export const downloadFile = (content: string, filename: string) => {
+  const a = document.createElement('a')
+  const blob = new Blob([content])
+  const url = window.URL.createObjectURL(blob)
+  a.href = url
+  a.download = filename
+  a.click()
+  window.URL.revokeObjectURL(url)
 }

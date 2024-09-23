@@ -1,11 +1,11 @@
 import * as zrender from 'zrender'
-import { IShape } from './shapes'
-import type { IAnchorPoint } from './shapes'
+import type { IAnchorPoint, IShape } from './shapes'
+import type { INodeGroup } from './shapes/nodeGroup'
 
 class Anchor {
-  shape: IShape
+  shape: IShape | INodeGroup
   bars: IAnchorPoint[]
-  constructor(shape: IShape) {
+  constructor(shape: IShape | INodeGroup) {
     this.shape = shape
     this.bars = []
     this.create()

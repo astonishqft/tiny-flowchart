@@ -1,12 +1,12 @@
 import * as zrender from 'zrender'
 import { getBoundingRect } from '../utils'
 
-import type { IShape, IAnchor } from './index'
+import type { IShape, IAnchor, IExportGroup, IBaseShape } from './index'
 import type { Anchor } from '../anchor'
 
-export interface INodeGroup extends IShape {
+export interface INodeGroup extends zrender.Group, IBaseShape {
   boundingBox: zrender.BoundingRect 
-  shapes: IShape[]
+  shapes: (IShape | INodeGroup)[]
   canRemove: boolean
   refresh(): void
   getBoundingBox(): zrender.BoundingRect
@@ -18,16 +18,17 @@ export interface INodeGroup extends IShape {
   z: number
   groupRect: zrender.Rect | null
   groupHead: zrender.Rect | null
+  getData(): IExportGroup
 }
 
-class NodeGroup extends zrender.Group {
+class NodeGroup extends zrender.Group implements INodeGroup {
   nodeType = 'nodeGroup'
   groupRect: zrender.Rect | null = null
   groupHead: zrender.Rect | null = null
   textContent: zrender.Text | null = null
   headLine: zrender.Line | null = null
   boundingBox: zrender.BoundingRect
-  shapes: IShape[]
+  shapes: (IShape | INodeGroup)[]
   headHeight: number = 30 // 头部高度
   padding = 20
   selected = false
@@ -38,13 +39,13 @@ class NodeGroup extends zrender.Group {
   oldY: number = 0
   z = 1
 
-  constructor(boundingBox: zrender.BoundingRect, shapes: IShape[]) {
+  constructor(boundingBox: zrender.BoundingRect, shapes: (IShape | INodeGroup)[]) {
     super()
     this.boundingBox = boundingBox
     this.shapes = shapes
 
     this.shapes.forEach(shape => {
-      shape.parentGroup = this
+      shape.parentGroup = this as INodeGroup
     })
 
     this.create()
@@ -229,7 +230,7 @@ class NodeGroup extends zrender.Group {
     return boundingBox
   }
 
-  removeShapeFromGroup(shape: IShape) {
+  removeShapeFromGroup(shape: IShape | INodeGroup) {
     this.shapes = this.shapes.filter(item => item !== shape)
 
     shape.parentGroup = undefined
@@ -240,6 +241,14 @@ class NodeGroup extends zrender.Group {
     this.refresh() // 重新计算组的大小
     this.createAnchors()
     this.anchor!.refresh()
+  }
+
+  getData() {
+    return {
+      shapes: this.shapes,
+      groupHead: this.groupHead?.style,
+      groupRect: this.groupRect?.style
+    }
   }
 }
 

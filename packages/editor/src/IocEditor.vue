@@ -22,7 +22,7 @@ onMounted(() => {
     <ElementPanel v-if="editor" :ioc-editor="editor" />
     <Editor :ioc-editor="editor" />
     <Property v-if="editor" :ioc-editor="editor" />
-    <MiniMap />
+    <MiniMap v-if="editor" :ioc-editor="editor" />
   </div>
 </template>
 

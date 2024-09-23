@@ -16,7 +16,7 @@ const toolsConfig = ref([
     name: 'save',
     icon: 'icon-save',
     desc: '保存为文件',
-    disabled: true
+    disabled: false
   },
   {
     name: 'openFile',
@@ -124,6 +124,12 @@ const command = (name: string) => {
       break
     case 'ungroup':
       props.iocEditor._groupMgr.unGroup()
+      break
+    case 'save':
+      props.iocEditor.exportFile()
+      break
+    case 'openFile':
+      props.iocEditor.openFile()
       break
     default:
       break

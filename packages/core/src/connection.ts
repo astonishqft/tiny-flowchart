@@ -2,15 +2,16 @@ import * as zrender from 'zrender'
 import OrthogonalConnector from '@ioceditor/orthogonal-connector'
 import type { IShape, IAnchor } from './shapes'
 import type { FontStyle, FontWeight } from 'zrender/lib/core/types'
+import type { INodeGroup } from './shapes/nodeGroup'
 
 export interface IConnection extends zrender.Group {
-  fromNode: IShape
-  toNode: IShape | null
+  fromNode: IShape | INodeGroup
+  toNode: IShape | INodeGroup | null
   fromPoint: IAnchor | null
   toPoint: IAnchor | null
   cancelConnect(): void
   move(x: number, y: number): void
-  connect(node: IShape): void
+  connect(node: IShape | INodeGroup): void
   setFromPoint(point: IAnchor): void
   setToPoint(point: IAnchor): void
   refresh(): void
@@ -34,6 +35,10 @@ export interface IConnection extends zrender.Group {
   getLineTextFontColor(): string | undefined
   getLineFontStyle(): FontStyle | undefined
   getLineFontWeight(): FontWeight | undefined
+  getId(): number
+  getConnectionType(): ConnectionType
+  getLineText(): zrender.Text | null
+  getData?(): any
 }
 
 export enum ConnectionType {
@@ -60,11 +65,11 @@ class Connection extends zrender.Group {
   private _arrow: zrender.Polygon | null = null
   private _textPoints: number[] = []
   private _lineText: zrender.Text | null = null
-  fromNode: IShape
-  toNode: IShape | null = null
+  fromNode: IShape | INodeGroup
+  toNode: IShape | INodeGroup | null = null
   fromPoint: IAnchor | null = null
   toPoint: IAnchor | null = null
-  constructor(fromNode: IShape, type: ConnectionType, sceneWidth: number, sceneHeight: number) {
+  constructor(fromNode: IShape | INodeGroup, type: ConnectionType, sceneWidth: number, sceneHeight: number) {
     super()
     this._sceneWidth = sceneWidth
     this._sceneHeight = sceneHeight
@@ -90,11 +95,11 @@ class Connection extends zrender.Group {
     this.add(this._tempConnection)
   }
 
-  setFromNode(fromNode: IShape) {
+  setFromNode(fromNode: IShape | INodeGroup) {
     this.fromNode = fromNode
   }
 
-  setToNode(toNode: IShape) {
+  setToNode(toNode: IShape | INodeGroup) {
     this.toNode = toNode
   }
 
@@ -462,7 +467,7 @@ class Connection extends zrender.Group {
     })
   }
 
-  connect(node: IShape) {
+  connect(node: IShape | INodeGroup) {
     this.toNode = node
     this.createConnection()
   }
@@ -639,6 +644,18 @@ class Connection extends zrender.Group {
     this._lineText?.setStyle({
       fontWeight: weight
     })
+  }
+
+  getId() {
+    return this.id
+  }
+
+  getConnectionType() {
+    return this._connectionType
+  }
+
+  getLineText() {
+    return this._lineText
   }
 }
 

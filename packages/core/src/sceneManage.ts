@@ -53,6 +53,7 @@ class SceneManage extends Disposable {
   clear() {
     this._connectionMgr.clear()
     this._shapeMgr.clear()
+    this._groupMgr.clear()
   }
 
   init(zr: zrender.ZRenderType) {

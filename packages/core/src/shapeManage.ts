@@ -59,6 +59,20 @@ class ShapeManage extends Disposable {
     this.initShapeEvent(shape)
     this._viewPortMgr.addElementToViewPort(shape)
 
+    shape.getData = () => {
+      return {
+        style: shape.style,
+        x: shape.x,
+        y: shape.y,
+        id: shape.id,
+        type: shape.type
+      }
+    }
+
+    // shape.setData = ({ style }: any) => {
+    //   shape.setStyle({ ...style })
+    // }
+
     this._storageMgr.addShape(shape)
 
     return shape
@@ -223,7 +237,7 @@ class ShapeManage extends Disposable {
     })
   }
 
-  updateGroupSize(shape: IShape) {
+  updateGroupSize(shape: IShape | INodeGroup) {
     if (shape.parentGroup) {
       shape.parentGroup.resizeNodeGroup()
       this._connectionMgr.refreshConnection(shape.parentGroup)

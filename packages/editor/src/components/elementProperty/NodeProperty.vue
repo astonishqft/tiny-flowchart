@@ -5,7 +5,7 @@ import { convertLineDashToStrokeType, convertStrokeTypeToLineDash } from '../../
 
 import type { IShape, Displayable, BuiltinTextPosition, FontWeight, FontStyle, IocEditor } from '@ioceditor/core'
 
-const props = defineProps<{
+const { iocEditor } = defineProps<{
   iocEditor: IocEditor
 }>()
 
@@ -74,7 +74,7 @@ const textPosition = <BuiltinTextPosition>ref('inside')
 const fontWeight = ref<FontWeight>('normal')
 const fontStyle = ref<FontStyle>('normal')
 
-props.iocEditor._shapeMgr.updateSelectShape$.subscribe((shape: IShape) => {
+iocEditor._shapeMgr.updateSelectShape$.subscribe((shape: IShape) => {
   activeShape.value = shape as unknown as Displayable
   lineWidth.value = activeShape.value.style.lineWidth
   fontSize.value = activeShape.value.getTextContent().style.fontSize as number

@@ -14,6 +14,7 @@ export interface IStorageManage {
   setZoom(zoom: number): void
   getZoom(): number
   clearShapes(): void
+  clearGroups(): void
   clearConnections(): void
   getActiveShapes(): IShape[]
   getActiveGroups(): INodeGroup[]
@@ -59,6 +60,10 @@ class StorageManage {
 
   clearConnections() {
     this._connections = []
+  }
+
+  clearGroups() {
+    this._groups = []
   }
 
   setZoom(zoom: number) {

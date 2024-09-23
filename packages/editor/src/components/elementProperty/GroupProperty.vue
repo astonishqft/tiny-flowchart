@@ -5,7 +5,7 @@ import { convertLineDashToStrokeType, convertStrokeTypeToLineDash } from '../../
 
 import type { INodeGroup, BuiltinTextPosition, FontWeight, FontStyle, IocEditor } from '@ioceditor/core'
 
-const props = defineProps<{
+const { iocEditor } = defineProps<{
   iocEditor: IocEditor
 }>()
 
@@ -64,7 +64,7 @@ const textPosition = <BuiltinTextPosition>ref('inside')
 const fontWeight = ref<FontWeight>('normal')
 const fontStyle = ref<FontStyle>('normal')
 
-props.iocEditor._groupMgr.updateSelectGroup$.subscribe((group: INodeGroup) => {
+iocEditor._groupMgr.updateSelectGroup$.subscribe((group: INodeGroup) => {
   activeGroup.value = group
 
   

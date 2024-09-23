@@ -5,21 +5,48 @@ import { Circle } from './circle'
 import type { Anchor } from '../anchor'
 import type { INodeGroup } from './nodeGroup'
 
-export interface IShape extends zrender.Element {
+export type Dictionary<T> = {
+  [key: string]: T
+}
+
+export interface IExportData {
+  nodes: any[]
+  connections: any[]
+  groups: any[]
+}
+
+export interface IExportShape {
+  x: number
+  y: number
+  style: Dictionary<any>
+  type: string
+  id: string
+}
+
+export interface IExportGroup {
+  shapes: (IShape | INodeGroup)[],
+  groupHead: any
+  groupRect: any
+}
+
+export interface IBaseShape {
   selected: boolean
   nodeType: string
+  parentGroup?: INodeGroup
   anchors: IAnchor[]
   anchor?: Anchor
   oldX?: number
   oldY?: number
   z?: number
-  parentGroup?: INodeGroup
   createAnchors(): void
   active(): void
   unActive(): void
   getAnchors(): IAnchor[]
   getAnchorByIndex(index: number): IAnchor
-  getData?(): any
+}
+
+export interface IShape extends zrender.Element, IBaseShape {
+  getData?(): IExportShape
 }
 
 export interface IShapeConfig {
@@ -38,14 +65,14 @@ export interface IShapeTextConfig {
 export interface IAnchor {
   x: number
   y: number
-  node: IShape
+  node: IShape | INodeGroup
   direct: string
   index: number
 }
 
 export interface IAnchorPoint extends zrender.Circle {
   point: IAnchor
-  node: IShape
+  node: IShape | INodeGroup
   mark: string
   oldFillColor: string
   anch: IAnchorPoint

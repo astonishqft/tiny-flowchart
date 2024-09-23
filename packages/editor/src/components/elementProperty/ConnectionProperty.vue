@@ -6,7 +6,7 @@ import { convertStrokeTypeToLineDash, convertLineDashToStrokeType } from '../../
 
 import type {  IConnection, FontWeight, FontStyle, IocEditor } from '@ioceditor/core'
 
-const props = defineProps<{
+const { iocEditor } = defineProps<{
   iocEditor: IocEditor
 }>()
 
@@ -36,7 +36,7 @@ const lineTextFontColor = ref<string | undefined>('#333')
 const fontWeight = ref<FontWeight | undefined>('normal')
 const fontStyle = ref<FontStyle | undefined>('normal')
 
-props.iocEditor._connectionMgr.updateSelectConnection$.subscribe((connection: IConnection) => {
+iocEditor._connectionMgr.updateSelectConnection$.subscribe((connection: IConnection) => {
   activeConnection.value = connection
   lineColor.value = connection.getLineColor()
   lineDash.value = convertLineDashToStrokeType(connection.getLineDash())

@@ -6,15 +6,16 @@ import { ConnectionType } from './connection'
 import type { IDisposable } from './disposable'
 import type { IConnection } from './connection'
 import type { IShape, IAnchorPoint } from './shapes'
+import type { INodeGroup } from './shapes/nodeGroup'
 import type { IViewPortManage } from './viewPortManage'
 import type { IStorageManage } from './storageManage'
 import type { IocEditor } from './iocEditor'
 
 export interface IConnectionManage extends IDisposable {
-  createConnection(fromNode: IShape): IConnection
-  getConnectionByShape(shape: IShape): IConnection[]
+  createConnection(fromNode: IShape | INodeGroup): IConnection
+  getConnectionByShape(shape: IShape | INodeGroup): IConnection[]
   setConnectionType(type: ConnectionType): void
-  refreshConnection(shape: IShape): void
+  refreshConnection(shape: IShape | INodeGroup): void
   removeConnection(connection: IConnection): void
   connect(anchorPoint: IAnchorPoint): void
   updateConnectionType$: Observable<ConnectionType>
@@ -44,7 +45,7 @@ class ConnectionManage extends Disposable {
     this._connectionType = type
   }
 
-  createConnection(fromNode: IShape): IConnection {
+  createConnection(fromNode: IShape | INodeGroup): IConnection {
     const sceneWidth = this._viewPortMgr.getSceneWidth()
     const sceneHeight = this._viewPortMgr.getSceneHeight()
     this.newConnection = new Connection(fromNode, this._connectionType, sceneWidth, sceneHeight)
@@ -58,6 +59,20 @@ class ConnectionManage extends Disposable {
     if (this.newConnection) {
       this.newConnection.setToPoint(anchorPoint.point)
       this.newConnection.connect(anchorPoint.node)
+
+      this.newConnection.getData = () => {
+        return {
+          type: this.newConnection?.getConnectionType(),
+          id: this.newConnection?.getId(),
+          fromPoint: this.newConnection!.fromPoint,
+          toPoint: this.newConnection!.toPoint,
+          fromNode: this.newConnection!.fromNode,
+          toNode: this.newConnection!.toNode,
+          textConfig: {
+            ...this.newConnection?.getLineText()?.style
+          }
+        }
+      }
       this._storageMgr.addConnection(this.newConnection)
     }
   }
@@ -65,7 +80,6 @@ class ConnectionManage extends Disposable {
   cancelConnect() {
     if (this.newConnection) {
       this.newConnection.cancelConnect()
-      this.newConnection = null
     }
   }
 
@@ -88,7 +102,7 @@ class ConnectionManage extends Disposable {
     this._storageMgr.removeConnection(connection)
   }
 
-  getConnectionByShape(shape: IShape) {
+  getConnectionByShape(shape: IShape | INodeGroup) {
     const conns: IConnection[] = []
 
     this._storageMgr.getConnections().forEach((connection: IConnection) => {
@@ -100,7 +114,7 @@ class ConnectionManage extends Disposable {
     return conns
   }
 
-  refreshConnection(shape: IShape) {
+  refreshConnection(shape: IShape | INodeGroup) {
     shape.createAnchors()
     shape.anchor!.refresh()
     const conns = this.getConnectionByShape(shape)

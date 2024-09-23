@@ -27,6 +27,7 @@ export interface IGroupManage extends IDisposable {
   createGroup(): void
   unGroup(): void
   unActive(): void
+  clear(): void
 }
 
 class GroupManage extends Disposable {
@@ -47,7 +48,7 @@ class GroupManage extends Disposable {
   }
 
   createGroup() {
-    const activeShapes = this._storageMgr.getActiveShapes().concat(this._storageMgr.getActiveGroups())
+    const activeShapes = [...this._storageMgr.getActiveShapes(), ...this._storageMgr.getActiveGroups()]
     if (activeShapes.length < 2) {
       return
     }
@@ -87,7 +88,7 @@ class GroupManage extends Disposable {
       activeGroup.anchor!.bars.forEach((bar: IAnchorPoint) => {
         this._viewPortMgr.removeElementFromViewPort(bar)
       })
-      activeGroup.shapes.forEach((shape: IShape) => {
+      activeGroup.shapes.forEach((shape: IShape | INodeGroup) => {
         delete shape.parentGroup
         if (activeGroup.parentGroup) {
           shape.parentGroup = activeGroup.parentGroup
@@ -108,7 +109,7 @@ class GroupManage extends Disposable {
     })
   }
 
-  dragLeave(isDragLeave: boolean, shape: IShape) {
+  dragLeave(isDragLeave: boolean, shape: IShape | INodeGroup) {
     console.log('groupNode dragLeave', isDragLeave)
     if (isDragLeave) {
       shape.parentGroup!.setAlertStyle()
@@ -254,9 +255,9 @@ class GroupManage extends Disposable {
     nodeGroup.attr('x', nodeGroup.oldX! + (offsetX - startX) / zoom + magneticOffsetX / zoom)
     nodeGroup.attr('y', nodeGroup.oldY! + (offsetY - startY) / zoom + magneticOffsetY / zoom)
     this._connectionMgr.refreshConnection(nodeGroup)
-    nodeGroup.shapes.forEach((shape: IShape) => {
-      shape.attr('x', shape.oldX! + (offsetX - startX) / zoom + magneticOffsetX / zoom)
-      shape.attr('y', shape.oldY! + (offsetY - startY) / zoom + magneticOffsetY / zoom)
+    nodeGroup.shapes.forEach((shape: IShape | INodeGroup) => {
+      (shape as IShape).attr('x', shape.oldX! + (offsetX - startX) / zoom + magneticOffsetX / zoom);
+      (shape as IShape).attr('y', shape.oldY! + (offsetY - startY) / zoom + magneticOffsetY / zoom)
       shape.createAnchors()
       shape.anchor!.refresh()
       this._connectionMgr.refreshConnection(shape)
@@ -269,7 +270,7 @@ class GroupManage extends Disposable {
   setShapesOldPosition(nodeGroup: INodeGroup) {
     nodeGroup.oldX = nodeGroup.x
     nodeGroup.oldY = nodeGroup.y
-    nodeGroup.shapes.forEach((shape: IShape) => {
+    nodeGroup.shapes.forEach((shape: IShape | INodeGroup) => {
       shape.oldX = shape.x
       shape.oldY = shape.y
       if (shape.nodeType === 'nodeGroup') {
@@ -278,12 +279,22 @@ class GroupManage extends Disposable {
     })
   }
 
-  updateGroupSize(shape: IShape) {
+  updateGroupSize(shape: IShape | INodeGroup) {
     if (shape.parentGroup) {
       shape.parentGroup.resizeNodeGroup()
       this._connectionMgr.refreshConnection(shape.parentGroup)
       this.updateGroupSize(shape.parentGroup)
     }
+  }
+
+  clear() {
+    this._storageMgr.getGroups().forEach((group: INodeGroup) => {
+      this._viewPortMgr.removeElementFromViewPort(group)
+      group.anchor?.bars.forEach((bar: IAnchorPoint) => {
+        this._viewPortMgr.removeElementFromViewPort(bar)
+      })
+    })
+    this._storageMgr.clearGroups()
   }
 }
 
