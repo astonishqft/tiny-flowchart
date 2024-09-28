@@ -3,12 +3,11 @@ import { Disposable } from './disposable'
 import { Subject, Observable } from 'rxjs'
 
 import type { IDisposable } from './disposable'
-import type { IShape, IAnchorPoint } from './shapes'
+import type { IShape, IAnchorPoint, IConnection, IControlPoint } from './shapes'
 import type { IGridManage } from './gridManage'
 import type { IViewPortManage } from './viewPortManage'
 import type { IShapeManage } from './shapeManage'
 import type { IConnectionManage } from './connectionManage'
-import type { IConnection, IControlPoint } from './connection'
 import type { ISelectFrameManage } from './selectFrameManage'
 import type { IGroupManage } from './groupManage'
 import type { IStorageManage } from './storageManage'
@@ -105,8 +104,7 @@ class SceneManage extends Disposable {
       // 选中锚点
       if (e.target && (e.target as IAnchorPoint).mark === 'anch') {
         dragModel = 'anchor'
-        connection = this._connectionMgr.createConnection((e.target as IAnchorPoint).node)
-        connection.setFromPoint((e.target as IAnchorPoint).point)
+        connection = this._connectionMgr.createConnection((e.target as IAnchorPoint))
       }
 
       if (e.target && (e.target as IControlPoint).mark === 'controlPoint') {
@@ -151,12 +149,12 @@ class SceneManage extends Disposable {
 
       if (e.target && (e.target as IAnchorPoint).mark === 'anch' && connection && ((e.target as IAnchorPoint).node !== connection.fromNode)) { // 禁止和自身相连
         // 创建连线
-        this._connectionMgr.connect(e.target as IAnchorPoint)
+        this._connectionMgr.connect(connection, e.target as IAnchorPoint)
       }
 
       if (connection) {
         // 取消连线创建的临时直线
-        this._connectionMgr.cancelConnect()
+        this._connectionMgr.cancelConnect(connection)
         connection = null
       }
 

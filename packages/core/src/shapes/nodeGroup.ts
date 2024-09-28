@@ -18,7 +18,7 @@ export interface INodeGroup extends zrender.Group, IBaseShape {
   z: number
   groupRect: zrender.Rect | null
   groupHead: zrender.Rect | null
-  getData(): IExportGroup
+  getExportData(): IExportGroup
 }
 
 class NodeGroup extends zrender.Group implements INodeGroup {
@@ -243,7 +243,7 @@ class NodeGroup extends zrender.Group implements INodeGroup {
     this.anchor!.refresh()
   }
 
-  getData() {
+  getExportData() {
     return {
       shapes: this.shapes,
       groupHead: this.groupHead?.style,

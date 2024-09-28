@@ -27,9 +27,8 @@ import type { IViewPortManage } from './viewPortManage'
 import type { IStorageManage } from './storageManage'
 import type { ISelectFrameManage } from './selectFrameManage'
 import type { IIocEditorConfig, ISettingManage } from './settingManage'
-import type { IShape } from './shapes'
+import { type IShape, type IExportShape, type IExportConnection, type IConnection, type IAnchorPoint, ConnectionType } from './shapes'
 import type { INodeGroup } from './shapes/nodeGroup'
-import type { IConnection } from './connection'
 
 export class IocEditor {
   _zr: zrender.ZRenderType
@@ -55,11 +54,12 @@ export class IocEditor {
     this._settingMgr = new SettingManage()
     this._storageMgr = new StorageManage()
     this._viewPortMgr = new ViewPortManage()
-    this._zoomMgr = new ZoomManage(this)
     this._selectFrameMgr = new SelectFrameManage(this)
     this._dragFrameMgr = new DragFrameManage(this)
     this._refLineMgr = new RefLineManage(this)
     this._gridMgr = new GridManage(this)
+    this._zoomMgr = new ZoomManage(this)
+    
     this._connectionMgr = new ConnectionManage(this)
     
     this._groupMgr = new GroupManage(this)
@@ -77,6 +77,16 @@ export class IocEditor {
     return shape
   }
 
+  getNodeById(id: number){
+    const nodes = this._storageMgr.getNodes()
+
+    return nodes.filter(n=> n.id === id)[0]
+  }
+
+  getPointByIndex(node: IShape | INodeGroup, index: number): IAnchorPoint | undefined {
+    return node.anchor?.getBarByIndex(index)
+  }
+
   initFlowChart(data: any) {
     console.log(data)
     this._sceneMgr.clear()
@@ -87,16 +97,42 @@ export class IocEditor {
     
     const { shapes = [], connections = [], groups = [] } = data
 
-    shapes.forEach((shape: IShape) => {
-      const newShape = this._shapeMgr.createShape(shape.type, shape)
-      // newShape.setData(shape)
+    shapes.forEach(({ type, id, x, y, style, textStyle, textConfig }: IExportShape) => {
+      const newShape = this._shapeMgr.createShape(type, { x, y });
+      (newShape as unknown as zrender.Displayable).setStyle({ ...style });
+      (newShape as unknown as zrender.Displayable).getTextContent().setStyle(textStyle);
+      (newShape as unknown as zrender.Displayable).setTextConfig(textConfig)
+      newShape.id = id
+    })
+
+    connections.forEach((conn: IExportConnection) => {
+      const fromNode = this.getNodeById(conn.fromNode)
+      const toNode = this.getNodeById(conn.toNode)
+
+      const fromPoint = this.getPointByIndex(fromNode, conn.fromPoint)
+      const toPoint = this.getPointByIndex(toNode, conn.toPoint)
+
+      if (!fromPoint || !toPoint) return
+      const connection = this._connectionMgr.createConnection(fromPoint)
+      connection.setConnectionType(conn.type)
+      this._connectionMgr.connect(connection, toPoint)
+      connection.setLineStyle(conn.lineStyle)
+      connection.setTextPosition(conn.textPosition)
+      connection.setTextStyle(conn.textStyle)
+      if (conn.type === ConnectionType.BezierCurve) {
+        connection.setControlPoint1(conn.controlPoint1 as number[])
+        connection.setControlPoint2(conn.controlPoint2 as number[])
+        connection.setControlLine1(conn.controlLine1 as number[])
+        connection.setControlLine2(conn.controlLine2 as number[])
+      }
     })
   }
 
   exportFile() {
-    const shapes = this._storageMgr.getShapes().map((shape: IShape) => shape.getData!())
-    const connections = this._storageMgr.getConnections().map((connection: IConnection) => connection.getData!())
-    const groups = this._storageMgr.getGroups().map((group: INodeGroup) => group.getData!())
+    const shapes = this._storageMgr.getShapes().map((shape: IShape) => shape.getExportData!())
+
+    const connections = this._storageMgr.getConnections().map((connection: IConnection) => connection.getExportData!())
+    const groups = this._storageMgr.getGroups().map((group: INodeGroup) => group.getExportData!())
 
     const data = {
       shapes,
@@ -104,7 +140,7 @@ export class IocEditor {
       groups
     }
 
-    const str=JSON.stringify(data)
+    const str = JSON.stringify(data)
     downloadFile(str, 'ioc-chart-flow.json')
 
     return data
@@ -127,7 +163,7 @@ export class IocEditor {
             this.initFlowChart(JSON.parse(flowData))
           }
         } catch(e){
-          console.log('导入的JSON数据解析出错!')
+          console.log('导入的JSON数据解析出错!', e)
         }
       })
     }

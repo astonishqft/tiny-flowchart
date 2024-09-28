@@ -4,9 +4,26 @@ import { Rect } from './rect'
 import { Circle } from './circle'
 import type { Anchor } from '../anchor'
 import type { INodeGroup } from './nodeGroup'
+import type { FontStyle, FontWeight } from 'zrender/lib/core/types'
 
 export type Dictionary<T> = {
   [key: string]: T
+}
+
+export interface IExportConnection {
+  type: ConnectionType
+  id: number
+  fromPoint: number
+  toPoint: number
+  fromNode: number
+  toNode: number
+  textStyle: zrender.TextStyleProps | undefined
+  lineStyle: Dictionary<any>
+  textPosition: number[],
+  controlPoint1: (number | undefined)[],
+  controlPoint2: (number | undefined)[],
+  controlLine1: (number | undefined) [],
+  controlLine2: (number | undefined) []
 }
 
 export interface IExportData {
@@ -20,13 +37,70 @@ export interface IExportShape {
   y: number
   style: Dictionary<any>
   type: string
-  id: string
+  id: number
+  textStyle: zrender.TextStyleProps
+  textConfig: zrender.ElementTextConfig
 }
 
 export interface IExportGroup {
   shapes: (IShape | INodeGroup)[],
   groupHead: any
   groupRect: any
+}
+
+export interface IConnection extends zrender.Group {
+  fromNode: IShape | INodeGroup
+  toNode: IShape | INodeGroup | null
+  fromPoint: IAnchor | null
+  toPoint: IAnchor | null
+  cancelConnect(): void
+  move(x: number, y: number): void
+  connect(node: IShape | INodeGroup): void
+  setFromPoint(point: IAnchor): void
+  setToPoint(point: IAnchor): void
+  refresh(): void
+  active(): void
+  unActive(): void;
+  setLineWidth(lineWidth: number): void
+  getLineWidth(): number | undefined
+  setLineColor(color: string): void
+  getLineColor(): string | undefined
+  setLineDash(type: number[]): void
+  getLineDash(): number[]
+  getLineType(): ConnectionType
+  setLineType(type: ConnectionType): void
+  setLineTextContent(content: string): void
+  getLineTextContent(): string | undefined
+  setLineTextFontSize(size: number | undefined): void
+  getLineTextFontSize(): number | string | undefined
+  setLineFontStyle(style: FontStyle): void
+  setLineFontWeight(weight: FontWeight): void
+  setLineTextFontColor(color: string | undefined): void
+  getLineTextFontColor(): string | undefined
+  getLineFontStyle(): FontStyle | undefined
+  getLineFontWeight(): FontWeight | undefined
+  getId(): number
+  getConnectionType(): ConnectionType
+  getLineText(): zrender.Text | null
+  setTextStyle(style: zrender.TextStyleProps | undefined): void
+  setLineStyle(style: Dictionary<any>): void
+  setTextPosition(position: number[]): void
+  setConnectionType(type: ConnectionType): void
+  setControlPoint1(position: number[]): void
+  setControlPoint2(position: number[]): void
+  setControlLine1(position: number[]): void
+  setControlLine2(position: number[]): void
+  getExportData?(): IExportConnection
+}
+
+export enum ConnectionType {
+  Line,
+  OrtogonalLine,
+  BezierCurve
+}
+
+export type IControlPoint = zrender.Circle & {
+  mark: string
 }
 
 export interface IBaseShape {
@@ -46,7 +120,7 @@ export interface IBaseShape {
 }
 
 export interface IShape extends zrender.Element, IBaseShape {
-  getData?(): IExportShape
+  getExportData?(): IExportShape
 }
 
 export interface IShapeConfig {

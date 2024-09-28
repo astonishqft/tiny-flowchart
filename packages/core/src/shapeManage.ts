@@ -59,13 +59,15 @@ class ShapeManage extends Disposable {
     this.initShapeEvent(shape)
     this._viewPortMgr.addElementToViewPort(shape)
 
-    shape.getData = () => {
+    shape.getExportData = () => {
       return {
         style: shape.style,
+        textStyle: shape.getTextContent().style,
+        textConfig: shape.textConfig,
         x: shape.x,
         y: shape.y,
         id: shape.id,
-        type: shape.type
+        type
       }
     }
 

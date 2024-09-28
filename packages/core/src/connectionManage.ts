@@ -1,28 +1,27 @@
 import { Subject, Observable } from 'rxjs'
 import { Disposable } from './disposable'
 import { Connection } from './connection'
-import { ConnectionType } from './connection'
+import { ConnectionType } from './shapes'
 
 import type { IDisposable } from './disposable'
-import type { IConnection } from './connection'
-import type { IShape, IAnchorPoint } from './shapes'
+import type { IShape, IAnchorPoint, IConnection } from './shapes'
 import type { INodeGroup } from './shapes/nodeGroup'
 import type { IViewPortManage } from './viewPortManage'
 import type { IStorageManage } from './storageManage'
 import type { IocEditor } from './iocEditor'
 
 export interface IConnectionManage extends IDisposable {
-  createConnection(fromNode: IShape | INodeGroup): IConnection
+  createConnection(fromAnchorPoint: IAnchorPoint): IConnection
   getConnectionByShape(shape: IShape | INodeGroup): IConnection[]
   setConnectionType(type: ConnectionType): void
   refreshConnection(shape: IShape | INodeGroup): void
   removeConnection(connection: IConnection): void
-  connect(anchorPoint: IAnchorPoint): void
+  connect(connection: IConnection, anchorPoint: IAnchorPoint): void
   updateConnectionType$: Observable<ConnectionType>
   updateSelectConnection$: Observable<IConnection>
   clear(): void
   unActiveConnections(): void
-  cancelConnect(): void
+  cancelConnect(connection: IConnection): void
 }
 
 class ConnectionManage extends Disposable {
@@ -31,8 +30,6 @@ class ConnectionManage extends Disposable {
   private _connectionType: ConnectionType = ConnectionType.OrtogonalLine
   updateConnectionType$ = new Subject<ConnectionType>()
   updateSelectConnection$ = new Subject<IConnection>()
-
-  newConnection: IConnection | null = null
   constructor(iocEditor: IocEditor) {
     super()
     this._viewPortMgr = iocEditor._viewPortMgr
@@ -45,41 +42,30 @@ class ConnectionManage extends Disposable {
     this._connectionType = type
   }
 
-  createConnection(fromNode: IShape | INodeGroup): IConnection {
+  createConnection(fromAnchorPoint: IAnchorPoint): IConnection {
     const sceneWidth = this._viewPortMgr.getSceneWidth()
     const sceneHeight = this._viewPortMgr.getSceneHeight()
-    this.newConnection = new Connection(fromNode, this._connectionType, sceneWidth, sceneHeight)
+    const connection = new Connection(fromAnchorPoint.node, this._connectionType, sceneWidth, sceneHeight)
 
-    this._viewPortMgr.addElementToViewPort(this.newConnection)
-    this.initEvent(this.newConnection)
-    return this.newConnection
+    connection.setFromPoint(fromAnchorPoint?.point)
+
+    this._viewPortMgr.addElementToViewPort(connection)
+    this.initEvent(connection)
+    return connection
   }
 
-  connect(anchorPoint: IAnchorPoint) {
-    if (this.newConnection) {
-      this.newConnection.setToPoint(anchorPoint.point)
-      this.newConnection.connect(anchorPoint.node)
+  connect(connection: IConnection, anchorPoint: IAnchorPoint) {
+    if (connection) {
+      connection.setToPoint(anchorPoint.point)
+      connection.connect(anchorPoint.node)
 
-      this.newConnection.getData = () => {
-        return {
-          type: this.newConnection?.getConnectionType(),
-          id: this.newConnection?.getId(),
-          fromPoint: this.newConnection!.fromPoint,
-          toPoint: this.newConnection!.toPoint,
-          fromNode: this.newConnection!.fromNode,
-          toNode: this.newConnection!.toNode,
-          textConfig: {
-            ...this.newConnection?.getLineText()?.style
-          }
-        }
-      }
-      this._storageMgr.addConnection(this.newConnection)
+      this._storageMgr.addConnection(connection)
     }
   }
 
-  cancelConnect() {
-    if (this.newConnection) {
-      this.newConnection.cancelConnect()
+  cancelConnect(connection: IConnection) {
+    if (connection) {
+      connection.cancelConnect()
     }
   }
 

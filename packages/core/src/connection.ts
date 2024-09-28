@@ -1,57 +1,12 @@
 import * as zrender from 'zrender'
 import OrthogonalConnector from '@ioceditor/orthogonal-connector'
-import type { IShape, IAnchor } from './shapes'
+import { ConnectionType } from './shapes'
+
+import type { IShape, IAnchor, IConnection, IControlPoint, Dictionary } from './shapes'
 import type { FontStyle, FontWeight } from 'zrender/lib/core/types'
 import type { INodeGroup } from './shapes/nodeGroup'
 
-export interface IConnection extends zrender.Group {
-  fromNode: IShape | INodeGroup
-  toNode: IShape | INodeGroup | null
-  fromPoint: IAnchor | null
-  toPoint: IAnchor | null
-  cancelConnect(): void
-  move(x: number, y: number): void
-  connect(node: IShape | INodeGroup): void
-  setFromPoint(point: IAnchor): void
-  setToPoint(point: IAnchor): void
-  refresh(): void
-  active(): void
-  unActive(): void;
-  setLineWidth(lineWidth: number): void
-  getLineWidth(): number | undefined
-  setLineColor(color: string): void
-  getLineColor(): string | undefined
-  setLineDash(type: number[]): void
-  getLineDash(): number[]
-  getLineType(): ConnectionType
-  setLineType(type: ConnectionType): void
-  setLineTextContent(content: string): void
-  getLineTextContent(): string | undefined
-  setLineTextFontSize(size: number | undefined): void
-  getLineTextFontSize(): number | string | undefined
-  setLineFontStyle(style: FontStyle): void
-  setLineFontWeight(weight: FontWeight): void
-  setLineTextFontColor(color: string | undefined): void
-  getLineTextFontColor(): string | undefined
-  getLineFontStyle(): FontStyle | undefined
-  getLineFontWeight(): FontWeight | undefined
-  getId(): number
-  getConnectionType(): ConnectionType
-  getLineText(): zrender.Text | null
-  getData?(): any
-}
-
-export enum ConnectionType {
-  Line,
-  OrtogonalLine,
-  BezierCurve
-}
-
-export type IControlPoint = zrender.Circle & {
-  mark: string
-}
-
-class Connection extends zrender.Group {
+class Connection extends zrender.Group implements IConnection {
   private _tempConnection: zrender.Line
   private _connectionType: ConnectionType = ConnectionType.Line
   private _line: zrender.Line | zrender.BezierCurve | zrender.Polyline | null = null
@@ -387,34 +342,11 @@ class Connection extends zrender.Group {
         const [cpx1, cpy1] = this.calcControlPoint(this.fromPoint!)
         const [cpx2, cpy2] = this.calcControlPoint(this.toPoint!)
 
-        this._controlPoint1?.attr({
-          shape: {
-            cx: cpx1,
-            cy: cpy1
-          }
-        })
-        this._controlPoint2?.attr({
-          shape: {
-            cx: cpx2,
-            cy: cpy2
-          }
-        })
-        this._controlLine1?.attr({
-          shape: {
-            x1: this.fromPoint!.x,
-            y1: this.fromPoint!.y,
-            x2: cpx1 + this._controlPoint1!.x,
-            y2: cpy1 + this._controlPoint1!.y
-          }
-        })
-        this._controlLine2?.attr({
-          shape: {
-            x1: this.toPoint!.x,
-            y1: this.toPoint!.y,
-            x2: cpx2 + this._controlPoint2!.x,
-            y2: cpy2 + this._controlPoint2!.y
-          }
-        });
+        this.setControlPoint1([cpx1, cpy1])
+        this.setControlPoint2([cpx2, cpy2])
+        this.setControlLine1([this.fromPoint!.x, this.fromPoint!.y, cpx1 + this._controlPoint1!.x, cpy1 + this._controlPoint1!.y])
+        this.setControlLine2([this.toPoint!.x, this.toPoint!.y, cpx2 + this._controlPoint2!.x, cpy2 + this._controlPoint2!.y]);
+
         (this._line as zrender.BezierCurve).attr({
           shape: {
             x1: this.fromPoint!.x,
@@ -654,8 +586,90 @@ class Connection extends zrender.Group {
     return this._connectionType
   }
 
+  setConnectionType(type: ConnectionType) {
+    this._connectionType = type
+  }
+
   getLineText() {
     return this._lineText
+  }
+
+  getExportData() {
+    return {
+      type: this._connectionType,
+      id: this.id,
+      fromPoint: this.fromPoint!.index,
+      toPoint: this.toPoint!.index,
+      fromNode: this.fromNode!.id,
+      toNode: this.toNode!.id,
+      textStyle: this._lineText!.style,
+      lineStyle: this._line!.style,
+      textPosition: this._textPoints,
+      controlPoint1: [this._controlPoint1?.x, this._controlPoint1?.y],
+      controlPoint2: [this._controlPoint2?.x, this._controlPoint2?.y],
+      controlLine1: [this._controlLine1?.shape.x1, this._controlLine1?.shape.y1, this._controlLine1?.shape.x2, this._controlLine1?.shape.y2],
+      controlLine2: [this._controlLine2?.shape.x1, this._controlLine2?.shape.y1, this._controlLine2?.shape.x2, this._controlLine2?.shape.y2]
+    }
+  }
+
+  setTextStyle(style: zrender.TextStyleProps | undefined) {
+    if (style) {
+      this._lineText?.setStyle({
+        ...style
+      })
+    }
+  }
+
+  setLineStyle(style: Dictionary<any>) {
+    this._line?.setStyle({
+      ...style
+    })
+  }
+
+  setTextPosition(position: number[]) {
+    this._textPoints = position
+    this._lineText?.show()
+    this.renderText()
+  }
+
+  setControlPoint1(position: number[]) {
+    this._controlPoint1?.attr({
+      shape: {
+        cx: position[0],
+        cy: position[1]
+      }
+    })
+  }
+
+  setControlPoint2(position: number[]) {
+    this._controlPoint2?.attr({
+      shape: {
+        cx: position[0],
+        cy: position[1]
+      }
+    })
+  }
+
+  setControlLine1(position: number[]) {
+    this._controlLine1?.attr({
+      shape: {
+        x1: position[0],
+        y1: position[1],
+        x2: position[2],
+        y2: position[3]
+      }
+    })
+  }
+
+  setControlLine2(position: number[]) {
+    this._controlLine2?.attr({
+      shape: {
+        x1: position[0],
+        y1: position[1],
+        x2: position[2],
+        y2: position[3]
+      }
+    })
   }
 }
 
