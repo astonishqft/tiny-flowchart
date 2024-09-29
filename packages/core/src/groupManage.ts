@@ -164,7 +164,7 @@ class GroupManage extends Disposable {
         this._dragFrameMgr.updatePosition(nodeGroup.x + stepX / zoom, nodeGroup.y + stepY / zoom)
         if (nodeGroup.parentGroup) {
           isDragLeave = isLeave(this._dragFrameMgr.getBoundingBox(), nodeGroup.parentGroup!.getBoundingBox())
-          this.dragLeave(isDragLeave, nodeGroup) 
+          this.dragLeave(isDragLeave, nodeGroup)
         } else {
           // 需要把自身排除在外
           dragEnterGroups = this._storageMgr.getGroups().filter(g => g.id !== nodeGroup.id).filter((g) => isEnter(this._dragFrameMgr.getBoundingBox(), g.getBoundingBox()))
@@ -174,7 +174,7 @@ class GroupManage extends Disposable {
           } else {
             isDragEnter = false
           }
-  
+
           this.dragEnter(isDragEnter, getTopGroup(dragEnterGroups))
         }
       }

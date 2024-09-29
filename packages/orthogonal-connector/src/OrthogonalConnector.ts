@@ -44,7 +44,7 @@ function reducePoints(points: IPoint[]): IPoint[] {
 
   points.forEach(p => {
     const { x, y } = p
-    let arr: number[] = map.get(y) || map.set(y, []).get(y)!
+    const arr: number[] = map.get(y) || map.set(y, []).get(y)!
 
     if (arr.indexOf(x) < 0) {
       arr.push(x)

@@ -53,10 +53,10 @@ class PointsPool {
 
   /**
    * 调整点池的大小
-   * 
+   *
    * 当指定的大小与当前点池的大小不一致时，会根据需要增加或减少点的数量
    * 如果大小增加，则添加新点到池中；如果大小减小，则从池中移除多余的点
-   * 
+   *
    * @param size 想要调整到的点池大小
    */
   resizePool(size: number) {
@@ -142,9 +142,9 @@ class GridManage extends Disposable {
     this._gridStep = this._settingMgr.get('gridStep')
     const zoom = this._storageMgr.getZoom()
     let startX = this.getClosestVal(-this._gridLayer!.x / zoom, this._gridStep)
-    let endX = this.getClosestVal(-this._gridLayer!.x / zoom + this._width / zoom, this._gridStep)
+    const endX = this.getClosestVal(-this._gridLayer!.x / zoom + this._width / zoom, this._gridStep)
     let startY = this.getClosestVal(-this._gridLayer!.y / zoom, this._gridStep)
-    let endY = this.getClosestVal(-this._gridLayer!.y / zoom + this._height / zoom, this._gridStep)
+    const endY = this.getClosestVal(-this._gridLayer!.y / zoom + this._height / zoom, this._gridStep)
     this._xPoints = []
     this._yPoints = []
 

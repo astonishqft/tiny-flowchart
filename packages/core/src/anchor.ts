@@ -62,7 +62,7 @@ class Anchor {
     })
   }
 
-  getBarByIndex(index: number){
+  getBarByIndex(index: number) {
     return this.bars.filter(bar=>{return bar.point.index === index})[0]
   }
 
@@ -80,7 +80,7 @@ class Anchor {
 
   refresh() {
     this.bars.forEach(bar => {
-      let p = this.shape.getAnchorByIndex(bar.point.index)
+      const p = this.shape.getAnchorByIndex(bar.point.index)
       bar.attr({
         shape: {
           cx: p.x,

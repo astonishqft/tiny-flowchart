@@ -100,7 +100,7 @@ class Connection extends zrender.Group implements IConnection {
       this._controlLine1.hide()
       this._controlLine2.hide()
       this._controlPoint1.hide()
-      this._controlPoint2.hide() 
+      this._controlPoint2.hide()
     }
 
     this._line?.setStyle({
@@ -339,28 +339,12 @@ class Connection extends zrender.Group implements IConnection {
         this.renderArrow([this.fromPoint!.x, this.fromPoint!.y])
         break
       case ConnectionType.BezierCurve:
-        const [cpx1, cpy1] = this.calcControlPoint(this.fromPoint!)
-        const [cpx2, cpy2] = this.calcControlPoint(this.toPoint!)
-
-        this.setControlPoint1([cpx1, cpy1])
-        this.setControlPoint2([cpx2, cpy2])
-        this.setControlLine1([this.fromPoint!.x, this.fromPoint!.y, cpx1 + this._controlPoint1!.x, cpy1 + this._controlPoint1!.y])
-        this.setControlLine2([this.toPoint!.x, this.toPoint!.y, cpx2 + this._controlPoint2!.x, cpy2 + this._controlPoint2!.y]);
-
-        (this._line as zrender.BezierCurve).attr({
-          shape: {
-            x1: this.fromPoint!.x,
-            y1: this.fromPoint!.y,
-            x2: this.toPoint!.x,
-            y2: this.toPoint!.y,
-            cpx1: cpx1 + this._controlPoint1!.x,
-            cpy1: cpy1 + this._controlPoint1!.y,
-            cpx2: cpx2 + this._controlPoint2!.x,
-            cpy2: cpy2 + this._controlPoint2!.y
-          }
-        })
-
-        this.renderArrow([cpx2 + this._controlPoint2!.x, cpy2 + this._controlPoint2!.y])
+        this.setBezierCurve(
+          this.fromPoint!,
+          this.toPoint!,
+          [this._controlPoint1!.x, this._controlPoint1!.y],
+          [this._controlPoint2!.x, this._controlPoint2!.y]
+        )
         break
       case ConnectionType.OrtogonalLine:
         this.generateOrtogonalLinePath();
@@ -409,8 +393,8 @@ class Connection extends zrender.Group implements IConnection {
     if (this._ortogonalLinePoints.length === 0) {
       return [this.fromPoint!.x, this.fromPoint!.y]
     }
-    let accList: number[] = [0]
-    let directionList = []
+    const accList: number[] = [0]
+    const directionList = []
     for (let i = 1; i < this._ortogonalLinePoints.length; i++) {
       const p1 = this._ortogonalLinePoints[i - 1]
       const p2 = this._ortogonalLinePoints[i]
@@ -523,7 +507,7 @@ class Connection extends zrender.Group implements IConnection {
     }
     if (this._lineText) {
       this.remove(this._lineText)
-    } 
+    }
     this.createConnection()
   }
 
@@ -595,7 +579,7 @@ class Connection extends zrender.Group implements IConnection {
   }
 
   getExportData() {
-    return {
+    const baseData = {
       type: this._connectionType,
       id: this.id,
       fromPoint: this.fromPoint!.index,
@@ -604,12 +588,19 @@ class Connection extends zrender.Group implements IConnection {
       toNode: this.toNode!.id,
       textStyle: this._lineText!.style,
       lineStyle: this._line!.style,
-      textPosition: this._textPoints,
-      controlPoint1: [this._controlPoint1?.x, this._controlPoint1?.y],
-      controlPoint2: [this._controlPoint2?.x, this._controlPoint2?.y],
-      controlLine1: [this._controlLine1?.shape.x1, this._controlLine1?.shape.y1, this._controlLine1?.shape.x2, this._controlLine1?.shape.y2],
-      controlLine2: [this._controlLine2?.shape.x1, this._controlLine2?.shape.y1, this._controlLine2?.shape.x2, this._controlLine2?.shape.y2]
+      textPosition: this._textPoints
     }
+
+    if (this._connectionType == ConnectionType.BezierCurve) {
+      return {
+        ...baseData,
+        controlPoint1: [this._controlPoint1?.x, this._controlPoint1?.y],
+        controlPoint2: [this._controlPoint2?.x, this._controlPoint2?.y],
+        controlLine1: [this._controlLine1?.shape.x1, this._controlLine1?.shape.y1, this._controlLine1?.shape.x2, this._controlLine1?.shape.y2],
+        controlLine2: [this._controlLine2?.shape.x1, this._controlLine2?.shape.y1, this._controlLine2?.shape.x2, this._controlLine2?.shape.y2]
+      }
+    }
+    return baseData
   }
 
   setTextStyle(style: zrender.TextStyleProps | undefined) {
@@ -628,7 +619,7 @@ class Connection extends zrender.Group implements IConnection {
 
   setTextPosition(position: number[]) {
     this._textPoints = position
-    this._lineText?.show()
+    this._lineText?.style.text ? this._lineText?.show() : this._lineText?.hide()
     this.renderText()
   }
 
@@ -670,6 +661,62 @@ class Connection extends zrender.Group implements IConnection {
         y2: position[3]
       }
     })
+  }
+
+  setBezierCurve(fromPoint: IAnchor, toPoint: IAnchor, controlPoint1: (number | undefined)[], controlPoint2: (number | undefined)[]) {
+    const [cpx1, cpy1] = this.calcControlPoint(fromPoint)
+    const [cpx2, cpy2] = this.calcControlPoint(toPoint)
+
+    this._controlPoint1?.attr({
+      shape: {
+        cx: cpx1,
+        cy: cpy1
+      },
+      x: controlPoint1[0]!,
+      y: controlPoint1[1]!
+    })
+
+    this._controlPoint2?.attr({
+      shape: {
+        cx: cpx2,
+        cy: cpy2
+      },
+      x: controlPoint2[0]!,
+      y: controlPoint2[1]!
+    })
+
+    this._controlLine1?.attr({
+      shape: {
+        x1: fromPoint.x,
+        y1: fromPoint.y,
+        x2: cpx1 + controlPoint1[0]!,
+        y2: cpy1 + controlPoint1[1]!
+      }
+    })
+
+    this._controlLine2?.attr({
+      shape: {
+        x1: toPoint.x,
+        y1: toPoint.y,
+        x2: cpx2 + controlPoint2[0]!,
+        y2: cpy2 + controlPoint2[1]!
+      }
+    });
+
+    (this._line as zrender.BezierCurve).attr({
+      shape: {
+        x1: fromPoint!.x,
+        y1: fromPoint!.y,
+        x2: this.toPoint!.x,
+        y2: this.toPoint!.y,
+        cpx1: cpx1 + controlPoint1[0]!,
+        cpy1: cpy1 + controlPoint1[1]!,
+        cpx2: cpx2 + controlPoint2[0]!,
+        cpy2: cpy2 + controlPoint2[1]!
+      }
+    })
+
+    this.renderArrow([cpx2 + controlPoint2[0]!, cpy2 + controlPoint2[1]!])
   }
 }
 

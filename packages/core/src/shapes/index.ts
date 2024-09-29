@@ -20,10 +20,10 @@ export interface IExportConnection {
   textStyle: zrender.TextStyleProps | undefined
   lineStyle: Dictionary<any>
   textPosition: number[],
-  controlPoint1: (number | undefined)[],
-  controlPoint2: (number | undefined)[],
-  controlLine1: (number | undefined) [],
-  controlLine2: (number | undefined) []
+  controlPoint1?: (number | undefined)[],
+  controlPoint2?: (number | undefined)[],
+  controlLine1?: (number | undefined) [],
+  controlLine2?: (number | undefined) []
 }
 
 export interface IExportData {
@@ -86,10 +86,7 @@ export interface IConnection extends zrender.Group {
   setLineStyle(style: Dictionary<any>): void
   setTextPosition(position: number[]): void
   setConnectionType(type: ConnectionType): void
-  setControlPoint1(position: number[]): void
-  setControlPoint2(position: number[]): void
-  setControlLine1(position: number[]): void
-  setControlLine2(position: number[]): void
+  setBezierCurve(fromPoint: IAnchor, toPoint: IAnchor, controlPoint1: (number | undefined)[], controlPoint2: (number | undefined)[]): void
   getExportData?(): IExportConnection
 }
 

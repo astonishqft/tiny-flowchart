@@ -133,7 +133,7 @@ const command = (name: string) => {
       break
     default:
       break
-  } 
+  }
 }
 </script>
 

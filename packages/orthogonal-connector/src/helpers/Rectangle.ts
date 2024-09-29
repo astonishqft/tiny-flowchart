@@ -16,7 +16,7 @@ export interface Size {
 export function makePt(x: number, y: number): IPoint {
   return {x, y}
 }
-export function distance(a: IPoint, b: IPoint): number{
+export function distance(a: IPoint, b: IPoint): number {
   return Math.sqrt(Math.pow(b.x - a.x, 2) + Math.pow(b.y - a.y, 2))
 }
 export class Rectangle {
@@ -45,14 +45,14 @@ export class Rectangle {
   }
 
   intersects(rectangle: Rectangle): boolean {
-    let thisX = this.left
-    let thisY = this.top
-    let thisW = this.width
-    let thisH = this.height
-    let rectX = rectangle.left
-    let rectY = rectangle.top
-    let rectW = rectangle.width
-    let rectH = rectangle.height
+    const thisX = this.left
+    const thisY = this.top
+    const thisW = this.width
+    const thisH = this.height
+    const rectX = rectangle.left
+    const rectY = rectangle.top
+    const rectW = rectangle.width
+    const rectH = rectangle.height
     return (rectX <= thisX + thisW) && (thisX <= (rectX + rectW)) && (rectY <= thisY + thisH) && (thisY <= rectY + rectH)
   }
 

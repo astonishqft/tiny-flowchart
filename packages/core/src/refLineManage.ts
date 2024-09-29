@@ -60,7 +60,7 @@ class RefLineManage {
     this._storageMgr = iocEditor._storageMgr
     this._viewPortMgr = iocEditor._viewPortMgr
     this._dragFrameMgr = iocEditor._dragFrameMgr
-    
+
     this._refPointSize = this._settingMgr.get('refPointSize')
     this._refLineColor = this._settingMgr.get('refLineColor')
 
@@ -86,9 +86,9 @@ class RefLineManage {
         z: 100000,
         invisible: true
       })
-  
+
       this._viewPortMgr.addElementToViewPort(l)
-      this._refLinePool.push(l) 
+      this._refLinePool.push(l)
     }
   }
 

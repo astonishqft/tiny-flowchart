@@ -145,19 +145,19 @@ class ShapeManage extends Disposable {
       if (Math.abs(offsetX / zoom) > 2 || Math.abs(offsetY / zoom) > 2) {
         this._dragFrameMgr.updatePosition(shape.x + stepX / zoom, shape.y + stepY / zoom)
 
-        if (this._storageMgr.getGroups().length !==0) {
+        if (this._storageMgr.getGroups().length !== 0) {
           if (shape.parentGroup) {
             isDragLeave = isLeave(this._dragFrameMgr.getBoundingBox(), shape.parentGroup!.getBoundingBox())
             this.dragLeave(isDragLeave, shape)
           } else {
             dragEnterGroups = this._storageMgr.getGroups().filter((g) => isEnter(this._dragFrameMgr.getBoundingBox(), g.getBoundingBox()))
-  
+
             if (dragEnterGroups.length !== 0) {
               isDragEnter = true
             } else {
               isDragEnter = false
             }
-  
+
             this.dragEnter(isDragEnter, getTopGroup(dragEnterGroups))
           }
         }
@@ -248,4 +248,4 @@ class ShapeManage extends Disposable {
   }
 }
 
-export { ShapeManage } 
+export { ShapeManage }

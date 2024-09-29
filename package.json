@@ -12,13 +12,18 @@
     "all:build": "pnpm -r exec pnpm run build",
     "core:dev": "pnpm -F @ioceditor/core dev",
     "editor:dev": "pnpm -F @ioceditor/editor dev",
-    "example:dev": "pnpm -F @ioceditor/example dev"
+    "example:dev": "pnpm -F @ioceditor/example dev",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },
   "devDependencies": {
+    "@rushstack/eslint-patch": "^1.8.0",
     "@typescript-eslint/eslint-plugin": "^5.24.0",
     "@typescript-eslint/parser": "^5.24.0",
     "@vitejs/plugin-vue": "^5.0.4",
+    "@vue/eslint-config-prettier": "^9.0.0",
+    "@vue/eslint-config-typescript": "^13.0.0",
     "eslint": "^8.57.0",
+    "eslint-plugin-vue": "^9.23.0",
     "tslib": "^2.6.2",
     "typescript": "^5.2.2",
     "npm-run-all": "^4.1.5",

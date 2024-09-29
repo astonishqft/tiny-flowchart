@@ -66,8 +66,6 @@ const fontStyle = ref<FontStyle>('normal')
 
 iocEditor._groupMgr.updateSelectGroup$.subscribe((group: INodeGroup) => {
   activeGroup.value = group
-
-  
   bgColor.value = activeGroup.value.groupRect?.style.fill as string
   strokeColor.value = activeGroup.value.groupRect?.style.stroke as string
   fontColor.value = activeGroup.value.groupHead?.getTextContent().style.fill || '#333'

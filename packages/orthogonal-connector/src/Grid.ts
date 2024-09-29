@@ -26,7 +26,9 @@ class Grid {
   rectangles(): Rectangle[] {
     const r: Rectangle[] = []
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for (const [_, data] of this.data) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       for (const [_, rect] of data) {
         r.push(rect)
       }

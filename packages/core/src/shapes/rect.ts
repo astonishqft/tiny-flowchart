@@ -14,12 +14,12 @@ class Rect extends zrender.Rect implements IShape {
 
   createAnchors() {
     this.anchors = []
-    let g = new zrender.Group()
-    let box = g.getBoundingRect([this])
-    let t = { x: box.x + box.width / 2, y: box.y, index: 1, node: this, direct: 'top' }
-    let r = { x: box.x + box.width, y: box.y + box.height / 2, index: 2, node: this, direct: 'right' }
-    let b = { x: box.x + box.width / 2, y: box.y + box.height, index: 3, node: this, direct: 'bottom' }
-    let l = { x: box.x, y: box.y + box.height / 2, index: 4, node: this, direct: 'left' }
+    const g = new zrender.Group()
+    const box = g.getBoundingRect([this])
+    const t = { x: box.x + box.width / 2, y: box.y, index: 1, node: this, direct: 'top' }
+    const r = { x: box.x + box.width, y: box.y + box.height / 2, index: 2, node: this, direct: 'right' }
+    const b = { x: box.x + box.width / 2, y: box.y + box.height, index: 3, node: this, direct: 'bottom' }
+    const l = { x: box.x, y: box.y + box.height / 2, index: 4, node: this, direct: 'left' }
     this.anchors.push(t, r, b, l)
   }
 

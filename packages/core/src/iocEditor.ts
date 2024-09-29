@@ -59,9 +59,7 @@ export class IocEditor {
     this._refLineMgr = new RefLineManage(this)
     this._gridMgr = new GridManage(this)
     this._zoomMgr = new ZoomManage(this)
-    
     this._connectionMgr = new ConnectionManage(this)
-    
     this._groupMgr = new GroupManage(this)
     this._shapeMgr = new ShapeManage(this)
     this._settingMgr.setDefaultConfig(config)
@@ -77,7 +75,7 @@ export class IocEditor {
     return shape
   }
 
-  getNodeById(id: number){
+  getNodeById(id: number) {
     const nodes = this._storageMgr.getNodes()
 
     return nodes.filter(n=> n.id === id)[0]
@@ -94,7 +92,7 @@ export class IocEditor {
     this._viewPortMgr.setPosition(0, 0)
     this._gridMgr.setPosition(0, 0)
     this._gridMgr.drawGrid()
-    
+
     const { shapes = [], connections = [], groups = [] } = data
 
     shapes.forEach(({ type, id, x, y, style, textStyle, textConfig }: IExportShape) => {
@@ -120,10 +118,7 @@ export class IocEditor {
       connection.setTextPosition(conn.textPosition)
       connection.setTextStyle(conn.textStyle)
       if (conn.type === ConnectionType.BezierCurve) {
-        connection.setControlPoint1(conn.controlPoint1 as number[])
-        connection.setControlPoint2(conn.controlPoint2 as number[])
-        connection.setControlLine1(conn.controlLine1 as number[])
-        connection.setControlLine2(conn.controlLine2 as number[])
+        connection.setBezierCurve(fromPoint.point, toPoint.point, conn.controlPoint1!, conn.controlPoint2!)
       }
     })
   }
@@ -155,14 +150,14 @@ export class IocEditor {
       const file = target.files![0]
       const reader = new FileReader()
       reader.readAsText(file)
-    
+
       reader.addEventListener('load', (e: ProgressEvent<FileReader>) => {
         const flowData = e.target!.result as string
         try {
           if (flowData) {
             this.initFlowChart(JSON.parse(flowData))
           }
-        } catch(e){
+        } catch(e) {
           console.log('导入的JSON数据解析出错!', e)
         }
       })

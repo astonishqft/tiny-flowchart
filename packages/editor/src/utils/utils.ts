@@ -21,7 +21,7 @@ export const convertLineDashToStrokeType = (lineDash: number[]): string => {
   let strokeType = 'solid'
   if (lineDash[0] === 5 && lineDash[1] === 5) {
     strokeType = 'dashed'
-  } else if (lineDash[0] === 5 && lineDash[1] === 5) {
+  } else if (lineDash[0] === 2 && lineDash[1] === 2) {
     strokeType = 'dotted'
   }
 
