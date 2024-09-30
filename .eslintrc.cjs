@@ -20,6 +20,7 @@ module.exports = {
     'space-infix-ops': 2,
     'no-trailing-spaces': 2,
     'space-before-blocks': 2,
-    'no-spaced-func': 2
+    'no-spaced-func': 2,
+    'vue/multi-word-component-names': 0
   }
 }

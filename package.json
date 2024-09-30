@@ -13,7 +13,7 @@
     "core:dev": "pnpm -F @ioceditor/core dev",
     "editor:dev": "pnpm -F @ioceditor/editor dev",
     "example:dev": "pnpm -F @ioceditor/example dev",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .eslintignore"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.8.0",
