@@ -2,10 +2,7 @@ import { INodeGroup } from 'shapes/nodeGroup'
 import type { IShape } from './shapes'
 import * as zrender from 'zrender'
 
-export const getClosestValInSortedArr = (
-  sortedArr: number[],
-  target: number,
-) => {
+export const getClosestValInSortedArr = (sortedArr: number[], target: number) => {
   if (sortedArr.length === 0) {
     throw new Error('sortedArr can not be empty')
   }
@@ -37,8 +34,7 @@ export const getClosestValInSortedArr = (
   }
 
   // check which one is closer
-  return Math.abs(sortedArr[right] - target) <=
-    Math.abs(sortedArr[left] - target)
+  return Math.abs(sortedArr[right] - target) <= Math.abs(sortedArr[left] - target)
     ? sortedArr[right]
     : sortedArr[left]
 }
@@ -74,7 +70,7 @@ export const getMinZLevel = (shapes: (IShape | INodeGroup)[]) => {
 }
 
 export const getGroupMaxZLevel = (groups: INodeGroup[]) => {
-  let maxZLevel  = -Infinity
+  let maxZLevel = -Infinity
   groups.forEach(g => {
     if (g.z > maxZLevel) {
       maxZLevel = g.z
@@ -97,11 +93,11 @@ export const isEnter = (a: zrender.BoundingRect, b: zrender.BoundingRect) => {
     return false
   }
 
-  return centerX >= b.x && centerX <= (b.x + b.width) && centerY >= b.y && centerY <= (b.y + b.height)
+  return centerX >= b.x && centerX <= b.x + b.width && centerY >= b.y && centerY <= b.y + b.height
 }
 
 export const isLeave = (a: zrender.BoundingRect, b: zrender.BoundingRect) => {
-  return ((a.x + a.width) < b.x) || (a.x  > (b.x + b.width)) || ((a.y + a.height) < b.y) || (a.y > (b.y + b.height))
+  return a.x + a.width < b.x || a.x > b.x + b.width || a.y + a.height < b.y || a.y > b.y + b.height
 }
 
 export const getTopGroup = (groups: INodeGroup[]): INodeGroup => {

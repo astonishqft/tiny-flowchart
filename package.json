@@ -13,9 +13,25 @@
     "core:dev": "pnpm -F @ioceditor/core dev",
     "editor:dev": "pnpm -F @ioceditor/editor dev",
     "example:dev": "pnpm -F @ioceditor/example dev",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .eslintignore"
+    "pre-commit": "lint-staged",
+    "prepare": "husky install",
+    "commitlint": "commitlint --config commitlint.config.js -e -V",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .eslintignore",
+    "format": "prettier --write ."
+  },
+  "lint-staged": {
+    "*.ts": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.vue": [
+      "eslint --fix",
+      "prettier --write"
+    ]
   },
   "devDependencies": {
+    "@commitlint/cli": "^19.5.0",
+    "@commitlint/config-conventional": "^19.5.0",
     "@rushstack/eslint-patch": "^1.8.0",
     "@typescript-eslint/eslint-plugin": "^5.24.0",
     "@typescript-eslint/parser": "^5.24.0",
@@ -24,11 +40,13 @@
     "@vue/eslint-config-typescript": "^13.0.0",
     "eslint": "^8.57.0",
     "eslint-plugin-vue": "^9.23.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.10",
+    "prettier": "^3.2.5",
     "tslib": "^2.6.2",
     "typescript": "^5.2.2",
-    "npm-run-all": "^4.1.5",
     "vite": "^5.2.8",
-    "vue-tsc": "^2.0.6",
-    "vite-plugin-dts": "^3.6.0"
+    "vite-plugin-dts": "^3.6.0",
+    "vue-tsc": "^2.0.6"
   }
 }

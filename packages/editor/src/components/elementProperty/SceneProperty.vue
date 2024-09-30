@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, } from 'vue'
+import { ref } from 'vue'
 import { ElSwitch, ElInputNumber } from 'element-plus'
 
 import type { IocEditor } from '@ioceditor/core'

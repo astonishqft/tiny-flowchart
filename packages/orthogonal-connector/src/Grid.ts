@@ -5,12 +5,13 @@ class Grid {
   private _cols = 0
   readonly data: Map<number, Map<number, Rectangle>> = new Map()
 
-  constructor() { }
+  constructor() {}
 
   set(row: number, column: number, rectangle: Rectangle) {
     this._rows = Math.max(this.rows, row + 1)
     this._cols = Math.max(this.columns, column + 1)
-    const rowMap: Map<number, Rectangle> = this.data.get(row) || this.data.set(row, new Map()).get(row)!
+    const rowMap: Map<number, Rectangle> =
+      this.data.get(row) || this.data.set(row, new Map()).get(row)!
     rowMap.set(column, rectangle)
   }
 

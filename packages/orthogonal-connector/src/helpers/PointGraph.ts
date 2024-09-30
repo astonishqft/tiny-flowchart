@@ -1,12 +1,12 @@
 import { distance, IPoint } from './Rectangle'
 
-type Direction = 'v' | 'h';
+type Direction = 'v' | 'h'
 
 class PointNode {
   public distance = Number.MAX_SAFE_INTEGER
   public shortestPath: PointNode[] = []
   public adjacentNodes: Map<PointNode, number> = new Map() // 相邻节点
-  constructor(public data: IPoint) { }
+  constructor(public data: IPoint) {}
 }
 
 export class PointGraph {
@@ -14,7 +14,8 @@ export class PointGraph {
 
   add(p: IPoint) {
     const { x, y } = p
-    const xs = x.toString(), ys = y.toString()
+    const xs = x.toString(),
+      ys = y.toString()
 
     if (!(xs in this.index)) {
       this.index[xs] = {}
@@ -71,7 +72,6 @@ export class PointGraph {
           this.calculateMinimumDistance(adjacentNode, edgeWeight, currentNode)
           unsettledNodes.add(adjacentNode)
         }
-
       }
       settledNodes.add(currentNode)
     }
@@ -85,7 +85,11 @@ export class PointGraph {
    * @param edgeWeigh 边的权重
    * @param sourceNode 源节点
    */
-  private calculateMinimumDistance(evaluationNode: PointNode, edgeWeigh: number, sourceNode: PointNode) {
+  private calculateMinimumDistance(
+    evaluationNode: PointNode,
+    edgeWeigh: number,
+    sourceNode: PointNode
+  ) {
     const sourceDistance = sourceNode.distance
     const comingDirection = this.inferPathDirection(sourceNode)
     const goingDirection = this.directionOfNodes(sourceNode, evaluationNode)
@@ -127,13 +131,15 @@ export class PointGraph {
 
   has(p: IPoint): boolean {
     const { x, y } = p
-    const xs = x.toString(), ys = y.toString()
+    const xs = x.toString(),
+      ys = y.toString()
     return xs in this.index && ys in this.index[xs]
   }
 
   get(p: IPoint): PointNode | null {
     const { x, y } = p
-    const xs = x.toString(), ys = y.toString()
+    const xs = x.toString(),
+      ys = y.toString()
 
     if (xs in this.index && ys in this.index[xs]) {
       return this.index[xs][ys]

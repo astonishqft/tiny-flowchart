@@ -26,13 +26,13 @@ class Anchor {
         },
         cursor: 'crosshair',
         z: 30001
-      });
-      (circle as IAnchorPoint).point = p;
-      (circle as IAnchorPoint).mark = 'anch';
-      (circle as IAnchorPoint).node = this.shape;
-      (circle as IAnchorPoint).anch = circle as IAnchorPoint
+      })
+      ;(circle as IAnchorPoint).point = p
+      ;(circle as IAnchorPoint).mark = 'anch'
+      ;(circle as IAnchorPoint).node = this.shape
+      ;(circle as IAnchorPoint).anch = circle as IAnchorPoint
       circle.on('mouseover', () => {
-        (circle as IAnchorPoint).oldFillColor = circle.style.fill as string
+        ;(circle as IAnchorPoint).oldFillColor = circle.style.fill as string
         circle.attr({
           style: {
             fill: 'rgb(0,181,237)'
@@ -63,7 +63,9 @@ class Anchor {
   }
 
   getBarByIndex(index: number) {
-    return this.bars.filter(bar=>{return bar.point.index === index})[0]
+    return this.bars.filter(bar => {
+      return bar.point.index === index
+    })[0]
   }
 
   show() {

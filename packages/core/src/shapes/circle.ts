@@ -28,25 +28,73 @@ class Circle extends zrender.Ellipse implements IShape {
     const box = g.getBoundingRect([this])
     const cy = box.y + box.height / 2
 
-    const t = { x: box.x + box.width / 2, y: box.y, index: 1, node: this, direct: 'top' }
-    const r = { x: box.x + box.width, y: box.y + box.height / 2, index: 2, node: this, direct: 'right' }
-    const b = { x: box.x + box.width / 2, y: box.y + box.height, index: 3, node: this, direct: 'bottom' }
-    const l = { x: box.x, y: box.y + box.height / 2, index: 4, node: this, direct: 'left' }
+    const t = {
+      x: box.x + box.width / 2,
+      y: box.y,
+      index: 1,
+      node: this,
+      direct: 'top'
+    }
+    const r = {
+      x: box.x + box.width,
+      y: box.y + box.height / 2,
+      index: 2,
+      node: this,
+      direct: 'right'
+    }
+    const b = {
+      x: box.x + box.width / 2,
+      y: box.y + box.height,
+      index: 3,
+      node: this,
+      direct: 'bottom'
+    }
+    const l = {
+      x: box.x,
+      y: box.y + box.height / 2,
+      index: 4,
+      node: this,
+      direct: 'left'
+    }
     this.anchors.push(t, r, b, l)
 
     const point = this.getPoint(box.width / 4, box)
 
-    const p1 = { x: box.x + box.width * 3 / 4, y: cy + point - 2, index: 5, node: this, direct: 'right' }
-    const p2 = { x: box.x + box.width * 3 / 4, y: cy - point + 2, index: 6, node: this, direct: 'right' }
-    const p3 = { x: box.x + box.width / 4, y: cy + point - 2, index: 7, node: this, direct: 'left' }
-    const p4 = { x: box.x + box.width / 4, y: cy - point + 2, index: 8, node: this, direct: 'left' }
+    const p1 = {
+      x: box.x + (box.width * 3) / 4,
+      y: cy + point - 2,
+      index: 5,
+      node: this,
+      direct: 'right'
+    }
+    const p2 = {
+      x: box.x + (box.width * 3) / 4,
+      y: cy - point + 2,
+      index: 6,
+      node: this,
+      direct: 'right'
+    }
+    const p3 = {
+      x: box.x + box.width / 4,
+      y: cy + point - 2,
+      index: 7,
+      node: this,
+      direct: 'left'
+    }
+    const p4 = {
+      x: box.x + box.width / 4,
+      y: cy - point + 2,
+      index: 8,
+      node: this,
+      direct: 'left'
+    }
     this.anchors.push(p1, p2, p3, p4)
   }
 
   active() {
     this.selected = true
     this.attr({
-      style:{
+      style: {
         shadowColor: 'yellow',
         shadowBlur: 3
       }
@@ -57,7 +105,7 @@ class Circle extends zrender.Ellipse implements IShape {
   unActive() {
     this.selected = false
     this.attr({
-      style:{
+      style: {
         shadowColor: '',
         shadowBlur: 0
       }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { IocEditor } from '@ioceditor/core';
+import type { IocEditor } from '@ioceditor/core'
 
 const props = defineProps<{
   iocEditor?: IocEditor
@@ -14,7 +14,7 @@ const drop = (event: DragEvent) => {
   const { nodeType } = JSON.parse(data)
 
   if (props.iocEditor) {
-    props.iocEditor.addShape(nodeType, {x: offsetX, y: offsetY})
+    props.iocEditor.addShape(nodeType, { x: offsetX, y: offsetY })
   }
 }
 
@@ -41,7 +41,8 @@ const dragOver = (event: DragEvent) => {
   #ioc-editor {
     background-color: rgba(255, 255, 255, 0);
   }
-  #ioc-editor,#ioc-editor-grid {
+  #ioc-editor,
+  #ioc-editor-grid {
     width: 100%;
     height: 100%;
     position: absolute;

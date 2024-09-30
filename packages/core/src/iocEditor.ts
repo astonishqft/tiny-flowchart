@@ -1,4 +1,3 @@
-
 import * as zrender from 'zrender'
 import { Disposable } from './disposable'
 import { SceneManage } from './sceneManage'
@@ -27,7 +26,14 @@ import type { IViewPortManage } from './viewPortManage'
 import type { IStorageManage } from './storageManage'
 import type { ISelectFrameManage } from './selectFrameManage'
 import type { IIocEditorConfig, ISettingManage } from './settingManage'
-import { type IShape, type IExportShape, type IExportConnection, type IConnection, type IAnchorPoint, ConnectionType } from './shapes'
+import {
+  type IShape,
+  type IExportShape,
+  type IExportConnection,
+  type IConnection,
+  type IAnchorPoint,
+  ConnectionType
+} from './shapes'
 import type { INodeGroup } from './shapes/nodeGroup'
 
 export class IocEditor {
@@ -69,7 +75,7 @@ export class IocEditor {
     this._sceneMgr.init(this._zr)
   }
 
-  addShape(type: string, options: { x: number, y: number }) {
+  addShape(type: string, options: { x: number; y: number }) {
     const shape = this._sceneMgr.addShape(type, options)
 
     return shape
@@ -78,7 +84,7 @@ export class IocEditor {
   getNodeById(id: number) {
     const nodes = this._storageMgr.getNodes()
 
-    return nodes.filter(n=> n.id === id)[0]
+    return nodes.filter(n => n.id === id)[0]
   }
 
   getPointByIndex(node: IShape | INodeGroup, index: number): IAnchorPoint | undefined {
@@ -96,10 +102,10 @@ export class IocEditor {
     const { shapes = [], connections = [], groups = [] } = data
 
     shapes.forEach(({ type, id, x, y, style, textStyle, textConfig }: IExportShape) => {
-      const newShape = this._shapeMgr.createShape(type, { x, y });
-      (newShape as unknown as zrender.Displayable).setStyle({ ...style });
-      (newShape as unknown as zrender.Displayable).getTextContent().setStyle(textStyle);
-      (newShape as unknown as zrender.Displayable).setTextConfig(textConfig)
+      const newShape = this._shapeMgr.createShape(type, { x, y })
+      ;(newShape as unknown as zrender.Displayable).setStyle({ ...style })
+      ;(newShape as unknown as zrender.Displayable).getTextContent().setStyle(textStyle)
+      ;(newShape as unknown as zrender.Displayable).setTextConfig(textConfig)
       newShape.id = id
     })
 
@@ -118,7 +124,12 @@ export class IocEditor {
       connection.setTextPosition(conn.textPosition)
       connection.setTextStyle(conn.textStyle)
       if (conn.type === ConnectionType.BezierCurve) {
-        connection.setBezierCurve(fromPoint.point, toPoint.point, conn.controlPoint1!, conn.controlPoint2!)
+        connection.setBezierCurve(
+          fromPoint.point,
+          toPoint.point,
+          conn.controlPoint1!,
+          conn.controlPoint2!
+        )
       }
     })
   }
@@ -126,7 +137,9 @@ export class IocEditor {
   exportFile() {
     const shapes = this._storageMgr.getShapes().map((shape: IShape) => shape.getExportData!())
 
-    const connections = this._storageMgr.getConnections().map((connection: IConnection) => connection.getExportData!())
+    const connections = this._storageMgr
+      .getConnections()
+      .map((connection: IConnection) => connection.getExportData!())
     const groups = this._storageMgr.getGroups().map((group: INodeGroup) => group.getExportData!())
 
     const data = {
@@ -157,7 +170,7 @@ export class IocEditor {
           if (flowData) {
             this.initFlowChart(JSON.parse(flowData))
           }
-        } catch(e) {
+        } catch (e) {
           console.log('导入的JSON数据解析出错!', e)
         }
       })

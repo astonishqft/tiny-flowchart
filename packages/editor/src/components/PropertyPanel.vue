@@ -41,14 +41,12 @@ if (props.iocEditor) {
   })
 }
 
-
 const selectNameMap: Record<string, string> = {
   scene: '画布属性',
   shape: '节点属性',
   connection: '连线属性',
   group: '群组属性'
 }
-
 </script>
 
 <template>

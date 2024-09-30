@@ -101,7 +101,7 @@ const changeLineType = (value: ConnectionType) => {
 }
 
 const command = (name: string) => {
-  switch(name) {
+  switch (name) {
     case 'zoomIn':
       // 放大
       props.iocEditor._zoomMgr.zoomIn()

@@ -45,7 +45,12 @@ class ConnectionManage extends Disposable {
   createConnection(fromAnchorPoint: IAnchorPoint): IConnection {
     const sceneWidth = this._viewPortMgr.getSceneWidth()
     const sceneHeight = this._viewPortMgr.getSceneHeight()
-    const connection = new Connection(fromAnchorPoint.node, this._connectionType, sceneWidth, sceneHeight)
+    const connection = new Connection(
+      fromAnchorPoint.node,
+      this._connectionType,
+      sceneWidth,
+      sceneHeight
+    )
 
     connection.setFromPoint(fromAnchorPoint?.point)
 

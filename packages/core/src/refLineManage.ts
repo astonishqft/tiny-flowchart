@@ -10,18 +10,20 @@ import type { INodeGroup } from './shapes/nodeGroup'
 import type { IocEditor } from './iocEditor'
 
 export interface IRefLineManage {
-  updateRefLines(): { magneticOffsetX: number, magneticOffsetY: number }
+  updateRefLines(): { magneticOffsetX: number; magneticOffsetY: number }
   // addNode(node: IShape): void
   cacheRefLines(): void
   // removeNode(node: IShape): void
   clearRefPointAndRefLines(): void
 }
-interface IVerticalLine { // 有多个端点的垂直线
+interface IVerticalLine {
+  // 有多个端点的垂直线
   x: number
   ys: number[]
 }
 
-interface IHorizontalLine { // 有多个端点的水平线
+interface IHorizontalLine {
+  // 有多个端点的水平线
   y: number
   xs: number[]
 }
@@ -64,7 +66,7 @@ class RefLineManage {
     this._refPointSize = this._settingMgr.get('refPointSize')
     this._refLineColor = this._settingMgr.get('refLineColor')
 
-    this. _magneticSpacing = this._settingMgr.get('magneticSpacing') / this._storageMgr.getZoom()
+    this._magneticSpacing = this._settingMgr.get('magneticSpacing') / this._storageMgr.getZoom()
     this.createRefLinePool()
     this.createRefPointPool()
   }
@@ -192,7 +194,7 @@ class RefLineManage {
     this._refLines = []
   }
 
-  updateRefLines(): { magneticOffsetX: number, magneticOffsetY: number } {
+  updateRefLines(): { magneticOffsetX: number; magneticOffsetY: number } {
     this._toDrawVLines = []
     this._toDrawHLines = []
     this.clearRefPointAndRefLines()
@@ -334,7 +336,7 @@ class RefLineManage {
     }
 
     const pointsSet = new Set()
-    for(const { x, ys = [] } of this._toDrawVLines) {
+    for (const { x, ys = [] } of this._toDrawVLines) {
       let minY = Infinity
       let maxY = -Infinity
       for (const y of ys) {
@@ -353,7 +355,7 @@ class RefLineManage {
       this._refLines.push([x, minY, x, maxY])
     }
 
-    for(const { y, xs = [] } of this._toDrawHLines) {
+    for (const { y, xs = [] } of this._toDrawHLines) {
       let minX = Infinity
       let maxX = -Infinity
       for (const x of xs) {

@@ -46,7 +46,7 @@ class PointsPool {
   }
 
   initPool() {
-    for(let i = 0; i < this._size; i ++) {
+    for (let i = 0; i < this._size; i++) {
       this._points.push(this.createPoint())
     }
   }
@@ -67,7 +67,7 @@ class PointsPool {
     } else if (size < this._size) {
       const newPoints = this._points.splice(0, size)
 
-      for (let i = 0; i < (this._size - size); i++) {
+      for (let i = 0; i < this._size - size; i++) {
         this._layer.remove(this._points[i])
       }
       this._points = newPoints
@@ -119,8 +119,8 @@ class GridManage extends Disposable {
   }
 
   /**
-  * 找出离 value 最近的 segment 的倍数值
-  */
+   * 找出离 value 最近的 segment 的倍数值
+   */
   getClosestVal(value: number, segment: number) {
     const n = Math.floor(value / segment)
     const left = segment * n
@@ -144,7 +144,10 @@ class GridManage extends Disposable {
     let startX = this.getClosestVal(-this._gridLayer!.x / zoom, this._gridStep)
     const endX = this.getClosestVal(-this._gridLayer!.x / zoom + this._width / zoom, this._gridStep)
     let startY = this.getClosestVal(-this._gridLayer!.y / zoom, this._gridStep)
-    const endY = this.getClosestVal(-this._gridLayer!.y / zoom + this._height / zoom, this._gridStep)
+    const endY = this.getClosestVal(
+      -this._gridLayer!.y / zoom + this._height / zoom,
+      this._gridStep
+    )
     this._xPoints = []
     this._yPoints = []
 
@@ -161,10 +164,10 @@ class GridManage extends Disposable {
     this._pointsPool?.resizePool(this._yPoints.length * this._xPoints.length)
 
     let index = 0
-    for (let i = 0; i < this._yPoints.length; i ++) {
-      for(let j = 0; j < this._xPoints.length; j ++) {
+    for (let i = 0; i < this._yPoints.length; i++) {
+      for (let j = 0; j < this._xPoints.length; j++) {
         this._pointsPool?.updatePosition(index, this._xPoints[j], this._yPoints[i])
-        index ++
+        index++
       }
     }
   }

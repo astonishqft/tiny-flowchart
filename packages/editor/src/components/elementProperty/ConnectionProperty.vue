@@ -4,7 +4,7 @@ import { ElSelect, ElOption, ElInputNumber, ElDivider, ElColorPicker, ElInput } 
 import { ConnectionType } from '@ioceditor/core'
 import { convertStrokeTypeToLineDash, convertLineDashToStrokeType } from '../../utils/utils'
 
-import type {  IConnection, FontWeight, FontStyle, IocEditor } from '@ioceditor/core'
+import type { IConnection, FontWeight, FontStyle, IocEditor } from '@ioceditor/core'
 
 const { iocEditor } = defineProps<{
   iocEditor: IocEditor

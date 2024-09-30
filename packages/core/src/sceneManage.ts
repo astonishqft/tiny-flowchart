@@ -17,7 +17,7 @@ export interface ISceneManage extends IDisposable {
   _zr: zrender.ZRenderType | null
   updateSelectScene$: Observable<null>
   init(zr: zrender.ZRenderType): void
-  addShape(type: string, options: { x: number, y: number }): IShape
+  addShape(type: string, options: { x: number; y: number }): IShape
   clear(): void
 }
 
@@ -45,7 +45,7 @@ class SceneManage extends Disposable {
     this._disposables.push(this.updateSelectScene$)
   }
 
-  addShape(type: string, options: { x: number, y: number }) {
+  addShape(type: string, options: { x: number; y: number }) {
     return this._shapeMgr.createShape(type, options)
   }
 
@@ -96,7 +96,10 @@ class SceneManage extends Disposable {
       zoom = this._storageMgr.getZoom()
       selectFrameStatus = this._selectFrameMgr.getSelectFrameStatus() // 是否是选中框
       if (selectFrameStatus) {
-        this._selectFrameMgr.setPosition((startX - oldViewPortX) / zoom, (startY - oldViewPortY) / zoom)
+        this._selectFrameMgr.setPosition(
+          (startX - oldViewPortX) / zoom,
+          (startY - oldViewPortY) / zoom
+        )
         this._selectFrameMgr.resize(0, 0)
         this._selectFrameMgr.show()
       }
@@ -104,7 +107,7 @@ class SceneManage extends Disposable {
       // 选中锚点
       if (e.target && (e.target as IAnchorPoint).mark === 'anch') {
         dragModel = 'anchor'
-        connection = this._connectionMgr.createConnection((e.target as IAnchorPoint))
+        connection = this._connectionMgr.createConnection(e.target as IAnchorPoint)
       }
 
       if (e.target && (e.target as IControlPoint).mark === 'controlPoint') {
@@ -121,7 +124,7 @@ class SceneManage extends Disposable {
       }
     })
 
-    this._zr?.on('mousemove', (e) => {
+    this._zr?.on('mousemove', e => {
       offsetX = e.offsetX - startX
       offsetY = e.offsetY - startY
 
@@ -131,7 +134,8 @@ class SceneManage extends Disposable {
       }
 
       // 拖拽画布(利用的原理是改变Group的 position 坐标)
-      if (drag && dragModel === 'scene' && !selectFrameStatus) { // TODO: 排除没有点击到节点的情况，后续需要继续排除点击到连线等情况
+      if (drag && dragModel === 'scene' && !selectFrameStatus) {
+        // TODO: 排除没有点击到节点的情况，后续需要继续排除点击到连线等情况
         this.setCursorStyle('grabbing')
         this._viewPortMgr.setPosition(oldViewPortX + offsetX, oldViewPortY + offsetY)
         this._gridMgr.setPosition(oldViewPortX + offsetX, oldViewPortY + offsetY)
@@ -144,10 +148,16 @@ class SceneManage extends Disposable {
       }
     })
 
-    this._zr?.on('mouseup', (e) => {
+    this._zr?.on('mouseup', e => {
       drag = false
 
-      if (e.target && (e.target as IAnchorPoint).mark === 'anch' && connection && ((e.target as IAnchorPoint).node !== connection.fromNode)) { // 禁止和自身相连
+      if (
+        e.target &&
+        (e.target as IAnchorPoint).mark === 'anch' &&
+        connection &&
+        (e.target as IAnchorPoint).node !== connection.fromNode
+      ) {
+        // 禁止和自身相连
         // 创建连线
         this._connectionMgr.connect(connection, e.target as IAnchorPoint)
       }

@@ -1,4 +1,3 @@
-
 import * as zrender from 'zrender'
 import { getShape } from './shapes'
 import { Anchor } from './anchor'
@@ -18,7 +17,7 @@ import type { IocEditor } from './iocEditor'
 
 export interface IShapeManage extends IDisposable {
   updateSelectShape$: Observable<IShape>
-  createShape(type: string, options: { x: number, y: number }): IShape
+  createShape(type: string, options: { x: number; y: number }): IShape
   clear(): void
   unActive(): void
 }
@@ -41,12 +40,15 @@ class ShapeManage extends Disposable {
     this._disposables.push(this.updateSelectShape$)
   }
 
-  createShape(type: string, { x, y }: { x: number, y: number }): IShape {
+  createShape(type: string, { x, y }: { x: number; y: number }): IShape {
     const viewPortX = this._viewPortMgr.getPositionX()
     const viewPortY = this._viewPortMgr.getPositionY()
     const zoom = this._storageMgr.getZoom()
 
-    const shape = getShape(type, { x: (x  - viewPortX) / zoom, y: (y - viewPortY) / zoom })
+    const shape = getShape(type, {
+      x: (x - viewPortX) / zoom,
+      y: (y - viewPortY) / zoom
+    })
 
     const anchor = new Anchor(shape)
     shape.anchor = anchor
@@ -103,7 +105,10 @@ class ShapeManage extends Disposable {
     console.log('isDragEnter', isDragEnter)
     if (isDragEnter) {
       targetGroup.setAlertStyle()
-      this._storageMgr.getGroups().filter(g => g.id !== targetGroup.id).forEach(g => g.setCommonStyle())
+      this._storageMgr
+        .getGroups()
+        .filter(g => g.id !== targetGroup.id)
+        .forEach(g => g.setCommonStyle())
     } else {
       this._storageMgr.getGroups().forEach(g => g.setCommonStyle())
     }
@@ -147,10 +152,15 @@ class ShapeManage extends Disposable {
 
         if (this._storageMgr.getGroups().length !== 0) {
           if (shape.parentGroup) {
-            isDragLeave = isLeave(this._dragFrameMgr.getBoundingBox(), shape.parentGroup!.getBoundingBox())
+            isDragLeave = isLeave(
+              this._dragFrameMgr.getBoundingBox(),
+              shape.parentGroup!.getBoundingBox()
+            )
             this.dragLeave(isDragLeave, shape)
           } else {
-            dragEnterGroups = this._storageMgr.getGroups().filter((g) => isEnter(this._dragFrameMgr.getBoundingBox(), g.getBoundingBox()))
+            dragEnterGroups = this._storageMgr
+              .getGroups()
+              .filter(g => isEnter(this._dragFrameMgr.getBoundingBox(), g.getBoundingBox()))
 
             if (dragEnterGroups.length !== 0) {
               isDragEnter = true
@@ -187,7 +197,7 @@ class ShapeManage extends Disposable {
         isDragLeave = false
       }
       if (isDragEnter) {
-        (shape as unknown as zrender.Displayable).attr('z', (getTopGroup(dragEnterGroups).z + 1))
+        ;(shape as unknown as zrender.Displayable).attr('z', getTopGroup(dragEnterGroups).z + 1)
         this.addShapeToGroup(shape, getTopGroup(dragEnterGroups))
         isDragEnter = false
       }
@@ -204,15 +214,15 @@ class ShapeManage extends Disposable {
     })
 
     shape.on('mousemove', () => {
-      shape.anchor?.show();
-      (shape as unknown as zrender.Displayable).attr('cursor', 'move')
+      shape.anchor?.show()
+      ;(shape as unknown as zrender.Displayable).attr('cursor', 'move')
     })
 
     shape.on('mouseout', () => {
       shape.anchor?.hide()
     })
 
-    shape.on('mousedown', (e) => {
+    shape.on('mousedown', e => {
       startX = e.offsetX
       startY = e.offsetY
       shape.oldX = shape.x

@@ -48,12 +48,17 @@ class GroupManage extends Disposable {
   }
 
   createGroup() {
-    const activeShapes = [...this._storageMgr.getActiveShapes(), ...this._storageMgr.getActiveGroups()]
+    const activeShapes = [
+      ...this._storageMgr.getActiveShapes(),
+      ...this._storageMgr.getActiveGroups()
+    ]
     if (activeShapes.length < 2) {
       return
     }
 
-    activeShapes.forEach(shape => { shape.unActive() })
+    activeShapes.forEach(shape => {
+      shape.unActive()
+    })
 
     const minPostion = getMinPosition(activeShapes)
 
@@ -93,7 +98,9 @@ class GroupManage extends Disposable {
         if (activeGroup.parentGroup) {
           shape.parentGroup = activeGroup.parentGroup
           activeGroup.parentGroup.shapes.push(shape)
-          activeGroup.parentGroup.shapes = activeGroup.parentGroup.shapes.filter(item => item !== activeGroup)
+          activeGroup.parentGroup.shapes = activeGroup.parentGroup.shapes.filter(
+            item => item !== activeGroup
+          )
         }
       })
       this.removeAssociatedConnection(activeGroup)
@@ -122,7 +129,10 @@ class GroupManage extends Disposable {
     console.log('groupNode dragEnter', isDragEnter)
     if (isDragEnter) {
       targetGroup.setAlertStyle()
-      this._storageMgr.getGroups().filter(g => g.id !== targetGroup.id).forEach(g => g.setCommonStyle())
+      this._storageMgr
+        .getGroups()
+        .filter(g => g.id !== targetGroup.id)
+        .forEach(g => g.setCommonStyle())
     } else {
       this._storageMgr.getGroups().forEach(g => g.setCommonStyle())
     }
@@ -163,11 +173,17 @@ class GroupManage extends Disposable {
       if (Math.abs(offsetX / zoom) > 2 || Math.abs(offsetY / zoom) > 2) {
         this._dragFrameMgr.updatePosition(nodeGroup.x + stepX / zoom, nodeGroup.y + stepY / zoom)
         if (nodeGroup.parentGroup) {
-          isDragLeave = isLeave(this._dragFrameMgr.getBoundingBox(), nodeGroup.parentGroup!.getBoundingBox())
+          isDragLeave = isLeave(
+            this._dragFrameMgr.getBoundingBox(),
+            nodeGroup.parentGroup!.getBoundingBox()
+          )
           this.dragLeave(isDragLeave, nodeGroup)
         } else {
           // 需要把自身排除在外
-          dragEnterGroups = this._storageMgr.getGroups().filter(g => g.id !== nodeGroup.id).filter((g) => isEnter(this._dragFrameMgr.getBoundingBox(), g.getBoundingBox()))
+          dragEnterGroups = this._storageMgr
+            .getGroups()
+            .filter(g => g.id !== nodeGroup.id)
+            .filter(g => isEnter(this._dragFrameMgr.getBoundingBox(), g.getBoundingBox()))
 
           if (dragEnterGroups.length !== 0) {
             isDragEnter = true
@@ -191,11 +207,19 @@ class GroupManage extends Disposable {
       magneticOffsetX = 0
       magneticOffsetY = 0
 
-      this.updateGroupShapes(nodeGroup, e.offsetX, e.offsetY, startX, startY, zoom, magneticOffsetX, magneticOffsetY)
+      this.updateGroupShapes(
+        nodeGroup,
+        e.offsetX,
+        e.offsetY,
+        startX,
+        startY,
+        zoom,
+        magneticOffsetX,
+        magneticOffsetY
+      )
 
       document.removeEventListener('mousemove', mouseMove)
       document.removeEventListener('mouseup', mouseUp)
-
 
       if (isDragLeave) {
         this.removeShapeFromGroup(nodeGroup)
@@ -219,15 +243,15 @@ class GroupManage extends Disposable {
     })
 
     nodeGroup.on('mousemove', () => {
-      nodeGroup.anchor?.show();
-      (nodeGroup as unknown as zrender.Displayable).attr('cursor', 'move')
+      nodeGroup.anchor?.show()
+      ;(nodeGroup as unknown as zrender.Displayable).attr('cursor', 'move')
     })
 
     nodeGroup.on('mouseout', () => {
       nodeGroup.anchor?.hide()
     })
 
-    nodeGroup.on('mousedown', (e) => {
+    nodeGroup.on('mousedown', e => {
       console.log('nodeGroup mousedown', nodeGroup)
       startX = e.offsetX
       startY = e.offsetY
@@ -246,23 +270,41 @@ class GroupManage extends Disposable {
   }
 
   unActive() {
-    this._storageMgr.getGroups().forEach((group) => {
+    this._storageMgr.getGroups().forEach(group => {
       group.unActive()
     })
   }
 
-  updateGroupShapes(nodeGroup: INodeGroup, offsetX: number, offsetY: number, startX: number, startY: number, zoom: number, magneticOffsetX: number, magneticOffsetY: number) {
+  updateGroupShapes(
+    nodeGroup: INodeGroup,
+    offsetX: number,
+    offsetY: number,
+    startX: number,
+    startY: number,
+    zoom: number,
+    magneticOffsetX: number,
+    magneticOffsetY: number
+  ) {
     nodeGroup.attr('x', nodeGroup.oldX! + (offsetX - startX) / zoom + magneticOffsetX / zoom)
     nodeGroup.attr('y', nodeGroup.oldY! + (offsetY - startY) / zoom + magneticOffsetY / zoom)
     this._connectionMgr.refreshConnection(nodeGroup)
     nodeGroup.shapes.forEach((shape: IShape | INodeGroup) => {
-      (shape as IShape).attr('x', shape.oldX! + (offsetX - startX) / zoom + magneticOffsetX / zoom);
-      (shape as IShape).attr('y', shape.oldY! + (offsetY - startY) / zoom + magneticOffsetY / zoom)
+      ;(shape as IShape).attr('x', shape.oldX! + (offsetX - startX) / zoom + magneticOffsetX / zoom)
+      ;(shape as IShape).attr('y', shape.oldY! + (offsetY - startY) / zoom + magneticOffsetY / zoom)
       shape.createAnchors()
       shape.anchor!.refresh()
       this._connectionMgr.refreshConnection(shape)
       if (shape.nodeType === 'nodeGroup') {
-        this.updateGroupShapes(shape as NodeGroup, offsetX, offsetY, startX, startY, zoom, magneticOffsetX, magneticOffsetY)
+        this.updateGroupShapes(
+          shape as NodeGroup,
+          offsetX,
+          offsetY,
+          startX,
+          startY,
+          zoom,
+          magneticOffsetX,
+          magneticOffsetY
+        )
       }
     })
   }

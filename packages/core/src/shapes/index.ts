@@ -19,11 +19,11 @@ export interface IExportConnection {
   toNode: number
   textStyle: zrender.TextStyleProps | undefined
   lineStyle: Dictionary<any>
-  textPosition: number[],
-  controlPoint1?: (number | undefined)[],
-  controlPoint2?: (number | undefined)[],
-  controlLine1?: (number | undefined) [],
-  controlLine2?: (number | undefined) []
+  textPosition: number[]
+  controlPoint1?: (number | undefined)[]
+  controlPoint2?: (number | undefined)[]
+  controlLine1?: (number | undefined)[]
+  controlLine2?: (number | undefined)[]
 }
 
 export interface IExportData {
@@ -43,7 +43,7 @@ export interface IExportShape {
 }
 
 export interface IExportGroup {
-  shapes: (IShape | INodeGroup)[],
+  shapes: (IShape | INodeGroup)[]
   groupHead: any
   groupRect: any
 }
@@ -60,7 +60,7 @@ export interface IConnection extends zrender.Group {
   setToPoint(point: IAnchor): void
   refresh(): void
   active(): void
-  unActive(): void;
+  unActive(): void
   setLineWidth(lineWidth: number): void
   getLineWidth(): number | undefined
   setLineColor(color: string): void
@@ -86,7 +86,12 @@ export interface IConnection extends zrender.Group {
   setLineStyle(style: Dictionary<any>): void
   setTextPosition(position: number[]): void
   setConnectionType(type: ConnectionType): void
-  setBezierCurve(fromPoint: IAnchor, toPoint: IAnchor, controlPoint1: (number | undefined)[], controlPoint2: (number | undefined)[]): void
+  setBezierCurve(
+    fromPoint: IAnchor,
+    toPoint: IAnchor,
+    controlPoint1: (number | undefined)[],
+    controlPoint2: (number | undefined)[]
+  ): void
   getExportData?(): IExportConnection
 }
 
@@ -190,7 +195,6 @@ const getShapeTextConfig = (): IShapeTextConfig => {
         fill: '#333',
         fontSize: 12,
         fontFamily: 'Arial'
-
       },
       z: 11,
       cursor: 'move'
@@ -206,7 +210,7 @@ export const shapes: IShapeMap = {
   circle: Circle
 }
 
-export const getShape = (type: string, option: { x: number, y: number }) => {
+export const getShape = (type: string, option: { x: number; y: number }) => {
   const config = { ...shapeConfig[type], ...getShapeTextConfig() }
 
   const shape = new shapes[type](config)

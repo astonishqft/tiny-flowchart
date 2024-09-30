@@ -15,7 +15,7 @@ export interface IIocEditorConfig {
 }
 
 export interface ISettingManage extends IDisposable {
-  setDefaultConfig(config: Partial<IIocEditorConfig>): void;
+  setDefaultConfig(config: Partial<IIocEditorConfig>): void
   updatedSetting$: Observable<Partial<IIocEditorConfig>>
   set<K extends keyof IIocEditorConfig>(key: K, value: IIocEditorConfig[K]): void
   get<K extends keyof IIocEditorConfig>(key: K): IIocEditorConfig[K]
@@ -40,12 +40,12 @@ class SettingManage extends Disposable {
   }
 
   setDefaultConfig(config: Partial<IIocEditorConfig>) {
-    this.config = {...this.config, ...config }
+    this.config = { ...this.config, ...config }
   }
 
   set<K extends keyof IIocEditorConfig>(key: K, value: IIocEditorConfig[K]) {
     this.config[key] = value
-    this.updatedSetting$.next({[key]: value})
+    this.updatedSetting$.next({ [key]: value })
   }
 
   get<K extends keyof IIocEditorConfig>(key: K) {

@@ -2,7 +2,7 @@ import { Rectangle, type Rect, makePt, IPoint, BasicCardinalPoint } from './help
 import { PointGraph } from './helpers/PointGraph'
 import Grid from './Grid'
 
-type BendDirection = BasicCardinalPoint | 'unknown' | 'none';
+type BendDirection = BasicCardinalPoint | 'unknown' | 'none'
 
 interface ConnectorPoint {
   x: number // 锚点横坐标
@@ -12,8 +12,8 @@ interface ConnectorPoint {
 }
 
 export interface Line {
-  a: IPoint;
-  b: IPoint;
+  a: IPoint
+  b: IPoint
 }
 
 export interface IConnectotOpts {
@@ -61,7 +61,7 @@ function reducePoints(points: IPoint[]): IPoint[] {
 }
 
 function rulersToGrid(verticals: number[], horizontals: number[], bounds: Rectangle): Grid {
-  const result: Grid = new Grid
+  const result: Grid = new Grid()
   verticals.sort((a, b) => a - b)
   horizontals.sort((a, b) => a - b)
 
@@ -126,10 +126,19 @@ function gridToSpots(grid: Grid, obstacles: Rectangle[]): IPoint[] {
         gridPoints.push(r.northWest, r.west, r.southWest) // 边缘网格
       } else if (lastCol) {
         gridPoints.push(r.northEast, r.east, r.southEast) // 边缘网格
-      } else { // 剩下来的网格都默认为内部网格，将其八个点都添加进来
+      } else {
+        // 剩下来的网格都默认为内部网格，将其八个点都添加进来
         gridPoints.push(
-          r.northWest, r.north, r.northEast, r.east,
-          r.southEast, r.south, r.southWest, r.west, r.center)
+          r.northWest,
+          r.north,
+          r.northEast,
+          r.east,
+          r.southEast,
+          r.south,
+          r.southWest,
+          r.west,
+          r.center
+        )
       }
     }
   }
@@ -138,7 +147,10 @@ function gridToSpots(grid: Grid, obstacles: Rectangle[]): IPoint[] {
   return reducePoints(gridPoints).filter(p => !obstacleCollision(p)) // 过滤掉所有重复的点和两个shape有交集的点
 }
 
-function createGraph(spots: IPoint[]): { graph: PointGraph, connections: Line[] } {
+function createGraph(spots: IPoint[]): {
+  graph: PointGraph
+  connections: Line[]
+} {
   const hotXs: number[] = []
   const hotYs: number[] = []
   const graph = new PointGraph()
@@ -160,7 +172,8 @@ function createGraph(spots: IPoint[]): { graph: PointGraph, connections: Line[] 
     for (let j = 0; j < hotXs.length; j++) {
       const b = makePt(hotXs[j], hotYs[i])
       if (!inHotIndex(b)) continue
-      if (j > 0) { // 连接水平线
+      if (j > 0) {
+        // 连接水平线
         const a = makePt(hotXs[j - 1], hotYs[i])
         if (inHotIndex(a)) {
           graph.connect(a, b)
@@ -169,7 +182,8 @@ function createGraph(spots: IPoint[]): { graph: PointGraph, connections: Line[] 
         }
       }
 
-      if (i > 0) { // 连接垂直线
+      if (i > 0) {
+        // 连接垂直线
         const a = makePt(hotXs[j], hotYs[i - 1])
         if (inHotIndex(a)) {
           graph.connect(a, b)
@@ -200,14 +214,23 @@ function shortestPath(graph: PointGraph, origin: IPoint, destination: IPoint): I
   return destinationNode.shortestPath.map(n => n.data)
 }
 
-function extrudeCp(cp: ConnectorPoint, shapeHorizontalMargin: number, shapeVerticalMargin: number): IPoint {
+function extrudeCp(
+  cp: ConnectorPoint,
+  shapeHorizontalMargin: number,
+  shapeVerticalMargin: number
+): IPoint {
   const { x, y, boundingBox } = cp
   switch (cp.direction) {
-    case 'top': return makePt(x, boundingBox.y - shapeVerticalMargin)
-    case 'right': return makePt(boundingBox.x + boundingBox.width + shapeHorizontalMargin, y)
-    case 'bottom': return makePt(x, boundingBox.y + boundingBox.height + shapeVerticalMargin)
-    case 'left': return makePt(boundingBox.x - shapeHorizontalMargin, y)
-    default: return makePt(x, y)
+    case 'top':
+      return makePt(x, boundingBox.y - shapeVerticalMargin)
+    case 'right':
+      return makePt(boundingBox.x + boundingBox.width + shapeHorizontalMargin, y)
+    case 'bottom':
+      return makePt(x, boundingBox.y + boundingBox.height + shapeVerticalMargin)
+    case 'left':
+      return makePt(boundingBox.x - shapeHorizontalMargin, y)
+    default:
+      return makePt(x, y)
   }
 }
 
@@ -223,16 +246,12 @@ function getBend(a: IPoint, b: IPoint, c: IPoint): BendDirection {
     return 'none'
   }
 
-  if (
-    !(segment1Vertical || segment1Horizontal) ||
-    !(segment2Vertical || segment2Horizontal)
-  ) {
+  if (!(segment1Vertical || segment1Horizontal) || !(segment2Vertical || segment2Horizontal)) {
     return 'unknown'
   }
 
   if (segment1Horizontal && segment2Vertical) {
     return c.y > b.y ? 's' : 'n'
-
   } else if (segment1Vertical && segment2Horizontal) {
     return c.x > b.x ? 'e' : 'w'
   }
@@ -249,7 +268,7 @@ function simplifyPath(points: IPoint[]): IPoint[] {
   for (let i = 1; i < points.length; i++) {
     const cur = points[i]
 
-    if (i === (points.length - 1)) {
+    if (i === points.length - 1) {
       r.push(cur)
       break
     }
@@ -313,16 +332,28 @@ class OrthogonalConnector {
     for (const anchor of [shapeA, shapeB]) {
       switch (anchor.direction) {
         case 'top':
-          spots.push({ x: anchor.x, y: anchor.boundingBox.y - shapeVerticalMargin })
+          spots.push({
+            x: anchor.x,
+            y: anchor.boundingBox.y - shapeVerticalMargin
+          })
           break
         case 'bottom':
-          spots.push({ x: anchor.x, y: anchor.boundingBox.y + anchor.boundingBox.height + shapeVerticalMargin })
+          spots.push({
+            x: anchor.x,
+            y: anchor.boundingBox.y + anchor.boundingBox.height + shapeVerticalMargin
+          })
           break
         case 'left':
-          spots.push({ x: anchor.boundingBox.x - shapeHorizontalMargin, y: anchor.y })
+          spots.push({
+            x: anchor.boundingBox.x - shapeHorizontalMargin,
+            y: anchor.y
+          })
           break
         case 'right':
-          spots.push({ x: anchor.boundingBox.x + anchor.boundingBox.width + shapeHorizontalMargin, y: anchor.y })
+          spots.push({
+            x: anchor.boundingBox.x + anchor.boundingBox.width + shapeHorizontalMargin,
+            y: anchor.y
+          })
           break
         default:
           break
@@ -334,7 +365,9 @@ class OrthogonalConnector {
     horizontals.sort((a, b) => a - b)
 
     // 第二步：创建网格层
-    const inflatedBoundBox = inflatedA.union(inflatedB).inflate(globalBoundsMargin, globalBoundsMargin)
+    const inflatedBoundBox = inflatedA
+      .union(inflatedB)
+      .inflate(globalBoundsMargin, globalBoundsMargin)
     const shapeGlobalBoundBox: Rectangle = Rectangle.fromRect(globalBounds)
 
     const bounds = Rectangle.fromLTRB(

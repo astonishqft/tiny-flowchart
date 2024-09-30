@@ -2,7 +2,7 @@ import { Subject } from 'rxjs'
 
 export interface IDisposable {
   _disposables: Subject<any>[]
-  dispose(): void;
+  dispose(): void
 }
 
 class Disposable implements IDisposable {

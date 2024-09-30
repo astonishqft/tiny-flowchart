@@ -24,7 +24,12 @@ class Connection extends zrender.Group implements IConnection {
   toNode: IShape | INodeGroup | null = null
   fromPoint: IAnchor | null = null
   toPoint: IAnchor | null = null
-  constructor(fromNode: IShape | INodeGroup, type: ConnectionType, sceneWidth: number, sceneHeight: number) {
+  constructor(
+    fromNode: IShape | INodeGroup,
+    type: ConnectionType,
+    sceneWidth: number,
+    sceneHeight: number
+  ) {
     super()
     this._sceneWidth = sceneWidth
     this._sceneHeight = sceneHeight
@@ -167,12 +172,17 @@ class Connection extends zrender.Group implements IConnection {
       shapeHorizontalMargin: 10,
       shapeVerticalMargin: 10,
       globalBoundsMargin: 10,
-      globalBounds: { x: 0, y: 0, width: this._sceneWidth, height: this._sceneHeight }
+      globalBounds: {
+        x: 0,
+        y: 0,
+        width: this._sceneWidth,
+        height: this._sceneHeight
+      }
     })
 
     this._ortogonalLinePoints = []
 
-    paths.forEach((p: { x: number, y: number }) => {
+    paths.forEach((p: { x: number; y: number }) => {
       this._ortogonalLinePoints.push([p.x, p.y])
     })
   }
@@ -270,7 +280,11 @@ class Connection extends zrender.Group implements IConnection {
         this.add(this._controlLine2)
 
         this._controlPoint1.on('drag', (e: zrender.ElementEvent) => {
-          const { x, y, shape: { cx, cy } } = e.target as zrender.Circle
+          const {
+            x,
+            y,
+            shape: { cx, cy }
+          } = e.target as zrender.Circle
 
           this._controlLine1?.attr({
             shape: {
@@ -278,15 +292,20 @@ class Connection extends zrender.Group implements IConnection {
               y2: y + cy
             }
           })
-          this._line && (this._line as zrender.BezierCurve).setShape({
-            cpx1: x + cx,
-            cpy1: y + cy
-          })
+          this._line &&
+            (this._line as zrender.BezierCurve).setShape({
+              cpx1: x + cx,
+              cpy1: y + cy
+            })
           this.renderText()
         })
 
         this._controlPoint2.on('drag', (e: zrender.ElementEvent) => {
-          const { x, y, shape: { cx, cy } } = e.target as zrender.Circle
+          const {
+            x,
+            y,
+            shape: { cx, cy }
+          } = e.target as zrender.Circle
 
           this._controlLine2?.attr({
             shape: {
@@ -295,10 +314,11 @@ class Connection extends zrender.Group implements IConnection {
             }
           })
 
-          this._line && (this._line as zrender.BezierCurve).setShape({
-            cpx2: x + cx,
-            cpy2: y + cy
-          })
+          this._line &&
+            (this._line as zrender.BezierCurve).setShape({
+              cpx2: x + cx,
+              cpy2: y + cy
+            })
 
           this.renderArrow([x + cx, y + cy])
           this.renderText()
@@ -327,7 +347,7 @@ class Connection extends zrender.Group implements IConnection {
   refresh() {
     switch (this._connectionType) {
       case ConnectionType.Line:
-        (this._line as zrender.Line).attr({
+        ;(this._line as zrender.Line).attr({
           shape: {
             x1: this.fromPoint?.x,
             y1: this.fromPoint?.y,
@@ -347,8 +367,8 @@ class Connection extends zrender.Group implements IConnection {
         )
         break
       case ConnectionType.OrtogonalLine:
-        this.generateOrtogonalLinePath();
-        (this._line as zrender.Polyline).attr({
+        this.generateOrtogonalLinePath()
+        ;(this._line as zrender.Polyline).attr({
           shape: {
             points: this._ortogonalLinePoints
           }
@@ -373,8 +393,14 @@ class Connection extends zrender.Group implements IConnection {
     const p1 = [x2, y2]
 
     const angle = Math.atan2(y2 - y1, x2 - x1)
-    const p2 = [x2 - arrowLength * Math.cos(angle + offsetAngle), y2 - arrowLength * Math.sin(angle + offsetAngle)]
-    const p3 = [x2 - arrowLength * Math.cos(angle - offsetAngle), y2 - arrowLength * Math.sin(angle - offsetAngle)]
+    const p2 = [
+      x2 - arrowLength * Math.cos(angle + offsetAngle),
+      y2 - arrowLength * Math.sin(angle + offsetAngle)
+    ]
+    const p3 = [
+      x2 - arrowLength * Math.cos(angle - offsetAngle),
+      y2 - arrowLength * Math.sin(angle - offsetAngle)
+    ]
 
     this._arrow!.attr({
       shape: {
@@ -425,10 +451,10 @@ class Connection extends zrender.Group implements IConnection {
     const offsetLength = midLength - accList[index - 1]
 
     if (currentDirection === 'horizontal') {
-      const delta = (nextNode[0] - preNode[0]) > 0 ? 1 : -1
+      const delta = nextNode[0] - preNode[0] > 0 ? 1 : -1
       return [preNode[0] + offsetLength * delta, preNode[1]]
     } else {
-      const delta = (nextNode[1] - preNode[1]) > 0 ? 1 : -1
+      const delta = nextNode[1] - preNode[1] > 0 ? 1 : -1
       return [preNode[0], preNode[1] + offsetLength * delta]
     }
   }
@@ -472,7 +498,7 @@ class Connection extends zrender.Group implements IConnection {
   }
 
   getLineColor() {
-    return this._line?.style.stroke as (string | undefined)
+    return this._line?.style.stroke as string | undefined
   }
 
   setLineDash(type: number[]) {
@@ -482,7 +508,7 @@ class Connection extends zrender.Group implements IConnection {
   }
 
   getLineDash() {
-    return this._line?.style.lineDash as number[] || [0, 0]
+    return (this._line?.style.lineDash as number[]) || [0, 0]
   }
 
   getLineType() {
@@ -596,8 +622,18 @@ class Connection extends zrender.Group implements IConnection {
         ...baseData,
         controlPoint1: [this._controlPoint1?.x, this._controlPoint1?.y],
         controlPoint2: [this._controlPoint2?.x, this._controlPoint2?.y],
-        controlLine1: [this._controlLine1?.shape.x1, this._controlLine1?.shape.y1, this._controlLine1?.shape.x2, this._controlLine1?.shape.y2],
-        controlLine2: [this._controlLine2?.shape.x1, this._controlLine2?.shape.y1, this._controlLine2?.shape.x2, this._controlLine2?.shape.y2]
+        controlLine1: [
+          this._controlLine1?.shape.x1,
+          this._controlLine1?.shape.y1,
+          this._controlLine1?.shape.x2,
+          this._controlLine1?.shape.y2
+        ],
+        controlLine2: [
+          this._controlLine2?.shape.x1,
+          this._controlLine2?.shape.y1,
+          this._controlLine2?.shape.x2,
+          this._controlLine2?.shape.y2
+        ]
       }
     }
     return baseData
@@ -663,7 +699,12 @@ class Connection extends zrender.Group implements IConnection {
     })
   }
 
-  setBezierCurve(fromPoint: IAnchor, toPoint: IAnchor, controlPoint1: (number | undefined)[], controlPoint2: (number | undefined)[]) {
+  setBezierCurve(
+    fromPoint: IAnchor,
+    toPoint: IAnchor,
+    controlPoint1: (number | undefined)[],
+    controlPoint2: (number | undefined)[]
+  ) {
     const [cpx1, cpy1] = this.calcControlPoint(fromPoint)
     const [cpx2, cpy2] = this.calcControlPoint(toPoint)
 
@@ -701,9 +742,8 @@ class Connection extends zrender.Group implements IConnection {
         x2: cpx2 + controlPoint2[0]!,
         y2: cpy2 + controlPoint2[1]!
       }
-    });
-
-    (this._line as zrender.BezierCurve).attr({
+    })
+    ;(this._line as zrender.BezierCurve).attr({
       shape: {
         x1: fromPoint!.x,
         y1: fromPoint!.y,

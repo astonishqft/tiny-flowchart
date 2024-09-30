@@ -3,7 +3,14 @@ import { ref } from 'vue'
 import { ElSelect, ElOption, ElInputNumber, ElDivider, ElColorPicker, ElInput } from 'element-plus'
 import { convertLineDashToStrokeType, convertStrokeTypeToLineDash } from '../../utils/utils'
 
-import type { IShape, Displayable, BuiltinTextPosition, FontWeight, FontStyle, IocEditor } from '@ioceditor/core'
+import type {
+  IShape,
+  Displayable,
+  BuiltinTextPosition,
+  FontWeight,
+  FontStyle,
+  IocEditor
+} from '@ioceditor/core'
 
 const { iocEditor } = defineProps<{
   iocEditor: IocEditor
@@ -195,7 +202,7 @@ const changeShapeText = (text: string) => {
           @click="() => changeShapeStrokeColor(color)"
         />
         <el-divider style="margin: 0 4px; height: 20px" direction="vertical" />
-        <el-color-picker v-model="strokeColor" @change="changeShapeStrokeColor" size="small"  />
+        <el-color-picker v-model="strokeColor" @change="changeShapeStrokeColor" size="small" />
       </div>
     </div>
     <div class="property-item">
@@ -370,7 +377,6 @@ const changeShapeText = (text: string) => {
   padding: 3px;
   border: 1px solid rgb(217, 217, 217);
   border-radius: 5px;
-
 }
 .font-style-icon.active {
   background-color: #1971c2;

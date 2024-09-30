@@ -1,20 +1,20 @@
 export interface Rect {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
+  x: number
+  y: number
+  width: number
+  height: number
 }
-export type BasicCardinalPoint = 'n' | 'e' | 's' | 'w';
+export type BasicCardinalPoint = 'n' | 'e' | 's' | 'w'
 export interface IPoint {
-  x: number;
-  y: number;
+  x: number
+  y: number
 }
 export interface Size {
-  width: number;
-  height: number;
+  width: number
+  height: number
 }
 export function makePt(x: number, y: number): IPoint {
-  return {x, y}
+  return { x, y }
 }
 export function distance(a: IPoint, b: IPoint): number {
   return Math.sqrt(Math.pow(b.x - a.x, 2) + Math.pow(b.y - a.y, 2))
@@ -41,7 +41,12 @@ export class Rectangle {
   }
 
   inflate(horizontal: number, vertical: number) {
-    return Rectangle.fromLTRB(this.left - horizontal, this.top - vertical, this.right + horizontal, this.bottom + vertical)
+    return Rectangle.fromLTRB(
+      this.left - horizontal,
+      this.top - vertical,
+      this.right + horizontal,
+      this.bottom + vertical
+    )
   }
 
   intersects(rectangle: Rectangle): boolean {
@@ -53,7 +58,12 @@ export class Rectangle {
     const rectY = rectangle.top
     const rectW = rectangle.width
     const rectH = rectangle.height
-    return (rectX <= thisX + thisW) && (thisX <= (rectX + rectW)) && (rectY <= thisY + thisH) && (thisY <= rectY + rectH)
+    return (
+      rectX <= thisX + thisW &&
+      thisX <= rectX + rectW &&
+      rectY <= thisY + thisH &&
+      thisY <= rectY + rectH
+    )
   }
 
   // 判断某个点是否在矩形内
@@ -64,12 +74,7 @@ export class Rectangle {
   union(rectangle: Rectangle): Rectangle {
     const x = [this.left, this.right, rectangle.left, rectangle.right]
     const y = [this.top, this.bottom, rectangle.top, rectangle.bottom]
-    return Rectangle.fromLTRB(
-      Math.min(...x),
-      Math.min(...y),
-      Math.max(...x),
-      Math.max(...y)
-    )
+    return Rectangle.fromLTRB(Math.min(...x), Math.min(...y), Math.max(...x), Math.max(...y))
   }
 
   get center(): IPoint {

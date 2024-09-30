@@ -164,18 +164,90 @@ class NodeGroup extends zrender.Group implements INodeGroup {
     this.anchors = []
     const g = new zrender.Group()
     const box = g.getBoundingRect([this])
-    const t1 = { x: box.x + box.width / 4, y: box.y, index: 1, node: this, direct: 'top' }
-    const t2 = { x: box.x + box.width / 2, y: box.y, index: 2, node: this, direct: 'top' }
-    const t3 = { x: box.x + box.width / 4 * 3, y: box.y, index: 3, node: this, direct: 'top' }
-    const r1 = { x: box.x + box.width, y: box.y + box.height / 4, index: 4, node: this, direct: 'right' }
-    const r2 = { x: box.x + box.width, y: box.y + box.height / 2, index: 5, node: this, direct: 'right' }
-    const r3 = { x: box.x + box.width, y: box.y + box.height / 4 * 3, index: 6, node: this, direct: 'right' }
-    const b1 = { x: box.x + box.width / 4, y: box.y + box.height, index: 7, node: this, direct: 'bottom' }
-    const b2 = { x: box.x + box.width / 2, y: box.y + box.height, index: 8, node: this, direct: 'bottom' }
-    const b3 = { x: box.x + box.width / 4 * 3, y: box.y + box.height, index: 9, node: this, direct: 'bottom' }
-    const l1 = { x: box.x, y: box.y + box.height / 4, index: 10, node: this, direct: 'left' }
-    const l2 = { x: box.x, y: box.y + box.height / 2, index: 11, node: this, direct: 'left' }
-    const l3 = { x: box.x, y: box.y + box.height / 4 * 3, index: 12, node: this, direct: 'left' }
+    const t1 = {
+      x: box.x + box.width / 4,
+      y: box.y,
+      index: 1,
+      node: this,
+      direct: 'top'
+    }
+    const t2 = {
+      x: box.x + box.width / 2,
+      y: box.y,
+      index: 2,
+      node: this,
+      direct: 'top'
+    }
+    const t3 = {
+      x: box.x + (box.width / 4) * 3,
+      y: box.y,
+      index: 3,
+      node: this,
+      direct: 'top'
+    }
+    const r1 = {
+      x: box.x + box.width,
+      y: box.y + box.height / 4,
+      index: 4,
+      node: this,
+      direct: 'right'
+    }
+    const r2 = {
+      x: box.x + box.width,
+      y: box.y + box.height / 2,
+      index: 5,
+      node: this,
+      direct: 'right'
+    }
+    const r3 = {
+      x: box.x + box.width,
+      y: box.y + (box.height / 4) * 3,
+      index: 6,
+      node: this,
+      direct: 'right'
+    }
+    const b1 = {
+      x: box.x + box.width / 4,
+      y: box.y + box.height,
+      index: 7,
+      node: this,
+      direct: 'bottom'
+    }
+    const b2 = {
+      x: box.x + box.width / 2,
+      y: box.y + box.height,
+      index: 8,
+      node: this,
+      direct: 'bottom'
+    }
+    const b3 = {
+      x: box.x + (box.width / 4) * 3,
+      y: box.y + box.height,
+      index: 9,
+      node: this,
+      direct: 'bottom'
+    }
+    const l1 = {
+      x: box.x,
+      y: box.y + box.height / 4,
+      index: 10,
+      node: this,
+      direct: 'left'
+    }
+    const l2 = {
+      x: box.x,
+      y: box.y + box.height / 2,
+      index: 11,
+      node: this,
+      direct: 'left'
+    }
+    const l3 = {
+      x: box.x,
+      y: box.y + (box.height / 4) * 3,
+      index: 12,
+      node: this,
+      direct: 'left'
+    }
     this.anchors.push(t1, t2, t3, r1, r2, r3, b1, b2, b3, l1, l2, l3)
   }
 
@@ -190,7 +262,7 @@ class NodeGroup extends zrender.Group implements INodeGroup {
   active() {
     this.selected = true
     this.groupRect!.attr({
-      style:{
+      style: {
         shadowColor: 'yellow',
         shadowBlur: 3
       }
@@ -204,7 +276,7 @@ class NodeGroup extends zrender.Group implements INodeGroup {
   unActive() {
     this.selected = false
     this.groupRect!.attr({
-      style:{
+      style: {
         shadowColor: '',
         shadowBlur: 0
       }
@@ -214,7 +286,7 @@ class NodeGroup extends zrender.Group implements INodeGroup {
 
   setAlertStyle() {
     this.groupRect!.attr({
-      style:{
+      style: {
         lineWidth: 2,
         stroke: 'red'
       }

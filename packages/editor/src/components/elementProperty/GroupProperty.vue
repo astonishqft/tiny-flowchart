@@ -3,7 +3,13 @@ import { ref } from 'vue'
 import { ElSelect, ElOption, ElInputNumber, ElDivider, ElColorPicker, ElInput } from 'element-plus'
 import { convertLineDashToStrokeType, convertStrokeTypeToLineDash } from '../../utils/utils'
 
-import type { INodeGroup, BuiltinTextPosition, FontWeight, FontStyle, IocEditor } from '@ioceditor/core'
+import type {
+  INodeGroup,
+  BuiltinTextPosition,
+  FontWeight,
+  FontStyle,
+  IocEditor
+} from '@ioceditor/core'
 
 const { iocEditor } = defineProps<{
   iocEditor: IocEditor
@@ -51,7 +57,7 @@ const textPositionList: ITextPosition[] = [
     name: 'insideRight',
     icon: 'icon-align-right',
     desc: '居右'
-  },
+  }
 ]
 const lineWidth = ref(1)
 const fontSize = ref(12)
@@ -70,7 +76,9 @@ iocEditor._groupMgr.updateSelectGroup$.subscribe((group: INodeGroup) => {
   strokeColor.value = activeGroup.value.groupRect?.style.stroke as string
   fontColor.value = activeGroup.value.groupHead?.getTextContent().style.fill || '#333'
   lineWidth.value = activeGroup.value.groupRect?.style.lineWidth || 1
-  strokeType.value = convertLineDashToStrokeType(activeGroup.value.groupRect?.style.lineDash as number[] || [0, 0])
+  strokeType.value = convertLineDashToStrokeType(
+    (activeGroup.value.groupRect?.style.lineDash as number[]) || [0, 0]
+  )
   nodeText.value = activeGroup.value.groupHead?.getTextContent().style.text || ''
   fontSize.value = activeGroup.value.groupHead?.getTextContent().style.fontSize as number
   fontStyle.value = activeGroup.value.groupHead?.getTextContent().style.fontStyle || 'normal'
@@ -185,7 +193,7 @@ const changeGroupText = (text: string) => {
           @click="() => changeGroupStrokeColor(color)"
         />
         <el-divider style="margin: 0 4px; height: 20px" direction="vertical" />
-        <el-color-picker v-model="strokeColor" @change="changeGroupStrokeColor" size="small"  />
+        <el-color-picker v-model="strokeColor" @change="changeGroupStrokeColor" size="small" />
       </div>
     </div>
     <div class="property-item">
@@ -360,7 +368,6 @@ const changeGroupText = (text: string) => {
   padding: 3px;
   border: 1px solid rgb(217, 217, 217);
   border-radius: 5px;
-
 }
 .font-style-icon.active {
   background-color: #1971c2;
