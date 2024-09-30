@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { IocEditor } from '@ioceditor/core'
+// import type { IocEditor } from '@ioceditor/core'
 
-const { iocEditor } = defineProps<{
-  iocEditor: IocEditor
-}>()
+// const { iocEditor } = defineProps<{
+//   iocEditor: IocEditor
+// }>()
 </script>
 
 <template>

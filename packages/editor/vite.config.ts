@@ -15,8 +15,7 @@ export default defineConfig({
     outDir: 'dist', // 输出文件名称
     lib: {
       entry: path.resolve(__dirname, './src/index.ts'), // 指定组件编译入口文件
-      name: 'ioc-editor',
-      fileName: 'ioc-editor'
+      formats: ['cjs', 'es']
     }, // 库编译模式配置
     rollupOptions: {
       // 确保外部化处理那些你不想打包进库的依赖

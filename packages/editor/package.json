@@ -8,9 +8,9 @@
     "dev": "vite build --watch",
     "build": "vue-tsc && vite build"
   },
-  "main": "dist/ioc-editor.umd.cjs",
-  "module": "dist/ioc-editor.js",
-  "typings": "dist/index.d.ts",
+  "main": "dist/editor.cjs",
+  "module": "dist/editor.js",
+  "types": "dist/index.d.ts",
   "peerDependencies": {
     "vue": ">=3.2.0"
   },
