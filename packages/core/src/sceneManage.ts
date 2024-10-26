@@ -1,6 +1,6 @@
 import * as zrender from 'zrender'
 import { Disposable } from './disposable'
-import { Subject, Observable } from 'rxjs'
+import { Subject } from 'rxjs'
 
 import type { IDisposable } from './disposable'
 import type { IShape, IAnchorPoint, IConnection, IControlPoint } from './shapes'
@@ -15,7 +15,7 @@ import type { IocEditor } from './iocEditor'
 
 export interface ISceneManage extends IDisposable {
   _zr: zrender.ZRenderType | null
-  updateSelectScene$: Observable<null>
+  updateSelectScene$: Subject<null>
   init(zr: zrender.ZRenderType): void
   addShape(type: string, options: { x: number; y: number }): IShape
   clear(): void

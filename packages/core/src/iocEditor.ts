@@ -12,7 +12,12 @@ import { DragFrameManage } from './dragFrameManage'
 import { RefLineManage } from './refLineManage'
 import { SelectFrameManage } from './selectFrameManage'
 import { SettingManage } from './settingManage'
-import { downloadFile } from './utils'
+import {
+  downloadFile,
+  flatGroupArrayToTree,
+  groupTreeToArray,
+  getChildShapesByGroupId
+} from './utils'
 
 import type { IRefLineManage } from './refLineManage'
 import type { IDragFrameManage } from './dragFrameManage'
@@ -32,9 +37,11 @@ import {
   type IExportConnection,
   type IConnection,
   type IAnchorPoint,
+  type IExportGroup,
   ConnectionType
 } from './shapes'
 import type { INodeGroup } from './shapes/nodeGroup'
+import type { IGroupTreeNode } from './utils'
 
 export class IocEditor {
   _zr: zrender.ZRenderType
@@ -107,6 +114,7 @@ export class IocEditor {
       ;(newShape as unknown as zrender.Displayable).getTextContent().setStyle(textStyle)
       ;(newShape as unknown as zrender.Displayable).setTextConfig(textConfig)
       newShape.id = id
+      newShape.unActive()
     })
 
     connections.forEach((conn: IExportConnection) => {
@@ -132,6 +140,33 @@ export class IocEditor {
         )
       }
     })
+
+    this.createGroup(groups, shapes)
+  }
+
+  createGroup(groups: IExportGroup[], shapes: IExportShape[]) {
+    const { groupTree, groupMap } = flatGroupArrayToTree(groups)
+
+    const treeArray = groupTreeToArray(groupTree)
+
+    treeArray.forEach((gId: number) => {
+      if (groupMap.get(gId).children.length === 0) {
+        // 最底层的group，group由shape组成
+        const childIds = getChildShapesByGroupId(gId, shapes).map(s => s.id)
+        const childShapes = this._storageMgr.getShapes().filter(s => childIds.includes(s.id))
+        this._groupMgr.createGroup(childShapes, gId)?.unActive()
+      } else {
+        const childGroupIds = groupMap.get(gId).children.map((c: IGroupTreeNode) => c.id)
+        const childGroups = this._storageMgr.getGroups().filter(g => childGroupIds.includes(g.id))
+        const childIds = getChildShapesByGroupId(gId, shapes).map(s => s.id)
+        const childShapes = this._storageMgr.getShapes().filter(s => childIds.includes(s.id))
+        this._groupMgr.createGroup([...childShapes, ...childGroups], gId)?.unActive()
+      }
+    })
+  }
+
+  getShapeById(id: number) {
+    return this._storageMgr.getShapes().filter(s => s.id === id)
   }
 
   exportFile() {
@@ -149,6 +184,7 @@ export class IocEditor {
     }
 
     const str = JSON.stringify(data)
+    console.log('导出的数据为：', data)
     downloadFile(str, 'ioc-chart-flow.json')
 
     return data

@@ -1,4 +1,4 @@
-import { Subject, Observable } from 'rxjs'
+import { Subject } from 'rxjs'
 import { Disposable } from './disposable'
 import { Connection } from './connection'
 import { ConnectionType } from './shapes'
@@ -17,8 +17,8 @@ export interface IConnectionManage extends IDisposable {
   refreshConnection(shape: IShape | INodeGroup): void
   removeConnection(connection: IConnection): void
   connect(connection: IConnection, anchorPoint: IAnchorPoint): void
-  updateConnectionType$: Observable<ConnectionType>
-  updateSelectConnection$: Observable<IConnection>
+  updateConnectionType$: Subject<ConnectionType>
+  updateSelectConnection$: Subject<IConnection>
   clear(): void
   unActiveConnections(): void
   cancelConnect(connection: IConnection): void

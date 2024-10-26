@@ -3,9 +3,9 @@ import { getShape } from './shapes'
 import { Anchor } from './anchor'
 import { isLeave, isEnter, getBoundingRect, getTopGroup } from './utils'
 import { Disposable, IDisposable } from './disposable'
-import { Subject, Observable } from 'rxjs'
+import { Subject } from 'rxjs'
 
-import type { IShape } from './shapes'
+import type { IExportShape, IShape } from './shapes'
 import type { IAnchorPoint } from './shapes'
 import type { IViewPortManage } from './viewPortManage'
 import type { IDragFrameManage } from './dragFrameManage'
@@ -16,7 +16,7 @@ import type { INodeGroup } from 'shapes/nodeGroup'
 import type { IocEditor } from './iocEditor'
 
 export interface IShapeManage extends IDisposable {
-  updateSelectShape$: Observable<IShape>
+  updateSelectShape$: Subject<IShape>
   createShape(type: string, options: { x: number; y: number }): IShape
   clear(): void
   unActive(): void
@@ -62,7 +62,7 @@ class ShapeManage extends Disposable {
     this._viewPortMgr.addElementToViewPort(shape)
 
     shape.getExportData = () => {
-      return {
+      const exportData: IExportShape = {
         style: shape.style,
         textStyle: shape.getTextContent().style,
         textConfig: shape.textConfig,
@@ -71,11 +71,13 @@ class ShapeManage extends Disposable {
         id: shape.id,
         type
       }
-    }
 
-    // shape.setData = ({ style }: any) => {
-    //   shape.setStyle({ ...style })
-    // }
+      if (shape.parentGroup) {
+        exportData.parent = shape.parentGroup.id
+      }
+
+      return exportData
+    }
 
     this._storageMgr.addShape(shape)
 
@@ -121,10 +123,12 @@ class ShapeManage extends Disposable {
       shape.parentGroup!.resizeNodeGroup()
       this._connectionMgr.refreshConnection(shape.parentGroup)
       delete shape.parentGroup
+      this._storageMgr.addShape(shape)
     }
   }
 
   addShapeToGroup(shape: IShape, targetGroup: INodeGroup) {
+    this._storageMgr.removeShape(shape)
     shape.parentGroup = targetGroup
     targetGroup.shapes.push(shape)
     targetGroup.resizeNodeGroup()

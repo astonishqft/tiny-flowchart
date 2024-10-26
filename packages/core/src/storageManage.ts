@@ -3,6 +3,7 @@ import type { IShape, IConnection } from './shapes'
 
 export interface IStorageManage {
   addShape(shape: IShape): void
+  removeShape(shape: IShape): void
   addGroup(group: INodeGroup): void
   removeGroup(group: INodeGroup): void
   getShapes(): IShape[]
@@ -36,12 +37,18 @@ class StorageManage {
     this._groups.push(group)
   }
 
-  removeGroup(group: INodeGroup) {
-    this._groups = this._groups.filter(item => item !== group)
+  removeShape(shape: IShape) {
+    this._shapes = this._shapes.filter(item => item.id !== shape.id)
   }
+
+  removeGroup(group: INodeGroup) {
+    this._groups = this._groups.filter(item => item.id !== group.id)
+  }
+
   getShapes() {
     return this._shapes
   }
+
   getGroups() {
     return this._groups
   }

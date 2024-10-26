@@ -2,6 +2,8 @@ import { INodeGroup } from 'shapes/nodeGroup'
 import type { IShape } from './shapes'
 import * as zrender from 'zrender'
 
+import type { IExportGroup, IExportShape } from './shapes'
+
 export const getClosestValInSortedArr = (sortedArr: number[], target: number) => {
   if (sortedArr.length === 0) {
     throw new Error('sortedArr can not be empty')
@@ -121,4 +123,54 @@ export const downloadFile = (content: string, filename: string) => {
   a.download = filename
   a.click()
   window.URL.revokeObjectURL(url)
+}
+
+export interface IGroupTreeNode {
+  id: number
+  children: IGroupTreeNode[]
+}
+
+export const flatGroupArrayToTree = (flatArray: IExportGroup[]) => {
+  const map = new Map()
+  flatArray.forEach(item => {
+    map.set(item.id, { id: item.id, children: [] })
+  })
+
+  function buildTree(node: IGroupTreeNode) {
+    flatArray.forEach((item: IExportGroup) => {
+      if (item.parent === node.id) {
+        const childNode = map.get(item.id)
+        node.children.push(buildTree(childNode))
+      }
+    })
+    return node
+  }
+
+  const groupTree = flatArray
+    .filter(item => item.parent === undefined)
+    .map(rootNode => buildTree(map.get(rootNode.id)))
+
+  return {
+    groupTree,
+    groupMap: map
+  }
+}
+
+export const groupTreeToArray = (treeNode: IGroupTreeNode[]) => {
+  const result: number[] = []
+  function traverse(node: IGroupTreeNode) {
+    result.push(node.id)
+
+    if (node.children) {
+      node.children.forEach(traverse)
+    }
+  }
+
+  treeNode.forEach(traverse)
+
+  return result.reverse()
+}
+
+export const getChildShapesByGroupId = (groupId: number, shapes: IExportShape[]) => {
+  return shapes.filter(shape => shape.parent === groupId)
 }

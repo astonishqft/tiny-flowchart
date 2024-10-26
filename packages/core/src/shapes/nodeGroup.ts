@@ -38,6 +38,7 @@ class NodeGroup extends zrender.Group implements INodeGroup {
   oldX: number = 0
   oldY: number = 0
   z = 1
+  parentGroup: INodeGroup | undefined = undefined
 
   constructor(boundingBox: zrender.BoundingRect, shapes: (IShape | INodeGroup)[]) {
     super()
@@ -316,11 +317,17 @@ class NodeGroup extends zrender.Group implements INodeGroup {
   }
 
   getExportData() {
-    return {
-      shapes: this.shapes,
+    const exportData: IExportGroup = {
+      id: this.id,
       groupHead: this.groupHead?.style,
       groupRect: this.groupRect?.style
     }
+
+    if (this.parentGroup) {
+      exportData.parent = this.parentGroup.id
+    }
+
+    return exportData
   }
 }
 

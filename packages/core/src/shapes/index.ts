@@ -40,12 +40,14 @@ export interface IExportShape {
   id: number
   textStyle: zrender.TextStyleProps
   textConfig: zrender.ElementTextConfig
+  parent?: number
 }
 
 export interface IExportGroup {
-  shapes: (IShape | INodeGroup)[]
   groupHead: any
   groupRect: any
+  id: number
+  parent?: number
 }
 
 export interface IConnection extends zrender.Group {
@@ -92,7 +94,7 @@ export interface IConnection extends zrender.Group {
     controlPoint1: (number | undefined)[],
     controlPoint2: (number | undefined)[]
   ): void
-  getExportData?(): IExportConnection
+  getExportData(): IExportConnection
 }
 
 export enum ConnectionType {
@@ -108,8 +110,8 @@ export type IControlPoint = zrender.Circle & {
 export interface IBaseShape {
   selected: boolean
   nodeType: string
-  parentGroup?: INodeGroup
   anchors: IAnchor[]
+  parentGroup?: INodeGroup
   anchor?: Anchor
   oldX?: number
   oldY?: number

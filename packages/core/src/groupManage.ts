@@ -1,6 +1,6 @@
 import * as zrender from 'zrender'
 import { NodeGroup } from './shapes/nodeGroup'
-import { Subject, Observable } from 'rxjs'
+import { Subject } from 'rxjs'
 import { Anchor } from './anchor'
 import {
   isLeave,
@@ -23,8 +23,8 @@ import type { INodeGroup } from './shapes/nodeGroup'
 import type { IocEditor } from './iocEditor'
 
 export interface IGroupManage extends IDisposable {
-  updateSelectGroup$: Observable<INodeGroup>
-  createGroup(): void
+  updateSelectGroup$: Subject<INodeGroup>
+  createGroup(nodes?: (IShape | INodeGroup)[], groupId?: number): INodeGroup | undefined
   unGroup(): void
   unActive(): void
   clear(): void
@@ -47,11 +47,11 @@ class GroupManage extends Disposable {
     this._disposables.push(this.updateSelectGroup$)
   }
 
-  createGroup() {
-    const activeShapes = [
-      ...this._storageMgr.getActiveShapes(),
-      ...this._storageMgr.getActiveGroups()
-    ]
+  createGroup(nodes?: (IShape | INodeGroup)[], groupId?: number) {
+    const activeShapes = nodes
+      ? nodes
+      : [...this._storageMgr.getActiveShapes(), ...this._storageMgr.getActiveGroups()]
+
     if (activeShapes.length < 2) {
       return
     }
@@ -82,30 +82,36 @@ class GroupManage extends Disposable {
     this.initShapeEvent(groupNode)
     this._storageMgr.addGroup(groupNode)
     this._viewPortMgr.addElementToViewPort(groupNode)
+
+    if (groupId) {
+      groupNode.id = groupId
+    }
+
+    return groupNode
   }
 
   unGroup() {
     const activeGroups = this._storageMgr.getActiveGroups()
 
-    if (activeGroups.length === 1) {
-      const activeGroup = activeGroups[0]
-      this._viewPortMgr.getViewPort().remove(activeGroup)
-      activeGroup.anchor!.bars.forEach((bar: IAnchorPoint) => {
-        this._viewPortMgr.removeElementFromViewPort(bar)
-      })
-      activeGroup.shapes.forEach((shape: IShape | INodeGroup) => {
-        delete shape.parentGroup
-        if (activeGroup.parentGroup) {
-          shape.parentGroup = activeGroup.parentGroup
-          activeGroup.parentGroup.shapes.push(shape)
-          activeGroup.parentGroup.shapes = activeGroup.parentGroup.shapes.filter(
-            item => item !== activeGroup
-          )
-        }
-      })
-      this.removeAssociatedConnection(activeGroup)
-      this._storageMgr.removeGroup(activeGroup)
-    }
+    // if (activeGroups.length === 1) {
+    const activeGroup = activeGroups[0]
+    this._viewPortMgr.getViewPort().remove(activeGroup)
+    activeGroup.anchor!.bars.forEach((bar: IAnchorPoint) => {
+      this._viewPortMgr.removeElementFromViewPort(bar)
+    })
+    activeGroup.shapes.forEach((shape: IShape | INodeGroup) => {
+      delete shape.parentGroup
+      if (activeGroup.parentGroup) {
+        shape.parentGroup = activeGroup.parentGroup
+        activeGroup.parentGroup.shapes.push(shape)
+        activeGroup.parentGroup.shapes = activeGroup.parentGroup.shapes.filter(
+          item => item !== activeGroup
+        )
+      }
+    })
+    this.removeAssociatedConnection(activeGroup)
+    this._storageMgr.removeGroup(activeGroup)
+    // }
   }
 
   removeAssociatedConnection(nodeGroup: INodeGroup) {
