@@ -2,7 +2,14 @@ import * as zrender from 'zrender'
 import OrthogonalConnector from '@ioceditor/orthogonal-connector'
 import { ConnectionType } from './shapes'
 
-import type { IShape, IAnchor, IConnection, IControlPoint, IExportConnectionStyle } from './shapes'
+import type {
+  IShape,
+  IAnchor,
+  IConnection,
+  IControlPoint,
+  IExportConnectionStyle,
+  LineDashStyle
+} from './shapes'
 import type { FontStyle, FontWeight } from 'zrender/lib/core/types'
 import type { INodeGroup } from './shapes/nodeGroup'
 
@@ -20,6 +27,15 @@ class Connection extends zrender.Group implements IConnection {
   private _arrow: zrender.Polygon | null = null
   private _textPoints: number[] = []
   private _lineText: zrender.Text | null = null
+  // style
+  private _stroke: string = '#333'
+  private _lineWidth: number = 1
+  private _lineDash: LineDashStyle = [0, 0]
+  private _lineTextFontSize: number = 12
+  private _lineTextFontColor: string = '#333'
+  private _lineTextFontStyle: FontStyle = 'normal'
+  private _lineTextFontWeight: FontWeight = 'normal'
+
   fromNode: IShape | INodeGroup
   toNode: IShape | INodeGroup | null = null
   fromPoint: IAnchor | null = null
@@ -199,11 +215,13 @@ class Connection extends zrender.Group implements IConnection {
     this._lineText = new zrender.Text({
       style: {
         text: this.getLineTextContent(),
-        fill: '#333',
-        fontSize: 12,
+        fill: this._lineTextFontColor,
+        fontSize: this._lineTextFontSize,
         fontFamily: 'Arial',
         verticalAlign: 'middle',
         backgroundColor: '#fff',
+        fontWeight: this._lineTextFontWeight,
+        fontStyle: this._lineTextFontStyle,
         align: 'center',
         padding: [4, 4, 4, 4]
       },
@@ -217,8 +235,9 @@ class Connection extends zrender.Group implements IConnection {
       case ConnectionType.Line:
         this._line = new zrender.Line({
           style: {
-            lineWidth: 1,
-            stroke: '#333'
+            lineWidth: this._lineWidth,
+            stroke: this._stroke,
+            lineDash: this._lineDash
           },
           z: 4
         })
@@ -226,8 +245,9 @@ class Connection extends zrender.Group implements IConnection {
       case ConnectionType.BezierCurve:
         this._line = new zrender.BezierCurve({
           style: {
-            lineWidth: 1,
-            stroke: '#333'
+            lineWidth: this._lineWidth,
+            stroke: this._stroke,
+            lineDash: this._lineDash
           },
           z: 4
         })
@@ -328,8 +348,9 @@ class Connection extends zrender.Group implements IConnection {
       case ConnectionType.OrtogonalLine:
         this._line = new zrender.Polyline({
           style: {
-            lineWidth: 1,
-            stroke: '#333'
+            lineWidth: this._lineWidth,
+            stroke: this._stroke,
+            lineDash: this._lineDash
           },
           z: 4
         })
@@ -485,6 +506,8 @@ class Connection extends zrender.Group implements IConnection {
     this._line?.setStyle({
       lineWidth
     })
+
+    this._lineWidth = lineWidth
   }
 
   getLineWidth() {
@@ -495,6 +518,8 @@ class Connection extends zrender.Group implements IConnection {
     this._line?.setStyle({
       stroke: color
     })
+
+    this._stroke = color
   }
 
   getLineColor() {
@@ -505,6 +530,8 @@ class Connection extends zrender.Group implements IConnection {
     this._line?.setStyle({
       lineDash: type
     })
+
+    this._lineDash = type
   }
 
   getLineDash() {
@@ -552,6 +579,8 @@ class Connection extends zrender.Group implements IConnection {
     this._lineText?.setStyle({
       fontSize: size
     })
+
+    this._lineTextFontSize = size as number
   }
 
   getLineTextFontSize() {
@@ -562,6 +591,8 @@ class Connection extends zrender.Group implements IConnection {
     this._lineText?.setStyle({
       fill: color
     })
+
+    this._lineTextFontColor = color as string
   }
 
   getLineTextFontColor() {
@@ -572,6 +603,8 @@ class Connection extends zrender.Group implements IConnection {
     this._lineText?.setStyle({
       fontStyle: style
     })
+
+    this._lineTextFontStyle = style
   }
 
   getLineFontStyle() {
@@ -586,6 +619,12 @@ class Connection extends zrender.Group implements IConnection {
     this._lineText?.setStyle({
       fontWeight: weight
     })
+
+    this._lineTextFontWeight = weight
+  }
+
+  getLineTextPosition() {
+    return this._textPoints
   }
 
   getId() {
