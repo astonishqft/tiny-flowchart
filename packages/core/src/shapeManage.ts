@@ -63,13 +63,22 @@ class ShapeManage extends Disposable {
 
     shape.getExportData = () => {
       const exportData: IExportShape = {
-        style: shape.style,
-        textStyle: shape.getTextContent().style,
-        textConfig: shape.textConfig,
         x: shape.x,
         y: shape.y,
         id: shape.id,
-        type
+        type,
+        style: {
+          fill: shape.style.fill,
+          stroke: shape.style.stroke,
+          lineWidth: shape.style.lineWidth,
+          lineDash: shape.style.lineDash,
+          fontColor: shape.getTextContent().style.fill,
+          text: shape.getTextContent().style.text,
+          fontSize: shape.getTextContent().style.fontSize,
+          fontWeight: shape.getTextContent().style.fontWeight,
+          fontStyle: shape.getTextContent().style.fontStyle,
+          textPosition: shape.textConfig.position
+        }
       }
 
       if (shape.parentGroup) {

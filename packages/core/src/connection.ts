@@ -2,7 +2,7 @@ import * as zrender from 'zrender'
 import OrthogonalConnector from '@ioceditor/orthogonal-connector'
 import { ConnectionType } from './shapes'
 
-import type { IShape, IAnchor, IConnection, IControlPoint, Dictionary } from './shapes'
+import type { IShape, IAnchor, IConnection, IControlPoint, IExportConnectionStyle } from './shapes'
 import type { FontStyle, FontWeight } from 'zrender/lib/core/types'
 import type { INodeGroup } from './shapes/nodeGroup'
 
@@ -612,9 +612,17 @@ class Connection extends zrender.Group implements IConnection {
       toPoint: this.toPoint!.index,
       fromNode: this.fromNode!.id,
       toNode: this.toNode!.id,
-      textStyle: this._lineText!.style,
-      lineStyle: this._line!.style,
-      textPosition: this._textPoints
+      style: {
+        lineWidth: this._line?.style.lineWidth,
+        lineDash: this._line?.style.lineDash,
+        stroke: this._line?.style.stroke,
+        text: this._lineText?.style.text,
+        fontSize: this._lineText?.style.fontSize,
+        fontColor: this._lineText?.style.fill,
+        fontStyle: this._lineText?.style.fontStyle,
+        fontWeight: this._lineText?.style.fontWeight,
+        textPosition: this._textPoints
+      }
     }
 
     if (this._connectionType == ConnectionType.BezierCurve) {
@@ -639,24 +647,37 @@ class Connection extends zrender.Group implements IConnection {
     return baseData
   }
 
-  setTextStyle(style: zrender.TextStyleProps | undefined) {
-    if (style) {
-      this._lineText?.setStyle({
-        ...style
-      })
-    }
-  }
-
-  setLineStyle(style: Dictionary<any>) {
+  setStyle({
+    stroke,
+    lineWidth,
+    lineDash,
+    text,
+    fontSize,
+    fontColor,
+    fontStyle,
+    fontWeight,
+    textPosition
+  }: IExportConnectionStyle) {
     this._line?.setStyle({
-      ...style
+      stroke,
+      lineWidth,
+      lineDash
     })
-  }
+    this._lineText?.setStyle({
+      text,
+      fontSize,
+      fill: fontColor,
+      fontStyle,
+      fontWeight
+    })
 
-  setTextPosition(position: number[]) {
-    this._textPoints = position
-    this._lineText?.style.text ? this._lineText?.show() : this._lineText?.hide()
-    this.renderText()
+    if (text) {
+      this._textPoints = textPosition
+      this._lineText?.show()
+      this.renderText()
+    } else {
+      this._lineText?.hide()
+    }
   }
 
   setControlPoint1(position: number[]) {

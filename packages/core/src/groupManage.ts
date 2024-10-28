@@ -52,10 +52,6 @@ class GroupManage extends Disposable {
       ? nodes
       : [...this._storageMgr.getActiveShapes(), ...this._storageMgr.getActiveGroups()]
 
-    if (activeShapes.length < 2) {
-      return
-    }
-
     activeShapes.forEach(shape => {
       shape.unActive()
     })
@@ -93,7 +89,7 @@ class GroupManage extends Disposable {
   unGroup() {
     const activeGroups = this._storageMgr.getActiveGroups()
 
-    // if (activeGroups.length === 1) {
+    if (activeGroups.length < 1) return
     const activeGroup = activeGroups[0]
     this._viewPortMgr.getViewPort().remove(activeGroup)
     activeGroup.anchor!.bars.forEach((bar: IAnchorPoint) => {
@@ -111,7 +107,6 @@ class GroupManage extends Disposable {
     })
     this.removeAssociatedConnection(activeGroup)
     this._storageMgr.removeGroup(activeGroup)
-    // }
   }
 
   removeAssociatedConnection(nodeGroup: INodeGroup) {

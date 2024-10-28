@@ -1,7 +1,7 @@
 import * as zrender from 'zrender'
 import { getBoundingRect } from '../utils'
 
-import type { IShape, IAnchor, IExportGroup, IBaseShape } from './index'
+import type { IShape, IAnchor, IExportGroup, IBaseShape, IExportGroupStyle } from './index'
 import type { Anchor } from '../anchor'
 
 export interface INodeGroup extends zrender.Group, IBaseShape {
@@ -19,6 +19,7 @@ export interface INodeGroup extends zrender.Group, IBaseShape {
   groupRect: zrender.Rect | null
   groupHead: zrender.Rect | null
   getExportData(): IExportGroup
+  setStyle(style: IExportGroupStyle): void
 }
 
 class NodeGroup extends zrender.Group implements INodeGroup {
@@ -319,8 +320,18 @@ class NodeGroup extends zrender.Group implements INodeGroup {
   getExportData() {
     const exportData: IExportGroup = {
       id: this.id,
-      groupHead: this.groupHead?.style,
-      groupRect: this.groupRect?.style
+      style: {
+        fill: this.groupRect!.style.fill,
+        lineWidth: this.groupRect!.style.lineWidth,
+        stroke: this.groupRect!.style.stroke,
+        lineDash: this.groupRect!.style.lineDash,
+        fontColor: this.textContent?.style.fill,
+        fontSize: this.textContent?.style.fontSize,
+        text: this.textContent?.style.text,
+        fontWeight: this.textContent?.style.fontWeight,
+        fontStyle: this.textContent?.style.fontStyle,
+        textPosition: this.groupHead?.textConfig?.position
+      }
     }
 
     if (this.parentGroup) {
@@ -328,6 +339,33 @@ class NodeGroup extends zrender.Group implements INodeGroup {
     }
 
     return exportData
+  }
+
+  setStyle({
+    fill,
+    stroke,
+    lineWidth,
+    lineDash,
+    fontColor,
+    fontSize,
+    text,
+    fontWeight,
+    fontStyle,
+    textPosition
+  }: IExportGroupStyle) {
+    fill && this.groupRect!.attr({ style: { fill } })
+    stroke && this.groupRect!.attr({ style: { stroke } })
+    lineWidth && this.groupRect!.attr({ style: { lineWidth } })
+    lineDash && this.groupRect!.attr({ style: { lineDash } })
+    fontColor && this.textContent!.attr({ style: { fill: fontColor } })
+    fontSize && this.textContent!.attr({ style: { fontSize } })
+    text && this.textContent!.attr({ style: { text } })
+    fontWeight && this.textContent!.attr({ style: { fontWeight } })
+    fontStyle && this.textContent!.attr({ style: { fontStyle } })
+    textPosition &&
+      this.groupHead?.setTextConfig({
+        position: textPosition
+      })
   }
 }
 

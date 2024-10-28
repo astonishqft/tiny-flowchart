@@ -4,10 +4,37 @@ import { Rect } from './rect'
 import { Circle } from './circle'
 import type { Anchor } from '../anchor'
 import type { INodeGroup } from './nodeGroup'
-import type { FontStyle, FontWeight } from 'zrender/lib/core/types'
+import type { FontStyle, FontWeight, BuiltinTextPosition } from 'zrender/lib/core/types'
+import type { PatternObject, LinearGradientObject, RadialGradientObject } from 'zrender/lib/export'
+
+export type FillStyle =
+  | string
+  | PatternObject
+  | LinearGradientObject
+  | RadialGradientObject
+  | undefined
+export type StrokeStyle =
+  | string
+  | PatternObject
+  | LinearGradientObject
+  | RadialGradientObject
+  | undefined
+export type LineDashStyle = false | number[] | 'solid' | 'dashed' | 'dotted' | undefined
 
 export type Dictionary<T> = {
   [key: string]: T
+}
+
+export interface IExportConnectionStyle {
+  stroke: StrokeStyle
+  lineWidth: number | undefined
+  lineDash: LineDashStyle
+  fontColor: string | undefined
+  text: string | undefined
+  fontSize: number | string | undefined
+  fontWeight: FontWeight | undefined
+  fontStyle: FontStyle | undefined
+  textPosition: number[]
 }
 
 export interface IExportConnection {
@@ -17,13 +44,11 @@ export interface IExportConnection {
   toPoint: number
   fromNode: number
   toNode: number
-  textStyle: zrender.TextStyleProps | undefined
-  lineStyle: Dictionary<any>
-  textPosition: number[]
   controlPoint1?: (number | undefined)[]
   controlPoint2?: (number | undefined)[]
   controlLine1?: (number | undefined)[]
   controlLine2?: (number | undefined)[]
+  style: IExportConnectionStyle
 }
 
 export interface IExportData {
@@ -32,20 +57,43 @@ export interface IExportData {
   groups: any[]
 }
 
+export interface IExportShapeStyle {
+  fill: FillStyle
+  stroke: StrokeStyle
+  lineWidth: number
+  lineDash: LineDashStyle
+  fontColor: string
+  text: string
+  fontSize: number
+  fontWeight: FontWeight
+  fontStyle: FontStyle
+  textPosition: BuiltinTextPosition | (number | string)[] | undefined
+}
+
 export interface IExportShape {
   x: number
   y: number
-  style: Dictionary<any>
+  style: IExportShapeStyle
   type: string
   id: number
-  textStyle: zrender.TextStyleProps
-  textConfig: zrender.ElementTextConfig
   parent?: number
 }
 
+export interface IExportGroupStyle {
+  fill: FillStyle
+  stroke: StrokeStyle
+  lineWidth: number | undefined
+  lineDash: LineDashStyle
+  fontColor: string | undefined
+  fontSize: number | string | undefined
+  text: string | undefined
+  fontWeight: FontWeight | undefined
+  fontStyle: FontStyle | undefined
+  textPosition: BuiltinTextPosition | (number | string)[] | undefined
+}
+
 export interface IExportGroup {
-  groupHead: any
-  groupRect: any
+  style: IExportGroupStyle
   id: number
   parent?: number
 }
@@ -84,9 +132,7 @@ export interface IConnection extends zrender.Group {
   getId(): number
   getConnectionType(): ConnectionType
   getLineText(): zrender.Text | null
-  setTextStyle(style: zrender.TextStyleProps | undefined): void
-  setLineStyle(style: Dictionary<any>): void
-  setTextPosition(position: number[]): void
+  setStyle(style: IExportConnectionStyle): void
   setConnectionType(type: ConnectionType): void
   setBezierCurve(
     fromPoint: IAnchor,

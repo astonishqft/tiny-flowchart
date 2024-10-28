@@ -16,7 +16,8 @@
     "pre-commit": "lint-staged",
     "prepare": "husky install",
     "commitlint": "commitlint --config commitlint.config.js -e -V",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .eslintignore",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --ignore-path .eslintignore",
+    "lint-fix": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .eslintignore",
     "format": "prettier --write ."
   },
   "lint-staged": {

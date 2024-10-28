@@ -108,14 +108,40 @@ export class IocEditor {
 
     const { shapes = [], connections = [], groups = [] } = data
 
-    shapes.forEach(({ type, id, x, y, style, textStyle, textConfig }: IExportShape) => {
-      const newShape = this._shapeMgr.createShape(type, { x, y })
-      ;(newShape as unknown as zrender.Displayable).setStyle({ ...style })
-      ;(newShape as unknown as zrender.Displayable).getTextContent().setStyle(textStyle)
-      ;(newShape as unknown as zrender.Displayable).setTextConfig(textConfig)
-      newShape.id = id
-      newShape.unActive()
-    })
+    shapes.forEach(
+      ({
+        type,
+        id,
+        x,
+        y,
+        style: {
+          fill,
+          stroke,
+          lineWidth,
+          lineDash,
+          text,
+          fontColor,
+          fontSize,
+          fontStyle,
+          fontWeight,
+          textPosition
+        }
+      }: IExportShape) => {
+        const newShape = this._shapeMgr.createShape(type, { x, y })
+        ;(newShape as unknown as zrender.Displayable).setStyle({
+          fill,
+          stroke,
+          lineWidth,
+          lineDash
+        })
+        ;(newShape as unknown as zrender.Displayable)
+          .getTextContent()
+          .setStyle({ text, fill: fontColor, fontSize, fontStyle, fontWeight })
+        ;(newShape as unknown as zrender.Displayable).setTextConfig({ position: textPosition })
+        newShape.id = id
+        newShape.unActive()
+      }
+    )
 
     connections.forEach((conn: IExportConnection) => {
       const fromNode = this.getNodeById(conn.fromNode)
@@ -128,9 +154,8 @@ export class IocEditor {
       const connection = this._connectionMgr.createConnection(fromPoint)
       connection.setConnectionType(conn.type)
       this._connectionMgr.connect(connection, toPoint)
-      connection.setLineStyle(conn.lineStyle)
-      connection.setTextPosition(conn.textPosition)
-      connection.setTextStyle(conn.textStyle)
+      connection.setStyle(conn.style)
+
       if (conn.type === ConnectionType.BezierCurve) {
         connection.setBezierCurve(
           fromPoint.point,
@@ -141,27 +166,47 @@ export class IocEditor {
       }
     })
 
-    this.createGroup(groups, shapes)
+    this.initGroup(groups, shapes)
   }
 
-  createGroup(groups: IExportGroup[], shapes: IExportShape[]) {
+  initGroup(groups: IExportGroup[], shapes: IExportShape[]) {
     const { groupTree, groupMap } = flatGroupArrayToTree(groups)
 
-    const treeArray = groupTreeToArray(groupTree)
+    console.log('groupTree', JSON.stringify(groupTree, null, 2))
+    console.log(
+      'groupMap',
+      JSON.stringify(
+        Array.from(groupMap).reduce(
+          (obj, [key, value]) => Object.assign(obj, { [key]: value }),
+          {}
+        ),
+        null,
+        2
+      )
+    )
 
-    treeArray.forEach((gId: number) => {
+    const treeGroupArray = groupTreeToArray(groupTree)
+
+    console.log('treeArray', JSON.stringify(treeGroupArray), null, 2)
+
+    treeGroupArray.forEach((gId: number) => {
+      let childs = []
       if (groupMap.get(gId).children.length === 0) {
-        // 最底层的group，group由shape组成
+        // 最底层的group，由shape组成
         const childIds = getChildShapesByGroupId(gId, shapes).map(s => s.id)
         const childShapes = this._storageMgr.getShapes().filter(s => childIds.includes(s.id))
-        this._groupMgr.createGroup(childShapes, gId)?.unActive()
+        childs = childShapes
       } else {
         const childGroupIds = groupMap.get(gId).children.map((c: IGroupTreeNode) => c.id)
         const childGroups = this._storageMgr.getGroups().filter(g => childGroupIds.includes(g.id))
         const childIds = getChildShapesByGroupId(gId, shapes).map(s => s.id)
         const childShapes = this._storageMgr.getShapes().filter(s => childIds.includes(s.id))
-        this._groupMgr.createGroup([...childShapes, ...childGroups], gId)?.unActive()
+        childs = [...childGroups, ...childShapes]
       }
+      const newGroup = this._groupMgr.createGroup(childs, gId)
+
+      newGroup?.unActive()
+      newGroup?.setStyle(groupMap.get(gId).style)
     })
   }
 
@@ -183,7 +228,7 @@ export class IocEditor {
       groups
     }
 
-    const str = JSON.stringify(data)
+    const str = JSON.stringify(data, null, 2)
     console.log('导出的数据为：', data)
     downloadFile(str, 'ioc-chart-flow.json')
 

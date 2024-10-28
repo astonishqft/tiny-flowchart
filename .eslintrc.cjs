@@ -22,7 +22,7 @@ module.exports = {
     'space-before-blocks': 2,
     'no-spaced-func': 2,
     'vue/multi-word-component-names': 0,
-    'semi': [2, 'never'],
-    'no-multiple-empty-lines': [2, { 'max': 1 }],
+    semi: [2, 'never'],
+    'no-multiple-empty-lines': [2, { max: 1 }]
   }
 }
