@@ -143,6 +143,8 @@ export class IocEditor {
       }
     )
 
+    this.initGroup(groups, shapes)
+
     connections.forEach((conn: IExportConnection) => {
       const fromNode = this.getNodeById(conn.fromNode)
       const toNode = this.getNodeById(conn.toNode)
@@ -165,8 +167,6 @@ export class IocEditor {
         )
       }
     })
-
-    this.initGroup(groups, shapes)
   }
 
   initGroup(groups: IExportGroup[], shapes: IExportShape[]) {
