@@ -271,8 +271,8 @@ class GroupManage extends Disposable {
   }
 
   unActive() {
-    this._storageMgr.getGroups().forEach(group => {
-      group.unActive()
+    this._storageMgr.getNodes().forEach(shape => {
+      shape.unActive()
     })
   }
 

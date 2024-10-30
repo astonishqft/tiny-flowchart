@@ -35,7 +35,9 @@ class Anchor {
         ;(circle as IAnchorPoint).oldFillColor = circle.style.fill as string
         circle.attr({
           style: {
-            fill: 'rgb(0,181,237)'
+            fill: 'rgb(0,181,237)',
+            shadowColor: '#1971c2',
+            shadowBlur: 2
           }
         })
         this.show()
@@ -44,9 +46,11 @@ class Anchor {
       circle.on('mouseout', () => {
         circle.attr({
           style: {
-            fill: (circle as IAnchorPoint).oldFillColor
+            fill: (circle as IAnchorPoint).oldFillColor,
+            shadowBlur: 0
           }
         })
+        if (this.shape.selected) return
         this.hide()
       })
 

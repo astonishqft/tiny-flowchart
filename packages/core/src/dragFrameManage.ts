@@ -26,13 +26,13 @@ class DragFrameManage extends Disposable {
         x: 0,
         y: 0,
         width: 100,
-        height: 100
+        height: 100,
+        r: [3]
       },
       style: {
-        fill: '#1971c2',
+        fill: 'rgba(25, 113, 194, 0.2)',
         stroke: '#1971c2',
-        opacity: 0.3,
-        lineWidth: 0,
+        lineWidth: 1,
         lineDash: [4, 4]
       },
       silent: true,

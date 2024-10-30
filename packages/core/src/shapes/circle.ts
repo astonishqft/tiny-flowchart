@@ -95,8 +95,9 @@ class Circle extends zrender.Ellipse implements IShape {
     this.selected = true
     this.attr({
       style: {
-        shadowColor: 'yellow',
-        shadowBlur: 3
+        shadowColor: '#1971c2',
+        stroke: '#1971c2',
+        shadowBlur: 1
       }
     })
     this.anchor?.show()
@@ -107,7 +108,8 @@ class Circle extends zrender.Ellipse implements IShape {
     this.attr({
       style: {
         shadowColor: '',
-        shadowBlur: 0
+        shadowBlur: 0,
+        stroke: '#333'
       }
     })
     this.anchor?.hide()

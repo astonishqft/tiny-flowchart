@@ -232,6 +232,7 @@ class ShapeManage extends Disposable {
     })
 
     shape.on('mouseout', () => {
+      if (shape.selected) return
       shape.anchor?.hide()
     })
 
@@ -257,7 +258,7 @@ class ShapeManage extends Disposable {
   }
 
   unActive() {
-    this._storageMgr.getShapes().forEach((shape: IShape) => {
+    this._storageMgr.getNodes().forEach(shape => {
       shape.unActive()
     })
   }

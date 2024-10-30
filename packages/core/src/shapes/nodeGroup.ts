@@ -58,8 +58,10 @@ class NodeGroup extends zrender.Group implements INodeGroup {
       style: {
         fill: '#fafafa',
         lineWidth: 1,
-        stroke: '#ccc',
-        lineDash: [5, 5]
+        stroke: '#ccc'
+      },
+      shape: {
+        r: [3]
       },
       z: this.z
     })
@@ -92,8 +94,7 @@ class NodeGroup extends zrender.Group implements INodeGroup {
       style: {
         fill: '#fafafa',
         lineWidth: 1,
-        stroke: '#ccc',
-        lineDash: [5, 5]
+        stroke: '#ccc'
       },
       z: this.z
     })
@@ -265,8 +266,9 @@ class NodeGroup extends zrender.Group implements INodeGroup {
     this.selected = true
     this.groupRect!.attr({
       style: {
-        shadowColor: 'yellow',
-        shadowBlur: 3
+        shadowColor: '#1971c2',
+        stroke: '#1971c2',
+        shadowBlur: 1
       }
     })
     this.anchor?.show()
@@ -280,7 +282,8 @@ class NodeGroup extends zrender.Group implements INodeGroup {
     this.groupRect!.attr({
       style: {
         shadowColor: '',
-        shadowBlur: 0
+        shadowBlur: 0,
+        stroke: '#333'
       }
     })
     this.anchor?.hide()
