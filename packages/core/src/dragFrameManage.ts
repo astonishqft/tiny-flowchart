@@ -1,10 +1,13 @@
 import * as zrender from 'zrender'
 import { Disposable } from './disposable'
+import { isEnter, getTopGroup } from './utils'
 
 import type { IocEditor } from './iocEditor'
 import type { IDisposable } from './disposable'
 import type { IViewPortManage } from './viewPortManage'
-
+import type { IStorageManage } from './storageManage'
+import type { INodeGroup } from 'shapes/nodeGroup'
+import type { IShape } from './shapes'
 export interface IDragFrameManage extends IDisposable {
   show(): void
   hide(): void
@@ -13,14 +16,24 @@ export interface IDragFrameManage extends IDisposable {
   getFrame(): zrender.Rect
   getBoundingBox(): zrender.BoundingRect
   isIntersect(shapesBoundingBox: zrender.BoundingRect): boolean
+  intersectWidthGroups(shape: IShape | INodeGroup): IGroupShapeIntersectResult
+}
+
+export interface IGroupShapeIntersectResult {
+  isDragOutFromGroup: boolean
+  dragTargetGroup: null | INodeGroup
+  isRemoveFromGroup: boolean
+  isDragEnterToGroup: boolean
 }
 
 class DragFrameManage extends Disposable {
   private _frame: zrender.Rect
   private _viewPortMgr: IViewPortManage
+  private _storageMgr: IStorageManage
   constructor(iocEditor: IocEditor) {
     super()
     this._viewPortMgr = iocEditor._viewPortMgr
+    this._storageMgr = iocEditor._storageMgr
     this._frame = new zrender.Rect({
       shape: {
         x: 0,
@@ -65,17 +78,91 @@ class DragFrameManage extends Disposable {
     this._frame.attr('y', y)
   }
 
+  // Group内部的Shape进入另一个子Group
+  isEnterChild(targetGroups: INodeGroup[], z: number) {
+    const result = targetGroups.filter(g => g.z > z)
+
+    if (result.length > 0) {
+      return true
+    } else {
+      return false
+    }
+  }
+
+  isEnterParent(targetGroups: INodeGroup[], z: number) {
+    if (targetGroups.length === 0) return false
+    const result = targetGroups.filter(g => g.z < z)
+    if (result.length === targetGroups.length) {
+      return true
+    } else {
+      return false
+    }
+  }
+
+  intersectWidthGroups(shape: IShape | INodeGroup): IGroupShapeIntersectResult {
+    // 获取所有节点组，判断是否与拖动浮层相交，如果相交，则将节点组添加到拖动浮层中
+    let isDragOutFromGroup = false
+    let dragTargetGroup = null
+    let isRemoveFromGroup = false
+    let isDragEnterToGroup = false
+    const groups = this._storageMgr.getGroups()
+
+    const target = groups.filter((g: INodeGroup) =>
+      isEnter(this.getBoundingBox(), g.getBoundingBox())
+    )
+
+    const parentGroup = shape.parentGroup
+    groups.forEach(g => g.setCommonStyle())
+    if (parentGroup) {
+      const { z } = parentGroup
+
+      if (this.isEnterChild(target, z)) {
+        const p = getTopGroup(target)
+        dragTargetGroup = p
+        isDragOutFromGroup = true
+        p.setAlertStyle()
+      } else if (this.isEnterParent(target, z)) {
+        const p = getTopGroup(target)
+        dragTargetGroup = p
+        isDragOutFromGroup = true
+        p.setAlertStyle()
+      }
+
+      if (target.length === 0) {
+        // 从Group移除
+        console.log('从Group移除')
+        isRemoveFromGroup = true
+      }
+    } else {
+      // 从外部将一个Shape移入Group
+      if (target.length) {
+        console.log('从外部将一个Shape移入Group')
+        const p = getTopGroup(target)
+        p.setAlertStyle()
+        dragTargetGroup = p
+        isDragEnterToGroup = true
+      }
+    }
+
+    return {
+      isDragOutFromGroup,
+      dragTargetGroup,
+      isRemoveFromGroup,
+      isDragEnterToGroup
+    }
+  }
+
   getFrame() {
     return this._frame
   }
 
   getBoundingBox() {
-    const g = new zrender.Group()
-    const boundingBox: zrender.BoundingRect = g.getBoundingRect([this._frame])
-    boundingBox.x = this._frame.x
-    boundingBox.y = this._frame.y
-
-    return boundingBox
+    return new zrender.BoundingRect(
+      this._frame.x,
+      this._frame.y,
+      this._frame.shape.width,
+      this._frame.shape.height
+    )
   }
 
   // 判断是否相交

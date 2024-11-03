@@ -2,16 +2,9 @@ import * as zrender from 'zrender'
 import { NodeGroup } from './shapes/nodeGroup'
 import { Subject } from 'rxjs'
 import { Anchor } from './anchor'
-import {
-  isLeave,
-  isEnter,
-  getTopGroup,
-  getMinPosition,
-  getMinZLevel,
-  getBoundingRect,
-  getGroupMaxZLevel
-} from './utils'
+import { getMinPosition, getMinZLevel, getBoundingRect } from './utils'
 import { Disposable, IDisposable } from './disposable'
+import { NodeType } from './shapes'
 
 import type { IViewPortManage } from './viewPortManage'
 import type { IDragFrameManage } from './dragFrameManage'
@@ -150,6 +143,8 @@ class GroupManage extends Disposable {
   }
 
   addShapeToGroup(shape: INodeGroup, targetGroup: INodeGroup) {
+    ;(shape as unknown as zrender.Displayable).attr('z', targetGroup.z + 1)
+
     shape.parentGroup = targetGroup
     targetGroup.shapes.push(shape)
     targetGroup.resizeNodeGroup()
@@ -161,9 +156,10 @@ class GroupManage extends Disposable {
     let zoom = 1
     let magneticOffsetX = 0
     let magneticOffsetY = 0
-    let isDragLeave = false
-    let isDragEnter = false
-    let dragEnterGroups: INodeGroup[] = []
+    let dragTargetGroup: null | INodeGroup = null
+    let isDragOutFromGroup = false
+    let isRemoveFromGroup = false
+    let isDragEnterToGroup = false
     const mouseMove = (e: MouseEvent) => {
       const nodeName = (e.target as HTMLElement).nodeName
       if (nodeName !== 'CANVAS') return
@@ -173,27 +169,11 @@ class GroupManage extends Disposable {
       // 设置一个阈值，避免鼠标发生轻微位移时出现拖动浮层
       if (Math.abs(offsetX / zoom) > 2 || Math.abs(offsetY / zoom) > 2) {
         this._dragFrameMgr.updatePosition(nodeGroup.x + stepX / zoom, nodeGroup.y + stepY / zoom)
-        if (nodeGroup.parentGroup) {
-          isDragLeave = isLeave(
-            this._dragFrameMgr.getBoundingBox(),
-            nodeGroup.parentGroup!.getBoundingBox()
-          )
-          this.dragLeave(isDragLeave, nodeGroup)
-        } else {
-          // 需要把自身排除在外
-          dragEnterGroups = this._storageMgr
-            .getGroups()
-            .filter(g => g.id !== nodeGroup.id)
-            .filter(g => isEnter(this._dragFrameMgr.getBoundingBox(), g.getBoundingBox()))
-
-          if (dragEnterGroups.length !== 0) {
-            isDragEnter = true
-          } else {
-            isDragEnter = false
-          }
-
-          this.dragEnter(isDragEnter, getTopGroup(dragEnterGroups))
-        }
+        const result = this._dragFrameMgr.intersectWidthGroups(nodeGroup)
+        isDragOutFromGroup = result.isDragOutFromGroup
+        dragTargetGroup = result.dragTargetGroup
+        isRemoveFromGroup = result.isRemoveFromGroup
+        isDragEnterToGroup = result.isDragEnterToGroup
       }
       // 拖拽浮层的时候同时更新对其参考线
       const magneticOffset = this._refLineMgr.updateRefLines()
@@ -222,15 +202,16 @@ class GroupManage extends Disposable {
       document.removeEventListener('mousemove', mouseMove)
       document.removeEventListener('mouseup', mouseUp)
 
-      if (isDragLeave) {
+      if (isDragOutFromGroup && dragTargetGroup) {
         this.removeShapeFromGroup(nodeGroup)
-        isDragLeave = false
+        this.addShapeToGroup(nodeGroup, dragTargetGroup)
       }
-      if (isDragEnter) {
-        const maxZ = getGroupMaxZLevel(this._storageMgr.getGroups())
-        nodeGroup.setZ(maxZ + 1)
-        this.addShapeToGroup(nodeGroup, getTopGroup(dragEnterGroups))
-        isDragEnter = false
+
+      if (isRemoveFromGroup) {
+        this.removeShapeFromGroup(nodeGroup)
+      }
+      if (isDragEnterToGroup && dragTargetGroup) {
+        this.addShapeToGroup(nodeGroup, dragTargetGroup)
       }
 
       this.updateGroupSize(nodeGroup)
@@ -295,7 +276,7 @@ class GroupManage extends Disposable {
       shape.createAnchors()
       shape.anchor!.refresh()
       this._connectionMgr.refreshConnection(shape)
-      if (shape.nodeType === 'nodeGroup') {
+      if (shape.nodeType === NodeType.Group) {
         this.updateGroupShapes(
           shape as NodeGroup,
           offsetX,
@@ -316,7 +297,7 @@ class GroupManage extends Disposable {
     nodeGroup.shapes.forEach((shape: IShape | INodeGroup) => {
       shape.oldX = shape.x
       shape.oldY = shape.y
-      if (shape.nodeType === 'nodeGroup') {
+      if (shape.nodeType === NodeType.Group) {
         this.setShapesOldPosition(shape as INodeGroup)
       }
     })

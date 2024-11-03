@@ -134,7 +134,7 @@ export interface IGroupTreeNode {
 export const flatGroupArrayToTree = (flatArray: IExportGroup[]) => {
   const map = new Map()
   flatArray.forEach(item => {
-    map.set(item.id, { id: item.id, style: item.style, children: [] })
+    map.set(item.id, { id: item.id, z: item.z, style: item.style, children: [] })
   })
 
   function buildTree(node: IGroupTreeNode) {

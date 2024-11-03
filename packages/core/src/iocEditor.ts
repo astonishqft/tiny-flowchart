@@ -125,9 +125,11 @@ export class IocEditor {
           fontStyle,
           fontWeight,
           textPosition
-        }
+        },
+        z
       }: IExportShape) => {
         const newShape = this._shapeMgr.createShape(type, { x, y })
+        ;(newShape as unknown as zrender.Displayable).attr('z', z)
         ;(newShape as unknown as zrender.Displayable).setStyle({
           fill,
           stroke,
@@ -191,13 +193,14 @@ export class IocEditor {
 
     treeGroupArray.forEach((gId: number) => {
       let childs = []
-      if (groupMap.get(gId).children.length === 0) {
+      const groupItem = groupMap.get(gId)
+      if (groupItem.children.length === 0) {
         // 最底层的group，由shape组成
         const childIds = getChildShapesByGroupId(gId, shapes).map(s => s.id)
         const childShapes = this._storageMgr.getShapes().filter(s => childIds.includes(s.id))
         childs = childShapes
       } else {
-        const childGroupIds = groupMap.get(gId).children.map((c: IGroupTreeNode) => c.id)
+        const childGroupIds = groupItem.children.map((c: IGroupTreeNode) => c.id)
         const childGroups = this._storageMgr.getGroups().filter(g => childGroupIds.includes(g.id))
         const childIds = getChildShapesByGroupId(gId, shapes).map(s => s.id)
         const childShapes = this._storageMgr.getShapes().filter(s => childIds.includes(s.id))
@@ -206,7 +209,8 @@ export class IocEditor {
       const newGroup = this._groupMgr.createGroup(childs, gId)
 
       newGroup?.unActive()
-      newGroup?.setStyle(groupMap.get(gId).style)
+      newGroup?.setZ(groupItem.z)
+      newGroup?.setStyle(groupItem.style)
     })
   }
 
@@ -265,6 +269,9 @@ export class IocEditor {
     this._shapeMgr.dispose()
     this._gridMgr.dispose()
     this._viewPortMgr.dispose()
+    this._dragFrameMgr.dispose()
+    this._shapeMgr.dispose()
+    this._groupMgr.dispose()
     this._settingMgr.dispose()
     this._zr.dispose()
   }

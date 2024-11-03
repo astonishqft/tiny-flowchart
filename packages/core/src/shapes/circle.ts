@@ -1,10 +1,11 @@
 import * as zrender from 'zrender'
+import { NodeType } from './index'
 import type { IShape, IAnchor } from './index'
 import type { Anchor } from '../anchor'
 
 class Circle extends zrender.Ellipse implements IShape {
   selected = false
-  nodeType = 'node'
+  nodeType = NodeType.Shape
   anchors: IAnchor[] = []
   anchor?: Anchor
   constructor(data: zrender.CircleProps) {

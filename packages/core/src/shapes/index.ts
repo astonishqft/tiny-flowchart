@@ -4,8 +4,14 @@ import { Rect } from './rect'
 import { Circle } from './circle'
 import type { Anchor } from '../anchor'
 import type { INodeGroup } from './nodeGroup'
-import type { FontStyle, FontWeight, BuiltinTextPosition } from 'zrender/lib/core/types'
-import type { PatternObject, LinearGradientObject, RadialGradientObject } from 'zrender/lib/export'
+import type {
+  PatternObject,
+  LinearGradientObject,
+  RadialGradientObject,
+  FontStyle,
+  FontWeight,
+  BuiltinTextPosition
+} from '../index'
 
 export type FillStyle =
   | string
@@ -76,6 +82,7 @@ export interface IExportShape {
   style: IExportShapeStyle
   type: string
   id: number
+  z: number
   parent?: number
 }
 
@@ -95,6 +102,7 @@ export interface IExportGroupStyle {
 export interface IExportGroup {
   style: IExportGroupStyle
   id: number
+  z: number
   parent?: number
 }
 
@@ -149,13 +157,18 @@ export enum ConnectionType {
   BezierCurve
 }
 
+export enum NodeType {
+  Group = 'Group',
+  Shape = 'Shape'
+}
+
 export type IControlPoint = zrender.Circle & {
   mark: string
 }
 
 export interface IBaseShape {
   selected: boolean
-  nodeType: string
+  nodeType: NodeType
   anchors: IAnchor[]
   parentGroup?: INodeGroup
   anchor?: Anchor

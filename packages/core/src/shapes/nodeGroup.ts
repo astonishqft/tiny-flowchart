@@ -3,6 +3,7 @@ import { getBoundingRect } from '../utils'
 
 import type { IShape, IAnchor, IExportGroup, IBaseShape, IExportGroupStyle } from './index'
 import type { Anchor } from '../anchor'
+import { NodeType } from './index'
 
 export interface INodeGroup extends zrender.Group, IBaseShape {
   boundingBox: zrender.BoundingRect
@@ -23,7 +24,7 @@ export interface INodeGroup extends zrender.Group, IBaseShape {
 }
 
 class NodeGroup extends zrender.Group implements INodeGroup {
-  nodeType = 'nodeGroup'
+  nodeType = NodeType.Group
   groupRect: zrender.Rect | null = null
   groupHead: zrender.Rect | null = null
   textContent: zrender.Text | null = null
@@ -283,7 +284,7 @@ class NodeGroup extends zrender.Group implements INodeGroup {
       style: {
         shadowColor: '',
         shadowBlur: 0,
-        stroke: '#333'
+        stroke: '#ccc'
       }
     })
     this.anchor?.hide()
@@ -299,12 +300,9 @@ class NodeGroup extends zrender.Group implements INodeGroup {
   }
 
   getBoundingBox() {
-    const g = new zrender.Group()
-    const boundingBox: zrender.BoundingRect = g.getBoundingRect([this])
-    boundingBox.x = this.x
-    boundingBox.y = this.y
+    const { width, height } = this.getBoundingRect()
 
-    return boundingBox
+    return new zrender.BoundingRect(this.x, this.y, width, height)
   }
 
   removeShapeFromGroup(shape: IShape | INodeGroup) {
@@ -334,7 +332,8 @@ class NodeGroup extends zrender.Group implements INodeGroup {
         fontWeight: this.textContent?.style.fontWeight,
         fontStyle: this.textContent?.style.fontStyle,
         textPosition: this.groupHead?.textConfig?.position
-      }
+      },
+      z: this.z
     }
 
     if (this.parentGroup) {
