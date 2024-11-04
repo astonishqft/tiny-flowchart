@@ -14,6 +14,7 @@ import type { IRefLineManage } from './refLineManage'
 import type { IStorageManage } from './storageManage'
 import type { INodeGroup } from 'shapes/nodeGroup'
 import type { IocEditor } from './iocEditor'
+import type { IAnchor } from './shapes'
 
 export interface IShapeManage extends IDisposable {
   updateSelectShape$: Subject<IShape>
@@ -50,17 +51,6 @@ class ShapeManage extends Disposable {
       y: (y - viewPortY) / zoom
     })
 
-    const anchor = new Anchor(shape)
-    shape.anchor = anchor
-
-    shape.createAnchors()
-    shape.anchor.bars.forEach((bar: IAnchorPoint) => {
-      this._viewPortMgr.addElementToViewPort(bar)
-    })
-    shape.anchor.refresh()
-    this.initShapeEvent(shape)
-    this._viewPortMgr.addElementToViewPort(shape)
-
     shape.getExportData = () => {
       const exportData: IExportShape = {
         x: shape.x,
@@ -88,6 +78,55 @@ class ShapeManage extends Disposable {
 
       return exportData
     }
+
+    // 给每个shape增加公共方法
+    shape.getBoundingBox = () => {
+      const { width, height } = getBoundingRect([shape])
+      return new zrender.BoundingRect(shape.x, shape.y, width, height)
+    }
+
+    shape.active = () => {
+      shape.selected = true
+      shape.attr({
+        style: {
+          shadowColor: '#1971c2',
+          stroke: '#1971c2',
+          shadowBlur: 1
+        }
+      })
+      shape.anchor?.show()
+    }
+
+    shape.unActive = () => {
+      shape.selected = false
+      shape.attr({
+        style: {
+          shadowColor: '',
+          shadowBlur: 0,
+          stroke: '#333'
+        }
+      })
+      shape.anchor?.hide()
+    }
+
+    shape.getAnchors = () => {
+      return shape.anchors.slice()
+    }
+
+    shape.getAnchorByIndex = (index: number) => {
+      return shape.anchors.filter((item: IAnchor) => item.index == index)[0]
+    }
+
+    const anchor = new Anchor(shape)
+    shape.anchor = anchor
+
+    shape.createAnchors()
+    shape.anchor.bars.forEach((bar: IAnchorPoint) => {
+      this._viewPortMgr.addElementToViewPort(bar)
+    })
+    shape.anchor.refresh()
+    this.initShapeEvent(shape)
+    this._viewPortMgr.addElementToViewPort(shape)
 
     this._storageMgr.addShape(shape)
 
@@ -208,7 +247,7 @@ class ShapeManage extends Disposable {
       console.log('shape click', shape)
       this.unActive()
       this._connectionMgr.unActiveConnections()
-      shape.active()
+      shape.active!()
       this.updateSelectShape$.next(shape)
     })
 
@@ -230,7 +269,7 @@ class ShapeManage extends Disposable {
       zoom = this._storageMgr.getZoom()
       this._dragFrameMgr.updatePosition(shape.x, shape.y)
       this._dragFrameMgr.show()
-      const { width, height } = getBoundingRect([shape])
+      const { width, height } = shape.getBoundingBox!()
       this._dragFrameMgr.initSize(width, height)
 
       this._refLineMgr.cacheRefLines()
@@ -245,7 +284,7 @@ class ShapeManage extends Disposable {
 
   unActive() {
     this._storageMgr.getNodes().forEach(shape => {
-      shape.unActive()
+      shape.unActive!()
     })
   }
 

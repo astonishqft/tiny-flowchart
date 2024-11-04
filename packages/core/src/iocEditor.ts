@@ -141,7 +141,7 @@ export class IocEditor {
           .setStyle({ text, fill: fontColor, fontSize, fontStyle, fontWeight })
         ;(newShape as unknown as zrender.Displayable).setTextConfig({ position: textPosition })
         newShape.id = id
-        newShape.unActive()
+        newShape.unActive!()
       }
     )
 

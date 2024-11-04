@@ -46,7 +46,7 @@ class GroupManage extends Disposable {
       : [...this._storageMgr.getActiveShapes(), ...this._storageMgr.getActiveGroups()]
 
     activeShapes.forEach(shape => {
-      shape.unActive()
+      shape.unActive!()
     })
 
     const minPostion = getMinPosition(activeShapes)
@@ -253,7 +253,7 @@ class GroupManage extends Disposable {
 
   unActive() {
     this._storageMgr.getNodes().forEach(shape => {
-      shape.unActive()
+      shape.unActive!()
     })
   }
 

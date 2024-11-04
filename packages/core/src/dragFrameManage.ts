@@ -108,7 +108,10 @@ class DragFrameManage extends Disposable {
     const groups = this._storageMgr.getGroups()
 
     const target = groups.filter((g: INodeGroup) =>
-      isEnter(this.getBoundingBox(), g.getBoundingBox())
+      isEnter(
+        this.getBoundingBox(),
+        (g.getBoundingBox && g.getBoundingBox()) as zrender.BoundingRect
+      )
     )
 
     const parentGroup = shape.parentGroup

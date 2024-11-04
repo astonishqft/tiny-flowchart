@@ -10,7 +10,6 @@ export interface INodeGroup extends zrender.Group, IBaseShape {
   shapes: (IShape | INodeGroup)[]
   canRemove: boolean
   refresh(): void
-  getBoundingBox(): zrender.BoundingRect
   removeShapeFromGroup(shape: IShape): void
   resizeNodeGroup(): void
   setAlertStyle(): void
@@ -21,6 +20,11 @@ export interface INodeGroup extends zrender.Group, IBaseShape {
   groupHead: zrender.Rect | null
   getExportData(): IExportGroup
   setStyle(style: IExportGroupStyle): void
+  active(): void
+  unActive(): void
+  getBoundingBox(): zrender.BoundingRect
+  getAnchors(): IAnchor[]
+  getAnchorByIndex(index: number): IAnchor
 }
 
 class NodeGroup extends zrender.Group implements INodeGroup {
@@ -274,7 +278,7 @@ class NodeGroup extends zrender.Group implements INodeGroup {
     })
     this.anchor?.show()
     this.shapes.forEach(shape => {
-      shape.unActive()
+      shape.unActive && shape.unActive()
     })
   }
 

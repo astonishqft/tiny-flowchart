@@ -98,10 +98,6 @@ export const isEnter = (a: zrender.BoundingRect, b: zrender.BoundingRect) => {
   return centerX >= b.x && centerX <= b.x + b.width && centerY >= b.y && centerY <= b.y + b.height
 }
 
-export const isLeave = (a: zrender.BoundingRect, b: zrender.BoundingRect) => {
-  return a.x + a.width < b.x || a.x > b.x + b.width || a.y + a.height < b.y || a.y > b.y + b.height
-}
-
 export const getTopGroup = (groups: INodeGroup[]): INodeGroup => {
   if (groups.length === 1) {
     return groups[0]

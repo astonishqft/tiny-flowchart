@@ -176,14 +176,15 @@ export interface IBaseShape {
   oldY?: number
   z?: number
   createAnchors(): void
-  active(): void
-  unActive(): void
-  getAnchors(): IAnchor[]
-  getAnchorByIndex(index: number): IAnchor
 }
 
 export interface IShape extends zrender.Element, IBaseShape {
   getExportData?(): IExportShape
+  active?(): void
+  unActive?(): void
+  getBoundingBox?(): zrender.BoundingRect
+  getAnchors?(): IAnchor[]
+  getAnchorByIndex?(index: number): IAnchor
 }
 
 export interface IShapeConfig {

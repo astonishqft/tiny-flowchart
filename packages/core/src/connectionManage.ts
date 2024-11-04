@@ -112,11 +112,11 @@ class ConnectionManage extends Disposable {
 
     conns.forEach(conn => {
       if (conn.fromNode.id === shape.id) {
-        const fromPoint = shape.getAnchorByIndex(conn.fromPoint!.index)
+        const fromPoint = shape.getAnchorByIndex!(conn.fromPoint!.index)
         conn.setFromPoint(fromPoint)
         conn.refresh()
       } else if (conn.toNode!.id === shape.id) {
-        const toPoint = shape.getAnchorByIndex(conn.toPoint!.index)
+        const toPoint = shape.getAnchorByIndex!(conn.toPoint!.index)
         conn.setToPoint(toPoint)
         conn.refresh()
       }

@@ -11,7 +11,7 @@ class Anchor {
     this.create()
   }
   create() {
-    const points = this.shape.getAnchors()
+    const points = this.shape.getAnchors!()
     points.forEach(p => {
       const circle: zrender.Circle = new zrender.Circle({
         style: {
@@ -86,7 +86,7 @@ class Anchor {
 
   refresh() {
     this.bars.forEach(bar => {
-      const p = this.shape.getAnchorByIndex(bar.point.index)
+      const p = this.shape.getAnchorByIndex!(bar.point.index)
       bar.attr({
         shape: {
           cx: p.x,

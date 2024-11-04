@@ -47,38 +47,6 @@ class Rect extends zrender.Rect implements IShape {
     }
     this.anchors.push(t, r, b, l)
   }
-
-  active() {
-    this.selected = true
-    this.attr({
-      style: {
-        shadowColor: '#1971c2',
-        stroke: '#1971c2',
-        shadowBlur: 1
-      }
-    })
-    this.anchor?.show()
-  }
-
-  unActive() {
-    this.selected = false
-    this.attr({
-      style: {
-        shadowColor: '',
-        shadowBlur: 0,
-        stroke: '#333'
-      }
-    })
-    this.anchor?.hide()
-  }
-
-  getAnchors() {
-    return this.anchors.slice()
-  }
-
-  getAnchorByIndex(index: number) {
-    return this.anchors.filter(item => item.index == index)[0]
-  }
 }
 
 export { Rect }
