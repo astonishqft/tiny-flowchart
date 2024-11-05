@@ -1,14 +1,10 @@
-import * as zrender from 'zrender'
 import { NodeGroup } from './shapes/nodeGroup'
-import { Subject } from 'rxjs'
 import { Anchor } from './anchor'
-import { getMinPosition, getMinZLevel, getBoundingRect } from './utils'
+import { getMinZLevel } from './utils'
 import { Disposable, IDisposable } from './disposable'
-import { NodeType } from './shapes'
+import { NodeEventManage } from './nodeEventManage'
 
 import type { IViewPortManage } from './viewPortManage'
-import type { IDragFrameManage } from './dragFrameManage'
-import type { IRefLineManage } from './refLineManage'
 import type { IConnectionManage } from './connectionManage'
 import type { IStorageManage } from './storageManage'
 import type { IAnchorPoint, IShape } from './shapes'
@@ -16,48 +12,35 @@ import type { INodeGroup } from './shapes/nodeGroup'
 import type { IocEditor } from './iocEditor'
 
 export interface IGroupManage extends IDisposable {
-  updateSelectGroup$: Subject<INodeGroup>
   createGroup(nodes?: (IShape | INodeGroup)[], groupId?: number): INodeGroup | undefined
   unGroup(): void
-  unActive(): void
   clear(): void
 }
 
 class GroupManage extends Disposable {
   private _viewPortMgr: IViewPortManage
-  private _dragFrameMgr: IDragFrameManage
-  private _refLineMgr: IRefLineManage
   private _connectionMgr: IConnectionManage
   private _storageMgr: IStorageManage
-  updateSelectGroup$ = new Subject<INodeGroup>()
+  private _iocEditor: IocEditor
+
   constructor(iocEditor: IocEditor) {
     super()
+    this._iocEditor = iocEditor
     this._connectionMgr = iocEditor._connectionMgr
     this._viewPortMgr = iocEditor._viewPortMgr
-    this._dragFrameMgr = iocEditor._dragFrameMgr
-    this._refLineMgr = iocEditor._refLineMgr
     this._storageMgr = iocEditor._storageMgr
-    this._disposables.push(this.updateSelectGroup$)
   }
 
   createGroup(nodes?: (IShape | INodeGroup)[], groupId?: number) {
-    const activeShapes = nodes
-      ? nodes
-      : [...this._storageMgr.getActiveShapes(), ...this._storageMgr.getActiveGroups()]
+    const activeShapes = nodes ? nodes : this._storageMgr.getActiveNodes()
 
     activeShapes.forEach(shape => {
       shape.unActive!()
     })
 
-    const minPostion = getMinPosition(activeShapes)
-
-    const boundingBox = getBoundingRect(activeShapes)
-    boundingBox.x = minPostion[0]
-    boundingBox.y = minPostion[1]
-
     const minZLevel = getMinZLevel(activeShapes)
 
-    const groupNode = new NodeGroup(boundingBox, activeShapes)
+    const groupNode = new NodeGroup(activeShapes, this._iocEditor)
     groupNode.setZ(minZLevel - 1)
 
     const anchor = new Anchor(groupNode)
@@ -68,7 +51,7 @@ class GroupManage extends Disposable {
       this._viewPortMgr.addElementToViewPort(bar)
     })
     groupNode.anchor.refresh()
-    this.initShapeEvent(groupNode)
+    new NodeEventManage(groupNode, this._iocEditor)
     this._storageMgr.addGroup(groupNode)
     this._viewPortMgr.addElementToViewPort(groupNode)
 
@@ -108,207 +91,6 @@ class GroupManage extends Disposable {
         this._connectionMgr.removeConnection(connection)
       }
     })
-  }
-
-  dragLeave(isDragLeave: boolean, shape: IShape | INodeGroup) {
-    console.log('groupNode dragLeave', isDragLeave)
-    if (isDragLeave) {
-      shape.parentGroup!.setAlertStyle()
-    } else {
-      shape.parentGroup!.setCommonStyle()
-    }
-  }
-
-  dragEnter(isDragEnter: boolean, targetGroup: INodeGroup) {
-    console.log('groupNode dragEnter', isDragEnter)
-    if (isDragEnter) {
-      targetGroup.setAlertStyle()
-      this._storageMgr
-        .getGroups()
-        .filter(g => g.id !== targetGroup.id)
-        .forEach(g => g.setCommonStyle())
-    } else {
-      this._storageMgr.getGroups().forEach(g => g.setCommonStyle())
-    }
-  }
-
-  removeShapeFromGroup(shape: INodeGroup) {
-    if (shape.parentGroup) {
-      if (shape.parentGroup!.shapes.length === 1) return // 确保组内至少有一个元素
-      shape.parentGroup!.shapes = shape.parentGroup!.shapes.filter(item => item.id !== shape.id)
-      shape.parentGroup!.resizeNodeGroup()
-      this._connectionMgr.refreshConnection(shape.parentGroup)
-      delete shape.parentGroup
-    }
-  }
-
-  addShapeToGroup(shape: INodeGroup, targetGroup: INodeGroup) {
-    ;(shape as unknown as zrender.Displayable).attr('z', targetGroup.z + 1)
-
-    shape.parentGroup = targetGroup
-    targetGroup.shapes.push(shape)
-    targetGroup.resizeNodeGroup()
-  }
-
-  initShapeEvent(nodeGroup: INodeGroup) {
-    let startX = 0
-    let startY = 0
-    let zoom = 1
-    let magneticOffsetX = 0
-    let magneticOffsetY = 0
-    let dragTargetGroup: null | INodeGroup = null
-    let isDragOutFromGroup = false
-    let isRemoveFromGroup = false
-    let isDragEnterToGroup = false
-    const mouseMove = (e: MouseEvent) => {
-      const nodeName = (e.target as HTMLElement).nodeName
-      if (nodeName !== 'CANVAS') return
-      const { offsetX, offsetY } = e
-      const stepX = offsetX - startX
-      const stepY = offsetY - startY
-      // 设置一个阈值，避免鼠标发生轻微位移时出现拖动浮层
-      if (Math.abs(offsetX / zoom) > 2 || Math.abs(offsetY / zoom) > 2) {
-        this._dragFrameMgr.updatePosition(nodeGroup.x + stepX / zoom, nodeGroup.y + stepY / zoom)
-        const result = this._dragFrameMgr.intersectWidthGroups(nodeGroup)
-        isDragOutFromGroup = result.isDragOutFromGroup
-        dragTargetGroup = result.dragTargetGroup
-        isRemoveFromGroup = result.isRemoveFromGroup
-        isDragEnterToGroup = result.isDragEnterToGroup
-      }
-      // 拖拽浮层的时候同时更新对其参考线
-      const magneticOffset = this._refLineMgr.updateRefLines()
-      magneticOffsetX = magneticOffset.magneticOffsetX
-      magneticOffsetY = magneticOffset.magneticOffsetY
-    }
-
-    const mouseUp = (e: MouseEvent) => {
-      this._dragFrameMgr.hide()
-
-      this._refLineMgr.clearRefPointAndRefLines()
-      magneticOffsetX = 0
-      magneticOffsetY = 0
-
-      this.updateGroupShapes(
-        nodeGroup,
-        e.offsetX,
-        e.offsetY,
-        startX,
-        startY,
-        zoom,
-        magneticOffsetX,
-        magneticOffsetY
-      )
-
-      document.removeEventListener('mousemove', mouseMove)
-      document.removeEventListener('mouseup', mouseUp)
-
-      if (isDragOutFromGroup && dragTargetGroup) {
-        this.removeShapeFromGroup(nodeGroup)
-        this.addShapeToGroup(nodeGroup, dragTargetGroup)
-      }
-
-      if (isRemoveFromGroup) {
-        this.removeShapeFromGroup(nodeGroup)
-      }
-      if (isDragEnterToGroup && dragTargetGroup) {
-        this.addShapeToGroup(nodeGroup, dragTargetGroup)
-      }
-
-      this.updateGroupSize(nodeGroup)
-    }
-
-    nodeGroup.on('click', () => {
-      this.unActive()
-      nodeGroup.active()
-      this._connectionMgr.unActiveConnections()
-      this.updateSelectGroup$.next(nodeGroup)
-    })
-
-    nodeGroup.on('mousemove', () => {
-      nodeGroup.anchor?.show()
-      ;(nodeGroup as unknown as zrender.Displayable).attr('cursor', 'move')
-    })
-
-    nodeGroup.on('mouseout', () => {
-      nodeGroup.anchor?.hide()
-    })
-
-    nodeGroup.on('mousedown', e => {
-      console.log('nodeGroup mousedown', nodeGroup)
-      startX = e.offsetX
-      startY = e.offsetY
-
-      this.setShapesOldPosition(nodeGroup)
-      zoom = this._storageMgr.getZoom()
-      const { width, height, x, y } = nodeGroup.getBoundingBox()
-
-      this._dragFrameMgr.updatePosition(x, y)
-      this._dragFrameMgr.show()
-      this._dragFrameMgr.initSize(width, height)
-      this._refLineMgr.cacheRefLines()
-      document.addEventListener('mousemove', mouseMove)
-      document.addEventListener('mouseup', mouseUp)
-    })
-  }
-
-  unActive() {
-    this._storageMgr.getNodes().forEach(shape => {
-      shape.unActive!()
-    })
-  }
-
-  updateGroupShapes(
-    nodeGroup: INodeGroup,
-    offsetX: number,
-    offsetY: number,
-    startX: number,
-    startY: number,
-    zoom: number,
-    magneticOffsetX: number,
-    magneticOffsetY: number
-  ) {
-    nodeGroup.attr('x', nodeGroup.oldX! + (offsetX - startX) / zoom + magneticOffsetX / zoom)
-    nodeGroup.attr('y', nodeGroup.oldY! + (offsetY - startY) / zoom + magneticOffsetY / zoom)
-    this._connectionMgr.refreshConnection(nodeGroup)
-    nodeGroup.shapes.forEach((shape: IShape | INodeGroup) => {
-      ;(shape as IShape).attr('x', shape.oldX! + (offsetX - startX) / zoom + magneticOffsetX / zoom)
-      ;(shape as IShape).attr('y', shape.oldY! + (offsetY - startY) / zoom + magneticOffsetY / zoom)
-      shape.createAnchors()
-      shape.anchor!.refresh()
-      this._connectionMgr.refreshConnection(shape)
-      if (shape.nodeType === NodeType.Group) {
-        this.updateGroupShapes(
-          shape as NodeGroup,
-          offsetX,
-          offsetY,
-          startX,
-          startY,
-          zoom,
-          magneticOffsetX,
-          magneticOffsetY
-        )
-      }
-    })
-  }
-
-  setShapesOldPosition(nodeGroup: INodeGroup) {
-    nodeGroup.oldX = nodeGroup.x
-    nodeGroup.oldY = nodeGroup.y
-    nodeGroup.shapes.forEach((shape: IShape | INodeGroup) => {
-      shape.oldX = shape.x
-      shape.oldY = shape.y
-      if (shape.nodeType === NodeType.Group) {
-        this.setShapesOldPosition(shape as INodeGroup)
-      }
-    })
-  }
-
-  updateGroupSize(shape: IShape | INodeGroup) {
-    if (shape.parentGroup) {
-      shape.parentGroup.resizeNodeGroup()
-      this._connectionMgr.refreshConnection(shape.parentGroup)
-      this.updateGroupSize(shape.parentGroup)
-    }
   }
 
   clear() {

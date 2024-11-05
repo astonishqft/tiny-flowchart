@@ -4,6 +4,7 @@ import { Subject } from 'rxjs'
 
 import type { IDisposable } from './disposable'
 import type { IShape, IAnchorPoint, IConnection, IControlPoint } from './shapes'
+import type { INodeGroup } from './shapes/nodeGroup'
 import type { IGridManage } from './gridManage'
 import type { IViewPortManage } from './viewPortManage'
 import type { IShapeManage } from './shapeManage'
@@ -16,9 +17,11 @@ import type { IocEditor } from './iocEditor'
 export interface ISceneManage extends IDisposable {
   _zr: zrender.ZRenderType | null
   updateSelectScene$: Subject<null>
+  updateSelectNode$: Subject<IShape | INodeGroup>
   init(zr: zrender.ZRenderType): void
   addShape(type: string, options: { x: number; y: number }): IShape
   clear(): void
+  unActive(): void
 }
 
 export type IMouseEvent = zrender.Element & { nodeType?: string }
@@ -33,6 +36,7 @@ class SceneManage extends Disposable {
   private _storageMgr: IStorageManage
   _zr: zrender.ZRenderType | null = null
   updateSelectScene$ = new Subject<null>()
+  updateSelectNode$ = new Subject<IShape | INodeGroup>()
   constructor(iocEditor: IocEditor) {
     super()
     this._connectionMgr = iocEditor._connectionMgr
@@ -43,6 +47,7 @@ class SceneManage extends Disposable {
     this._groupMgr = iocEditor._groupMgr
     this._selectFrameMgr = iocEditor._selectFrameMgr
     this._disposables.push(this.updateSelectScene$)
+    this._disposables.push(this.updateSelectNode$)
   }
 
   addShape(type: string, options: { x: number; y: number }) {
@@ -116,8 +121,7 @@ class SceneManage extends Disposable {
 
       if (!e.target) {
         // 如果什么都没选中的话
-        this._shapeMgr.unActive()
-        this._groupMgr.unActive()
+        this.unActive()
         this._connectionMgr.unActiveConnections()
         dragModel = 'scene'
         this.updateSelectScene$.next(null)
@@ -175,6 +179,12 @@ class SceneManage extends Disposable {
       }
 
       dragModel = 'scene'
+    })
+  }
+
+  unActive() {
+    this._storageMgr.getNodes().forEach(node => {
+      node.unActive!()
     })
   }
 }

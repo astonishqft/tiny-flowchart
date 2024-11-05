@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { NodeType } from '@ioceditor/core'
 import { ElSelect, ElOption, ElInputNumber, ElDivider, ElColorPicker, ElInput } from 'element-plus'
 import { convertLineDashToStrokeType, convertStrokeTypeToLineDash } from '../../utils/utils'
 
@@ -70,20 +71,22 @@ const textPosition = <BuiltinTextPosition>ref('inside')
 const fontWeight = ref<FontWeight>('normal')
 const fontStyle = ref<FontStyle>('normal')
 
-iocEditor._groupMgr.updateSelectGroup$.subscribe((group: INodeGroup) => {
-  activeGroup.value = group
-  bgColor.value = activeGroup.value.groupRect?.style.fill as string
-  strokeColor.value = activeGroup.value.groupRect?.style.stroke as string
-  fontColor.value = activeGroup.value.groupHead?.getTextContent().style.fill || '#333'
-  lineWidth.value = activeGroup.value.groupRect?.style.lineWidth || 1
-  strokeType.value = convertLineDashToStrokeType(
-    (activeGroup.value.groupRect?.style.lineDash as number[]) || [0, 0]
-  )
-  nodeText.value = activeGroup.value.groupHead?.getTextContent().style.text || ''
-  fontSize.value = activeGroup.value.groupHead?.getTextContent().style.fontSize as number
-  fontStyle.value = activeGroup.value.groupHead?.getTextContent().style.fontStyle || 'normal'
-  fontWeight.value = activeGroup.value.groupHead?.getTextContent().style.fontWeight || 'normal'
-  textPosition.value = activeGroup.value.groupHead?.textConfig?.position || 'insideLeft'
+iocEditor._sceneMgr.updateSelectNode$.subscribe((group: INodeGroup) => {
+  if (group.nodeType === NodeType.Group) {
+    activeGroup.value = group
+    bgColor.value = activeGroup.value.groupRect?.style.fill as string
+    strokeColor.value = activeGroup.value.groupRect?.style.stroke as string
+    fontColor.value = activeGroup.value.groupHead?.getTextContent().style.fill || '#333'
+    lineWidth.value = activeGroup.value.groupRect?.style.lineWidth || 1
+    strokeType.value = convertLineDashToStrokeType(
+      (activeGroup.value.groupRect?.style.lineDash as number[]) || [0, 0]
+    )
+    nodeText.value = activeGroup.value.groupHead?.getTextContent().style.text || ''
+    fontSize.value = activeGroup.value.groupHead?.getTextContent().style.fontSize as number
+    fontStyle.value = activeGroup.value.groupHead?.getTextContent().style.fontStyle || 'normal'
+    fontWeight.value = activeGroup.value.groupHead?.getTextContent().style.fontWeight || 'normal'
+    textPosition.value = activeGroup.value.groupHead?.textConfig?.position || 'insideLeft'
+  }
 })
 
 const changeGroupBgColor = (color: string | null) => {
@@ -98,6 +101,7 @@ const changeGroupStrokeColor = (color: string | null) => {
     stroke: color as string
   })
   strokeColor.value = color as string
+  activeGroup.value!.oldStroke = color as string
 }
 
 const changeGroupHeadFontColor = (color: string | null) => {
@@ -122,6 +126,7 @@ const changeGroupLineWidth = (width: number) => {
     lineWidth: width
   })
   lineWidth.value = width
+  activeGroup.value!.oldLineWidth = width
 }
 
 const changeGroupStrokeType = (type: string) => {

@@ -185,6 +185,8 @@ export interface IShape extends zrender.Element, IBaseShape {
   getBoundingBox?(): zrender.BoundingRect
   getAnchors?(): IAnchor[]
   getAnchorByIndex?(index: number): IAnchor
+  updatePosition?(target: IShape | INodeGroup, offsetX: number, offsetY: number): void
+  setOldPosition?(target: IShape | INodeGroup): void
 }
 
 export interface IShapeConfig {

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { NodeType } from '@ioceditor/core'
 import { ElSelect, ElOption, ElInputNumber, ElDivider, ElColorPicker, ElInput } from 'element-plus'
 import { convertLineDashToStrokeType, convertStrokeTypeToLineDash } from '../../utils/utils'
 
@@ -81,18 +82,20 @@ const textPosition = <BuiltinTextPosition>ref('inside')
 const fontWeight = ref<FontWeight>('normal')
 const fontStyle = ref<FontStyle>('normal')
 
-iocEditor._shapeMgr.updateSelectShape$.subscribe((shape: IShape) => {
-  activeShape.value = shape as unknown as Displayable
-  lineWidth.value = activeShape.value.style.lineWidth
-  fontSize.value = activeShape.value.getTextContent().style.fontSize as number
-  strokeType.value = convertLineDashToStrokeType(activeShape.value.style.lineDash || [0, 0])
-  nodeText.value = activeShape.value.getTextContent().style.text || ''
-  bgColor.value = activeShape.value.style.fill
-  strokeColor.value = activeShape.value.style.stroke
-  fontColor.value = activeShape.value.getTextContent().style.fill || '#333'
-  textPosition.value = activeShape.value.textConfig?.position || 'inside'
-  fontStyle.value = activeShape.value.getTextContent().style.fontStyle || 'normal'
-  fontWeight.value = activeShape.value.getTextContent().style.fontWeight || 'normal'
+iocEditor._sceneMgr.updateSelectNode$.subscribe((shape: IShape) => {
+  if (shape.nodeType === NodeType.Shape) {
+    activeShape.value = shape as unknown as Displayable
+    lineWidth.value = activeShape.value.style.lineWidth
+    fontSize.value = activeShape.value.getTextContent().style.fontSize as number
+    strokeType.value = convertLineDashToStrokeType(activeShape.value.style.lineDash || [0, 0])
+    nodeText.value = activeShape.value.getTextContent().style.text || ''
+    bgColor.value = activeShape.value.style.fill
+    strokeColor.value = activeShape.value.style.stroke
+    fontColor.value = activeShape.value.getTextContent().style.fill || '#333'
+    textPosition.value = activeShape.value.textConfig?.position || 'inside'
+    fontStyle.value = activeShape.value.getTextContent().style.fontStyle || 'normal'
+    fontWeight.value = activeShape.value.getTextContent().style.fontWeight || 'normal'
+  }
 })
 
 const changeShapeBgColor = (color: string | null) => {

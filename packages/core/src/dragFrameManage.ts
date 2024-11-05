@@ -115,7 +115,7 @@ class DragFrameManage extends Disposable {
     )
 
     const parentGroup = shape.parentGroup
-    groups.forEach(g => g.setCommonStyle())
+    groups.forEach(g => g.setOldStyle())
     if (parentGroup) {
       const { z } = parentGroup
 
@@ -123,25 +123,23 @@ class DragFrameManage extends Disposable {
         const p = getTopGroup(target)
         dragTargetGroup = p
         isDragOutFromGroup = true
-        p.setAlertStyle()
+        p.setEnterStyle()
       } else if (this.isEnterParent(target, z)) {
         const p = getTopGroup(target)
         dragTargetGroup = p
         isDragOutFromGroup = true
-        p.setAlertStyle()
+        p.setEnterStyle()
       }
 
       if (target.length === 0) {
         // 从Group移除
-        console.log('从Group移除')
         isRemoveFromGroup = true
       }
     } else {
       // 从外部将一个Shape移入Group
       if (target.length) {
-        console.log('从外部将一个Shape移入Group')
         const p = getTopGroup(target)
-        p.setAlertStyle()
+        p.setEnterStyle()
         dragTargetGroup = p
         isDragEnterToGroup = true
       }

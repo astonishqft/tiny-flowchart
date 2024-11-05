@@ -4,7 +4,7 @@ import SceneProperty from './elementProperty/SceneProperty.vue'
 import NodeProperty from './elementProperty/NodeProperty.vue'
 import ConnectionProperty from './elementProperty/ConnectionProperty.vue'
 import GroupProperty from './elementProperty/GroupProperty.vue'
-
+import { NodeType } from '@ioceditor/core'
 import type { IocEditor, IShape, IConnection, INodeGroup } from '@ioceditor/core'
 
 const props = defineProps<{
@@ -22,22 +22,20 @@ if (props.iocEditor) {
     type.value = 'scene'
   })
 
-  props.iocEditor._shapeMgr.updateSelectShape$.subscribe((shape: IShape) => {
-    console.log('选中节点')
-    type.value = 'shape'
-    activeShape.value = shape
+  props.iocEditor._sceneMgr.updateSelectNode$.subscribe((node: IShape | INodeGroup) => {
+    if (node.nodeType === NodeType.Shape) {
+      type.value = 'shape'
+      activeShape.value = node as IShape
+    } else if (node.nodeType === NodeType.Group) {
+      type.value = 'group'
+      activeGroup.value = node as INodeGroup
+    }
   })
 
   props.iocEditor._connectionMgr.updateSelectConnection$.subscribe((connection: IConnection) => {
     console.log('选中连线')
     type.value = 'connection'
     activeConnection.value = connection
-  })
-
-  props.iocEditor._groupMgr.updateSelectGroup$.subscribe((group: INodeGroup) => {
-    console.log('选中分组')
-    type.value = 'group'
-    activeGroup.value = group
   })
 }
 

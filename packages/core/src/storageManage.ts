@@ -19,6 +19,7 @@ export interface IStorageManage {
   getActiveShapes(): IShape[]
   getActiveGroups(): INodeGroup[]
   getNodes(): (IShape | INodeGroup)[]
+  getActiveNodes(): (IShape | INodeGroup)[]
 }
 
 class StorageManage {
@@ -94,6 +95,12 @@ class StorageManage {
   getActiveGroups(): INodeGroup[] {
     return this._groups.filter((group: INodeGroup) => {
       return group.selected
+    })
+  }
+
+  getActiveNodes() {
+    return this.getNodes().filter((node: IShape | INodeGroup) => {
+      return node.selected
     })
   }
 }

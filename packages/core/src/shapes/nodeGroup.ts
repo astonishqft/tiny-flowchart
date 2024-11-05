@@ -1,19 +1,31 @@
 import * as zrender from 'zrender'
-import { getBoundingRect } from '../utils'
-
-import type { IShape, IAnchor, IExportGroup, IBaseShape, IExportGroupStyle } from './index'
-import type { Anchor } from '../anchor'
+import { getBoundingRect, getMinPosition } from '../utils'
 import { NodeType } from './index'
+import { IocEditor } from '../iocEditor'
+
+import type {
+  IShape,
+  IAnchor,
+  IExportGroup,
+  IBaseShape,
+  IExportGroupStyle,
+  StrokeStyle
+} from './index'
+import type { Anchor } from '../anchor'
+import type { IConnectionManage } from '../connectionManage'
 
 export interface INodeGroup extends zrender.Group, IBaseShape {
   boundingBox: zrender.BoundingRect
   shapes: (IShape | INodeGroup)[]
   canRemove: boolean
+  nodeType: NodeType
   refresh(): void
   removeShapeFromGroup(shape: IShape): void
   resizeNodeGroup(): void
-  setAlertStyle(): void
-  setCommonStyle(): void
+  setEnterStyle(): void
+  setOldStyle(): void
+  oldStroke: StrokeStyle
+  oldLineWidth: number | undefined
   setZ(z: number): void
   z: number
   groupRect: zrender.Rect | null
@@ -25,9 +37,12 @@ export interface INodeGroup extends zrender.Group, IBaseShape {
   getBoundingBox(): zrender.BoundingRect
   getAnchors(): IAnchor[]
   getAnchorByIndex(index: number): IAnchor
+  updatePosition(target: IShape | INodeGroup, offsetX: number, offsetY: number): void
+  setOldPosition(target: IShape | INodeGroup): void
 }
 
 class NodeGroup extends zrender.Group implements INodeGroup {
+  private _connectionMgr: IConnectionManage
   nodeType = NodeType.Group
   groupRect: zrender.Rect | null = null
   groupHead: zrender.Rect | null = null
@@ -43,13 +58,18 @@ class NodeGroup extends zrender.Group implements INodeGroup {
   canRemove: boolean = false
   oldX: number = 0
   oldY: number = 0
+  oldStroke: StrokeStyle = '#ccc'
+  oldLineWidth: number | undefined = 1
   z = 1
   parentGroup: INodeGroup | undefined = undefined
 
-  constructor(boundingBox: zrender.BoundingRect, shapes: (IShape | INodeGroup)[]) {
+  constructor(shapes: (IShape | INodeGroup)[], iocEditor: IocEditor) {
     super()
-    this.boundingBox = boundingBox
+    this._connectionMgr = iocEditor._connectionMgr
     this.shapes = shapes
+    const [x, y] = getMinPosition(this.shapes)
+    const { width, height } = getBoundingRect(this.shapes)
+    this.boundingBox = new zrender.BoundingRect(x, y, width, height)
 
     this.shapes.forEach(shape => {
       shape.parentGroup = this as INodeGroup
@@ -86,7 +106,7 @@ class NodeGroup extends zrender.Group implements INodeGroup {
       style: {
         fill: '#fafafa',
         lineWidth: 0,
-        stroke: '#ccc'
+        stroke: undefined
       },
       textContent: this.textContent,
       textConfig: {
@@ -156,16 +176,7 @@ class NodeGroup extends zrender.Group implements INodeGroup {
     this.attr('y', y - this.padding - this.headHeight)
 
     this.createAnchors()
-    this.setCommonStyle()
-  }
-
-  setCommonStyle() {
-    this.groupRect?.attr({
-      style: {
-        lineWidth: 1,
-        stroke: '#ccc'
-      }
-    })
+    this.setOldStyle()
   }
 
   createAnchors() {
@@ -272,7 +283,6 @@ class NodeGroup extends zrender.Group implements INodeGroup {
     this.groupRect!.attr({
       style: {
         shadowColor: '#1971c2',
-        stroke: '#1971c2',
         shadowBlur: 1
       }
     })
@@ -287,14 +297,22 @@ class NodeGroup extends zrender.Group implements INodeGroup {
     this.groupRect!.attr({
       style: {
         shadowColor: '',
-        shadowBlur: 0,
-        stroke: '#ccc'
+        shadowBlur: 0
       }
     })
     this.anchor?.hide()
   }
 
-  setAlertStyle() {
+  setOldStyle() {
+    this.groupRect?.attr({
+      style: {
+        lineWidth: this.oldLineWidth,
+        stroke: this.oldStroke
+      }
+    })
+  }
+
+  setEnterStyle() {
     this.groupRect!.attr({
       style: {
         lineWidth: 2,
@@ -372,6 +390,36 @@ class NodeGroup extends zrender.Group implements INodeGroup {
       this.groupHead?.setTextConfig({
         position: textPosition
       })
+    this.oldStroke = stroke
+    this.oldLineWidth = lineWidth
+  }
+
+  setOldPosition(target: IShape | INodeGroup) {
+    target.oldX = target.x
+    target.oldY = target.y
+    ;(target as INodeGroup).shapes.forEach((shape: IShape | INodeGroup) => {
+      shape.oldX = shape.x
+      shape.oldY = shape.y
+      if (shape.nodeType === NodeType.Group) {
+        this.setOldPosition(shape as INodeGroup)
+      }
+    })
+  }
+
+  updatePosition(target: IShape | INodeGroup, offsetX: number, offsetY: number) {
+    ;(target as INodeGroup).attr('x', (target as INodeGroup).oldX! + offsetX)
+    ;(target as INodeGroup).attr('y', (target as INodeGroup).oldY! + offsetY)
+    this._connectionMgr.refreshConnection(target)
+    ;(target as INodeGroup).shapes.forEach((shape: IShape | INodeGroup) => {
+      ;(shape as IShape).attr('x', shape.oldX! + offsetX)
+      ;(shape as IShape).attr('y', shape.oldY! + offsetY)
+      shape.createAnchors()
+      shape.anchor!.refresh()
+      this._connectionMgr.refreshConnection(shape)
+      if (shape.nodeType === NodeType.Group) {
+        this.updatePosition(shape as NodeGroup, offsetX, offsetY)
+      }
+    })
   }
 }
 

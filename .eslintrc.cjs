@@ -23,6 +23,7 @@ module.exports = {
     'no-spaced-func': 2,
     'vue/multi-word-component-names': 0,
     semi: [2, 'never'],
+    'no-prototype-builtins': 0,
     'no-multiple-empty-lines': [2, { max: 1 }]
   }
 }
