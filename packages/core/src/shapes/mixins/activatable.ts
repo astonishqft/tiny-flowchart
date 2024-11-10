@@ -15,7 +15,6 @@ function Activatable<TBase extends Constructor<IBase>>(Base: TBase) {
 
     activate() {
       this.attr('x', 100)
-      this.attr('y', 100)
     }
 
     deactivate() {
