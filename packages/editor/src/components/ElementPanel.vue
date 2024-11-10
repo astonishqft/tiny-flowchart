@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { Component } from 'vue'
 import IconCircle from './icons/Circle.vue'
 import IconRect from './icons/Rect.vue'
 import IconRectRadius from './icons/RectRadius.vue'
@@ -25,6 +24,8 @@ import IconCross from './icons/Cross.vue'
 import IconMinus from './icons/Minus.vue'
 import IconTimes from './icons/Times.vue'
 import IconDivide from './icons/Divide.vue'
+
+import type { Component } from 'vue'
 
 export interface ElementItemType {
   component: Component

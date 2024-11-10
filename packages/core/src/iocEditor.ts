@@ -1,4 +1,5 @@
 import * as zrender from 'zrender'
+import { Subject } from 'rxjs'
 import { Disposable } from './disposable'
 import { SceneManage } from './sceneManage'
 import { ShapeManage } from './shapeManage'
@@ -38,6 +39,7 @@ import {
   type IConnection,
   type IAnchorPoint,
   type IExportGroup,
+  type IExportData,
   ConnectionType
 } from './shapes'
 import type { INodeGroup } from './shapes/nodeGroup'
@@ -45,6 +47,7 @@ import type { IGroupTreeNode } from './utils'
 
 export class IocEditor {
   _zr: zrender.ZRenderType
+  _dom: HTMLElement
   _manageList: Disposable[] = []
   _dragFrameMgr: IDragFrameManage
   _settingMgr: ISettingManage
@@ -59,11 +62,15 @@ export class IocEditor {
   _refLineMgr: IRefLineManage
   _selectFrameMgr: ISelectFrameManage
 
+  updateAddNode$: Subject<IShape | INodeGroup>
+
   initZr(dom: HTMLElement): zrender.ZRenderType {
     return zrender.init(dom)
   }
 
   constructor(dom: HTMLElement, config: Partial<IIocEditorConfig>) {
+    this._dom = dom
+    this.updateAddNode$ = new Subject()
     this._settingMgr = new SettingManage()
     this._storageMgr = new StorageManage()
     this._viewPortMgr = new ViewPortManage()
@@ -83,9 +90,7 @@ export class IocEditor {
   }
 
   addShape(type: string, options: { x: number; y: number }) {
-    const shape = this._sceneMgr.addShape(type, options)
-
-    return shape
+    return this._sceneMgr.addShape(type, options)
   }
 
   getNodeById(id: number) {
@@ -98,7 +103,7 @@ export class IocEditor {
     return node.anchor?.getBarByIndex(index)
   }
 
-  initFlowChart(data: any) {
+  initFlowChart(data: IExportData) {
     console.log(data)
     this._sceneMgr.clear()
 
@@ -218,7 +223,7 @@ export class IocEditor {
     return this._storageMgr.getShapes().filter(s => s.id === id)
   }
 
-  exportFile() {
+  getData() {
     const shapes = this._storageMgr.getShapes().map((shape: IShape) => shape.getExportData!())
 
     const connections = this._storageMgr
@@ -226,17 +231,17 @@ export class IocEditor {
       .map((connection: IConnection) => connection.getExportData!())
     const groups = this._storageMgr.getGroups().map((group: INodeGroup) => group.getExportData!())
 
-    const data = {
+    return {
       shapes,
       connections,
       groups
     }
+  }
 
-    const str = JSON.stringify(data, null, 2)
-    console.log('导出的数据为：', data)
+  exportFile() {
+    const str = JSON.stringify(this.getData(), null, 2)
+    console.log('导出的数据为：', this.getData())
     downloadFile(str, 'ioc-chart-flow.json')
-
-    return data
   }
 
   openFile() {
@@ -267,12 +272,16 @@ export class IocEditor {
   destroy() {
     this._sceneMgr.dispose()
     this._shapeMgr.dispose()
-    this._gridMgr.dispose()
     this._viewPortMgr.dispose()
     this._dragFrameMgr.dispose()
     this._shapeMgr.dispose()
     this._groupMgr.dispose()
     this._settingMgr.dispose()
     this._zr.dispose()
+    this.updateAddNode$.unsubscribe()
+  }
+
+  offEvent() {
+    this._zr.off()
   }
 }

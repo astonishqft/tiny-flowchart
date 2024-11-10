@@ -58,7 +58,7 @@ export interface IExportConnection {
 }
 
 export interface IExportData {
-  nodes: any[]
+  shapes: any[]
   connections: any[]
   groups: any[]
 }

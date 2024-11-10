@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { ElSelect, ElOption } from 'element-plus'
 import { ConnectionType } from '@ioceditor/core'
 
-import type { IocEditor } from '@ioceditor/core'
+import { IocEditor } from '@ioceditor/core'
 
 const props = defineProps<{
   iocEditor: IocEditor

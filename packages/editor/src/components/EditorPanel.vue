@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { IocEditor } from '@ioceditor/core'
+import { IocEditor } from '@ioceditor/core'
 
 const props = defineProps<{
   iocEditor?: IocEditor
@@ -26,7 +26,6 @@ const dragOver = (event: DragEvent) => {
 
 <template>
   <div class="ioc-editor-container" @drop="drop" @dragover="dragOver">
-    <div id="ioc-editor-grid"></div>
     <div id="ioc-editor"></div>
   </div>
 </template>
@@ -41,8 +40,7 @@ const dragOver = (event: DragEvent) => {
   #ioc-editor {
     background-color: rgba(255, 255, 255, 0);
   }
-  #ioc-editor,
-  #ioc-editor-grid {
+  #ioc-editor {
     width: 100%;
     height: 100%;
     position: absolute;

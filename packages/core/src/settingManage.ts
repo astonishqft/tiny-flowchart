@@ -1,4 +1,4 @@
-import { Subject, Observable } from 'rxjs'
+import { Subject } from 'rxjs'
 import { Disposable } from './disposable'
 import type { IDisposable } from './disposable'
 
@@ -12,11 +12,12 @@ export interface IIocEditorConfig {
   refLineColor: string // 参考线的颜色
   selectFrameColor: string // 选中框的颜色
   showGrid: boolean
+  enableMiniMap?: boolean
 }
 
 export interface ISettingManage extends IDisposable {
   setDefaultConfig(config: Partial<IIocEditorConfig>): void
-  updatedSetting$: Observable<Partial<IIocEditorConfig>>
+  updatedSetting$: Subject<Partial<IIocEditorConfig>>
   set<K extends keyof IIocEditorConfig>(key: K, value: IIocEditorConfig[K]): void
   get<K extends keyof IIocEditorConfig>(key: K): IIocEditorConfig[K]
 }

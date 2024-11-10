@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { ElSwitch, ElInputNumber } from 'element-plus'
 
-import type { IocEditor } from '@ioceditor/core'
+import { IocEditor } from '@ioceditor/core'
 
 const props = defineProps<{
   iocEditor: IocEditor

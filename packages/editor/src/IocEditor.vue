@@ -17,7 +17,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="ioc-editor">
+  <div class="ioc-editor-wrapper">
     <HeaderTools v-if="editor" :ioc-editor="editor" />
     <ElementPanel v-if="editor" :ioc-editor="editor" />
     <EditorPanel :ioc-editor="editor" />
@@ -27,7 +27,7 @@ onMounted(() => {
 </template>
 
 <style scoped lang="less">
-.ioc-editor {
+.ioc-editor-wrapper {
   width: 100%;
   height: 100%;
   position: relative;

@@ -1,19 +1,39 @@
 <script setup lang="ts">
-// import type { IocEditor } from '@ioceditor/core'
+import { onMounted, ref } from 'vue'
+import { IocEditor } from '@ioceditor/core'
 
-// const { iocEditor } = defineProps<{
-//   iocEditor: IocEditor
-// }>()
+import type { IShape, INodeGroup } from '@ioceditor/core'
+
+const miniMap = ref<IocEditor>()
+
+const { iocEditor } = defineProps<{
+  iocEditor: IocEditor
+}>()
+
+onMounted(() => {
+  const miniMapContainer = document.getElementById('mini-map') as HTMLElement
+  miniMap.value = new IocEditor(miniMapContainer, {
+    zoomStep: 0.2325
+  })
+
+  miniMap.value.offEvent()
+
+  iocEditor.updateAddNode$.subscribe((shape: IShape | INodeGroup) => {
+    const data = iocEditor.getData()
+    miniMap.value?.initFlowChart(data)
+  })
+})
 </script>
 
 <template>
-  <div class="mini-map">
+  <div class="mini-map-container">
     <div class="title">缩略图</div>
+    <div id="mini-map"></div>
   </div>
 </template>
 
 <style scoped lang="less">
-.mini-map {
+.mini-map-container {
   width: 260px;
   height: 160px;
   position: absolute;
@@ -28,6 +48,12 @@
     font-size: 14px;
     border-bottom: 1px solid #e5e5e5;
     font-weight: bold;
+  }
+  #mini-map {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    // background: pink;
   }
 }
 </style>

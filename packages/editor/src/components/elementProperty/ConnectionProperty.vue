@@ -3,8 +3,9 @@ import { ref } from 'vue'
 import { ElSelect, ElOption, ElInputNumber, ElDivider, ElColorPicker, ElInput } from 'element-plus'
 import { ConnectionType } from '@ioceditor/core'
 import { convertStrokeTypeToLineDash, convertLineDashToStrokeType } from '../../utils/utils'
+import { IocEditor } from '@ioceditor/core'
 
-import type { IConnection, FontWeight, FontStyle, IocEditor } from '@ioceditor/core'
+import type { IConnection, FontWeight, FontStyle } from '@ioceditor/core'
 
 const { iocEditor } = defineProps<{
   iocEditor: IocEditor

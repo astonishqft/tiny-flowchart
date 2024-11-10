@@ -1,13 +1,11 @@
 import * as zrender from 'zrender'
-import { Disposable } from './disposable'
 
 import type { IViewPortManage } from './viewPortManage'
 import type { ISettingManage } from './settingManage'
-import type { IDisposable } from './disposable'
 import type { IStorageManage } from './storageManage'
 import type { IocEditor } from './iocEditor'
 
-export interface IGridManage extends IDisposable {
+export interface IGridManage {
   drawGrid(): void
   setPosition(x: number, y: number): void
   setScale(x: number, y: number): void
@@ -89,7 +87,7 @@ class PointsPool {
   }
 }
 
-class GridManage extends Disposable {
+class GridManage {
   private _gridStep: number = 20
   private _width: number = 0
   private _height: number = 0
@@ -101,14 +99,24 @@ class GridManage extends Disposable {
   private _settingMgr: ISettingManage
   private _viewPortMgr: IViewPortManage
   private _storageMgr: IStorageManage
+  private _iocEditor: IocEditor
+
   constructor(iocEditor: IocEditor) {
-    super()
+    this._iocEditor = iocEditor
     this._settingMgr = iocEditor._settingMgr
     this._viewPortMgr = iocEditor._viewPortMgr
     this._storageMgr = iocEditor._storageMgr
 
     setTimeout(() => {
-      this._gridZr = zrender.init(document.getElementById('ioc-editor-grid') as HTMLElement)
+      const container = document.createElement('div')
+      container.style.position = 'absolute'
+      container.style.left = '0'
+      container.style.top = '0'
+      container.style.zIndex = '-1'
+      container.style.width = '100%'
+      container.style.height = '100%'
+      this._iocEditor._dom.appendChild(container)
+      this._gridZr = zrender.init(container)
       this._gridLayer = new zrender.Group()
       this._gridZr.add(this._gridLayer)
       this._pointsPool = new PointsPool(1000, this._gridLayer)

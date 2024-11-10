@@ -3,14 +3,9 @@ import { ref } from 'vue'
 import { NodeType } from '@ioceditor/core'
 import { ElSelect, ElOption, ElInputNumber, ElDivider, ElColorPicker, ElInput } from 'element-plus'
 import { convertLineDashToStrokeType, convertStrokeTypeToLineDash } from '../../utils/utils'
+import { IocEditor } from '@ioceditor/core'
 
-import type {
-  INodeGroup,
-  BuiltinTextPosition,
-  FontWeight,
-  FontStyle,
-  IocEditor
-} from '@ioceditor/core'
+import type { INodeGroup, BuiltinTextPosition, FontWeight, FontStyle } from '@ioceditor/core'
 
 const { iocEditor } = defineProps<{
   iocEditor: IocEditor
