@@ -1,5 +1,4 @@
 import { NodeGroup } from './shapes/nodeGroup'
-import { Anchor } from './anchor'
 import { getMinZLevel } from './utils'
 import { Disposable, IDisposable } from './disposable'
 import { NodeEventManage } from './nodeEventManage'
@@ -12,7 +11,7 @@ import type { INodeGroup } from './shapes/nodeGroup'
 import type { IocEditor } from './iocEditor'
 
 export interface IGroupManage extends IDisposable {
-  createGroup(nodes?: (IShape | INodeGroup)[], groupId?: number): INodeGroup | undefined
+  createGroup(nodes?: (IShape | INodeGroup)[], groupId?: number): INodeGroup
   unGroup(): void
   clear(): void
 }
@@ -34,23 +33,13 @@ class GroupManage extends Disposable {
   createGroup(nodes?: (IShape | INodeGroup)[], groupId?: number) {
     const activeShapes = nodes ? nodes : this._storageMgr.getActiveNodes()
 
-    activeShapes.forEach(shape => {
-      shape.unActive!()
-    })
+    activeShapes.forEach(shape => shape.unActive())
 
     const minZLevel = getMinZLevel(activeShapes)
 
     const groupNode = new NodeGroup(activeShapes, this._iocEditor)
     groupNode.setZ(minZLevel - 1)
 
-    const anchor = new Anchor(groupNode)
-    groupNode.anchor = anchor
-
-    groupNode.createAnchors()
-    groupNode.anchor.bars.forEach((bar: IAnchorPoint) => {
-      this._viewPortMgr.addElementToViewPort(bar)
-    })
-    groupNode.anchor.refresh()
     new NodeEventManage(groupNode, this._iocEditor)
     this._storageMgr.addGroup(groupNode)
     this._viewPortMgr.addElementToViewPort(groupNode)
@@ -68,9 +57,7 @@ class GroupManage extends Disposable {
     if (activeGroups.length < 1) return
     const activeGroup = activeGroups[0]
     this._viewPortMgr.getViewPort().remove(activeGroup)
-    activeGroup.anchor!.bars.forEach((bar: IAnchorPoint) => {
-      this._viewPortMgr.removeElementFromViewPort(bar)
-    })
+    activeGroup.anchor.bars.forEach(bar => this._viewPortMgr.removeElementFromViewPort(bar))
     activeGroup.shapes.forEach((shape: IShape | INodeGroup) => {
       delete shape.parentGroup
       if (activeGroup.parentGroup) {
@@ -96,7 +83,7 @@ class GroupManage extends Disposable {
   clear() {
     this._storageMgr.getGroups().forEach((group: INodeGroup) => {
       this._viewPortMgr.removeElementFromViewPort(group)
-      group.anchor?.bars.forEach((bar: IAnchorPoint) => {
+      group.anchor.bars.forEach((bar: IAnchorPoint) => {
         this._viewPortMgr.removeElementFromViewPort(bar)
       })
     })

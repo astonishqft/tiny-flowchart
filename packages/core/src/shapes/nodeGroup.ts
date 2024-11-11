@@ -1,35 +1,36 @@
 import * as zrender from 'zrender'
-import { getBoundingRect, getMinPosition } from '../utils'
+import { getMinPosition } from '../utils'
 import { NodeType } from './index'
 import { IocEditor } from '../iocEditor'
+import { Anchor } from '../anchor'
 
-import type {
-  IShape,
-  IAnchor,
-  IExportGroup,
-  IBaseShape,
-  IExportGroupStyle,
-  StrokeStyle
-} from './index'
-import type { Anchor } from '../anchor'
+import type { IShape, IAnchor, IExportGroup, IExportGroupStyle, StrokeStyle } from './index'
+
 import type { IConnectionManage } from '../connectionManage'
+import type { IViewPortManage } from '../viewPortManage'
+import type { IWidthActivate } from './mixins/widthActivate'
+import type { IWidthAnchor } from './mixins/widthAnchor'
 
-export interface INodeGroup extends zrender.Group, IBaseShape {
+export interface INodeGroup extends zrender.Group, IWidthActivate, IWidthAnchor {
+  oldX: number
+  oldY: number
   boundingBox: zrender.BoundingRect
   shapes: (IShape | INodeGroup)[]
-  canRemove: boolean
   nodeType: NodeType
+  oldStroke: StrokeStyle
+  oldLineWidth: number | undefined
+  z: number
+  groupRect: zrender.Rect | null
+  groupHead: zrender.Rect | null
+  anchor: Anchor
+  parentGroup?: INodeGroup
   refresh(): void
+  createAnchors(): void
+  setZ(z: number): void
   removeShapeFromGroup(shape: IShape): void
   resizeNodeGroup(): void
   setEnterStyle(): void
   setOldStyle(): void
-  oldStroke: StrokeStyle
-  oldLineWidth: number | undefined
-  setZ(z: number): void
-  z: number
-  groupRect: zrender.Rect | null
-  groupHead: zrender.Rect | null
   getExportData(): IExportGroup
   setStyle(style: IExportGroupStyle): void
   active(): void
@@ -37,12 +38,14 @@ export interface INodeGroup extends zrender.Group, IBaseShape {
   getBoundingBox(): zrender.BoundingRect
   getAnchors(): IAnchor[]
   getAnchorByIndex(index: number): IAnchor
-  updatePosition(target: IShape | INodeGroup, offsetX: number, offsetY: number): void
-  setOldPosition(target: IShape | INodeGroup): void
+  updatePosition(offsetX: number, offsetY: number): void
+  setOldPosition(): void
+  setXy(x: number, y: number): void
 }
 
 class NodeGroup extends zrender.Group implements INodeGroup {
   private _connectionMgr: IConnectionManage
+  private _viewPortMgr: IViewPortManage
   nodeType = NodeType.Group
   groupRect: zrender.Rect | null = null
   groupHead: zrender.Rect | null = null
@@ -54,28 +57,31 @@ class NodeGroup extends zrender.Group implements INodeGroup {
   padding = 20
   selected = false
   anchors: IAnchor[] = []
-  anchor?: Anchor
-  canRemove: boolean = false
   oldX: number = 0
   oldY: number = 0
   oldStroke: StrokeStyle = '#ccc'
   oldLineWidth: number | undefined = 1
   z = 1
-  parentGroup: INodeGroup | undefined = undefined
+  anchor: Anchor
+  parentGroup?: INodeGroup
 
   constructor(shapes: (IShape | INodeGroup)[], iocEditor: IocEditor) {
     super()
     this._connectionMgr = iocEditor._connectionMgr
+    this._viewPortMgr = iocEditor._viewPortMgr
     this.shapes = shapes
     const [x, y] = getMinPosition(this.shapes)
-    const { width, height } = getBoundingRect(this.shapes)
+    const { width, height } = this.getBoundingRect(this.shapes)
     this.boundingBox = new zrender.BoundingRect(x, y, width, height)
 
-    this.shapes.forEach(shape => {
-      shape.parentGroup = this as INodeGroup
-    })
+    this.shapes.forEach(shape => (shape.parentGroup = this))
 
     this.create()
+    this.anchor = new Anchor(this)
+
+    this.createAnchors()
+    this.anchor.bars.forEach(bar => this._viewPortMgr.addElementToViewPort(bar))
+    this.anchor.refresh()
   }
 
   create() {
@@ -136,7 +142,7 @@ class NodeGroup extends zrender.Group implements INodeGroup {
     this.groupHead?.attr('z', z)
     this.textContent?.attr('z', z)
     this.headLine?.attr('z', z)
-    this.shapes.forEach(s => (s as unknown as zrender.Displayable).attr('z', z + 1))
+    this.shapes.forEach(s => s.setZ(z + 1))
   }
 
   getZ() {
@@ -286,7 +292,7 @@ class NodeGroup extends zrender.Group implements INodeGroup {
         shadowBlur: 1
       }
     })
-    this.anchor?.show()
+    this.anchor.show()
     this.shapes.forEach(shape => {
       shape.unActive && shape.unActive()
     })
@@ -300,7 +306,7 @@ class NodeGroup extends zrender.Group implements INodeGroup {
         shadowBlur: 0
       }
     })
-    this.anchor?.hide()
+    this.anchor.hide()
   }
 
   setOldStyle() {
@@ -334,10 +340,10 @@ class NodeGroup extends zrender.Group implements INodeGroup {
   }
 
   resizeNodeGroup() {
-    this.boundingBox = getBoundingRect(this.shapes)
+    this.boundingBox = this.getBoundingRect(this.shapes)
     this.refresh() // 重新计算组的大小
     this.createAnchors()
-    this.anchor!.refresh()
+    this.anchor.refresh()
   }
 
   getExportData() {
@@ -394,30 +400,27 @@ class NodeGroup extends zrender.Group implements INodeGroup {
     this.oldLineWidth = lineWidth
   }
 
-  setOldPosition(target: IShape | INodeGroup) {
-    target.oldX = target.x
-    target.oldY = target.y
-    ;(target as INodeGroup).shapes.forEach((shape: IShape | INodeGroup) => {
-      shape.oldX = shape.x
-      shape.oldY = shape.y
-      if (shape.nodeType === NodeType.Group) {
-        this.setOldPosition(shape as INodeGroup)
-      }
-    })
+  setOldPosition() {
+    this.oldX = this.x
+    this.oldY = this.y
+    this.shapes.forEach(shape => shape.setOldPosition())
   }
 
-  updatePosition(target: IShape | INodeGroup, offsetX: number, offsetY: number) {
-    ;(target as INodeGroup).attr('x', (target as INodeGroup).oldX! + offsetX)
-    ;(target as INodeGroup).attr('y', (target as INodeGroup).oldY! + offsetY)
-    this._connectionMgr.refreshConnection(target)
-    ;(target as INodeGroup).shapes.forEach((shape: IShape | INodeGroup) => {
-      ;(shape as IShape).attr('x', shape.oldX! + offsetX)
-      ;(shape as IShape).attr('y', shape.oldY! + offsetY)
+  setXy(x: number, y: number) {
+    this.x = x
+    this.y = y
+  }
+
+  updatePosition(offsetX: number, offsetY: number) {
+    this.setXy(this.oldX + offsetX, this.oldY + offsetY)
+    this._connectionMgr.refreshConnection(this)
+    this.shapes.forEach(shape => {
+      shape.setXy(shape.oldX + offsetX, shape.oldY + offsetY)
       shape.createAnchors()
-      shape.anchor!.refresh()
+      shape.anchor.refresh()
       this._connectionMgr.refreshConnection(shape)
       if (shape.nodeType === NodeType.Group) {
-        this.updatePosition(shape as NodeGroup, offsetX, offsetY)
+        shape.updatePosition(offsetX, offsetY)
       }
     })
   }

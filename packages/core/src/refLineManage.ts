@@ -158,7 +158,7 @@ class RefLineManage {
 
   cacheRefLines() {
     this.clear()
-    this.getAllNodes().forEach((shape: IShape | INodeGroup) => {
+    this.getAllNodes().forEach(shape => {
       const { x, y, width, height } = shape.getBoundingRect()
       const hl = x + shape.x
       const hm = hl + width / 2

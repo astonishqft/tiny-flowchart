@@ -100,7 +100,7 @@ export class IocEditor {
   }
 
   getPointByIndex(node: IShape | INodeGroup, index: number): IAnchorPoint | undefined {
-    return node.anchor?.getBarByIndex(index)
+    return node.anchor.getBarByIndex(index)
   }
 
   initFlowChart(data: IExportData) {
@@ -134,19 +134,19 @@ export class IocEditor {
         z
       }: IExportShape) => {
         const newShape = this._shapeMgr.createShape(type, { x, y })
-        ;(newShape as unknown as zrender.Displayable).attr('z', z)
-        ;(newShape as unknown as zrender.Displayable).setStyle({
+        newShape.setZ(z)
+        newShape.setStyle({
           fill,
           stroke,
           lineWidth,
           lineDash
         })
-        ;(newShape as unknown as zrender.Displayable)
+        newShape
           .getTextContent()
           .setStyle({ text, fill: fontColor, fontSize, fontStyle, fontWeight })
-        ;(newShape as unknown as zrender.Displayable).setTextConfig({ position: textPosition })
+        newShape.setTextConfig({ position: textPosition })
         newShape.id = id
-        newShape.unActive!()
+        newShape.unActive()
       }
     )
 
@@ -213,9 +213,9 @@ export class IocEditor {
       }
       const newGroup = this._groupMgr.createGroup(childs, gId)
 
-      newGroup?.unActive()
-      newGroup?.setZ(groupItem.z)
-      newGroup?.setStyle(groupItem.style)
+      newGroup.unActive()
+      newGroup.setZ(groupItem.z)
+      newGroup.setStyle(groupItem.style)
     })
   }
 
@@ -224,12 +224,12 @@ export class IocEditor {
   }
 
   getData() {
-    const shapes = this._storageMgr.getShapes().map((shape: IShape) => shape.getExportData!())
+    const shapes = this._storageMgr.getShapes().map(shape => shape.getExportData())
 
     const connections = this._storageMgr
       .getConnections()
-      .map((connection: IConnection) => connection.getExportData!())
-    const groups = this._storageMgr.getGroups().map((group: INodeGroup) => group.getExportData!())
+      .map((connection: IConnection) => connection.getExportData())
+    const groups = this._storageMgr.getGroups().map((group: INodeGroup) => group.getExportData())
 
     return {
       shapes,

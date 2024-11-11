@@ -13,7 +13,7 @@ class Anchor {
   create() {
     const points = this.shape.getAnchors!()
     points.forEach(p => {
-      const circle: zrender.Circle = new zrender.Circle({
+      const circle = new zrender.Circle({
         style: {
           fill: '#fff',
           stroke: 'rgb(0,181,237)',
@@ -26,13 +26,13 @@ class Anchor {
         },
         cursor: 'crosshair',
         z: 30001
-      })
-      ;(circle as IAnchorPoint).point = p
-      ;(circle as IAnchorPoint).mark = 'anch'
-      ;(circle as IAnchorPoint).node = this.shape
-      ;(circle as IAnchorPoint).anch = circle as IAnchorPoint
+      }) as IAnchorPoint
+      circle.point = p
+      circle.mark = 'anch'
+      circle.node = this.shape
+      circle.anch = circle
       circle.on('mouseover', () => {
-        ;(circle as IAnchorPoint).oldFillColor = circle.style.fill as string
+        circle.oldFillColor = circle.style.fill as string
         circle.attr({
           style: {
             fill: 'rgb(0,181,237)',
@@ -46,7 +46,7 @@ class Anchor {
       circle.on('mouseout', () => {
         circle.attr({
           style: {
-            fill: (circle as IAnchorPoint).oldFillColor,
+            fill: circle.oldFillColor,
             shadowBlur: 0
           }
         })
@@ -62,7 +62,7 @@ class Anchor {
         })
       })
 
-      this.bars.push(circle as IAnchorPoint)
+      this.bars.push(circle)
     })
   }
 
@@ -86,7 +86,7 @@ class Anchor {
 
   refresh() {
     this.bars.forEach(bar => {
-      const p = this.shape.getAnchorByIndex!(bar.point.index)
+      const p = this.shape.getAnchorByIndex(bar.point.index)
       bar.attr({
         shape: {
           cx: p.x,

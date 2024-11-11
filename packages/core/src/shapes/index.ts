@@ -1,8 +1,9 @@
 import * as zrender from 'zrender'
-
+import { WidthActivate } from './mixins/widthActivate'
+import { WidthAnchor } from './mixins/widthAnchor'
+import { WidthCommon } from './mixins/widthCommon'
 import { Rect } from './rect'
 import { Circle } from './circle'
-import type { Anchor } from '../anchor'
 import type { INodeGroup } from './nodeGroup'
 import type {
   PatternObject,
@@ -12,6 +13,11 @@ import type {
   FontWeight,
   BuiltinTextPosition
 } from '../index'
+
+import type { Constructor } from '../types'
+import type { IWidthActivate } from './mixins/widthActivate'
+import type { IWidthAnchor } from './mixins/widthAnchor'
+import type { IWidthCommon } from './mixins/widthCommon'
 
 export type FillStyle =
   | string
@@ -27,10 +33,6 @@ export type StrokeStyle =
   | undefined
 export type LineDashStyle = false | number[] | 'solid' | 'dashed' | 'dotted' | undefined
 
-export type Dictionary<T> = {
-  [key: string]: T
-}
-
 export interface IExportConnectionStyle {
   stroke: StrokeStyle
   lineWidth: number | undefined
@@ -44,16 +46,16 @@ export interface IExportConnectionStyle {
 }
 
 export interface IExportConnection {
+  controlPoint1?: (number | undefined)[]
+  controlPoint2?: (number | undefined)[]
+  controlLine1?: (number | undefined)[]
+  controlLine2?: (number | undefined)[]
   type: ConnectionType
   id: number
   fromPoint: number
   toPoint: number
   fromNode: number
   toNode: number
-  controlPoint1?: (number | undefined)[]
-  controlPoint2?: (number | undefined)[]
-  controlLine1?: (number | undefined)[]
-  controlLine2?: (number | undefined)[]
   style: IExportConnectionStyle
 }
 
@@ -166,27 +168,10 @@ export type IControlPoint = zrender.Circle & {
   mark: string
 }
 
-export interface IBaseShape {
-  selected: boolean
-  nodeType: NodeType
-  anchors: IAnchor[]
+export interface IShape extends zrender.Displayable, IWidthActivate, IWidthAnchor, IWidthCommon {
   parentGroup?: INodeGroup
-  anchor?: Anchor
-  oldX?: number
-  oldY?: number
-  z?: number
+  anchors: IAnchor[]
   createAnchors(): void
-}
-
-export interface IShape extends zrender.Element, IBaseShape {
-  getExportData?(): IExportShape
-  active?(): void
-  unActive?(): void
-  getBoundingBox?(): zrender.BoundingRect
-  getAnchors?(): IAnchor[]
-  getAnchorByIndex?(index: number): IAnchor
-  updatePosition?(target: IShape | INodeGroup, offsetX: number, offsetY: number): void
-  setOldPosition?(target: IShape | INodeGroup): void
 }
 
 export interface IShapeConfig {
@@ -194,7 +179,7 @@ export interface IShapeConfig {
 }
 
 export interface IShapeMap {
-  [key: string]: any
+  [key: string]: Constructor<any>
 }
 
 export interface IShapeTextConfig {
@@ -205,7 +190,6 @@ export interface IShapeTextConfig {
 export interface IAnchor {
   x: number
   y: number
-  node: IShape | INodeGroup
   direct: string
   index: number
 }
@@ -276,10 +260,9 @@ export const shapes: IShapeMap = {
 
 export const getShape = (type: string, option: { x: number; y: number }) => {
   const config = { ...shapeConfig[type], ...getShapeTextConfig() }
-
-  const shape = new shapes[type](config)
-  shape.attr('x', option.x)
-  shape.attr('y', option.y)
+  const Shape = WidthAnchor(WidthActivate(WidthCommon(shapes[type])))
+  const shape = new Shape(config)
+  shape.setXy(option.x, option.y)
 
   return shape
 }

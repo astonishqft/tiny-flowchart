@@ -24,6 +24,15 @@ module.exports = {
     'vue/multi-word-component-names': 0,
     semi: [2, 'never'],
     'no-prototype-builtins': 0,
-    'no-multiple-empty-lines': [2, { max: 1 }]
+    'no-multiple-empty-lines': [2, { max: 1 }],
+    'arrow-parens': [2, 'as-needed'],
+    'eol-last': ['error', "always"],
+    'comma-dangle': ['error', {
+      arrays: 'never',
+      objects: 'never',
+      imports: 'never',
+      exports: 'never',
+      functions: 'never'
+    }]
   }
 }

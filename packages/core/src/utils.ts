@@ -82,11 +82,6 @@ export const getGroupMaxZLevel = (groups: INodeGroup[]) => {
   return maxZLevel
 }
 
-export const getBoundingRect = (shapes: (IShape | INodeGroup)[]): zrender.BoundingRect => {
-  const g = new zrender.Group()
-  return g.getBoundingRect(shapes)
-}
-
 export const isEnter = (a: zrender.BoundingRect, b: zrender.BoundingRect) => {
   const centerX = a.x + a.width / 2
   const centerY = a.y + a.height / 2

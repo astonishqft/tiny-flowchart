@@ -45,11 +45,11 @@ class NodeEventManage {
     ;(this._node as Eventful).on('mousedown', e => {
       this._mouseDownX = e.offsetX
       this._mouseDownY = e.offsetY
-      ;(this._node as IShape | INodeGroup).setOldPosition!(this._node)
+      this._node.setOldPosition()
       this._zoom = this._storageMgr.getZoom()
       this._dragFrameMgr.updatePosition(this._node.x, this._node.y)
       this._dragFrameMgr.show()
-      const { width, height } = this._node.getBoundingBox!()
+      const { width, height } = this._node.getBoundingBox()
       this._dragFrameMgr.initSize(width, height)
 
       this._refLineMgr.cacheRefLines()
@@ -60,16 +60,16 @@ class NodeEventManage {
       console.log('shape click', this._node)
       this._sceneMgr.unActive()
       this._connectionMgr.unActiveConnections()
-      this._node.active!()
+      this._node.active()
       this._sceneMgr.updateSelectNode$.next(this._node)
     })
     ;(this._node as Eventful).on('mousemove', () => {
-      this._node.anchor?.show()
+      this._node.anchor.show()
       ;(this._node as unknown as zrender.Displayable).attr('cursor', 'move')
     })
     ;(this._node as Eventful).on('mouseout', () => {
       if (this._node.selected) return
-      this._node.anchor?.hide()
+      this._node.anchor.hide()
     })
   }
 
@@ -101,11 +101,11 @@ class NodeEventManage {
   onMouseUp(e: MouseEvent) {
     this._dragFrameMgr.hide()
 
-    this._node.updatePosition!(
-      this._node,
+    this._node.updatePosition(
       (e.offsetX - this._mouseDownX) / this._zoom + this._magneticOffsetX / this._zoom,
       (e.offsetY - this._mouseDownY) / this._zoom + this._magneticOffsetY / this._zoom
     )
+    this._connectionMgr.refreshConnection(this._node)
 
     this._refLineMgr.clearRefPointAndRefLines()
     this._magneticOffsetX = 0
@@ -140,7 +140,7 @@ class NodeEventManage {
   }
 
   addShapeToGroup(node: IShape | INodeGroup, targetGroup: INodeGroup) {
-    ;(node as unknown as zrender.Displayable).attr('z', targetGroup.z + 1)
+    node.setZ(targetGroup.z + 1)
     node.parentGroup = targetGroup
     targetGroup.shapes.push(node)
     targetGroup.resizeNodeGroup()

@@ -73,9 +73,9 @@ class SelectFrameManage {
       shapeBoundingBox.x = shape.x
       shapeBoundingBox.y = shape.y
       if (selectFrameBoundingBox.intersect(shapeBoundingBox)) {
-        shape.active!()
+        shape.active()
       } else {
-        shape.unActive!()
+        shape.unActive()
       }
     })
   }

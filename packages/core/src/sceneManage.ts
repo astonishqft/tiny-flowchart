@@ -67,9 +67,7 @@ class SceneManage extends Disposable {
   }
 
   getActiveShapes() {
-    return this._storageMgr.getShapes().filter((shape: IShape) => {
-      return shape.selected
-    })
+    return this._storageMgr.getShapes().filter(shape => shape.selected)
   }
 
   setCursorStyle(cursor: string) {
@@ -184,7 +182,7 @@ class SceneManage extends Disposable {
 
   unActive() {
     this._storageMgr.getNodes().forEach(node => {
-      node.unActive!()
+      node.unActive()
     })
   }
 }

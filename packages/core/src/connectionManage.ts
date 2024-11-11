@@ -107,16 +107,16 @@ class ConnectionManage extends Disposable {
 
   refreshConnection(shape: IShape | INodeGroup) {
     shape.createAnchors()
-    shape.anchor!.refresh()
+    shape.anchor.refresh()
     const conns = this.getConnectionByShape(shape)
 
     conns.forEach(conn => {
       if (conn.fromNode.id === shape.id) {
-        const fromPoint = shape.getAnchorByIndex!(conn.fromPoint!.index)
+        const fromPoint = shape.getAnchorByIndex(conn.fromPoint!.index)
         conn.setFromPoint(fromPoint)
         conn.refresh()
       } else if (conn.toNode!.id === shape.id) {
-        const toPoint = shape.getAnchorByIndex!(conn.toPoint!.index)
+        const toPoint = shape.getAnchorByIndex(conn.toPoint!.index)
         conn.setToPoint(toPoint)
         conn.refresh()
       }
@@ -124,9 +124,7 @@ class ConnectionManage extends Disposable {
   }
 
   clear() {
-    this._storageMgr.getConnections().forEach((c: IConnection) => {
-      this._viewPortMgr.removeElementFromViewPort(c)
-    })
+    this._storageMgr.getConnections().forEach(c => this._viewPortMgr.removeElementFromViewPort(c))
     this._storageMgr.clearConnections()
   }
 
