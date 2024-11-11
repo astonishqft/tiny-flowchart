@@ -14,10 +14,10 @@ import type { ISelectFrameManage } from './selectFrameManage'
 import type { IGroupManage } from './groupManage'
 import type { ISettingManage } from './settingManage'
 import type { IGridManage } from './gridManage'
-import type { IShape, IConnection } from './shapes'
+import type { IConnection, IShape } from './shapes'
 import type { INodeGroup } from './shapes/nodeGroup'
-import type { FontStyle, FontWeight, BuiltinTextPosition } from 'zrender/lib/core/types'
-import type { PatternObject, LinearGradientObject, RadialGradientObject } from 'zrender/lib/export'
+import type { BuiltinTextPosition, FontStyle, FontWeight } from 'zrender/lib/core/types'
+import type { LinearGradientObject, PatternObject, RadialGradientObject } from 'zrender/lib/export'
 
 type Displayable = zrender.Displayable
 

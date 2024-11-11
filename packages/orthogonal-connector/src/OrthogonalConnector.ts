@@ -1,4 +1,4 @@
-import { Rectangle, type Rect, makePt, IPoint, BasicCardinalPoint } from './helpers/Rectangle'
+import { BasicCardinalPoint, IPoint, type Rect, Rectangle, makePt } from './helpers/Rectangle'
 import { PointGraph } from './helpers/PointGraph'
 import Grid from './Grid'
 
@@ -281,6 +281,7 @@ function simplifyPath(points: IPoint[]): IPoint[] {
       r.push(cur)
     }
   }
+
   return r
 }
 

@@ -3,11 +3,11 @@ import OrthogonalConnector from '@ioceditor/orthogonal-connector'
 import { ConnectionType } from './shapes'
 
 import type {
-  IShape,
   IAnchor,
   IConnection,
   IControlPoint,
   IExportConnectionStyle,
+  IShape,
   LineDashStyle
 } from './shapes'
 import type { FontStyle, FontWeight } from 'zrender/lib/core/types'
@@ -473,9 +473,11 @@ class Connection extends zrender.Group implements IConnection {
 
     if (currentDirection === 'horizontal') {
       const delta = nextNode[0] - preNode[0] > 0 ? 1 : -1
+
       return [preNode[0] + offsetLength * delta, preNode[1]]
     } else {
       const delta = nextNode[1] - preNode[1] > 0 ? 1 : -1
+
       return [preNode[0], preNode[1] + offsetLength * delta]
     }
   }
@@ -683,6 +685,7 @@ class Connection extends zrender.Group implements IConnection {
         ]
       }
     }
+
     return baseData
   }
 

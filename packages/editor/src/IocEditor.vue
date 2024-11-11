@@ -4,7 +4,7 @@ import ElementPanel from './components/ElementPanel.vue'
 import EditorPanel from './components/EditorPanel.vue'
 import PropertyPanel from './components/PropertyPanel.vue'
 import MiniMap from './components/MiniMap.vue'
-import { ref, onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { IocEditor } from '@ioceditor/core'
 
 const editor = ref<IocEditor>()

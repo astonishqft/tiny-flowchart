@@ -51,6 +51,7 @@ class ShapeManage extends Disposable {
     this._storageMgr.addShape(shape)
 
     this._iocEditor.updateAddNode$.next(shape)
+
     return shape
   }
 

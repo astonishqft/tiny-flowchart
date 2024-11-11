@@ -1,4 +1,4 @@
-import { distance, IPoint } from './Rectangle'
+import { IPoint, distance } from './Rectangle'
 
 type Direction = 'v' | 'h'
 
@@ -40,6 +40,7 @@ export class PointGraph {
         lowestDistanceNode = node
       }
     }
+
     return lowestDistanceNode!
   }
 
@@ -133,6 +134,7 @@ export class PointGraph {
     const { x, y } = p
     const xs = x.toString(),
       ys = y.toString()
+
     return xs in this.index && ys in this.index[xs]
   }
 

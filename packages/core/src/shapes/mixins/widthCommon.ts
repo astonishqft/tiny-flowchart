@@ -3,7 +3,7 @@ import { NodeType } from '../index'
 
 import type { IExportShape } from '../index'
 import type { INodeGroup } from '../nodeGroup'
-import type { FontWeight, FontStyle } from '../../index'
+import type { FontStyle, FontWeight } from '../../index'
 import type { Constructor, SafeDisplayable } from '../../types'
 
 export type CommonConstructor = Constructor<SafeDisplayable>
@@ -50,6 +50,7 @@ function WidthCommon<TBase extends CommonConstructor>(Base: TBase) {
     getBoundingBox() {
       const g = new zrender.Group()
       const { width, height } = g.getBoundingRect([this as unknown as zrender.Element])
+
       return new zrender.BoundingRect(this.x, this.y, width, height)
     }
 

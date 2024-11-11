@@ -12,6 +12,7 @@ class Circle extends zrender.Ellipse {
     const b = box.height / 2
     //椭圆公式 计算y值
     const y = Math.sqrt(b * b * Math.sqrt(1 - (x * x) / (a * a)))
+
     return y
   }
 

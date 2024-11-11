@@ -6,12 +6,12 @@ import { Rect } from './rect'
 import { Circle } from './circle'
 import type { INodeGroup } from './nodeGroup'
 import type {
-  PatternObject,
-  LinearGradientObject,
-  RadialGradientObject,
+  BuiltinTextPosition,
   FontStyle,
   FontWeight,
-  BuiltinTextPosition
+  LinearGradientObject,
+  PatternObject,
+  RadialGradientObject
 } from '../index'
 
 import type { Constructor } from '../types'

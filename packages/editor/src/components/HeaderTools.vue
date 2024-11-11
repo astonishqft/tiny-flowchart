@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { ElSelect, ElOption } from 'element-plus'
+import { ElOption, ElSelect } from 'element-plus'
 import { ConnectionType } from '@ioceditor/core'
 
 import { IocEditor } from '@ioceditor/core'

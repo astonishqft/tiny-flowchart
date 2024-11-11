@@ -4,7 +4,7 @@ import { Connection } from './connection'
 import { ConnectionType } from './shapes'
 
 import type { IDisposable } from './disposable'
-import type { IShape, IAnchorPoint, IConnection } from './shapes'
+import type { IAnchorPoint, IConnection, IShape } from './shapes'
 import type { INodeGroup } from './shapes/nodeGroup'
 import type { IViewPortManage } from './viewPortManage'
 import type { IStorageManage } from './storageManage'
@@ -56,6 +56,7 @@ class ConnectionManage extends Disposable {
 
     this._viewPortMgr.addElementToViewPort(connection)
     this.initEvent(connection)
+
     return connection
   }
 

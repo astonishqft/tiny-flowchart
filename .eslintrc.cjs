@@ -33,6 +33,7 @@ module.exports = {
       imports: 'never',
       exports: 'never',
       functions: 'never'
-    }]
+    }],
+    'padding-line-between-statements': ['error', { blankLine: 'always', prev: '*', next: 'return' }]
   }
 }

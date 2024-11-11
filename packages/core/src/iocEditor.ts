@@ -16,8 +16,8 @@ import { SettingManage } from './settingManage'
 import {
   downloadFile,
   flatGroupArrayToTree,
-  groupTreeToArray,
-  getChildShapesByGroupId
+  getChildShapesByGroupId,
+  groupTreeToArray
 } from './utils'
 
 import type { IRefLineManage } from './refLineManage'
@@ -33,14 +33,14 @@ import type { IStorageManage } from './storageManage'
 import type { ISelectFrameManage } from './selectFrameManage'
 import type { IIocEditorConfig, ISettingManage } from './settingManage'
 import {
-  type IShape,
-  type IExportShape,
-  type IExportConnection,
-  type IConnection,
+  ConnectionType,
   type IAnchorPoint,
-  type IExportGroup,
+  type IConnection,
+  type IExportConnection,
   type IExportData,
-  ConnectionType
+  type IExportGroup,
+  type IExportShape,
+  type IShape
 } from './shapes'
 import type { INodeGroup } from './shapes/nodeGroup'
 import type { IGroupTreeNode } from './utils'

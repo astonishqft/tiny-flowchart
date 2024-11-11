@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { IocEditor } from '@ioceditor/core'
 
-import type { IShape, INodeGroup } from '@ioceditor/core'
+import type { INodeGroup, IShape } from '@ioceditor/core'
 
 const miniMap = ref<IocEditor>()
 

@@ -58,6 +58,7 @@ export class Rectangle {
     const rectY = rectangle.top
     const rectW = rectangle.width
     const rectH = rectangle.height
+
     return (
       rectX <= thisX + thisW &&
       thisX <= rectX + rectW &&
@@ -74,6 +75,7 @@ export class Rectangle {
   union(rectangle: Rectangle): Rectangle {
     const x = [this.left, this.right, rectangle.left, rectangle.right]
     const y = [this.top, this.bottom, rectangle.top, rectangle.bottom]
+
     return Rectangle.fromLTRB(Math.min(...x), Math.min(...y), Math.max(...x), Math.max(...y))
   }
 

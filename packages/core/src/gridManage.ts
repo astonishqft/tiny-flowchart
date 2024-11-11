@@ -133,6 +133,7 @@ class GridManage {
     const n = Math.floor(value / segment)
     const left = segment * n
     const right = segment * (n + 1)
+
     return value - left <= right - value ? left : right
   }
 

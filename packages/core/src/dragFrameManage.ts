@@ -1,6 +1,6 @@
 import * as zrender from 'zrender'
 import { Disposable } from './disposable'
-import { isEnter, getTopGroup } from './utils'
+import { getTopGroup, isEnter } from './utils'
 
 import type { IocEditor } from './iocEditor'
 import type { IDisposable } from './disposable'

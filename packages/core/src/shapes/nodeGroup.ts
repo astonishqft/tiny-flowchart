@@ -4,7 +4,7 @@ import { NodeType } from './index'
 import { IocEditor } from '../iocEditor'
 import { Anchor } from '../anchor'
 
-import type { IShape, IAnchor, IExportGroup, IExportGroupStyle, StrokeStyle } from './index'
+import type { IAnchor, IExportGroup, IExportGroupStyle, IShape, StrokeStyle } from './index'
 
 import type { IConnectionManage } from '../connectionManage'
 import type { IViewPortManage } from '../viewPortManage'

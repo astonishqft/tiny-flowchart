@@ -3,7 +3,7 @@ import { Disposable } from './disposable'
 import { Subject } from 'rxjs'
 
 import type { IDisposable } from './disposable'
-import type { IShape, IAnchorPoint, IConnection, IControlPoint } from './shapes'
+import type { IAnchorPoint, IConnection, IControlPoint, IShape } from './shapes'
 import type { INodeGroup } from './shapes/nodeGroup'
 import type { IGridManage } from './gridManage'
 import type { IViewPortManage } from './viewPortManage'

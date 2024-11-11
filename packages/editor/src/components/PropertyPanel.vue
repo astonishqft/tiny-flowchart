@@ -6,7 +6,7 @@ import ConnectionProperty from './elementProperty/ConnectionProperty.vue'
 import GroupProperty from './elementProperty/GroupProperty.vue'
 import { NodeType } from '@ioceditor/core'
 import { IocEditor } from '@ioceditor/core'
-import type { IShape, IConnection, INodeGroup } from '@ioceditor/core'
+import type { IConnection, INodeGroup, IShape } from '@ioceditor/core'
 
 const props = defineProps<{
   iocEditor: IocEditor

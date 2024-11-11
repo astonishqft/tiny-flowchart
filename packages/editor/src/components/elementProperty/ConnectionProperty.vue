@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { ElSelect, ElOption, ElInputNumber, ElDivider, ElColorPicker, ElInput } from 'element-plus'
+import { ElColorPicker, ElDivider, ElInput, ElInputNumber, ElOption, ElSelect } from 'element-plus'
 import { ConnectionType } from '@ioceditor/core'
-import { convertStrokeTypeToLineDash, convertLineDashToStrokeType } from '../../utils/utils'
+import { convertLineDashToStrokeType, convertStrokeTypeToLineDash } from '../../utils/utils'
 import { IocEditor } from '@ioceditor/core'
 
-import type { IConnection, FontWeight, FontStyle } from '@ioceditor/core'
+import type { FontStyle, FontWeight, IConnection } from '@ioceditor/core'
 
 const { iocEditor } = defineProps<{
   iocEditor: IocEditor

@@ -2,7 +2,7 @@ import { INodeGroup } from 'shapes/nodeGroup'
 import type { IShape } from './shapes'
 import * as zrender from 'zrender'
 
-import type { IExportGroup, IExportShape, IExportGroupStyle } from './shapes'
+import type { IExportGroup, IExportGroupStyle, IExportShape } from './shapes'
 
 export const getClosestValInSortedArr = (sortedArr: number[], target: number) => {
   if (sortedArr.length === 0) {
@@ -103,6 +103,7 @@ export const getTopGroup = (groups: INodeGroup[]): INodeGroup => {
       maxGroup = g
     }
   })
+
   return maxGroup
 }
 
@@ -135,6 +136,7 @@ export const flatGroupArrayToTree = (flatArray: IExportGroup[]) => {
         node.children.push(buildTree(childNode))
       }
     })
+
     return node
   }
 
