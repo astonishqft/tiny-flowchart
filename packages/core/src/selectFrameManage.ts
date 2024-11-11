@@ -64,11 +64,9 @@ class SelectFrameManage {
 
   multiSelect() {
     const selectFrameBoundingBox = this._selectFrame.getBoundingRect()
-    const groups = this._storageMgr.getGroups()
-    const shapes = this._storageMgr.getShapes()
     selectFrameBoundingBox.x = this._selectFrame.x
     selectFrameBoundingBox.y = this._selectFrame.y
-    ;[...shapes, ...groups].forEach(shape => {
+    this._storageMgr.getNodes().forEach(shape => {
       const shapeBoundingBox = shape.getBoundingRect()
       shapeBoundingBox.x = shape.x
       shapeBoundingBox.y = shape.y

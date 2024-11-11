@@ -135,6 +135,10 @@ class SceneManage extends Disposable {
         this.setCursorStyle('crosshair')
       }
 
+      if (!e.target) {
+        this.setCursorStyle('grab')
+      }
+
       // 拖拽画布(利用的原理是改变Group的 position 坐标)
       if (drag && dragModel === 'scene' && !selectFrameStatus) {
         // TODO: 排除没有点击到节点的情况，后续需要继续排除点击到连线等情况

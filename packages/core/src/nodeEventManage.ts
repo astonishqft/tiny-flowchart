@@ -1,5 +1,4 @@
 import Eventful from 'zrender/lib/core/Eventful'
-import * as zrender from 'zrender'
 import { IocEditor } from './iocEditor'
 
 import type { IShape } from './shapes'
@@ -65,7 +64,7 @@ class NodeEventManage {
     })
     ;(this._node as Eventful).on('mousemove', () => {
       this._node.anchor.show()
-      ;(this._node as unknown as zrender.Displayable).attr('cursor', 'move')
+      this._node.setCursor('move')
     })
     ;(this._node as Eventful).on('mouseout', () => {
       if (this._node.selected) return

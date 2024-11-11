@@ -41,6 +41,7 @@ export interface INodeGroup extends zrender.Group, IWidthActivate, IWidthAnchor 
   updatePosition(offsetX: number, offsetY: number): void
   setOldPosition(): void
   setXy(x: number, y: number): void
+  setCursor(type: string): void
 }
 
 class NodeGroup extends zrender.Group implements INodeGroup {
@@ -284,6 +285,10 @@ class NodeGroup extends zrender.Group implements INodeGroup {
     return this.anchors
   }
 
+  setCursor(type: string) {
+    this.groupRect?.attr('cursor', type)
+  }
+
   active() {
     this.selected = true
     this.groupRect!.attr({
@@ -407,20 +412,23 @@ class NodeGroup extends zrender.Group implements INodeGroup {
   }
 
   setXy(x: number, y: number) {
-    this.x = x
-    this.y = y
+    this.attr('x', x)
+    this.attr('y', y)
   }
 
   updatePosition(offsetX: number, offsetY: number) {
     this.setXy(this.oldX + offsetX, this.oldY + offsetY)
+
     this._connectionMgr.refreshConnection(this)
     this.shapes.forEach(shape => {
-      shape.setXy(shape.oldX + offsetX, shape.oldY + offsetY)
-      shape.createAnchors()
-      shape.anchor.refresh()
       this._connectionMgr.refreshConnection(shape)
       if (shape.nodeType === NodeType.Group) {
         shape.updatePosition(offsetX, offsetY)
+      } else {
+        shape.setXy(shape.oldX + offsetX, shape.oldY + offsetY)
+        shape.createAnchors()
+        shape.anchor.refresh()
+        this._connectionMgr.refreshConnection(shape)
       }
     })
   }
