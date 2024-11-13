@@ -12,15 +12,44 @@ const { iocEditor } = defineProps<{
 
 onMounted(() => {
   const miniMapContainer = document.getElementById('mini-map') as HTMLElement
-  miniMap.value = new IocEditor(miniMapContainer, {
-    zoomStep: 0.2325
-  })
+
+  const containerWidth = miniMapContainer.offsetWidth
+  const containerHeight = miniMapContainer.offsetHeight
+  const containerRatio = containerWidth / containerHeight
+  miniMap.value = new IocEditor(miniMapContainer)
 
   miniMap.value.offEvent()
 
   iocEditor.updateAddNode$.subscribe((shape: IShape | INodeGroup) => {
     const data = iocEditor.getData()
     miniMap.value?.initFlowChart(data)
+
+    const { x, y, width, height } = miniMap
+      .value!._viewPortMgr.getViewPort()
+      .getBoundingRect([
+        ...miniMap.value!._storageMgr.getNodes(),
+        ...miniMap.value!._storageMgr.getConnections()
+      ])
+
+    const miniMapRatio = width / height
+
+    let scaleRatio = 1
+    if (miniMapRatio > containerRatio) {
+      scaleRatio = containerWidth / width
+    } else {
+      scaleRatio = containerHeight / height
+    }
+
+    console.log('x', x)
+    console.log('y', y)
+    console.log('width', width)
+    console.log('height', height)
+    console.log('scaleRatio', scaleRatio)
+
+    miniMap.value!._viewPortMgr.getViewPort().attr('x', -x * scaleRatio)
+    miniMap.value!._viewPortMgr.getViewPort().attr('y', -y * scaleRatio)
+    miniMap.value!._viewPortMgr.getViewPort().attr('scaleX', scaleRatio)
+    miniMap.value!._viewPortMgr.getViewPort().attr('scaleY', scaleRatio)
   })
 })
 </script>

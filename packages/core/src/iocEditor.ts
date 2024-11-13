@@ -64,16 +64,12 @@ export class IocEditor {
 
   updateAddNode$: Subject<IShape | INodeGroup>
 
-  initZr(dom: HTMLElement): zrender.ZRenderType {
-    return zrender.init(dom)
-  }
-
-  constructor(dom: HTMLElement, config: Partial<IIocEditorConfig>) {
+  constructor(dom: HTMLElement, config?: Partial<IIocEditorConfig>) {
     this._dom = dom
     this.updateAddNode$ = new Subject()
     this._settingMgr = new SettingManage()
     this._storageMgr = new StorageManage()
-    this._viewPortMgr = new ViewPortManage()
+    this._viewPortMgr = new ViewPortManage(this)
     this._selectFrameMgr = new SelectFrameManage(this)
     this._dragFrameMgr = new DragFrameManage(this)
     this._refLineMgr = new RefLineManage(this)
@@ -82,11 +78,14 @@ export class IocEditor {
     this._connectionMgr = new ConnectionManage(this)
     this._groupMgr = new GroupManage(this)
     this._shapeMgr = new ShapeManage(this)
-    this._settingMgr.setDefaultConfig(config)
-    this._zr = this.initZr(dom)
+    if (config) {
+      this._settingMgr.setDefaultConfig(config)
+    }
+
+    this._zr = zrender.init(dom)
 
     this._sceneMgr = new SceneManage(this)
-    this._sceneMgr.init(this._zr)
+    this._sceneMgr.init()
   }
 
   addShape(type: string, options: { x: number; y: number }) {
@@ -283,5 +282,11 @@ export class IocEditor {
 
   offEvent() {
     this._zr.off()
+  }
+
+  getBoundingBox() {
+    const g = new zrender.Group()
+
+    return g.getBoundingRect([...this._storageMgr.getNodes(), ...this._storageMgr.getConnections()])
   }
 }

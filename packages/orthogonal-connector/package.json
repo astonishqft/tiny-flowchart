@@ -2,7 +2,7 @@
   "name": "@ioceditor/orthogonal-connector",
   "version": "0.0.1",
   "description": "Orthogonal connector",
-  "main": "dist/index.umd.js",
+  "type": "module",
   "module": "dist/index.mjs",
   "typings": "dist/index.d.ts",
   "files": [

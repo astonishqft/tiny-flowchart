@@ -3,8 +3,8 @@
   "version": "0.0.1",
   "author": "qi.futao",
   "description": "Core library for Ioc Editor",
-  "main": "dist/index.umd.js",
-  "module": "dist/index.mjs",
+  "module": "dist/index.js",
+  "type": "module",
   "typings": "dist/index.d.ts",
   "files": [
     "dist"

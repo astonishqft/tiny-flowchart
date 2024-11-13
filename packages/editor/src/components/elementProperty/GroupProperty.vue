@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { NodeType } from '@ioceditor/core'
+import { NodeType, IShape } from '@ioceditor/core'
 import { ElColorPicker, ElDivider, ElInput, ElInputNumber, ElOption, ElSelect } from 'element-plus'
 import { convertLineDashToStrokeType, convertStrokeTypeToLineDash } from '../../utils/utils'
 import { IocEditor } from '@ioceditor/core'
@@ -14,7 +14,7 @@ const { iocEditor } = defineProps<{
 const bgColorList = ['transparent', '#ffc9c9', '#b2f2bb', '#a5d8ff', '#ffec99']
 const strokeColorList = ['#1e1e1e', '#e03131', '#2f9e44', '#1971c2', '#f08c00']
 
-const activeGroup = ref<INodeGroup>()
+const activeGroup = ref()
 
 interface ITextPosition {
   name: string
@@ -62,11 +62,11 @@ const nodeText = ref('')
 const bgColor = ref('')
 const strokeColor = ref('')
 const fontColor = ref('')
-const textPosition = <BuiltinTextPosition>ref('inside')
+const textPosition = ref('inside')
 const fontWeight = ref<FontWeight>('normal')
 const fontStyle = ref<FontStyle>('normal')
 
-iocEditor._sceneMgr.updateSelectNode$.subscribe((group: INodeGroup) => {
+iocEditor._sceneMgr.updateSelectNode$.subscribe((group: INodeGroup | IShape) => {
   if (group.nodeType === NodeType.Group) {
     activeGroup.value = group
     bgColor.value = activeGroup.value.groupRect?.style.fill as string
@@ -85,23 +85,23 @@ iocEditor._sceneMgr.updateSelectNode$.subscribe((group: INodeGroup) => {
 })
 
 const changeGroupBgColor = (color: string | null) => {
-  activeGroup.value!.groupRect?.setStyle({
+  activeGroup.value.groupRect?.setStyle({
     fill: color as string
   })
   bgColor.value = color as string
 }
 
 const changeGroupStrokeColor = (color: string | null) => {
-  activeGroup.value!.groupRect?.setStyle({
+  activeGroup.value.groupRect?.setStyle({
     stroke: color as string
   })
   strokeColor.value = color as string
-  activeGroup.value!.oldStroke = color as string
+  activeGroup.value.oldStroke = color as string
 }
 
 const changeGroupHeadFontColor = (color: string | null) => {
   if (!color) return
-  activeGroup.value!.groupHead?.getTextContent()?.setStyle({
+  activeGroup.value.groupHead?.getTextContent()?.setStyle({
     fill: color
   })
   fontColor.value = color as string
@@ -109,7 +109,7 @@ const changeGroupHeadFontColor = (color: string | null) => {
 
 const changeGroupFontSize = (size: number | undefined) => {
   if (!size) return
-  activeGroup.value!.groupHead?.getTextContent()?.setStyle({
+  activeGroup.value.groupHead?.getTextContent()?.setStyle({
     fontSize: size
   })
 
@@ -125,7 +125,7 @@ const changeGroupLineWidth = (width: number) => {
 }
 
 const changeGroupStrokeType = (type: string) => {
-  activeGroup.value!.groupRect?.setStyle({
+  activeGroup.value.groupRect?.setStyle({
     lineDash: convertStrokeTypeToLineDash(type)
   })
 
@@ -133,7 +133,7 @@ const changeGroupStrokeType = (type: string) => {
 }
 
 const changeGroupTextPosition = (position: BuiltinTextPosition) => {
-  activeGroup.value!.groupHead?.setTextConfig({
+  activeGroup.value.groupHead?.setTextConfig({
     position
   })
 
@@ -144,13 +144,13 @@ const changeGroupFontStyle = (style: string) => {
   const fWeight = activeGroup.value!.groupHead?.getTextContent().style.fontWeight || 'normal'
   const fStyle = activeGroup.value!.groupHead?.getTextContent().style.fontStyle || 'normal'
   if (style === 'fontWeight') {
-    activeGroup.value!.groupHead?.getTextContent()?.setStyle({
+    activeGroup.value.groupHead?.getTextContent()?.setStyle({
       fontWeight: fWeight === 'normal' ? 'bold' : 'normal'
     })
 
     fontWeight.value = fWeight === 'normal' ? 'bold' : 'normal'
   } else {
-    activeGroup.value!.groupHead?.getTextContent()?.setStyle({
+    activeGroup.value.groupHead?.getTextContent()?.setStyle({
       fontStyle: fStyle === 'normal' ? 'italic' : 'normal'
     })
 
@@ -159,7 +159,7 @@ const changeGroupFontStyle = (style: string) => {
 }
 
 const changeGroupText = (text: string) => {
-  activeGroup.value!.groupHead?.getTextContent()?.setStyle({
+  activeGroup.value.groupHead?.getTextContent()?.setStyle({
     text
   })
 
@@ -298,7 +298,7 @@ const changeGroupText = (text: string) => {
           v-for="position in textPositionList"
           :key="position.name"
           :title="position.desc"
-          @click="() => changeGroupTextPosition(position.name)"
+          @click="() => changeGroupTextPosition(position.name as BuiltinTextPosition)"
         />
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { INodeGroup } from 'shapes/nodeGroup'
+import { INodeGroup } from './shapes/nodeGroup'
 import type { IShape } from './shapes'
 import * as zrender from 'zrender'
 

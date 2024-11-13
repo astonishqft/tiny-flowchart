@@ -3,6 +3,7 @@ import type { IAnchorPoint, IShape } from './shapes'
 import type { INodeGroup } from './shapes/nodeGroup'
 
 class Anchor {
+  private _radius: number = 4
   shape: IShape | INodeGroup
   bars: IAnchorPoint[]
   constructor(shape: IShape | INodeGroup) {
@@ -11,7 +12,7 @@ class Anchor {
     this.create()
   }
   create() {
-    const points = this.shape.getAnchors!()
+    const points = this.shape.getAnchors()
     points.forEach(p => {
       const circle = new zrender.Circle({
         style: {
@@ -22,7 +23,7 @@ class Anchor {
         shape: {
           cx: p.x,
           cy: p.y,
-          r: 3
+          r: this._radius
         },
         cursor: 'crosshair',
         z: 30001

@@ -1,7 +1,7 @@
 import * as zrender from 'zrender'
-import { NodeType } from '../index'
+import { NodeType } from '../../index'
 
-import type { IExportShape } from '../index'
+import type { IExportShape } from '..'
 import type { INodeGroup } from '../nodeGroup'
 import type { FontStyle, FontWeight } from '../../index'
 import type { Constructor, SafeDisplayable } from '../../types'

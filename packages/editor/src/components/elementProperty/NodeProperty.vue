@@ -10,7 +10,8 @@ import type {
   Displayable,
   FontStyle,
   FontWeight,
-  IShape
+  IShape,
+  INodeGroup
 } from '@ioceditor/core'
 
 const { iocEditor } = defineProps<{
@@ -78,11 +79,11 @@ const nodeText = ref('')
 const bgColor = ref('')
 const strokeColor = ref('')
 const fontColor = ref('')
-const textPosition = <BuiltinTextPosition>ref('inside')
+const textPosition = ref('inside')
 const fontWeight = ref<FontWeight>('normal')
 const fontStyle = ref<FontStyle>('normal')
 
-iocEditor._sceneMgr.updateSelectNode$.subscribe((shape: IShape) => {
+iocEditor._sceneMgr.updateSelectNode$.subscribe((shape: IShape | INodeGroup) => {
   if (shape.nodeType === NodeType.Shape) {
     activeShape.value = shape as unknown as Displayable
     lineWidth.value = activeShape.value.style.lineWidth
@@ -92,7 +93,7 @@ iocEditor._sceneMgr.updateSelectNode$.subscribe((shape: IShape) => {
     bgColor.value = activeShape.value.style.fill
     strokeColor.value = activeShape.value.style.stroke
     fontColor.value = activeShape.value.getTextContent().style.fill || '#333'
-    textPosition.value = activeShape.value.textConfig?.position || 'inside'
+    textPosition.value = (activeShape.value.textConfig?.position || 'inside') as BuiltinTextPosition
     fontStyle.value = activeShape.value.getTextContent().style.fontStyle || 'normal'
     fontWeight.value = activeShape.value.getTextContent().style.fontWeight || 'normal'
   }
@@ -310,7 +311,7 @@ const changeShapeText = (text: string) => {
           v-for="position in textPositionList"
           :key="position.name"
           :title="position.desc"
-          @click="() => changeShapeTextPosition(position.name)"
+          @click="() => changeShapeTextPosition(position.name as BuiltinTextPosition)"
         />
       </div>
     </div>

@@ -1,4 +1,4 @@
-import type { IAnchorPoint } from '../index'
+import type { IAnchorPoint } from '..'
 import type { Constructor, SafeDisplayable } from '../../types'
 
 export type ActivatableConstructor = Constructor<SafeDisplayable & { anchor: IAnchorPoint }>

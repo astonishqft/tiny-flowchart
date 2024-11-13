@@ -1,33 +1,26 @@
 {
-  "include": ["src", "types", "test"],
   "compilerOptions": {
-    "target": "es2015",
-    "downlevelIteration": true,
+    "target": "esnext",
     "module": "esnext",
-    "lib": ["dom", "esnext"],
+    "moduleResolution": "Bundler",
     "importHelpers": true,
-    "declaration": true,
-    "declarationDir": "dist", // 声明文件输出的目录
-    "emitDeclarationOnly": true, // 只输出声明文件，不转译ts文件
-    "sourceMap": true,
-    "rootDir": "./",
+    "outDir": "dist",
     "strict": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "strictPropertyInitialization": true,
-    "noImplicitThis": true,
-    "alwaysStrict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "moduleResolution": "node",
-    "baseUrl": "./",
+    "jsx": "preserve",
+    "allowJs": true,
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "experimentalDecorators": true,
+    "types": [
+      "vite/client"
+    ],
+    "baseUrl": ".",
     "paths": {
-      "*": ["src/*", "node_modules/*"]
+      "@/*": ["src/*"]
     },
-    "jsx": "react",
-    "esModuleInterop": true
-  }
+    "lib": ["esnext", "dom"]
+  },
+  "include": ["src", "src/**/*.ts", "*.d.ts", "src/**/*.json", "types"]
 }

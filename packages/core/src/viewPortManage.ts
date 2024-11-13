@@ -1,5 +1,6 @@
-import { Disposable } from './disposable'
 import * as zrender from 'zrender'
+import { IocEditor } from './iocEditor'
+import { Disposable } from './disposable'
 
 import type { IDisposable } from './disposable'
 
@@ -11,7 +12,6 @@ export interface IViewPortManage extends IDisposable {
   removeElementFromViewPort(element: zrender.Element): void
   addElementToViewPort(element: zrender.Element): void
   getViewPort(): zrender.Group
-  getZr(): zrender.ZRenderType
   setScale(x: number, y: number): void
   getScaleX(): number
   getScaleY(): number
@@ -21,8 +21,11 @@ export interface IViewPortManage extends IDisposable {
 
 class ViewPortManage extends Disposable {
   private _viewPort: zrender.Group = new zrender.Group()
-  constructor() {
+  private _iocEditor: IocEditor
+
+  constructor(iocEditor: IocEditor) {
     super()
+    this._iocEditor = iocEditor
   }
 
   getViewPort(): zrender.Group {
@@ -68,15 +71,11 @@ class ViewPortManage extends Disposable {
   }
 
   getSceneWidth() {
-    return this._viewPort.__zr.getWidth()
+    return this._iocEditor._zr.getWidth()
   }
 
   getSceneHeight() {
-    return this._viewPort.__zr.getHeight()
-  }
-
-  getZr() {
-    return this._viewPort.__zr
+    return this._iocEditor._zr.getHeight()
   }
 }
 

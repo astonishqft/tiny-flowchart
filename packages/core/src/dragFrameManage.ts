@@ -6,7 +6,7 @@ import type { IocEditor } from './iocEditor'
 import type { IDisposable } from './disposable'
 import type { IViewPortManage } from './viewPortManage'
 import type { IStorageManage } from './storageManage'
-import type { INodeGroup } from 'shapes/nodeGroup'
+import type { INodeGroup } from './shapes/nodeGroup'
 import type { IShape } from './shapes'
 
 export interface IDragFrameManage extends IDisposable {

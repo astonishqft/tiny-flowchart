@@ -15,10 +15,10 @@ import type { IStorageManage } from './storageManage'
 import type { IocEditor } from './iocEditor'
 
 export interface ISceneManage extends IDisposable {
-  _zr: zrender.ZRenderType | null
+  _zr: zrender.ZRenderType
   updateSelectScene$: Subject<null>
   updateSelectNode$: Subject<IShape | INodeGroup>
-  init(zr: zrender.ZRenderType): void
+  init(): void
   addShape(type: string, options: { x: number; y: number }): IShape
   clear(): void
   unActive(): void
@@ -34,11 +34,12 @@ class SceneManage extends Disposable {
   private _selectFrameMgr: ISelectFrameManage
   private _groupMgr: IGroupManage
   private _storageMgr: IStorageManage
-  _zr: zrender.ZRenderType | null = null
+  _zr: zrender.ZRenderType
   updateSelectScene$ = new Subject<null>()
   updateSelectNode$ = new Subject<IShape | INodeGroup>()
   constructor(iocEditor: IocEditor) {
     super()
+    this._zr = iocEditor._zr
     this._connectionMgr = iocEditor._connectionMgr
     this._gridMgr = iocEditor._gridMgr
     this._storageMgr = iocEditor._storageMgr
@@ -60,8 +61,7 @@ class SceneManage extends Disposable {
     this._groupMgr.clear()
   }
 
-  init(zr: zrender.ZRenderType) {
-    this._zr = zr
+  init() {
     this._viewPortMgr.addSelfToZr(this._zr)
     this.initEvent()
   }
@@ -71,7 +71,7 @@ class SceneManage extends Disposable {
   }
 
   setCursorStyle(cursor: string) {
-    this._zr?.setCursorStyle(cursor)
+    this._zr.setCursorStyle(cursor)
   }
 
   initEvent() {
@@ -87,7 +87,7 @@ class SceneManage extends Disposable {
     let selectFrameStatus = false
     let zoom = 1
 
-    this._zr?.on('mousedown', (e: zrender.ElementEvent) => {
+    this._zr.on('mousedown', (e: zrender.ElementEvent) => {
       drag = true
       startX = e.offsetX
       startY = e.offsetY
@@ -126,16 +126,14 @@ class SceneManage extends Disposable {
       }
     })
 
-    this._zr?.on('mousemove', e => {
+    this._zr.on('mousemove', e => {
       offsetX = e.offsetX - startX
       offsetY = e.offsetY - startY
 
       if (dragModel === 'anchor') {
         connection?.move((e.offsetX - oldViewPortX) / zoom, (e.offsetY - oldViewPortY) / zoom)
         this.setCursorStyle('crosshair')
-      }
-
-      if (!e.target) {
+      } else if (!e.target) {
         this.setCursorStyle('grab')
       }
 
@@ -154,7 +152,7 @@ class SceneManage extends Disposable {
       }
     })
 
-    this._zr?.on('mouseup', e => {
+    this._zr.on('mouseup', e => {
       drag = false
 
       if (

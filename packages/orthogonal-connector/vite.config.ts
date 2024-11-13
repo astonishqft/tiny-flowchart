@@ -3,16 +3,27 @@ import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, 'src')
+    }
+  },
   plugins: [
     dts({
-      insertTypesEntry: true,
-      outDir: 'dist' // 设置生成文件的目录为dist
+      outDir: ['dist'],
+      staticImport: true,
+      rollupTypes: true,
+      declarationOnly: false,
+      compilerOptions: {
+        declarationMap: true
+      }
     })
   ],
   build: {
+    sourcemap: true,
     lib: {
       entry: resolve(__dirname, './src/index.ts'), // TS库入口文件
-      name: 'orthogonal-connector', // 挂载到全局的变量名，CDN导入的时候可以直接使用Counter变量
+      formats: ['es'],
       fileName: 'index' // 输出的文件名
     }
   }

@@ -1,5 +1,5 @@
 import type { Constructor, SafeDisplayable } from '../../types'
-import type { IAnchor } from '../index'
+import type { IAnchor } from '..'
 import type { Anchor } from '../../anchor'
 
 export type AnchorableConstructor = Constructor<SafeDisplayable & { anchors: IAnchor[] }>

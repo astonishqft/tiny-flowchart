@@ -1,34 +1,26 @@
 {
-  "include": ["env.d.ts", "src/**/*", "src/**/*.vue"],
   "compilerOptions": {
-    "target": "es5",
+    "target": "esnext",
     "module": "esnext",
-    "lib": ["dom", "esnext"],
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
+    "moduleResolution": "Bundler",
     "importHelpers": true,
-    "declaration": true,
-    "declarationDir": "dist", // 声明文件输出的目录
-    "emitDeclarationOnly": true, // 只输出声明文件，不转译ts文件
-    "sourceMap": true,
-    "rootDir": "./",
+    "outDir": "dist",
     "strict": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "strictPropertyInitialization": true,
-    "noImplicitThis": true,
-    "alwaysStrict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "moduleResolution": "node",
-    "baseUrl": "./",
-    "paths": {
-      "*": ["src/*", "node_modules/*"]
-    },
     "jsx": "preserve",
-    "esModuleInterop": true
-  }
+    "allowJs": true,
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "experimentalDecorators": true,
+    "types": [
+      "vite/client"
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "lib": ["esnext", "dom"]
+  },
+  "include": ["src", "src/**/*.ts", "*.d.ts", "src/**/*.json", "types"]
 }
