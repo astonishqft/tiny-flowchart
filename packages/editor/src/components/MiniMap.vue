@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import { IocEditor } from '@ioceditor/core'
+import { onMounted, onUnmounted, ref } from 'vue'
+import { IocEditor, MiniMapManage } from '@ioceditor/core'
 
-import type { INodeGroup, IShape } from '@ioceditor/core'
+import type { IMiniMapManage } from '@ioceditor/core'
 
-const miniMap = ref<IocEditor>()
+const miniMapIoc = ref<IocEditor>()
+const miniMapMgr = ref<IMiniMapManage>()
 
 const { iocEditor } = defineProps<{
   iocEditor: IocEditor
@@ -13,50 +14,71 @@ const { iocEditor } = defineProps<{
 onMounted(() => {
   const miniMapContainer = document.getElementById('mini-map') as HTMLElement
 
-  const containerWidth = miniMapContainer.offsetWidth
-  const containerHeight = miniMapContainer.offsetHeight
-  const containerRatio = containerWidth / containerHeight
-  miniMap.value = new IocEditor(miniMapContainer)
+  miniMapIoc.value = new IocEditor(miniMapContainer, { enableMiniMap: true })
+  miniMapIoc.value.offEvent()
+  miniMapIoc.value._sceneMgr.setCursorStyle('grab')
 
-  miniMap.value.offEvent()
+  miniMapMgr.value = new MiniMapManage(miniMapIoc.value, iocEditor)
 
-  iocEditor.updateAddNode$.subscribe((shape: IShape | INodeGroup) => {
-    const data = iocEditor.getData()
-    miniMap.value?.initFlowChart(data)
-
-    const { x, y, width, height } = miniMap
-      .value!._viewPortMgr.getViewPort()
-      .getBoundingRect([
-        ...miniMap.value!._storageMgr.getNodes(),
-        ...miniMap.value!._storageMgr.getConnections()
-      ])
-
-    const miniMapRatio = width / height
-
-    let scaleRatio = 1
-    if (miniMapRatio > containerRatio) {
-      scaleRatio = containerWidth / width
-    } else {
-      scaleRatio = containerHeight / height
-    }
-
-    console.log('x', x)
-    console.log('y', y)
-    console.log('width', width)
-    console.log('height', height)
-    console.log('scaleRatio', scaleRatio)
-
-    miniMap.value!._viewPortMgr.getViewPort().attr('x', -x * scaleRatio)
-    miniMap.value!._viewPortMgr.getViewPort().attr('y', -y * scaleRatio)
-    miniMap.value!._viewPortMgr.getViewPort().attr('scaleX', scaleRatio)
-    miniMap.value!._viewPortMgr.getViewPort().attr('scaleY', scaleRatio)
+  iocEditor.updateMiniMap$.subscribe(() => {
+    miniMapMgr.value?.refreshMap(iocEditor.getData())
   })
+
+  document.addEventListener('mouseup', handleMouseUp)
+  document.addEventListener('mousedown', handleMouseDown)
 })
+
+onUnmounted(() => {
+  document.removeEventListener('mouseup', handleMouseUp)
+  document.removeEventListener('mousedown', handleMouseDown)
+})
+
+const startX = ref(0)
+const startY = ref(0)
+const isDragging = ref(false)
+const oldViewPortX = ref(0)
+const oldViewPortY = ref(0)
+const oldMiniMapFrameX = ref(0)
+const oldMiniMapFrameY = ref(0)
+const handleMouseDown = (e: MouseEvent) => {
+  startX.value = e.offsetX
+  startY.value = e.offsetY
+  isDragging.value = true
+  oldViewPortX.value = iocEditor._viewPortMgr.getPosition()[0]
+  oldViewPortY.value = iocEditor._viewPortMgr.getPosition()[1]
+  oldMiniMapFrameX.value = miniMapMgr.value?.getMiniMapFramePosition()[0] as number
+  oldMiniMapFrameY.value = miniMapMgr.value?.getMiniMapFramePosition()[1] as number
+}
+
+const handleMouseMove = (e: MouseEvent) => {
+  if (!isDragging.value) return
+  const deltaX = e.offsetX - startX.value
+  const deltaY = e.offsetY - startY.value
+  const zoomScale = miniMapMgr.value?.getZoomScale() as number
+  const scaleRatio = miniMapMgr.value?.getScaleRatio() as number
+  const offsetX = -deltaX / scaleRatio / zoomScale
+  const offsetY = -deltaY / scaleRatio / zoomScale
+
+  miniMapMgr.value?.updateMiniMapFramePosition(
+    oldMiniMapFrameX.value + deltaX,
+    oldMiniMapFrameY.value + deltaY
+  )
+  iocEditor._viewPortMgr.setPosition(oldViewPortX.value + offsetX, oldViewPortY.value + offsetY)
+
+  miniMapIoc.value?._sceneMgr.setCursorStyle('grabbing')
+}
+
+const handleMouseUp = (e: MouseEvent) => {
+  e.preventDefault()
+  isDragging.value = false
+  miniMapMgr.value?.updateOldPosition()
+  miniMapIoc.value?._sceneMgr.setCursorStyle('grab')
+}
 </script>
 
 <template>
-  <div class="mini-map-container">
-    <div class="title">缩略图</div>
+  <div class="mini-map-container" @mousemove="handleMouseMove">
+    <!-- <div class="title">缩略图</div> -->
     <div id="mini-map"></div>
   </div>
 </template>
@@ -68,21 +90,9 @@ onMounted(() => {
   position: absolute;
   bottom: 0;
   right: 0;
-  .title {
-    display: block;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 30px;
-    font-size: 14px;
-    border-bottom: 1px solid #e5e5e5;
-    font-weight: bold;
-  }
   #mini-map {
     width: 100%;
     height: 100%;
-    position: relative;
-    // background: pink;
   }
 }
 </style>

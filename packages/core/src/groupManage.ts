@@ -48,6 +48,8 @@ class GroupManage extends Disposable {
       groupNode.id = groupId
     }
 
+    this._iocEditor.updateMiniMap$.next()
+
     return groupNode
   }
 

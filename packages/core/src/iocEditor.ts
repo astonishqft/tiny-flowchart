@@ -4,7 +4,6 @@ import { Disposable } from './disposable'
 import { SceneManage } from './sceneManage'
 import { ShapeManage } from './shapeManage'
 import { ViewPortManage } from './viewPortManage'
-import { GridManage } from './gridManage'
 import { ConnectionManage } from './connectionManage'
 import { StorageManage } from './storageManage'
 import { GroupManage } from './groupManage'
@@ -27,11 +26,11 @@ import type { IZoomManage } from './zoomManage'
 import type { ISceneManage } from './sceneManage'
 import type { IShapeManage } from './shapeManage'
 import type { IConnectionManage } from './connectionManage'
-import type { IGridManage } from './gridManage'
 import type { IViewPortManage } from './viewPortManage'
 import type { IStorageManage } from './storageManage'
 import type { ISelectFrameManage } from './selectFrameManage'
 import type { IIocEditorConfig, ISettingManage } from './settingManage'
+
 import {
   ConnectionType,
   type IAnchorPoint,
@@ -44,6 +43,7 @@ import {
 } from './shapes'
 import type { INodeGroup } from './shapes/nodeGroup'
 import type { IGroupTreeNode } from './utils'
+import type { ISceneDragMoveOpts, ISceneDragStartOpts, IUpdateZoomOpts } from './types'
 
 export class IocEditor {
   _zr: zrender.ZRenderType
@@ -53,7 +53,6 @@ export class IocEditor {
   _settingMgr: ISettingManage
   _shapeMgr: IShapeManage
   _viewPortMgr: IViewPortManage
-  _gridMgr: IGridManage
   _connectionMgr: IConnectionManage
   _storageMgr: IStorageManage
   _sceneMgr: ISceneManage
@@ -61,29 +60,30 @@ export class IocEditor {
   _groupMgr: IGroupManage
   _refLineMgr: IRefLineManage
   _selectFrameMgr: ISelectFrameManage
+  updateZoom$ = new Subject<IUpdateZoomOpts>()
+  updateMiniMap$ = new Subject<void>()
 
-  updateAddNode$: Subject<IShape | INodeGroup>
+  // 鼠标拖拽画布时的移动事件
+  sceneDragStart$ = new Subject<ISceneDragStartOpts>()
+  sceneDragMove$ = new Subject<ISceneDragMoveOpts>()
+  sceneDragEnd$ = new Subject<void>()
 
   constructor(dom: HTMLElement, config?: Partial<IIocEditorConfig>) {
     this._dom = dom
-    this.updateAddNode$ = new Subject()
     this._settingMgr = new SettingManage()
+    if (config) {
+      this._settingMgr.setDefaultConfig(config)
+    }
     this._storageMgr = new StorageManage()
     this._viewPortMgr = new ViewPortManage(this)
     this._selectFrameMgr = new SelectFrameManage(this)
     this._dragFrameMgr = new DragFrameManage(this)
     this._refLineMgr = new RefLineManage(this)
-    this._gridMgr = new GridManage(this)
     this._zoomMgr = new ZoomManage(this)
     this._connectionMgr = new ConnectionManage(this)
     this._groupMgr = new GroupManage(this)
     this._shapeMgr = new ShapeManage(this)
-    if (config) {
-      this._settingMgr.setDefaultConfig(config)
-    }
-
     this._zr = zrender.init(dom)
-
     this._sceneMgr = new SceneManage(this)
     this._sceneMgr.init()
   }
@@ -104,11 +104,10 @@ export class IocEditor {
 
   initFlowChart(data: IExportData) {
     console.log(data)
+    const enableMiniMap = this._settingMgr.get('enableMiniMap')
     this._sceneMgr.clear()
 
     this._viewPortMgr.setPosition(0, 0)
-    this._gridMgr.setPosition(0, 0)
-    this._gridMgr.drawGrid()
 
     const { shapes = [], connections = [], groups = [] } = data
 
@@ -140,10 +139,15 @@ export class IocEditor {
           lineWidth,
           lineDash
         })
-        newShape
-          .getTextContent()
-          .setStyle({ text, fill: fontColor, fontSize, fontStyle, fontWeight })
-        newShape.setTextConfig({ position: textPosition })
+        if (!enableMiniMap) {
+          newShape
+            .getTextContent()
+            .setStyle({ text, fill: fontColor, fontSize, fontStyle, fontWeight })
+          newShape.setTextConfig({ position: textPosition })
+        } else {
+          newShape.getTextContent().hide()
+        }
+
         newShape.id = id
         newShape.unActive()
       }
@@ -277,7 +281,9 @@ export class IocEditor {
     this._groupMgr.dispose()
     this._settingMgr.dispose()
     this._zr.dispose()
-    this.updateAddNode$.unsubscribe()
+    this.updateZoom$.unsubscribe()
+    this.sceneDragMove$.unsubscribe()
+    this.updateMiniMap$.unsubscribe()
   }
 
   offEvent() {

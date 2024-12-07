@@ -1,9 +1,9 @@
 import * as zrender from 'zrender'
+import { IocEditor } from './iocEditor'
 
-import type { IViewPortManage } from './viewPortManage'
 import type { ISettingManage } from './settingManage'
 import type { IStorageManage } from './storageManage'
-import type { IocEditor } from './iocEditor'
+import type { ISceneDragMoveOpts } from './types'
 
 export interface IGridManage {
   drawGrid(): void
@@ -97,15 +97,20 @@ class GridManage {
   private _pointsPool: PointsPool | null = null
   private _gridZr: zrender.ZRenderType | null = null
   private _settingMgr: ISettingManage
-  private _viewPortMgr: IViewPortManage
   private _storageMgr: IStorageManage
   private _iocEditor: IocEditor
 
   constructor(iocEditor: IocEditor) {
     this._iocEditor = iocEditor
     this._settingMgr = iocEditor._settingMgr
-    this._viewPortMgr = iocEditor._viewPortMgr
     this._storageMgr = iocEditor._storageMgr
+
+    this._iocEditor.sceneDragMove$.subscribe(
+      ({ offsetX, offsetY, oldViewPortX, oldViewPortY }: ISceneDragMoveOpts) => {
+        this.setPosition(oldViewPortX + offsetX, oldViewPortY + offsetY)
+        this.drawGrid()
+      }
+    )
 
     setTimeout(() => {
       const container = document.createElement('div')
@@ -120,8 +125,8 @@ class GridManage {
       this._gridLayer = new zrender.Group()
       this._gridZr.add(this._gridLayer)
       this._pointsPool = new PointsPool(1000, this._gridLayer)
-      this._width = this._viewPortMgr.getSceneWidth()
-      this._height = this._viewPortMgr.getSceneHeight()
+      this._width = this._gridZr.getWidth()
+      this._height = this._gridZr.getHeight()
       this.drawGrid()
     }, 0)
   }

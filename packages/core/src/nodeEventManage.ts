@@ -8,14 +8,17 @@ import type { IDragFrameManage } from './dragFrameManage'
 import type { IRefLineManage } from './refLineManage'
 import type { IConnectionManage } from './connectionManage'
 import type { ISceneManage } from './sceneManage'
+import type { ISettingManage } from './settingManage'
 
 class NodeEventManage {
   private _node: IShape | INodeGroup
+  private _iocEditor: IocEditor
   private _storageMgr: IStorageManage
   private _dragFrameMgr: IDragFrameManage
   private _refLineMgr: IRefLineManage
   private _connectionMgr: IConnectionManage
   private _sceneMgr: ISceneManage
+  private _settingMgr: ISettingManage
   private _zoom: number = 1
   private _mouseDownX: number = 0
   private _mouseDownY: number = 0
@@ -29,15 +32,19 @@ class NodeEventManage {
   private _onMouseUp: (e: MouseEvent) => void
 
   constructor(node: IShape | INodeGroup, iocEditor: IocEditor) {
+    this._iocEditor = iocEditor
     this._node = node
     this._storageMgr = iocEditor._storageMgr
     this._dragFrameMgr = iocEditor._dragFrameMgr
     this._refLineMgr = iocEditor._refLineMgr
     this._connectionMgr = iocEditor._connectionMgr
     this._sceneMgr = iocEditor._sceneMgr
+    this._settingMgr = iocEditor._settingMgr
     this._onMouseUp = this.onMouseUp.bind(this)
     this._onMouseMove = this.onMouseMove.bind(this)
-    this.initEvent()
+    if (!this._settingMgr.get('enableMiniMap')) {
+      this.initEvent()
+    }
   }
 
   initEvent() {
@@ -126,6 +133,8 @@ class NodeEventManage {
     }
 
     this.updateGroupSize(this._node)
+
+    this._iocEditor.updateMiniMap$.next()
   }
 
   removeShapeFromGroup(node: INodeGroup | IShape) {

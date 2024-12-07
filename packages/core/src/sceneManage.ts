@@ -5,7 +5,6 @@ import { Subject } from 'rxjs'
 import type { IDisposable } from './disposable'
 import type { IAnchorPoint, IConnection, IControlPoint, IShape } from './shapes'
 import type { INodeGroup } from './shapes/nodeGroup'
-import type { IGridManage } from './gridManage'
 import type { IViewPortManage } from './viewPortManage'
 import type { IShapeManage } from './shapeManage'
 import type { IConnectionManage } from './connectionManage'
@@ -13,11 +12,13 @@ import type { ISelectFrameManage } from './selectFrameManage'
 import type { IGroupManage } from './groupManage'
 import type { IStorageManage } from './storageManage'
 import type { IocEditor } from './iocEditor'
+import type { ISettingManage } from './settingManage'
 
 export interface ISceneManage extends IDisposable {
   _zr: zrender.ZRenderType
   updateSelectScene$: Subject<null>
   updateSelectNode$: Subject<IShape | INodeGroup>
+  setCursorStyle(type: string): void
   init(): void
   addShape(type: string, options: { x: number; y: number }): IShape
   clear(): void
@@ -27,28 +28,32 @@ export interface ISceneManage extends IDisposable {
 export type IMouseEvent = zrender.Element & { nodeType?: string }
 
 class SceneManage extends Disposable {
+  private _iocEditor: IocEditor
   private _viewPortMgr: IViewPortManage
-  private _gridMgr: IGridManage
   private _shapeMgr: IShapeManage
   private _connectionMgr: IConnectionManage
   private _selectFrameMgr: ISelectFrameManage
   private _groupMgr: IGroupManage
   private _storageMgr: IStorageManage
+  private _settingMgr: ISettingManage
+  private _enableMiniMap
   _zr: zrender.ZRenderType
   updateSelectScene$ = new Subject<null>()
   updateSelectNode$ = new Subject<IShape | INodeGroup>()
   constructor(iocEditor: IocEditor) {
     super()
     this._zr = iocEditor._zr
+    this._iocEditor = iocEditor
     this._connectionMgr = iocEditor._connectionMgr
-    this._gridMgr = iocEditor._gridMgr
     this._storageMgr = iocEditor._storageMgr
     this._viewPortMgr = iocEditor._viewPortMgr
     this._shapeMgr = iocEditor._shapeMgr
     this._groupMgr = iocEditor._groupMgr
+    this._settingMgr = iocEditor._settingMgr
     this._selectFrameMgr = iocEditor._selectFrameMgr
     this._disposables.push(this.updateSelectScene$)
     this._disposables.push(this.updateSelectNode$)
+    this._enableMiniMap = this._settingMgr.get('enableMiniMap')
   }
 
   addShape(type: string, options: { x: number; y: number }) {
@@ -63,6 +68,7 @@ class SceneManage extends Disposable {
 
   init() {
     this._viewPortMgr.addSelfToZr(this._zr)
+    if (this._enableMiniMap) return
     this.initEvent()
   }
 
@@ -80,8 +86,7 @@ class SceneManage extends Disposable {
     let offsetX = 0
     let offsetY = 0
     let drag = false
-    let oldViewPortX = this._viewPortMgr.getPositionX()
-    let oldViewPortY = this._viewPortMgr.getPositionY()
+    let [oldViewPortX, oldViewPortY] = this._viewPortMgr.getPosition()
     let dragModel = 'canvas'
     let connection: IConnection | null = null
     let selectFrameStatus = false
@@ -94,8 +99,8 @@ class SceneManage extends Disposable {
       if (e.target) {
         drag = false
       }
-      oldViewPortX = this._viewPortMgr.getPositionX()
-      oldViewPortY = this._viewPortMgr.getPositionY()
+      oldViewPortX = this._viewPortMgr.getPosition()[0]
+      oldViewPortY = this._viewPortMgr.getPosition()[1]
       zoom = this._storageMgr.getZoom()
       selectFrameStatus = this._selectFrameMgr.getSelectFrameStatus() // 是否是选中框
       if (selectFrameStatus) {
@@ -116,6 +121,8 @@ class SceneManage extends Disposable {
       if (e.target && (e.target as IControlPoint).mark === 'controlPoint') {
         dragModel = 'controlPoint'
       }
+
+      this._iocEditor.sceneDragStart$.next({ startX, startY, oldViewPortX, oldViewPortY })
 
       if (!e.target) {
         // 如果什么都没选中的话
@@ -141,9 +148,12 @@ class SceneManage extends Disposable {
       if (drag && dragModel === 'scene' && !selectFrameStatus) {
         // TODO: 排除没有点击到节点的情况，后续需要继续排除点击到连线等情况
         this.setCursorStyle('grabbing')
-        this._viewPortMgr.setPosition(oldViewPortX + offsetX, oldViewPortY + offsetY)
-        this._gridMgr.setPosition(oldViewPortX + offsetX, oldViewPortY + offsetY)
-        this._gridMgr.drawGrid()
+        this._iocEditor.sceneDragMove$.next({
+          x: offsetX + oldViewPortX,
+          y: offsetY + oldViewPortY,
+          offsetX,
+          offsetY
+        })
       }
 
       if (selectFrameStatus) {
@@ -164,6 +174,7 @@ class SceneManage extends Disposable {
         // 禁止和自身相连
         // 创建连线
         this._connectionMgr.connect(connection, e.target as IAnchorPoint)
+        this._iocEditor.updateMiniMap$.next()
       }
 
       if (connection) {
@@ -177,6 +188,8 @@ class SceneManage extends Disposable {
         this._selectFrameMgr.setSelectFrameStatus(false)
         this._selectFrameMgr.hide()
       }
+
+      this._iocEditor.sceneDragEnd$.next()
 
       dragModel = 'scene'
     })
