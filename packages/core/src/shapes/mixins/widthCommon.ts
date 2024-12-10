@@ -89,6 +89,10 @@ function WidthCommon<TBase extends CommonConstructor>(Base: TBase) {
         }
       }
 
+      if (this.type === 'image') {
+        exportData.style.image = this.style.image
+      }
+
       if (this.parentGroup) {
         exportData.parent = this.parentGroup.id
       }

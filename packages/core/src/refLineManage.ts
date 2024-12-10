@@ -66,7 +66,7 @@ class RefLineManage {
     this._refPointSize = this._settingMgr.get('refPointSize')
     this._refLineColor = this._settingMgr.get('refLineColor')
 
-    this._magneticSpacing = this._settingMgr.get('magneticSpacing') / this._storageMgr.getZoom()
+    this._magneticSpacing = this._settingMgr.get('magneticSpacing') / this._viewPortMgr.getZoom()
     this.createRefLinePool()
     this.createRefPointPool()
   }

@@ -3,22 +3,22 @@ import { IocEditor } from './iocEditor'
 
 import type { IShape } from './shapes'
 import type { INodeGroup } from './shapes/nodeGroup'
-import type { IStorageManage } from './storageManage'
 import type { IDragFrameManage } from './dragFrameManage'
 import type { IRefLineManage } from './refLineManage'
 import type { IConnectionManage } from './connectionManage'
 import type { ISceneManage } from './sceneManage'
 import type { ISettingManage } from './settingManage'
+import type { IZoomManage } from './zoomManage'
 
 class NodeEventManage {
   private _node: IShape | INodeGroup
   private _iocEditor: IocEditor
-  private _storageMgr: IStorageManage
   private _dragFrameMgr: IDragFrameManage
   private _refLineMgr: IRefLineManage
   private _connectionMgr: IConnectionManage
   private _sceneMgr: ISceneManage
   private _settingMgr: ISettingManage
+  private _zoomMgr: IZoomManage
   private _zoom: number = 1
   private _mouseDownX: number = 0
   private _mouseDownY: number = 0
@@ -34,7 +34,7 @@ class NodeEventManage {
   constructor(node: IShape | INodeGroup, iocEditor: IocEditor) {
     this._iocEditor = iocEditor
     this._node = node
-    this._storageMgr = iocEditor._storageMgr
+    this._zoomMgr = iocEditor._zoomMgr
     this._dragFrameMgr = iocEditor._dragFrameMgr
     this._refLineMgr = iocEditor._refLineMgr
     this._connectionMgr = iocEditor._connectionMgr
@@ -52,7 +52,7 @@ class NodeEventManage {
       this._mouseDownX = e.offsetX
       this._mouseDownY = e.offsetY
       this._node.setOldPosition()
-      this._zoom = this._storageMgr.getZoom()
+      this._zoom = this._zoomMgr.getZoom()
       this._dragFrameMgr.updatePosition(this._node.x, this._node.y)
       this._dragFrameMgr.show()
       const { width, height } = this._node.getBoundingBox()

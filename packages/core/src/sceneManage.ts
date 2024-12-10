@@ -13,6 +13,7 @@ import type { IGroupManage } from './groupManage'
 import type { IStorageManage } from './storageManage'
 import type { IocEditor } from './iocEditor'
 import type { ISettingManage } from './settingManage'
+import type { IZoomManage } from './zoomManage'
 
 export interface ISceneManage extends IDisposable {
   _zr: zrender.ZRenderType
@@ -36,6 +37,7 @@ class SceneManage extends Disposable {
   private _groupMgr: IGroupManage
   private _storageMgr: IStorageManage
   private _settingMgr: ISettingManage
+  private _zoomMgr: IZoomManage
   private _enableMiniMap
   _zr: zrender.ZRenderType
   updateSelectScene$ = new Subject<null>()
@@ -46,6 +48,7 @@ class SceneManage extends Disposable {
     this._iocEditor = iocEditor
     this._connectionMgr = iocEditor._connectionMgr
     this._storageMgr = iocEditor._storageMgr
+    this._zoomMgr = iocEditor._zoomMgr
     this._viewPortMgr = iocEditor._viewPortMgr
     this._shapeMgr = iocEditor._shapeMgr
     this._groupMgr = iocEditor._groupMgr
@@ -56,7 +59,7 @@ class SceneManage extends Disposable {
     this._enableMiniMap = this._settingMgr.get('enableMiniMap')
   }
 
-  addShape(type: string, options: { x: number; y: number }) {
+  addShape(type: string, options: { x: number; y: number; url?: string }) {
     return this._shapeMgr.createShape(type, options)
   }
 
@@ -101,7 +104,7 @@ class SceneManage extends Disposable {
       }
       oldViewPortX = this._viewPortMgr.getPosition()[0]
       oldViewPortY = this._viewPortMgr.getPosition()[1]
-      zoom = this._storageMgr.getZoom()
+      zoom = this._zoomMgr.getZoom()
       selectFrameStatus = this._selectFrameMgr.getSelectFrameStatus() // 是否是选中框
       if (selectFrameStatus) {
         this._selectFrameMgr.setPosition(
@@ -133,21 +136,22 @@ class SceneManage extends Disposable {
       }
     })
 
+    let time = 0
     this._zr.on('mousemove', e => {
+      if (time && Date.now() - time < 16) return
+      time = Date.now()
       offsetX = e.offsetX - startX
       offsetY = e.offsetY - startY
 
       if (dragModel === 'anchor') {
         connection?.move((e.offsetX - oldViewPortX) / zoom, (e.offsetY - oldViewPortY) / zoom)
         this.setCursorStyle('crosshair')
-      } else if (!e.target) {
-        this.setCursorStyle('grab')
       }
 
       // 拖拽画布(利用的原理是改变Group的 position 坐标)
       if (drag && dragModel === 'scene' && !selectFrameStatus) {
         // TODO: 排除没有点击到节点的情况，后续需要继续排除点击到连线等情况
-        this.setCursorStyle('grabbing')
+        // this.setCursorStyle('grabbing')
         this._iocEditor.sceneDragMove$.next({
           x: offsetX + oldViewPortX,
           y: offsetY + oldViewPortY,

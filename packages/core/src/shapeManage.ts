@@ -25,13 +25,14 @@ class ShapeManage extends Disposable {
     this._iocEditor = iocEditor
   }
 
-  createShape(type: string, { x, y }: { x: number; y: number }): IShape {
+  createShape(type: string, { x, y, image }: { x: number; y: number; image?: string }): IShape {
     const [viewPortX, viewPortY] = this._viewPortMgr.getPosition()
-    const zoom = this._storageMgr.getZoom()
+    const zoom = this._viewPortMgr.getZoom()
 
     const shape = getShape(type, {
       x: (x - viewPortX) / zoom,
-      y: (y - viewPortY) / zoom
+      y: (y - viewPortY) / zoom,
+      image
     })
 
     shape.setType(type)
@@ -48,9 +49,6 @@ class ShapeManage extends Disposable {
     this._viewPortMgr.addElementToViewPort(shape)
 
     this._storageMgr.addShape(shape)
-
-    // TODO 更新miniMap
-    this._iocEditor.updateMiniMap$.next()
 
     return shape
   }

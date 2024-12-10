@@ -88,7 +88,7 @@ export class IocEditor {
     this._sceneMgr.init()
   }
 
-  addShape(type: string, options: { x: number; y: number }) {
+  addShape(type: string, options: { x: number; y: number; image?: string }) {
     return this._sceneMgr.addShape(type, options)
   }
 
@@ -104,7 +104,6 @@ export class IocEditor {
 
   initFlowChart(data: IExportData) {
     console.log(data)
-    const enableMiniMap = this._settingMgr.get('enableMiniMap')
     this._sceneMgr.clear()
 
     this._viewPortMgr.setPosition(0, 0)
@@ -127,11 +126,16 @@ export class IocEditor {
           fontSize,
           fontStyle,
           fontWeight,
-          textPosition
+          textPosition,
+          image
         },
         z
       }: IExportShape) => {
-        const newShape = this._shapeMgr.createShape(type, { x, y })
+        const config: { x: number; y: number; image?: string } = { x, y }
+        if (type === 'image') {
+          config.image = image
+        }
+        const newShape = this._shapeMgr.createShape(type, config)
         newShape.setZ(z)
         newShape.setStyle({
           fill,
@@ -139,14 +143,10 @@ export class IocEditor {
           lineWidth,
           lineDash
         })
-        if (!enableMiniMap) {
-          newShape
-            .getTextContent()
-            .setStyle({ text, fill: fontColor, fontSize, fontStyle, fontWeight })
-          newShape.setTextConfig({ position: textPosition })
-        } else {
-          newShape.getTextContent().hide()
-        }
+        newShape
+          .getTextContent()
+          .setStyle({ text, fill: fontColor, fontSize, fontStyle, fontWeight })
+        newShape.setTextConfig({ position: textPosition })
 
         newShape.id = id
         newShape.unActive()
@@ -262,6 +262,7 @@ export class IocEditor {
         try {
           if (flowData) {
             this.initFlowChart(JSON.parse(flowData))
+            this.updateMiniMap$.next()
           }
         } catch (e) {
           console.log('导入的JSON数据解析出错!', e)

@@ -27,4 +27,7 @@ export interface ISceneDragMoveOpts {
 
 export interface IUpdateZoomOpts {
   zoom: number
+  currentZoom: number
+  offsetX: number
+  offsetY: number
 }

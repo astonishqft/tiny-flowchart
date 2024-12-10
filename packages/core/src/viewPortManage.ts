@@ -3,7 +3,7 @@ import { IocEditor } from './iocEditor'
 import { Disposable } from './disposable'
 import { GridManage } from './gridManage'
 
-import type { ISceneDragMoveOpts } from './types'
+import type { ISceneDragMoveOpts, IUpdateZoomOpts } from './types'
 import type { IDisposable } from './disposable'
 import type { IGridManage } from './gridManage'
 import type { ISettingManage } from './settingManage'
@@ -21,6 +21,7 @@ export interface IViewPortManage extends IDisposable {
   getSceneHeight(): number
   getBoundingRect(includeChildren: zrender.Element[]): zrender.BoundingRect
   setPosition(x: number, y: number): void
+  getZoom(): number
 }
 
 class ViewPortManage extends Disposable {
@@ -29,6 +30,7 @@ class ViewPortManage extends Disposable {
   private _gridMgr: IGridManage | undefined
   private _settingMgr: ISettingManage
   private _enableMiniMap
+  private _currentZom = 1
 
   constructor(iocEditor: IocEditor) {
     super()
@@ -37,12 +39,19 @@ class ViewPortManage extends Disposable {
     this._enableMiniMap = this._settingMgr.get('enableMiniMap')
 
     if (!this._enableMiniMap) {
-      this._gridMgr = new GridManage(iocEditor)
+      this._gridMgr = new GridManage(iocEditor, this)
     }
 
     this._iocEditor.sceneDragMove$.subscribe(({ x, y }: ISceneDragMoveOpts) => {
       this.setPosition(x, y)
     })
+
+    this._iocEditor.updateZoom$.subscribe(
+      ({ zoom, offsetX, offsetY, currentZoom }: IUpdateZoomOpts) => {
+        this._currentZom = currentZoom
+        this.setZoom(zoom, offsetX, offsetY)
+      }
+    )
   }
 
   getViewPort(): zrender.Group {
@@ -51,6 +60,18 @@ class ViewPortManage extends Disposable {
 
   getBoundingRect(includeChildren: zrender.Element[]) {
     return this._viewPort.getBoundingRect(includeChildren)
+  }
+
+  setZoom(zoom: number, offsetX: number, offsetY: number) {
+    const [scaleX, scaleY] = this.getScale()
+    const [positionX, positionY] = this.getPosition()
+    this._gridMgr?.resizePool()
+    this.setScale(scaleX * zoom, scaleY * zoom)
+    this.setPosition(zoom * positionX + offsetX, zoom * positionY + offsetY)
+  }
+
+  getZoom() {
+    return this._currentZom
   }
 
   setScale(x: number, y: number) {

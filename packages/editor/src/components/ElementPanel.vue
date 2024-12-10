@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ref, reactive } from 'vue'
+import { ElDialog, ElButton, ElForm, ElFormItem, ElInput, FormInstance } from 'element-plus'
 import IconActor from './icons/Actor.vue'
 import IconCircle from './icons/Circle.vue'
 import IconCross from './icons/Cross.vue'
@@ -26,6 +28,7 @@ import IconSeptagon from './icons/Septagon.vue'
 import IconTimes from './icons/Times.vue'
 
 import type { Component } from 'vue'
+import type { FormRules } from 'element-plus'
 
 export interface ElementItemType {
   component: Component
@@ -135,10 +138,49 @@ const elementList = [
   }
 ]
 
-const dragStart = (event: DragEvent, element: ElementItemType) => {
+const dragStart = (event: DragEvent, element: { nodeType: string; image?: string }) => {
   if (event.dataTransfer) {
     event.dataTransfer.setData('addShape', JSON.stringify(element))
   }
+}
+
+const imageList = ref(['https://i.postimg.cc/C1t3pk7k/image.png'])
+
+interface RuleForm {
+  url: string
+}
+const ruleFormRef = ref<FormInstance>()
+const showUploadImageDialog = ref(false)
+const form = reactive<RuleForm>({
+  url: ''
+})
+
+const rules = reactive<FormRules<RuleForm>>({
+  url: [{ required: true, message: '请输入图片链接', trigger: 'blur' }]
+})
+
+const uploadImage = () => {
+  showUploadImageDialog.value = true
+}
+
+const handleBeforeClose = (done: () => void) => {
+  showUploadImageDialog.value = false
+  if (!ruleFormRef.value) return
+  ruleFormRef.value.resetFields()
+  done()
+  form.url = ''
+}
+
+const submitForm = async (formEl: FormInstance | undefined) => {
+  if (!formEl) return
+  await formEl.validate((valid, fields) => {
+    if (valid) {
+      console.log('submit!')
+      showUploadImageDialog.value = false
+    } else {
+      console.log('error submit!', fields)
+    }
+  })
 }
 </script>
 
@@ -150,17 +192,54 @@ const dragStart = (event: DragEvent, element: ElementItemType) => {
         v-for="element in elementList"
         :key="element.nodeType"
         :draggable="true"
-        @dragstart="dragStart($event, element)"
+        @dragstart="dragStart($event, { nodeType: element.nodeType })"
         class="element-item"
       >
         <component :is="element.component" class="svg-node" />
       </li>
     </ul>
     <h1 class="element-category-title">图片节点</h1>
-    <span
-      class="icon iconfont upload-image icon-a-tianjiashangchuantupian"
-      :title="'上传图片'"
-    ></span>
+    <div class="pic-preview-list">
+      <div
+        class="pic-preview-item"
+        v-for="(item, index) in imageList"
+        :key="`pre-pic-${index}`"
+        @dragstart="dragStart($event, { nodeType: 'image', image: item })"
+      >
+        <img :src="item" alt="" />
+      </div>
+      <div
+        class="pic-preview-item icon iconfont upload-image icon-a-tianjiashangchuantupian"
+        :title="'上传图片'"
+        @click="uploadImage"
+      ></div>
+    </div>
+
+    <el-dialog
+      :before-close="handleBeforeClose"
+      v-model="showUploadImageDialog"
+      title="上传图片"
+      width="500"
+    >
+      <div>
+        <el-form
+          :model="form"
+          :rules="rules"
+          label-width="auto"
+          style="max-width: 600px"
+          ref="ruleFormRef"
+        >
+          <el-form-item label="图片连接" prop="url">
+            <el-input v-model="form.url" />
+          </el-form-item>
+        </el-form>
+      </div>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button type="primary" @click="submitForm(ruleFormRef)"> 确定 </el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -216,11 +295,31 @@ li {
     width: 38px;
     height: 38px;
     font-size: 26px;
-    margin-left: 10px;
     &:hover {
       background-color: #eeeeee;
       color: #5cb6ff;
       cursor: pointer;
+    }
+  }
+  .pic-preview-list {
+    display: flex;
+    width: 100%;
+    flex-wrap: wrap;
+    .pic-preview-item {
+      flex: 0 0 33.33%;
+      box-sizing: border-box;
+      height: 40px;
+      padding: 5px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      &:hover {
+        cursor: pointer;
+      }
+      img {
+        width: 100%;
+        height: 100%;
+      }
     }
   }
 }

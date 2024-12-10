@@ -4,6 +4,7 @@ import { WidthAnchor } from './mixins/widthAnchor'
 import { WidthCommon } from './mixins/widthCommon'
 import { Rect } from './rect'
 import { Circle } from './circle'
+import { Image } from './image'
 import type { INodeGroup } from './nodeGroup'
 import type {
   BuiltinTextPosition,
@@ -76,6 +77,7 @@ export interface IExportShapeStyle {
   fontWeight: FontWeight
   fontStyle: FontStyle
   textPosition: BuiltinTextPosition | (number | string)[] | undefined
+  image?: string
 }
 
 export interface IExportShape {
@@ -174,8 +176,10 @@ export interface IShape extends zrender.Displayable, IWidthActivate, IWidthAncho
   createAnchors(): void
 }
 
+type IShapeProps = zrender.RectProps | zrender.EllipseProps | zrender.ImageProps
+
 export interface IShapeConfig {
-  [key: string]: zrender.RectProps | zrender.EllipseProps
+  [key: string]: IShapeProps
 }
 
 export interface IShapeMap {
@@ -232,6 +236,16 @@ export const shapeConfig: IShapeConfig = {
       ry: 30
     },
     z: 2
+  },
+  image: {
+    style: {
+      x: 0,
+      y: 0,
+      image: '',
+      width: 120,
+      height: 80
+    },
+    z: 2
   }
 }
 
@@ -255,11 +269,16 @@ const getShapeTextConfig = (): IShapeTextConfig => {
 
 export const shapes: IShapeMap = {
   rect: Rect,
-  circle: Circle
+  circle: Circle,
+  image: Image
 }
 
-export const getShape = (type: string, option: { x: number; y: number }) => {
-  const config = { ...shapeConfig[type], ...getShapeTextConfig() }
+export const getShape = (type: string, option: { x: number; y: number; image?: string }) => {
+  const config: IShapeProps = { ...shapeConfig[type], ...getShapeTextConfig() }
+  if (type === 'image') {
+    ;(config as zrender.ImageProps).style!.image = option.image
+    config.textConfig!.position = 'bottom'
+  }
   const Shape = WidthAnchor(WidthActivate(WidthCommon(shapes[type])))
   const shape = new Shape(config)
   shape.setXy(option.x, option.y)
