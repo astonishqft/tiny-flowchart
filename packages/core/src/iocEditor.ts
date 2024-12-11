@@ -104,6 +104,7 @@ export class IocEditor {
 
   initFlowChart(data: IExportData) {
     console.log(data)
+    // const enableMiniMap = this._settingMgr.get('enableMiniMap')
     this._sceneMgr.clear()
 
     this._viewPortMgr.setPosition(0, 0)

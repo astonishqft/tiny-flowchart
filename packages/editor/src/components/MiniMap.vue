@@ -65,7 +65,6 @@ const handleMouseUp = (e: MouseEvent) => {
   isDragging.value = false
   e.preventDefault()
   miniMapMgr.value?.updateOldPosition()
-  // miniMapIoc.value?._sceneMgr.setCursorStyle('grab')
 }
 </script>
 

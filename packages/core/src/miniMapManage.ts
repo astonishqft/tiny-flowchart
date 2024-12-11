@@ -6,8 +6,8 @@ import type { IDisposable } from './disposable'
 import type { IStorageManage } from './storageManage'
 import type { IViewPortManage } from './viewPortManage'
 import type { ISceneDragMoveOpts, IUpdateZoomOpts } from './types'
-
-import type { IExportData } from './shapes'
+import type { IExportData, IShape } from './shapes'
+import type { INodeGroup } from './shapes/nodeGroup'
 
 export interface IMiniMapManage extends IDisposable {
   refreshMap(data: IExportData): void
@@ -56,7 +56,8 @@ class MiniMapManage extends Disposable implements IMiniMapManage {
       },
       style: {
         fill: '#30303033',
-        stroke: 'blue'
+        stroke: 'blue',
+        strokeNoScale: true
       },
       z: 10000
     })
@@ -154,6 +155,24 @@ class MiniMapManage extends Disposable implements IMiniMapManage {
     )
 
     this.updateOldPosition()
+
+    // fix: https://github.com/apache/echarts/issues/12261 zrender特性，节点中的文字不随节点一起放大缩小
+    this.reSetNodeFontSize()
+  }
+
+  reSetNodeFontSize() {
+    console.log('scaleRatio', this._scaleRatio)
+    this._storageMgr.getShapes().forEach((s: IShape) => {
+      s.getTextContent()?.setStyle({
+        fontSize: (s.getTextContent()?.style.fontSize as number) * this._scaleRatio
+      })
+    })
+
+    this._storageMgr.getGroups().forEach((g: INodeGroup) => {
+      g.groupHead?.getTextContent()?.setStyle({
+        fontSize: (g.groupHead?.getTextContent().style.fontSize as number) * this._scaleRatio
+      })
+    })
   }
 
   updateOldPosition() {
