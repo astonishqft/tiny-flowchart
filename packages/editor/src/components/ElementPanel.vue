@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { ElDialog, ElButton, ElForm, ElFormItem, ElInput, FormInstance } from 'element-plus'
 import IconActor from './icons/Actor.vue'
 import IconCircle from './icons/Circle.vue'
@@ -33,6 +33,24 @@ import type { FormRules } from 'element-plus'
 export interface ElementItemType {
   component: Component
   nodeType: string
+}
+
+interface RuleForm {
+  url: string
+}
+
+const imageList = ref<string[]>([])
+
+onMounted(() => {
+  const imgs = localStorage.getItem('iocCustomImgs')
+  if (imgs) {
+    imageList.value = JSON.parse(imgs)
+  }
+})
+
+const addImage = (url: string) => {
+  imageList.value.push(url)
+  localStorage.setItem('iocCustomImgs', JSON.stringify(imageList.value))
 }
 
 const elementList = [
@@ -144,11 +162,6 @@ const dragStart = (event: DragEvent, element: { nodeType: string; image?: string
   }
 }
 
-const imageList = ref(['https://i.postimg.cc/C1t3pk7k/image.png'])
-
-interface RuleForm {
-  url: string
-}
 const ruleFormRef = ref<FormInstance>()
 const showUploadImageDialog = ref(false)
 const form = reactive<RuleForm>({
@@ -166,16 +179,17 @@ const uploadImage = () => {
 const handleBeforeClose = (done: () => void) => {
   showUploadImageDialog.value = false
   if (!ruleFormRef.value) return
+  form.url = ''
   ruleFormRef.value.resetFields()
   done()
-  form.url = ''
 }
 
 const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate((valid, fields) => {
     if (valid) {
-      console.log('submit!')
+      addImage(form.url)
+      ruleFormRef.value?.resetFields()
       showUploadImageDialog.value = false
     } else {
       console.log('error submit!', fields)
