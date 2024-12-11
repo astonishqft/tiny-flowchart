@@ -12,6 +12,7 @@ import { DragFrameManage } from './dragFrameManage'
 import { RefLineManage } from './refLineManage'
 import { SelectFrameManage } from './selectFrameManage'
 import { SettingManage } from './settingManage'
+import { ControlFrameManage } from './controlFrameManage'
 import {
   downloadFile,
   flatGroupArrayToTree,
@@ -30,6 +31,7 @@ import type { IViewPortManage } from './viewPortManage'
 import type { IStorageManage } from './storageManage'
 import type { ISelectFrameManage } from './selectFrameManage'
 import type { IIocEditorConfig, ISettingManage } from './settingManage'
+import type { IControlFrameManage } from './controlFrameManage'
 
 import {
   ConnectionType,
@@ -60,6 +62,7 @@ export class IocEditor {
   _groupMgr: IGroupManage
   _refLineMgr: IRefLineManage
   _selectFrameMgr: ISelectFrameManage
+  _controlFrameMgr: IControlFrameManage
   updateZoom$ = new Subject<IUpdateZoomOpts>()
   updateMiniMap$ = new Subject<void>()
 
@@ -81,6 +84,7 @@ export class IocEditor {
     this._refLineMgr = new RefLineManage(this)
     this._zoomMgr = new ZoomManage(this)
     this._connectionMgr = new ConnectionManage(this)
+    this._controlFrameMgr = new ControlFrameManage(this)
     this._groupMgr = new GroupManage(this)
     this._shapeMgr = new ShapeManage(this)
     this._zr = zrender.init(dom)

@@ -16,7 +16,7 @@ export interface ISelectFrameManage {
   hide(): void
 }
 
-class SelectFrameManage {
+class SelectFrameManage implements ISelectFrameManage {
   private _selectFrame: zrender.Rect
   private _selectFrameStatus: boolean = false
   private _settingMgr: ISettingManage

@@ -9,6 +9,7 @@ import type { IConnectionManage } from './connectionManage'
 import type { ISceneManage } from './sceneManage'
 import type { ISettingManage } from './settingManage'
 import type { IZoomManage } from './zoomManage'
+import type { IControlFrameManage } from './controlFrameManage'
 
 class NodeEventManage {
   private _node: IShape | INodeGroup
@@ -19,6 +20,7 @@ class NodeEventManage {
   private _sceneMgr: ISceneManage
   private _settingMgr: ISettingManage
   private _zoomMgr: IZoomManage
+  private _controlFrameMgr: IControlFrameManage
   private _zoom: number = 1
   private _mouseDownX: number = 0
   private _mouseDownY: number = 0
@@ -40,6 +42,7 @@ class NodeEventManage {
     this._connectionMgr = iocEditor._connectionMgr
     this._sceneMgr = iocEditor._sceneMgr
     this._settingMgr = iocEditor._settingMgr
+    this._controlFrameMgr = iocEditor._controlFrameMgr
     this._onMouseUp = this.onMouseUp.bind(this)
     this._onMouseMove = this.onMouseMove.bind(this)
     if (!this._settingMgr.get('enableMiniMap')) {
@@ -67,6 +70,9 @@ class NodeEventManage {
       this._sceneMgr.unActive()
       this._connectionMgr.unActiveConnections()
       this._node.active()
+      if (this._node.nodeType === 'Shape') {
+        this._controlFrameMgr.active(this._node as IShape)
+      }
       this._sceneMgr.updateSelectNode$.next(this._node)
     })
     ;(this._node as Eventful).on('mousemove', () => {
@@ -135,6 +141,8 @@ class NodeEventManage {
     this.updateGroupSize(this._node)
 
     this._iocEditor.updateMiniMap$.next()
+
+    this._controlFrameMgr.unActive()
   }
 
   removeShapeFromGroup(node: INodeGroup | IShape) {

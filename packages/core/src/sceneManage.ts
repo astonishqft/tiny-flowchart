@@ -14,6 +14,7 @@ import type { IStorageManage } from './storageManage'
 import type { IocEditor } from './iocEditor'
 import type { ISettingManage } from './settingManage'
 import type { IZoomManage } from './zoomManage'
+import type { IControlFrameManage } from './controlFrameManage'
 
 export interface ISceneManage extends IDisposable {
   _zr: zrender.ZRenderType
@@ -38,6 +39,7 @@ class SceneManage extends Disposable {
   private _storageMgr: IStorageManage
   private _settingMgr: ISettingManage
   private _zoomMgr: IZoomManage
+  private _controlFrameMgr: IControlFrameManage
   private _enableMiniMap
   _zr: zrender.ZRenderType
   updateSelectScene$ = new Subject<null>()
@@ -53,6 +55,7 @@ class SceneManage extends Disposable {
     this._shapeMgr = iocEditor._shapeMgr
     this._groupMgr = iocEditor._groupMgr
     this._settingMgr = iocEditor._settingMgr
+    this._controlFrameMgr = iocEditor._controlFrameMgr
     this._selectFrameMgr = iocEditor._selectFrameMgr
     this._disposables.push(this.updateSelectScene$)
     this._disposables.push(this.updateSelectNode$)
@@ -203,6 +206,7 @@ class SceneManage extends Disposable {
     this._storageMgr.getNodes().forEach(node => {
       node.unActive()
     })
+    this._controlFrameMgr.unActive()
   }
 }
 
