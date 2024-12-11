@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { IocEditor, MiniMapManage } from '@ioceditor/core'
 
 import type { IMiniMapManage } from '@ioceditor/core'
 
 const miniMapIoc = ref<IocEditor>()
 const miniMapMgr = ref<IMiniMapManage>()
-const miniMapRootContainer = ref<HTMLElement>()
 
 const { iocEditor } = defineProps<{
   iocEditor: IocEditor
@@ -23,14 +22,6 @@ onMounted(() => {
   iocEditor.updateMiniMap$.subscribe(() => {
     miniMapMgr.value?.refreshMap(iocEditor.getData())
   })
-
-  document.addEventListener('mouseup', handleMouseUp)
-  document.addEventListener('mousedown', handleMouseDown)
-})
-
-onUnmounted(() => {
-  document.removeEventListener('mouseup', handleMouseUp)
-  document.removeEventListener('mousedown', handleMouseDown)
 })
 
 const startX = ref(0)
@@ -39,19 +30,21 @@ const oldViewPortX = ref(0)
 const oldViewPortY = ref(0)
 const oldMiniMapFrameX = ref(0)
 const oldMiniMapFrameY = ref(0)
+const isDragging = ref(false)
+
 const handleMouseDown = (e: MouseEvent) => {
   startX.value = e.offsetX
   startY.value = e.offsetY
+  isDragging.value = true
   oldViewPortX.value = iocEditor._viewPortMgr.getPosition()[0]
   oldViewPortY.value = iocEditor._viewPortMgr.getPosition()[1]
   oldMiniMapFrameX.value = miniMapMgr.value?.getMiniMapFramePosition()[0] as number
   oldMiniMapFrameY.value = miniMapMgr.value?.getMiniMapFramePosition()[1] as number
-
-  miniMapRootContainer.value?.addEventListener('mousemove', handleMouseMove)
 }
 let time = 0
 const handleMouseMove = (e: MouseEvent) => {
-  if (time && Date.now() - time < 50) return
+  if (!isDragging.value) return
+  if (time && Date.now() - time < 20) return
   time = Date.now()
 
   const deltaX = e.offsetX - startX.value
@@ -69,15 +62,21 @@ const handleMouseMove = (e: MouseEvent) => {
 }
 
 const handleMouseUp = (e: MouseEvent) => {
+  isDragging.value = false
   e.preventDefault()
-  miniMapRootContainer.value?.removeEventListener('mousemove', handleMouseMove)
   miniMapMgr.value?.updateOldPosition()
-  miniMapIoc.value?._sceneMgr.setCursorStyle('grab')
+  // miniMapIoc.value?._sceneMgr.setCursorStyle('grab')
 }
 </script>
 
 <template>
-  <div class="mini-map-container" ref="miniMapRootContainer">
+  <div
+    class="mini-map-container"
+    @mousedown="handleMouseDown"
+    @mousemove="handleMouseMove"
+    @mouseup="handleMouseUp"
+    @mouseleave="handleMouseUp"
+  >
     <!-- <div class="title">缩略图</div> -->
     <div id="mini-map"></div>
   </div>
