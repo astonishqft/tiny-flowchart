@@ -107,8 +107,6 @@ export class IocEditor {
   }
 
   initFlowChart(data: IExportData) {
-    console.log(data)
-    // const enableMiniMap = this._settingMgr.get('enableMiniMap')
     this._sceneMgr.clear()
 
     this._viewPortMgr.setPosition(0, 0)
@@ -132,8 +130,11 @@ export class IocEditor {
           fontStyle,
           fontWeight,
           textPosition,
-          image
+          image,
+          width, // for Image
+          height // for Image
         },
+        shape,
         z
       }: IExportShape) => {
         const config: { x: number; y: number; image?: string } = { x, y }
@@ -152,7 +153,12 @@ export class IocEditor {
           .getTextContent()
           .setStyle({ text, fill: fontColor, fontSize, fontStyle, fontWeight })
         newShape.setTextConfig({ position: textPosition })
-
+        if (type === 'image') {
+          newShape.attr('style', { width, height })
+        } else {
+          newShape.setShape(shape)
+        }
+        newShape.anchor.refresh()
         newShape.id = id
         newShape.unActive()
       }

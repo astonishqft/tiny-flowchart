@@ -107,7 +107,6 @@ class ConnectionManage extends Disposable {
   }
 
   refreshConnection(shape: IShape | INodeGroup) {
-    shape.createAnchors()
     shape.anchor.refresh()
     const conns = this.getConnectionByShape(shape)
 
@@ -115,12 +114,11 @@ class ConnectionManage extends Disposable {
       if (conn.fromNode.id === shape.id) {
         const fromPoint = shape.getAnchorByIndex(conn.fromPoint!.index)
         conn.setFromPoint(fromPoint)
-        conn.refresh()
       } else if (conn.toNode!.id === shape.id) {
         const toPoint = shape.getAnchorByIndex(conn.toPoint!.index)
         conn.setToPoint(toPoint)
-        conn.refresh()
       }
+      conn.refresh()
     })
   }
 

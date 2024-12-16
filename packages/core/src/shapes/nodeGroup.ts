@@ -74,13 +74,9 @@ class NodeGroup extends zrender.Group implements INodeGroup {
     const [x, y] = getMinPosition(this.shapes)
     const { width, height } = this.getBoundingRect(this.shapes)
     this.boundingBox = new zrender.BoundingRect(x, y, width, height)
-
     this.shapes.forEach(shape => (shape.parentGroup = this))
-
     this.create()
     this.anchor = new Anchor(this)
-
-    this.createAnchors()
     this.anchor.bars.forEach(bar => this._viewPortMgr.addElementToViewPort(bar))
     this.anchor.refresh()
   }
@@ -347,7 +343,6 @@ class NodeGroup extends zrender.Group implements INodeGroup {
   resizeNodeGroup() {
     this.boundingBox = this.getBoundingRect(this.shapes)
     this.refresh() // 重新计算组的大小
-    this.createAnchors()
     this.anchor.refresh()
   }
 
@@ -426,7 +421,6 @@ class NodeGroup extends zrender.Group implements INodeGroup {
         shape.updatePosition(offsetX, offsetY)
       } else {
         shape.setXy(shape.oldX + offsetX, shape.oldY + offsetY)
-        shape.createAnchors()
         shape.anchor.refresh()
         this._connectionMgr.refreshConnection(shape)
       }

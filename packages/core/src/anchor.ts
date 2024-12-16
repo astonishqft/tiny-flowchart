@@ -86,6 +86,7 @@ class Anchor {
   }
 
   refresh() {
+    this.shape.createAnchors()
     this.bars.forEach(bar => {
       const p = this.shape.getAnchorByIndex(bar.point.index)
       bar.attr({

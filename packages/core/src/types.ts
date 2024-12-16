@@ -5,7 +5,7 @@ export type Constructor<T = {}> = new (...args: any[]) => T
 export type SafeDisplayable = Omit<
   zrender.Displayable,
   '_$eventProcessor' | 'getOutsideFill' | '_normalState'
->
+> & { shape: Dictionary<any> }
 
 export type Dictionary<T> = {
   [key: string]: T

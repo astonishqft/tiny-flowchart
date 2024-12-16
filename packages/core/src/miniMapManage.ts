@@ -161,7 +161,6 @@ class MiniMapManage extends Disposable implements IMiniMapManage {
   }
 
   reSetNodeFontSize() {
-    console.log('scaleRatio', this._scaleRatio)
     this._storageMgr.getShapes().forEach((s: IShape) => {
       s.getTextContent()?.setStyle({
         fontSize: (s.getTextContent()?.style.fontSize as number) * this._scaleRatio

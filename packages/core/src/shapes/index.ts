@@ -15,7 +15,7 @@ import type {
   RadialGradientObject
 } from '../index'
 
-import type { Constructor } from '../types'
+import type { Constructor, Dictionary } from '../types'
 import type { IWidthActivate } from './mixins/widthActivate'
 import type { IWidthAnchor } from './mixins/widthAnchor'
 import type { IWidthCommon } from './mixins/widthCommon'
@@ -78,12 +78,15 @@ export interface IExportShapeStyle {
   fontStyle: FontStyle
   textPosition: BuiltinTextPosition | (number | string)[] | undefined
   image?: string
+  width?: number // for Image
+  height?: number // for Image
 }
 
 export interface IExportShape {
   x: number
   y: number
   style: IExportShapeStyle
+  shape: Dictionary<any>
   type: string
   id: number
   z: number

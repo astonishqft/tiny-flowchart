@@ -11,9 +11,7 @@ import type { IocEditor } from './iocEditor'
 
 export interface IRefLineManage {
   updateRefLines(): { magneticOffsetX: number; magneticOffsetY: number }
-  // addNode(node: IShape): void
   cacheRefLines(): void
-  // removeNode(node: IShape): void
   clearRefPointAndRefLines(): void
 }
 interface IVerticalLine {

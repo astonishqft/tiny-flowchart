@@ -4,7 +4,7 @@ import { NodeType } from '../../index'
 import type { IExportShape } from '..'
 import type { INodeGroup } from '../nodeGroup'
 import type { FontStyle, FontWeight } from '../../index'
-import type { Constructor, SafeDisplayable } from '../../types'
+import type { Constructor, Dictionary, SafeDisplayable } from '../../types'
 
 export type CommonConstructor = Constructor<SafeDisplayable>
 
@@ -21,6 +21,7 @@ export interface IWidthCommon {
   setZ(z: number): void
   setXy(x: number, y: number): void
   setCursor(type: string): void
+  setShape(shapeConfig: Dictionary<any>): void
 }
 
 function WidthCommon<TBase extends CommonConstructor>(Base: TBase) {
@@ -44,7 +45,6 @@ function WidthCommon<TBase extends CommonConstructor>(Base: TBase) {
     updatePosition(offsetX: number, offsetY: number) {
       this.attr('x', this.oldX + offsetX)
       this.attr('y', this.oldY + offsetY)
-      // this._connectionMgr.refreshConnection(target)
     }
 
     setOldPosition() {
@@ -86,11 +86,14 @@ function WidthCommon<TBase extends CommonConstructor>(Base: TBase) {
           fontWeight: this.getTextContent().style.fontWeight as FontWeight,
           fontStyle: this.getTextContent().style.fontStyle as FontStyle,
           textPosition: this.textConfig!.position
-        }
+        },
+        shape: this.shape
       }
 
       if (this.type === 'image') {
         exportData.style.image = this.style.image
+        exportData.style.width = this.style.width
+        exportData.style.height = this.style.height
       }
 
       if (this.parentGroup) {

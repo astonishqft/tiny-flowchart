@@ -40,7 +40,6 @@ class ShapeManage extends Disposable {
     const anchor = new Anchor(shape)
     shape.anchor = anchor
 
-    shape.createAnchors()
     shape.anchor.bars.forEach((bar: IAnchorPoint) => {
       this._viewPortMgr.addElementToViewPort(bar)
     })
