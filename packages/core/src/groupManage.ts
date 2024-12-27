@@ -8,7 +8,7 @@ import type { IConnectionManage } from './connectionManage'
 import type { IStorageManage } from './storageManage'
 import type { IAnchorPoint, IShape } from './shapes'
 import type { INodeGroup } from './shapes/nodeGroup'
-import type { IocEditor } from './iocEditor'
+import type { IIocEditor } from './iocEditor'
 
 export interface IGroupManage extends IDisposable {
   createGroup(nodes?: (IShape | INodeGroup)[], groupId?: number): INodeGroup
@@ -20,9 +20,9 @@ class GroupManage extends Disposable {
   private _viewPortMgr: IViewPortManage
   private _connectionMgr: IConnectionManage
   private _storageMgr: IStorageManage
-  private _iocEditor: IocEditor
+  private _iocEditor: IIocEditor
 
-  constructor(iocEditor: IocEditor) {
+  constructor(iocEditor: IIocEditor) {
     super()
     this._iocEditor = iocEditor
     this._connectionMgr = iocEditor._connectionMgr
@@ -77,7 +77,7 @@ class GroupManage extends Disposable {
   removeAssociatedConnection(nodeGroup: INodeGroup) {
     this._storageMgr.getConnections().forEach(connection => {
       if (connection.fromNode.id === nodeGroup.id || connection.toNode!.id === nodeGroup.id) {
-        this._connectionMgr.removeConnection(connection)
+        this._connectionMgr.removeConnectionFromViewPort(connection)
       }
     })
   }

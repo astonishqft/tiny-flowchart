@@ -1,7 +1,7 @@
 import { Subject } from 'rxjs'
 import { Disposable } from './disposable'
 import type { IDisposable } from './disposable'
-import { IocEditor } from './iocEditor'
+import type { IIocEditor } from './iocEditor'
 
 export interface IIocEditorConfig {
   zoomStep: number
@@ -14,7 +14,7 @@ export interface IIocEditorConfig {
   selectFrameColor: string // 选中框的颜色
   showGrid: boolean
   enableMiniMap?: boolean
-  parent?: IocEditor
+  parent?: IIocEditor
 }
 
 export interface ISettingManage extends IDisposable {

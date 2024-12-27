@@ -2,8 +2,8 @@
 // 如果画面缩放比例保持不变，则缓存池的数量不变。在计算网格点数的时候，可以适当根据情况多生成一些，避免频繁的调整缓存池的大小，导致性能问题。
 
 import * as zrender from 'zrender'
-import { IocEditor } from './iocEditor'
 
+import type { IIocEditor } from './iocEditor'
 import type { ISettingManage } from './settingManage'
 import type { IViewPortManage } from './viewPortManage'
 export interface IGridManage {
@@ -19,10 +19,10 @@ class PointsPool {
   private _points: zrender.Circle[] = []
   private _size: number
   private _layer: zrender.Group
-  private _iocEditor: IocEditor
+  private _iocEditor: IIocEditor
   private _settingMgr: ISettingManage
   private _viewPortMgr: IViewPortManage
-  constructor(iocEditor: IocEditor, layer: zrender.Group) {
+  constructor(iocEditor: IIocEditor, layer: zrender.Group) {
     this._iocEditor = iocEditor
     this._settingMgr = iocEditor._settingMgr
     this._viewPortMgr = iocEditor._viewPortMgr
@@ -114,9 +114,9 @@ class GridManage implements IGridManage {
   private _gridZr: zrender.ZRenderType | null = null
   private _settingMgr: ISettingManage
   private _viewPortMgr: IViewPortManage
-  private _iocEditor: IocEditor
+  private _iocEditor: IIocEditor
 
-  constructor(iocEditor: IocEditor, viewPortMgr: IViewPortManage) {
+  constructor(iocEditor: IIocEditor, viewPortMgr: IViewPortManage) {
     this._settingMgr = iocEditor._settingMgr
     this._viewPortMgr = viewPortMgr
     this._iocEditor = iocEditor

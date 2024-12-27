@@ -3,7 +3,7 @@ import * as zrender from 'zrender'
 import type { IViewPortManage } from './viewPortManage'
 import type { ISettingManage } from './settingManage'
 import type { IStorageManage } from './storageManage'
-import type { IocEditor } from './iocEditor'
+import type { IIocEditor } from './iocEditor'
 
 export interface ISelectFrameManage {
   getSelectFrame(): zrender.Rect
@@ -23,7 +23,7 @@ class SelectFrameManage implements ISelectFrameManage {
   private _viewPortMgr: IViewPortManage
   private _storageMgr: IStorageManage
 
-  constructor(iocEditor: IocEditor) {
+  constructor(iocEditor: IIocEditor) {
     this._viewPortMgr = iocEditor._viewPortMgr
     this._settingMgr = iocEditor._settingMgr
     this._storageMgr = iocEditor._storageMgr

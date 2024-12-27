@@ -1,6 +1,6 @@
 import { Disposable } from './disposable'
-import type { IocEditor } from './iocEditor'
 
+import type { IIocEditor } from './iocEditor'
 import type { IViewPortManage } from './viewPortManage'
 import type { ISettingManage } from './settingManage'
 import type { IDisposable } from './disposable'
@@ -16,11 +16,11 @@ class ZoomManage extends Disposable {
   private _maxZoom: number
   private _viewPortMgr: IViewPortManage
   private _settingMgr: ISettingManage
-  private _iocMgr: IocEditor
+  private _iocMgr: IIocEditor
   private _zoomScale: number
   private _currentZoom = 1
 
-  constructor(iocEditor: IocEditor) {
+  constructor(iocEditor: IIocEditor) {
     super()
     this._iocMgr = iocEditor
     this._settingMgr = iocEditor._settingMgr

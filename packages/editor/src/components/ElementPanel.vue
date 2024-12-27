@@ -156,7 +156,7 @@ const elementList = [
   }
 ]
 
-const dragStart = (event: DragEvent, element: { nodeType: string; image?: string }) => {
+const dragStart = (event: DragEvent, element: { nodeType: string; url?: string }) => {
   if (event.dataTransfer) {
     event.dataTransfer.setData('addShape', JSON.stringify(element))
   }
@@ -218,7 +218,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
         class="pic-preview-item"
         v-for="(item, index) in imageList"
         :key="`pre-pic-${index}`"
-        @dragstart="dragStart($event, { nodeType: 'image', image: item })"
+        @dragstart="dragStart($event, { nodeType: 'image', url: item })"
       >
         <img :src="item" alt="" />
       </div>

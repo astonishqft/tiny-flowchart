@@ -6,6 +6,7 @@ import type {
   IAnchor,
   IConnection,
   IControlPoint,
+  IAnchorPoint,
   IExportConnectionStyle,
   IShape,
   LineDashStyle
@@ -14,7 +15,6 @@ import type { FontStyle, FontWeight } from 'zrender/lib/core/types'
 import type { INodeGroup } from './shapes/nodeGroup'
 
 class Connection extends zrender.Group implements IConnection {
-  private _tempConnection: zrender.Line
   private _connectionType: ConnectionType = ConnectionType.Line
   private _line: zrender.Line | zrender.BezierCurve | zrender.Polyline | null = null
   private _controlPoint1: IControlPoint | null = null
@@ -22,8 +22,6 @@ class Connection extends zrender.Group implements IConnection {
   private _controlLine1: zrender.Line | null = null
   private _controlLine2: zrender.Line | null = null
   private _ortogonalLinePoints: number[][] = []
-  private _sceneWidth
-  private _sceneHeight
   private _arrow: zrender.Polygon | null = null
   private _textPoints: number[] = []
   private _lineText: zrender.Text | null = null
@@ -36,39 +34,22 @@ class Connection extends zrender.Group implements IConnection {
   private _lineTextFontStyle: FontStyle = 'normal'
   private _lineTextFontWeight: FontWeight = 'normal'
 
+  fromAnchorPoint: IAnchorPoint
+  toAnchorPoint: IAnchorPoint
   fromNode: IShape | INodeGroup
-  toNode: IShape | INodeGroup | null = null
-  fromPoint: IAnchor | null = null
-  toPoint: IAnchor | null = null
-  constructor(
-    fromNode: IShape | INodeGroup,
-    type: ConnectionType,
-    sceneWidth: number,
-    sceneHeight: number
-  ) {
+  toNode: IShape | INodeGroup
+  fromPoint: IAnchor
+  toPoint: IAnchor
+  constructor(fromAnchorPoint: IAnchorPoint, toAnchorPoint: IAnchorPoint, type: ConnectionType) {
     super()
-    this._sceneWidth = sceneWidth
-    this._sceneHeight = sceneHeight
-    this._tempConnection = new zrender.Line({
-      shape: {
-        x1: 0,
-        y1: 0,
-        x2: 0,
-        y2: 0
-      },
-      style: {
-        stroke: '#228be6',
-        lineWidth: 1,
-        lineDash: [4, 4]
-      },
-      silent: true, // 禁止触发事件，否则会导致拖拽，节点无法响应mouseover事件
-      z: 4
-    })
-
-    this.fromNode = fromNode
+    this.fromAnchorPoint = fromAnchorPoint
+    this.toAnchorPoint = toAnchorPoint
+    this.fromNode = fromAnchorPoint.node
+    this.fromPoint = fromAnchorPoint.point
+    this.toNode = toAnchorPoint.node
+    this.toPoint = toAnchorPoint.point
     this._connectionType = type
-
-    this.add(this._tempConnection)
+    this.createConnection()
   }
 
   setFromNode(fromNode: IShape | INodeGroup) {
@@ -85,21 +66,6 @@ class Connection extends zrender.Group implements IConnection {
 
   setToPoint(point: IAnchor) {
     this.toPoint = point
-  }
-
-  move(x: number, y: number) {
-    this._tempConnection.attr({
-      shape: {
-        x1: this.fromPoint?.x,
-        y1: this.fromPoint?.y,
-        x2: x,
-        y2: y
-      }
-    })
-  }
-
-  cancelConnect() {
-    this.remove(this._tempConnection)
   }
 
   active() {
@@ -158,15 +124,15 @@ class Connection extends zrender.Group implements IConnection {
     const fromNodeBoundingBox = this.fromNode.getBoundingRect()
     const fromNodeX = this.fromNode.x
     const fromNodeY = this.fromNode.y
-    const toNodeBoundingBox = this.toNode!.getBoundingRect()
-    const toNodeX = this.toNode!.x
-    const toNodeY = this.toNode!.y
+    const toNodeBoundingBox = this.toNode.getBoundingRect()
+    const toNodeX = this.toNode.x
+    const toNodeY = this.toNode.y
 
     const paths = OrthogonalConnector.connect({
       shapeA: {
-        x: this.fromPoint!.x,
-        y: this.fromPoint!.y,
-        direction: this.fromPoint!.direct,
+        x: this.fromPoint.x,
+        y: this.fromPoint.y,
+        direction: this.fromPoint.direct,
         boundingBox: {
           x: fromNodeX + fromNodeBoundingBox.x,
           y: fromNodeBoundingBox.y + fromNodeY,
@@ -175,9 +141,9 @@ class Connection extends zrender.Group implements IConnection {
         }
       },
       shapeB: {
-        x: this.toPoint!.x,
-        y: this.toPoint!.y,
-        direction: this.toPoint!.direct,
+        x: this.toPoint.x,
+        y: this.toPoint.y,
+        direction: this.toPoint.direct,
         boundingBox: {
           x: toNodeX + toNodeBoundingBox.x,
           y: toNodeBoundingBox.y + toNodeY,
@@ -187,13 +153,7 @@ class Connection extends zrender.Group implements IConnection {
       },
       shapeHorizontalMargin: 10,
       shapeVerticalMargin: 10,
-      globalBoundsMargin: 10,
-      globalBounds: {
-        x: 0,
-        y: 0,
-        width: this._sceneWidth,
-        height: this._sceneHeight
-      }
+      globalBoundsMargin: 10
     })
 
     this._ortogonalLinePoints = []
@@ -370,19 +330,17 @@ class Connection extends zrender.Group implements IConnection {
       case ConnectionType.Line:
         ;(this._line as zrender.Line).attr({
           shape: {
-            x1: this.fromPoint?.x,
-            y1: this.fromPoint?.y,
-            x2: this.toPoint?.x,
-            y2: this.toPoint?.y
+            x1: this.fromPoint.x,
+            y1: this.fromPoint.y,
+            x2: this.toPoint.x,
+            y2: this.toPoint.y
           }
         })
 
-        this.renderArrow([this.fromPoint!.x, this.fromPoint!.y])
+        this.renderArrow([this.fromPoint.x, this.fromPoint.y])
         break
       case ConnectionType.BezierCurve:
         this.setBezierCurve(
-          this.fromPoint!,
-          this.toPoint!,
           [this._controlPoint1!.x, this._controlPoint1!.y],
           [this._controlPoint2!.x, this._controlPoint2!.y]
         )
@@ -410,7 +368,7 @@ class Connection extends zrender.Group implements IConnection {
     const offsetAngle = Math.PI / 8
     const [x1, y1] = preNode
 
-    const { x: x2, y: y2 } = this.toPoint!
+    const { x: x2, y: y2 } = this.toPoint
     const p1 = [x2, y2]
 
     const angle = Math.atan2(y2 - y1, x2 - x1)
@@ -430,15 +388,10 @@ class Connection extends zrender.Group implements IConnection {
     })
   }
 
-  connect(node: IShape | INodeGroup) {
-    this.toNode = node
-    this.createConnection()
-  }
-
   // 计算正交连线的中点坐标
   calcOrtogonalLineMidPoint() {
     if (this._ortogonalLinePoints.length === 0) {
-      return [this.fromPoint!.x, this.fromPoint!.y]
+      return [this.fromPoint.x, this.fromPoint.y]
     }
     const accList: number[] = [0]
     const directionList = []
@@ -493,8 +446,8 @@ class Connection extends zrender.Group implements IConnection {
       this._textPoints = this.calcOrtogonalLineMidPoint()
     } else {
       this._textPoints = [
-        (this.fromPoint!.x + this.toPoint!.x) / 2,
-        (this.fromPoint!.y + this.toPoint!.y) / 2
+        (this.fromPoint.x + this.toPoint.x) / 2,
+        (this.fromPoint.y + this.toPoint.y) / 2
       ]
     }
 
@@ -649,10 +602,10 @@ class Connection extends zrender.Group implements IConnection {
     const baseData = {
       type: this._connectionType,
       id: this.id,
-      fromPoint: this.fromPoint!.index,
-      toPoint: this.toPoint!.index,
-      fromNode: this.fromNode!.id,
-      toNode: this.toNode!.id,
+      fromPoint: this.fromPoint.index,
+      toPoint: this.toPoint.index,
+      fromNode: this.fromNode.id,
+      toNode: this.toNode.id,
       style: {
         lineWidth: this._line?.style.lineWidth,
         lineDash: this._line?.style.lineDash,
@@ -762,14 +715,9 @@ class Connection extends zrender.Group implements IConnection {
     })
   }
 
-  setBezierCurve(
-    fromPoint: IAnchor,
-    toPoint: IAnchor,
-    controlPoint1: (number | undefined)[],
-    controlPoint2: (number | undefined)[]
-  ) {
-    const [cpx1, cpy1] = this.calcControlPoint(fromPoint)
-    const [cpx2, cpy2] = this.calcControlPoint(toPoint)
+  setBezierCurve(controlPoint1: (number | undefined)[], controlPoint2: (number | undefined)[]) {
+    const [cpx1, cpy1] = this.calcControlPoint(this.fromPoint)
+    const [cpx2, cpy2] = this.calcControlPoint(this.toPoint)
 
     this._controlPoint1?.attr({
       shape: {
@@ -791,8 +739,8 @@ class Connection extends zrender.Group implements IConnection {
 
     this._controlLine1?.attr({
       shape: {
-        x1: fromPoint.x,
-        y1: fromPoint.y,
+        x1: this.fromPoint.x,
+        y1: this.fromPoint.y,
         x2: cpx1 + controlPoint1[0]!,
         y2: cpy1 + controlPoint1[1]!
       }
@@ -800,18 +748,18 @@ class Connection extends zrender.Group implements IConnection {
 
     this._controlLine2?.attr({
       shape: {
-        x1: toPoint.x,
-        y1: toPoint.y,
+        x1: this.toPoint.x,
+        y1: this.toPoint.y,
         x2: cpx2 + controlPoint2[0]!,
         y2: cpy2 + controlPoint2[1]!
       }
     })
     ;(this._line as zrender.BezierCurve).attr({
       shape: {
-        x1: fromPoint!.x,
-        y1: fromPoint!.y,
-        x2: this.toPoint!.x,
-        y2: this.toPoint!.y,
+        x1: this.fromPoint.x,
+        y1: this.fromPoint.y,
+        x2: this.toPoint.x,
+        y2: this.toPoint.y,
         cpx1: cpx1 + controlPoint1[0]!,
         cpy1: cpy1 + controlPoint1[1]!,
         cpx2: cpx2 + controlPoint2[0]!,

@@ -22,7 +22,6 @@ export interface IConnectotOpts {
   shapeHorizontalMargin: number // 控制连接线与shape之间的距离
   shapeVerticalMargin: number
   globalBoundsMargin: number
-  globalBounds: Rect
 }
 
 interface IAuxiliaryData {
@@ -295,7 +294,7 @@ class OrthogonalConnector {
   }
 
   static connect(opts: IConnectotOpts): IPoint[] {
-    const { shapeA, shapeB, globalBounds, globalBoundsMargin = 1 } = opts // globalBoundsMargin 最小设置为1
+    const { shapeA, shapeB, globalBoundsMargin = 1 } = opts // globalBoundsMargin 最小设置为1
 
     let { shapeHorizontalMargin = 10, shapeVerticalMargin = 10 } = opts
     const verticals = []
@@ -369,15 +368,17 @@ class OrthogonalConnector {
     const inflatedBoundBox = inflatedA
       .union(inflatedB)
       .inflate(globalBoundsMargin, globalBoundsMargin)
-    const shapeGlobalBoundBox: Rectangle = Rectangle.fromRect(globalBounds)
+    // const shapeGlobalBoundBox: Rectangle = Rectangle.fromRect(globalBounds)
 
-    const bounds = Rectangle.fromLTRB(
-      Math.max(inflatedBoundBox.left, shapeGlobalBoundBox.left),
-      Math.max(inflatedBoundBox.top, shapeGlobalBoundBox.top),
-      Math.min(inflatedBoundBox.right, shapeGlobalBoundBox.right),
-      Math.min(inflatedBoundBox.bottom, shapeGlobalBoundBox.bottom)
-    )
-    const grid = rulersToGrid(verticals, horizontals, bounds)
+    // const bounds = Rectangle.fromLTRB(
+    //   Math.max(inflatedBoundBox.left, shapeGlobalBoundBox.left),
+    //   Math.max(inflatedBoundBox.top, shapeGlobalBoundBox.top),
+    //   Math.min(inflatedBoundBox.right, shapeGlobalBoundBox.right),
+    //   Math.min(inflatedBoundBox.bottom, shapeGlobalBoundBox.bottom)
+    // )
+
+    // const bounds = Rectangle.fromRect(inflatedBoundBox)
+    const grid = rulersToGrid(verticals, horizontals, inflatedBoundBox)
 
     // 第三步：创建参考点
     // 上一步中得到的网格可以分为三类：角网格、边缘网格和内部网格

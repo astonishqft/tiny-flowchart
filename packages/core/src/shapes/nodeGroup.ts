@@ -1,11 +1,10 @@
 import * as zrender from 'zrender'
 import { getMinPosition } from '../utils'
 import { NodeType } from './index'
-import { IocEditor } from '../iocEditor'
 import { Anchor } from '../anchor'
 
 import type { IAnchor, IExportGroup, IExportGroupStyle, IShape, StrokeStyle } from './index'
-
+import type { IIocEditor } from '../iocEditor'
 import type { IConnectionManage } from '../connectionManage'
 import type { IViewPortManage } from '../viewPortManage'
 import type { IWidthActivate } from './mixins/widthActivate'
@@ -66,7 +65,7 @@ class NodeGroup extends zrender.Group implements INodeGroup {
   anchor: Anchor
   parentGroup?: INodeGroup
 
-  constructor(shapes: (IShape | INodeGroup)[], iocEditor: IocEditor) {
+  constructor(shapes: (IShape | INodeGroup)[], iocEditor: IIocEditor) {
     super()
     this._connectionMgr = iocEditor._connectionMgr
     this._viewPortMgr = iocEditor._viewPortMgr

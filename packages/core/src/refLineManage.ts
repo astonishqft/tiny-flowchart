@@ -7,7 +7,7 @@ import type { IViewPortManage } from './viewPortManage'
 import type { ISettingManage } from './settingManage'
 import type { IStorageManage } from './storageManage'
 import type { INodeGroup } from './shapes/nodeGroup'
-import type { IocEditor } from './iocEditor'
+import type { IIocEditor } from './iocEditor'
 
 export interface IRefLineManage {
   updateRefLines(): { magneticOffsetX: number; magneticOffsetY: number }
@@ -55,7 +55,7 @@ class RefLineManage {
   private _viewPortMgr: IViewPortManage
   private _dragFrameMgr: IDragFrameManage
 
-  constructor(iocEditor: IocEditor) {
+  constructor(iocEditor: IIocEditor) {
     this._settingMgr = iocEditor._settingMgr
     this._storageMgr = iocEditor._storageMgr
     this._viewPortMgr = iocEditor._viewPortMgr

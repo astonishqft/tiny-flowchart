@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "Orthogonal connector",
   "type": "module",
-  "module": "dist/index.mjs",
+  "module": "dist/index.js",
   "typings": "dist/index.d.ts",
   "files": [
     "dist"

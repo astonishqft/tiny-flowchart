@@ -118,9 +118,6 @@ export interface IConnection extends zrender.Group {
   toNode: IShape | INodeGroup | null
   fromPoint: IAnchor | null
   toPoint: IAnchor | null
-  cancelConnect(): void
-  move(x: number, y: number): void
-  connect(node: IShape | INodeGroup): void
   setFromPoint(point: IAnchor): void
   setToPoint(point: IAnchor): void
   refresh(): void
@@ -149,12 +146,7 @@ export interface IConnection extends zrender.Group {
   getLineText(): zrender.Text | null
   setStyle(style: IExportConnectionStyle): void
   setConnectionType(type: ConnectionType): void
-  setBezierCurve(
-    fromPoint: IAnchor,
-    toPoint: IAnchor,
-    controlPoint1: (number | undefined)[],
-    controlPoint2: (number | undefined)[]
-  ): void
+  setBezierCurve(controlPoint1: (number | undefined)[], controlPoint2: (number | undefined)[]): void
   getExportData(): IExportConnection
 }
 

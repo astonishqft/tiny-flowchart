@@ -11,10 +11,10 @@ const drop = (event: DragEvent) => {
   const { offsetX, offsetY } = event
   const data = event.dataTransfer!.getData('addShape')
 
-  const { nodeType, image } = JSON.parse(data)
+  const { nodeType, url } = JSON.parse(data)
 
   if (props.iocEditor) {
-    props.iocEditor.addShape(nodeType, { x: offsetX, y: offsetY, image })
+    props.iocEditor.addShape({ shapeType: nodeType, x: offsetX, y: offsetY, url })
     // TODO 更新miniMap
     props.iocEditor.updateMiniMap$.next()
   }
@@ -43,7 +43,6 @@ const dragOver = (event: DragEvent) => {
     width: 100%;
     height: 100%;
     position: absolute;
-    // background-color: rgba(255, 255, 255, 0);
   }
 }
 </style>

@@ -13,12 +13,15 @@ import { RefLineManage } from './refLineManage'
 import { SelectFrameManage } from './selectFrameManage'
 import { SettingManage } from './settingManage'
 import { ControlFrameManage } from './controlFrameManage'
+import { HistoryManage } from './history/historyManage'
 import {
   downloadFile,
   flatGroupArrayToTree,
   getChildShapesByGroupId,
   groupTreeToArray
 } from './utils'
+import { AddShapeCommand } from './history/commands/addShape'
+import { AddConnectionCommand } from './history/commands/addConnection'
 
 import type { IRefLineManage } from './refLineManage'
 import type { IDragFrameManage } from './dragFrameManage'
@@ -32,6 +35,9 @@ import type { IStorageManage } from './storageManage'
 import type { ISelectFrameManage } from './selectFrameManage'
 import type { IIocEditorConfig, ISettingManage } from './settingManage'
 import type { IControlFrameManage } from './controlFrameManage'
+import type { IHistoryManage } from './history/historyManage'
+import type { IAddShapeCommandOpts } from './history/commands/addShape'
+import type { IAddConnectionCommandOpts } from './history/commands/addConnection'
 
 import {
   ConnectionType,
@@ -45,9 +51,45 @@ import {
 } from './shapes'
 import type { INodeGroup } from './shapes/nodeGroup'
 import type { IGroupTreeNode } from './utils'
-import type { ISceneDragMoveOpts, ISceneDragStartOpts, IUpdateZoomOpts } from './types'
+import type { ISceneDragMoveOpts, ISceneDragStartOpts, IUpdateZoomOpts, Dictionary } from './types'
 
-export class IocEditor {
+export interface IIocEditor {
+  _connectionMgr: IConnectionManage
+  _shapeMgr: IShapeManage
+  _historyMgr: IHistoryManage
+  _viewPortMgr: IViewPortManage
+  _storageMgr: IStorageManage
+  _sceneMgr: ISceneManage
+  _settingMgr: ISettingManage
+  _dragFrameMgr: IDragFrameManage
+  _groupMgr: IGroupManage
+  _refLineMgr: IRefLineManage
+  _selectFrameMgr: ISelectFrameManage
+  _controlFrameMgr: IControlFrameManage
+  _zoomMgr: IZoomManage
+  _zr: zrender.ZRenderType
+  _dom: HTMLElement
+  updateZoom$: Subject<IUpdateZoomOpts>
+  updateMiniMap$: Subject<void>
+  sceneDragStart$: Subject<ISceneDragStartOpts>
+  addShape(options: IAddShapeCommandOpts): void
+  execute(type: string, options: Dictionary<any>): void
+  getNodeById(id: number): IShape | INodeGroup | undefined
+  getPointByIndex(node: IShape | INodeGroup, index: number): IAnchorPoint | undefined
+  initFlowChart(data: IExportData): void
+  initGroup(groups: IExportGroup[], shapes: IExportShape[]): void
+  getShapeById(id: number): IShape[]
+  getData(): { shapes: IExportShape[]; connections: IExportConnection[]; groups: IExportGroup[] }
+  exportFile(): void
+  openFile(): void
+  destroy(): void
+  offEvent(): void
+  getBoundingBox(): zrender.BoundingRect
+  undo(): void
+  redo(): void
+}
+
+export class IocEditor implements IIocEditor {
   _zr: zrender.ZRenderType
   _dom: HTMLElement
   _manageList: Disposable[] = []
@@ -63,6 +105,7 @@ export class IocEditor {
   _refLineMgr: IRefLineManage
   _selectFrameMgr: ISelectFrameManage
   _controlFrameMgr: IControlFrameManage
+  _historyMgr: IHistoryManage
   updateZoom$ = new Subject<IUpdateZoomOpts>()
   updateMiniMap$ = new Subject<void>()
 
@@ -89,13 +132,44 @@ export class IocEditor {
     this._shapeMgr = new ShapeManage(this)
     this._zr = zrender.init(dom)
     this._sceneMgr = new SceneManage(this)
+    this._historyMgr = new HistoryManage()
     this._sceneMgr.init()
   }
 
-  addShape(type: string, options: { x: number; y: number; image?: string }) {
-    return this._sceneMgr.addShape(type, options)
+  addShape(options: IAddShapeCommandOpts) {
+    return this.execute('addShape', options)
   }
 
+  undo() {
+    this._historyMgr.undo()
+    this.updateMiniMap$.next()
+  }
+
+  redo() {
+    this._historyMgr.redo()
+    this.updateMiniMap$.next()
+  }
+
+  execute(type: string, options: IAddShapeCommandOpts | IAddConnectionCommandOpts) {
+    switch (type) {
+      case 'addShape': {
+        const { shapeType } = options as IAddShapeCommandOpts
+        const shape = this._shapeMgr.createShape(shapeType, options as IAddShapeCommandOpts)
+        this._historyMgr.execute(new AddShapeCommand(this, shape))
+
+        return shape
+      }
+      case 'addConnection': {
+        const { connection } = options as IAddConnectionCommandOpts
+        this._historyMgr.execute(new AddConnectionCommand(this, connection))
+        break
+      }
+      default:
+        break
+    }
+
+    this.updateMiniMap$.next()
+  }
   getNodeById(id: number) {
     const nodes = this._storageMgr.getNodes()
 
@@ -138,10 +212,12 @@ export class IocEditor {
         z
       }: IExportShape) => {
         const config: { x: number; y: number; image?: string } = { x, y }
-        if (type === 'image') {
-          config.image = image
-        }
+        // if (type === 'image') {
+        //   config.image = image
+        // }
         const newShape = this._shapeMgr.createShape(type, config)
+        this._shapeMgr.addShapeToEditor(newShape)
+
         newShape.setZ(z)
         newShape.setStyle({
           fill,
@@ -154,7 +230,7 @@ export class IocEditor {
           .setStyle({ text, fill: fontColor, fontSize, fontStyle, fontWeight })
         newShape.setTextConfig({ position: textPosition })
         if (type === 'image') {
-          newShape.attr('style', { width, height })
+          newShape.attr('style', { width, height, image })
         } else {
           newShape.setShape(shape)
         }
@@ -170,28 +246,28 @@ export class IocEditor {
       const fromNode = this.getNodeById(conn.fromNode)
       const toNode = this.getNodeById(conn.toNode)
 
-      const fromPoint = this.getPointByIndex(fromNode, conn.fromPoint)
-      const toPoint = this.getPointByIndex(toNode, conn.toPoint)
+      const fromAnchorPoint = this.getPointByIndex(fromNode, conn.fromPoint)
+      const toAnchorPoint = this.getPointByIndex(toNode, conn.toPoint)
 
-      if (!fromPoint || !toPoint) return
-      const connection = this._connectionMgr.createConnection(fromPoint)
-      connection.setConnectionType(conn.type)
-      this._connectionMgr.connect(connection, toPoint)
+      if (!fromAnchorPoint || !toAnchorPoint) return
+
+      this._connectionMgr.setConnectionType(conn.type)
+      const connection = this._connectionMgr.createConnection(fromAnchorPoint, toAnchorPoint)
+      this._connectionMgr.addConnectionToViewPort(connection)
       connection.setStyle(conn.style)
 
       if (conn.type === ConnectionType.BezierCurve) {
-        connection.setBezierCurve(
-          fromPoint.point,
-          toPoint.point,
-          conn.controlPoint1!,
-          conn.controlPoint2!
-        )
+        connection.setBezierCurve(conn.controlPoint1!, conn.controlPoint2!)
       }
     })
   }
 
   initGroup(groups: IExportGroup[], shapes: IExportShape[]) {
-    const { groupTree, groupMap } = flatGroupArrayToTree(groups)
+    const {
+      groupTree,
+      groupMap
+    }: { groupTree: IGroupTreeNode[]; groupMap: Map<number, IGroupTreeNode> } =
+      flatGroupArrayToTree(groups)
 
     console.log('groupTree', JSON.stringify(groupTree, null, 2))
     console.log(
@@ -213,13 +289,13 @@ export class IocEditor {
     treeGroupArray.forEach((gId: number) => {
       let childs = []
       const groupItem = groupMap.get(gId)
-      if (groupItem.children.length === 0) {
+      if (groupItem && groupItem.children.length === 0) {
         // 最底层的group，由shape组成
         const childIds = getChildShapesByGroupId(gId, shapes).map(s => s.id)
         const childShapes = this._storageMgr.getShapes().filter(s => childIds.includes(s.id))
         childs = childShapes
       } else {
-        const childGroupIds = groupItem.children.map((c: IGroupTreeNode) => c.id)
+        const childGroupIds = groupItem?.children.map((c: IGroupTreeNode) => c.id) || []
         const childGroups = this._storageMgr.getGroups().filter(g => childGroupIds.includes(g.id))
         const childIds = getChildShapesByGroupId(gId, shapes).map(s => s.id)
         const childShapes = this._storageMgr.getShapes().filter(s => childIds.includes(s.id))
@@ -228,8 +304,10 @@ export class IocEditor {
       const newGroup = this._groupMgr.createGroup(childs, gId)
 
       newGroup.unActive()
-      newGroup.setZ(groupItem.z)
-      newGroup.setStyle(groupItem.style)
+      if (groupItem) {
+        newGroup.setZ(groupItem.z)
+        newGroup.setStyle(groupItem.style)
+      }
     })
   }
 

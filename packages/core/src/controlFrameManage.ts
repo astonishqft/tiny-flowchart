@@ -1,6 +1,6 @@
 import * as zrender from 'zrender'
-import { IocEditor } from './iocEditor'
 
+import type { IIocEditor } from './iocEditor'
 import type { IViewPortManage } from './viewPortManage'
 import type { IConnectionManage } from './connectionManage'
 import type { IShape } from './shapes'
@@ -18,9 +18,9 @@ class ControlFrameManage implements IControlFrameManage {
   private _controlBox: zrender.Rect
   private _connectionMgr: IConnectionManage
   private _viewPortMgr: IViewPortManage
-  private _iocEditor: IocEditor
+  private _iocEditor: IIocEditor
   private _node: IShape | null = null
-  constructor(iocEditor: IocEditor) {
+  constructor(iocEditor: IIocEditor) {
     this._iocEditor = iocEditor
     this._connectionMgr = iocEditor._connectionMgr
     this._viewPortMgr = iocEditor._viewPortMgr

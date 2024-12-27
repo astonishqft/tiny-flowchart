@@ -34,13 +34,13 @@ const toolsConfig = ref([
     name: 'undo',
     icon: 'icon-undo',
     desc: '撤销',
-    disabled: true
+    disabled: false
   },
   {
     name: 'redo',
     icon: 'icon-redo',
     desc: '重做',
-    disabled: true
+    disabled: false
   },
   {
     name: 'zoomIn',
@@ -130,6 +130,12 @@ const command = (name: string) => {
       break
     case 'openFile':
       props.iocEditor.openFile()
+      break
+    case 'undo':
+      props.iocEditor.undo()
+      break
+    case 'redo':
+      props.iocEditor.redo()
       break
     default:
       break

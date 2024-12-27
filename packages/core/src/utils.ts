@@ -121,6 +121,7 @@ export interface IGroupTreeNode {
   id: number
   style: IExportGroupStyle
   children: IGroupTreeNode[]
+  z: number
 }
 
 export const flatGroupArrayToTree = (flatArray: IExportGroup[]) => {

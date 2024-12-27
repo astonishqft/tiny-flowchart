@@ -2,7 +2,7 @@ import * as zrender from 'zrender'
 import { Disposable } from './disposable'
 import { getTopGroup, isEnter } from './utils'
 
-import type { IocEditor } from './iocEditor'
+import type { IIocEditor } from './iocEditor'
 import type { IDisposable } from './disposable'
 import type { IViewPortManage } from './viewPortManage'
 import type { IStorageManage } from './storageManage'
@@ -31,7 +31,7 @@ class DragFrameManage extends Disposable {
   private _frame: zrender.Rect
   private _viewPortMgr: IViewPortManage
   private _storageMgr: IStorageManage
-  constructor(iocEditor: IocEditor) {
+  constructor(iocEditor: IIocEditor) {
     super()
     this._viewPortMgr = iocEditor._viewPortMgr
     this._storageMgr = iocEditor._storageMgr

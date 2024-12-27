@@ -3,7 +3,7 @@ import { Disposable } from './disposable'
 import { Subject } from 'rxjs'
 
 import type { IDisposable } from './disposable'
-import type { IAnchorPoint, IConnection, IControlPoint, IShape } from './shapes'
+import type { IAnchorPoint, IControlPoint, IShape } from './shapes'
 import type { INodeGroup } from './shapes/nodeGroup'
 import type { IViewPortManage } from './viewPortManage'
 import type { IShapeManage } from './shapeManage'
@@ -22,7 +22,6 @@ export interface ISceneManage extends IDisposable {
   updateSelectNode$: Subject<IShape | INodeGroup>
   setCursorStyle(type: string): void
   init(): void
-  addShape(type: string, options: { x: number; y: number }): IShape
   clear(): void
   unActive(): void
 }
@@ -62,10 +61,6 @@ class SceneManage extends Disposable {
     this._enableMiniMap = this._settingMgr.get('enableMiniMap')
   }
 
-  addShape(type: string, options: { x: number; y: number; url?: string }) {
-    return this._shapeMgr.createShape(type, options)
-  }
-
   clear() {
     this._connectionMgr.clear()
     this._shapeMgr.clear()
@@ -94,7 +89,7 @@ class SceneManage extends Disposable {
     let drag = false
     let [oldViewPortX, oldViewPortY] = this._viewPortMgr.getPosition()
     let dragModel = 'canvas'
-    let connection: IConnection | null = null
+    let fromAnchorPoint: IAnchorPoint | null = null
     let selectFrameStatus = false
     let zoom = 1
 
@@ -121,7 +116,8 @@ class SceneManage extends Disposable {
       // 选中锚点
       if (e.target && (e.target as IAnchorPoint).mark === 'anch') {
         dragModel = 'anchor'
-        connection = this._connectionMgr.createConnection(e.target as IAnchorPoint)
+        fromAnchorPoint = e.target as IAnchorPoint
+        this._connectionMgr.createTmpConnection(fromAnchorPoint)
       }
 
       if (e.target && (e.target as IControlPoint).mark === 'controlPoint') {
@@ -147,7 +143,10 @@ class SceneManage extends Disposable {
       offsetY = e.offsetY - startY
 
       if (dragModel === 'anchor') {
-        connection?.move((e.offsetX - oldViewPortX) / zoom, (e.offsetY - oldViewPortY) / zoom)
+        this._connectionMgr.moveTmpConnection(
+          (e.offsetX - oldViewPortX) / zoom,
+          (e.offsetY - oldViewPortY) / zoom
+        )
         this.setCursorStyle('crosshair')
       }
 
@@ -175,19 +174,21 @@ class SceneManage extends Disposable {
       if (
         e.target &&
         (e.target as IAnchorPoint).mark === 'anch' &&
-        connection &&
-        (e.target as IAnchorPoint).node !== connection.fromNode
+        fromAnchorPoint &&
+        (e.target as IAnchorPoint).node !== fromAnchorPoint.node
       ) {
         // 禁止和自身相连
         // 创建连线
-        this._connectionMgr.connect(connection, e.target as IAnchorPoint)
-        this._iocEditor.updateMiniMap$.next()
+        const connection = this._connectionMgr.createConnection(
+          fromAnchorPoint,
+          e.target as IAnchorPoint
+        )
+        this._iocEditor.execute('addConnection', { connection })
       }
 
-      if (connection) {
+      if (dragModel === 'anchor') {
         // 取消连线创建的临时直线
-        this._connectionMgr.cancelConnect(connection)
-        connection = null
+        this._connectionMgr.removeTmpConnection()
       }
 
       if (selectFrameStatus) {
