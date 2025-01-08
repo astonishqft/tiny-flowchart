@@ -3,10 +3,10 @@ import { ref } from 'vue'
 import { ElOption, ElSelect } from 'element-plus'
 import { ConnectionType } from '@ioceditor/core'
 
-import { IocEditor } from '@ioceditor/core'
+import type { IIocEditor } from '@ioceditor/core'
 
 const props = defineProps<{
-  iocEditor: IocEditor
+  iocEditor: IIocEditor
 }>()
 
 const currentLineType = ref(ConnectionType.OrtogonalLine)
@@ -120,7 +120,7 @@ const command = (name: string) => {
       props.iocEditor._selectFrameMgr.setSelectFrameStatus(true)
       break
     case 'group':
-      props.iocEditor._groupMgr.createGroup()
+      props.iocEditor.createGroup()
       break
     case 'ungroup':
       props.iocEditor._groupMgr.unGroup()

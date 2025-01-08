@@ -14,6 +14,8 @@ export interface IGroupManage extends IDisposable {
   createGroup(nodes?: (IShape | INodeGroup)[], groupId?: number): INodeGroup
   unGroup(): void
   clear(): void
+  addGroupToEditor(group: INodeGroup): void
+  removeGroupFromEditor(group: INodeGroup): void
 }
 
 class GroupManage extends Disposable {
@@ -30,27 +32,34 @@ class GroupManage extends Disposable {
     this._storageMgr = iocEditor._storageMgr
   }
 
-  createGroup(nodes?: (IShape | INodeGroup)[], groupId?: number) {
-    const activeShapes = nodes ? nodes : this._storageMgr.getActiveNodes()
-
-    activeShapes.forEach(shape => shape.unActive())
-
-    const minZLevel = getMinZLevel(activeShapes)
-
-    const groupNode = new NodeGroup(activeShapes, this._iocEditor)
+  createGroup(nodes: (IShape | INodeGroup)[], groupId?: number) {
+    nodes.forEach(shape => shape.unActive())
+    const minZLevel = getMinZLevel(nodes)
+    const groupNode = new NodeGroup(nodes, this._iocEditor)
     groupNode.setZ(minZLevel - 1)
-
     new NodeEventManage(groupNode, this._iocEditor)
-    this._storageMgr.addGroup(groupNode)
-    this._viewPortMgr.addElementToViewPort(groupNode)
-
     if (groupId) {
       groupNode.id = groupId
     }
 
-    this._iocEditor.updateMiniMap$.next()
-
     return groupNode
+  }
+
+  addGroupToEditor(group: INodeGroup) {
+    this._storageMgr.addGroup(group)
+    group.unActive()
+    this._viewPortMgr.addElementToViewPort(group)
+    group.anchor.bars.forEach((bar: IAnchorPoint) => {
+      this._viewPortMgr.addElementToViewPort(bar)
+    })
+  }
+
+  removeGroupFromEditor(group: INodeGroup) {
+    this._storageMgr.removeGroup(group)
+    this._viewPortMgr.removeElementFromViewPort(group)
+    group.anchor.bars.forEach((bar: IAnchorPoint) => {
+      this._viewPortMgr.removeElementFromViewPort(bar)
+    })
   }
 
   unGroup() {

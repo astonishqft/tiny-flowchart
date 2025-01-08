@@ -24,7 +24,8 @@ import {
   AddShapeCommand,
   AddConnectionCommand,
   MoveNodeCommand,
-  PatchCommand
+  PatchCommand,
+  CreateGroupCommand
 } from './history/commands'
 
 import type { IRefLineManage } from './refLineManage'
@@ -43,7 +44,8 @@ import type { IHistoryManage } from './history/historyManage'
 import type {
   IAddShapeCommandOpts,
   IAddConnectionCommandOpts,
-  IMoveNodeCommandOpts
+  IMoveNodeCommandOpts,
+  ICreateGroupCommandOpts
 } from './history/commands'
 
 import {
@@ -96,6 +98,7 @@ export interface IIocEditor {
   getBoundingBox(): zrender.BoundingRect
   undo(): void
   redo(): void
+  createGroup(): void
 }
 
 export class IocEditor implements IIocEditor {
@@ -149,6 +152,12 @@ export class IocEditor implements IIocEditor {
     return this.execute('addShape', options)
   }
 
+  createGroup() {
+    const shapes = this._storageMgr.getActiveNodes()
+    const group = this._groupMgr.createGroup(shapes)
+    this.execute('createGroup', { group })
+  }
+
   undo() {
     this._historyMgr.undo()
     this.updateMiniMap$.next()
@@ -161,7 +170,11 @@ export class IocEditor implements IIocEditor {
 
   execute(
     type: string,
-    options: IAddShapeCommandOpts | IAddConnectionCommandOpts | IMoveNodeCommandOpts
+    options:
+      | IAddShapeCommandOpts
+      | IAddConnectionCommandOpts
+      | IMoveNodeCommandOpts
+      | ICreateGroupCommandOpts
   ) {
     switch (type) {
       case 'addShape': {
@@ -201,6 +214,11 @@ export class IocEditor implements IIocEditor {
         }
 
         this._historyMgr.execute(new PatchCommand(patchCommands))
+        break
+      }
+      case 'createGroup': {
+        const { group } = options as ICreateGroupCommandOpts
+        this._historyMgr.execute(new CreateGroupCommand(this, group))
         break
       }
       default:
@@ -341,6 +359,7 @@ export class IocEditor implements IIocEditor {
         childs = [...childGroups, ...childShapes]
       }
       const newGroup = this._groupMgr.createGroup(childs, gId)
+      this._groupMgr.addGroupToEditor(newGroup)
 
       newGroup.unActive()
       if (groupItem) {

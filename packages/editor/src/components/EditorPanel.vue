@@ -16,7 +16,7 @@ const drop = (event: DragEvent) => {
   if (props.iocEditor) {
     props.iocEditor.addShape({ shapeType: nodeType, x: offsetX, y: offsetY, url })
     // TODO 更新miniMap
-    props.iocEditor.updateMiniMap$.next()
+    // props.iocEditor.updateMiniMap$.next()
   }
 }
 

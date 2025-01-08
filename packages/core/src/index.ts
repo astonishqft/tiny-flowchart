@@ -7,6 +7,7 @@ import { ConnectionType } from './shapes'
 import { NodeType } from './shapes'
 import { MiniMapManage } from './miniMapManage'
 
+import type { IIocEditor } from './iocEditor'
 import type { ISceneManage } from './sceneManage'
 import type { IZoomManage } from './zoomManage'
 import type { IShapeManage } from './shapeManage'
@@ -45,5 +46,6 @@ export type {
   IGridManage,
   PatternObject,
   LinearGradientObject,
-  RadialGradientObject
+  RadialGradientObject,
+  IIocEditor
 }
