@@ -112,12 +112,16 @@ class NodeEventManage {
 
   onMouseUp(e: MouseEvent) {
     this._dragFrameMgr.hide()
-
-    this._node.updatePosition(
-      (e.offsetX - this._mouseDownX) / this._zoom + this._magneticOffsetX / this._zoom,
-      (e.offsetY - this._mouseDownY) / this._zoom + this._magneticOffsetY / this._zoom
-    )
-    this._connectionMgr.refreshConnection(this._node)
+    this._iocEditor.execute('moveNode', {
+      node: this._node,
+      offsetX: (e.offsetX - this._mouseDownX) / this._zoom + this._magneticOffsetX / this._zoom,
+      offsetY: (e.offsetY - this._mouseDownY) / this._zoom + this._magneticOffsetY / this._zoom
+    })
+    // this._node.updatePosition(
+    //   (e.offsetX - this._mouseDownX) / this._zoom + this._magneticOffsetX / this._zoom,
+    //   (e.offsetY - this._mouseDownY) / this._zoom + this._magneticOffsetY / this._zoom
+    // )
+    // this._connectionMgr.refreshConnection(this._node)
 
     this._refLineMgr.clearRefPointAndRefLines()
     this._magneticOffsetX = 0
@@ -137,8 +141,6 @@ class NodeEventManage {
     if (this._isDragEnterToGroup && this._dragTargetGroup) {
       this.addShapeToGroup(this._node, this._dragTargetGroup)
     }
-
-    this.updateGroupSize(this._node)
 
     this._iocEditor.updateMiniMap$.next()
 
@@ -160,14 +162,6 @@ class NodeEventManage {
     node.parentGroup = targetGroup
     targetGroup.shapes.push(node)
     targetGroup.resizeNodeGroup()
-  }
-
-  updateGroupSize(node: IShape | INodeGroup) {
-    if (node.parentGroup) {
-      node.parentGroup.resizeNodeGroup()
-      this._connectionMgr.refreshConnection(node.parentGroup)
-      this.updateGroupSize(node.parentGroup)
-    }
   }
 }
 

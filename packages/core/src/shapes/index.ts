@@ -276,7 +276,7 @@ export const getShape = (type: string, option: { x: number; y: number; image?: s
   }
   const Shape = WidthAnchor(WidthActivate(WidthCommon(shapes[type])))
   const shape = new Shape(config)
-  shape.setXy(option.x, option.y)
+  shape.updatePosition([option.x, option.y])
 
   return shape
 }

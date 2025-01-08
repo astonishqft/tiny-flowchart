@@ -1,6 +1,7 @@
+import { IShape } from '../../shapes'
+
 import type { Command } from '../historyManage'
 import type { IIocEditor } from '../../iocEditor'
-import { IShape } from '../../shapes'
 
 export interface IAddShapeCommandOpts {
   shapeType: string

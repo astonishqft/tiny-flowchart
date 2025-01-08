@@ -13,13 +13,13 @@ export interface IWidthCommon {
   oldX: number
   oldY: number
   nodeType: NodeType
-  updatePosition(offsetX: number, offsetY: number): void
+  getPosition(): number[]
   setOldPosition(): void
   getBoundingBox(): zrender.BoundingRect
   setType(type: string): void
   getExportData(): IExportShape
   setZ(z: number): void
-  setXy(x: number, y: number): void
+  updatePosition(pos: number[]): void
   setCursor(type: string): void
   setShape(shapeConfig: Dictionary<any>): void
 }
@@ -42,11 +42,6 @@ function WidthCommon<TBase extends CommonConstructor>(Base: TBase) {
       this.attr('cursor', type)
     }
 
-    updatePosition(offsetX: number, offsetY: number) {
-      this.attr('x', this.oldX + offsetX)
-      this.attr('y', this.oldY + offsetY)
-    }
-
     setOldPosition() {
       this.oldX = this.x
       this.oldY = this.y
@@ -63,9 +58,9 @@ function WidthCommon<TBase extends CommonConstructor>(Base: TBase) {
       this.attr('z', z)
     }
 
-    setXy(x: number, y: number) {
-      this.attr('x', x)
-      this.attr('y', y)
+    updatePosition(pos: number[]) {
+      this.attr('x', pos[0])
+      this.attr('y', pos[1])
     }
 
     getExportData() {

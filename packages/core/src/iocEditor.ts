@@ -20,8 +20,12 @@ import {
   getChildShapesByGroupId,
   groupTreeToArray
 } from './utils'
-import { AddShapeCommand } from './history/commands/addShape'
-import { AddConnectionCommand } from './history/commands/addConnection'
+import {
+  AddShapeCommand,
+  AddConnectionCommand,
+  MoveNodeCommand,
+  PatchCommand
+} from './history/commands'
 
 import type { IRefLineManage } from './refLineManage'
 import type { IDragFrameManage } from './dragFrameManage'
@@ -36,11 +40,15 @@ import type { ISelectFrameManage } from './selectFrameManage'
 import type { IIocEditorConfig, ISettingManage } from './settingManage'
 import type { IControlFrameManage } from './controlFrameManage'
 import type { IHistoryManage } from './history/historyManage'
-import type { IAddShapeCommandOpts } from './history/commands/addShape'
-import type { IAddConnectionCommandOpts } from './history/commands/addConnection'
+import type {
+  IAddShapeCommandOpts,
+  IAddConnectionCommandOpts,
+  IMoveNodeCommandOpts
+} from './history/commands'
 
 import {
   ConnectionType,
+  NodeType,
   type IAnchorPoint,
   type IConnection,
   type IExportConnection,
@@ -52,6 +60,7 @@ import {
 import type { INodeGroup } from './shapes/nodeGroup'
 import type { IGroupTreeNode } from './utils'
 import type { ISceneDragMoveOpts, ISceneDragStartOpts, IUpdateZoomOpts, Dictionary } from './types'
+import type { Command } from './history/historyManage'
 
 export interface IIocEditor {
   _connectionMgr: IConnectionManage
@@ -150,7 +159,10 @@ export class IocEditor implements IIocEditor {
     this.updateMiniMap$.next()
   }
 
-  execute(type: string, options: IAddShapeCommandOpts | IAddConnectionCommandOpts) {
+  execute(
+    type: string,
+    options: IAddShapeCommandOpts | IAddConnectionCommandOpts | IMoveNodeCommandOpts
+  ) {
     switch (type) {
       case 'addShape': {
         const { shapeType } = options as IAddShapeCommandOpts
@@ -162,6 +174,33 @@ export class IocEditor implements IIocEditor {
       case 'addConnection': {
         const { connection } = options as IAddConnectionCommandOpts
         this._historyMgr.execute(new AddConnectionCommand(this, connection))
+        break
+      }
+      case 'moveNode': {
+        const { node, offsetX, offsetY } = options as IMoveNodeCommandOpts
+        const patchCommands: Command[] = []
+
+        const moveGroup = (group: INodeGroup, offsetX: number, offsetY: number) => {
+          const moveNodeCommand = new MoveNodeCommand(this, group, offsetX, offsetY)
+          patchCommands.push(moveNodeCommand)
+          if (group.nodeType === NodeType.Group) {
+            group.shapes.forEach(shape => {
+              if (shape.nodeType === NodeType.Group) {
+                moveGroup(shape as INodeGroup, offsetX, offsetY)
+              } else {
+                patchCommands.push(new MoveNodeCommand(this, shape, offsetX, offsetY))
+              }
+            })
+          }
+        }
+        if (node.nodeType === NodeType.Group) {
+          moveGroup(node as INodeGroup, offsetX, offsetY)
+        } else {
+          const moveNodeCommand = new MoveNodeCommand(this, node, offsetX, offsetY)
+          patchCommands.push(moveNodeCommand)
+        }
+
+        this._historyMgr.execute(new PatchCommand(patchCommands))
         break
       }
       default:

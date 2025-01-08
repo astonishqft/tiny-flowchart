@@ -118,6 +118,7 @@ class SceneManage extends Disposable {
         dragModel = 'anchor'
         fromAnchorPoint = e.target as IAnchorPoint
         this._connectionMgr.createTmpConnection(fromAnchorPoint)
+        this.setCursorStyle('crosshair')
       }
 
       if (e.target && (e.target as IControlPoint).mark === 'controlPoint') {
@@ -147,7 +148,6 @@ class SceneManage extends Disposable {
           (e.offsetX - oldViewPortX) / zoom,
           (e.offsetY - oldViewPortY) / zoom
         )
-        this.setCursorStyle('crosshair')
       }
 
       // 拖拽画布(利用的原理是改变Group的 position 坐标)

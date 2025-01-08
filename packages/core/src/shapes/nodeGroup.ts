@@ -37,10 +37,9 @@ export interface INodeGroup extends zrender.Group, IWidthActivate, IWidthAnchor 
   getBoundingBox(): zrender.BoundingRect
   getAnchors(): IAnchor[]
   getAnchorByIndex(index: number): IAnchor
-  updatePosition(offsetX: number, offsetY: number): void
   setOldPosition(): void
-  setXy(x: number, y: number): void
   setCursor(type: string): void
+  updatePosition(pos: number[]): void
 }
 
 class NodeGroup extends zrender.Group implements INodeGroup {
@@ -174,8 +173,10 @@ class NodeGroup extends zrender.Group implements INodeGroup {
       }
     })
 
-    this.attr('x', x - this.padding)
-    this.attr('y', y - this.padding - this.headHeight)
+    // this.attr('x', x - this.padding)
+    // this.attr('y', y - this.padding - this.headHeight)
+
+    this.updatePosition([x - this.padding, y - this.padding - this.headHeight])
 
     this.createAnchors()
     this.setOldStyle()
@@ -405,25 +406,9 @@ class NodeGroup extends zrender.Group implements INodeGroup {
     this.shapes.forEach(shape => shape.setOldPosition())
   }
 
-  setXy(x: number, y: number) {
-    this.attr('x', x)
-    this.attr('y', y)
-  }
-
-  updatePosition(offsetX: number, offsetY: number) {
-    this.setXy(this.oldX + offsetX, this.oldY + offsetY)
-
-    this._connectionMgr.refreshConnection(this)
-    this.shapes.forEach(shape => {
-      this._connectionMgr.refreshConnection(shape)
-      if (shape.nodeType === NodeType.Group) {
-        shape.updatePosition(offsetX, offsetY)
-      } else {
-        shape.setXy(shape.oldX + offsetX, shape.oldY + offsetY)
-        shape.anchor.refresh()
-        this._connectionMgr.refreshConnection(shape)
-      }
-    })
+  updatePosition(pos: number[]) {
+    this.attr('x', pos[0])
+    this.attr('y', pos[1])
   }
 }
 
