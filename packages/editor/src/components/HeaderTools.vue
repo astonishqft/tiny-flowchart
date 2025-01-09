@@ -123,7 +123,7 @@ const command = (name: string) => {
       props.iocEditor.createGroup()
       break
     case 'ungroup':
-      props.iocEditor._groupMgr.unGroup()
+      props.iocEditor.unGroup()
       break
     case 'save':
       props.iocEditor.exportFile()

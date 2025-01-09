@@ -25,7 +25,8 @@ import {
   AddConnectionCommand,
   MoveNodeCommand,
   PatchCommand,
-  CreateGroupCommand
+  CreateGroupCommand,
+  UnGroupCommand
 } from './history/commands'
 
 import type { IRefLineManage } from './refLineManage'
@@ -45,7 +46,8 @@ import type {
   IAddShapeCommandOpts,
   IAddConnectionCommandOpts,
   IMoveNodeCommandOpts,
-  ICreateGroupCommandOpts
+  ICreateGroupCommandOpts,
+  IUnGroupCommandOpts
 } from './history/commands'
 
 import {
@@ -99,6 +101,7 @@ export interface IIocEditor {
   undo(): void
   redo(): void
   createGroup(): void
+  unGroup(): void
 }
 
 export class IocEditor implements IIocEditor {
@@ -154,8 +157,16 @@ export class IocEditor implements IIocEditor {
 
   createGroup() {
     const shapes = this._storageMgr.getActiveNodes()
+    if (shapes.length < 1) return
     const group = this._groupMgr.createGroup(shapes)
     this.execute('createGroup', { group })
+  }
+
+  unGroup() {
+    const activeGroups = this._storageMgr.getActiveGroups()
+    if (activeGroups.length !== 1) return
+    const group = activeGroups[0]
+    this.execute('unGroup', { group })
   }
 
   undo() {
@@ -175,6 +186,7 @@ export class IocEditor implements IIocEditor {
       | IAddConnectionCommandOpts
       | IMoveNodeCommandOpts
       | ICreateGroupCommandOpts
+      | IUnGroupCommandOpts
   ) {
     switch (type) {
       case 'addShape': {
@@ -219,6 +231,11 @@ export class IocEditor implements IIocEditor {
       case 'createGroup': {
         const { group } = options as ICreateGroupCommandOpts
         this._historyMgr.execute(new CreateGroupCommand(this, group))
+        break
+      }
+      case 'unGroup': {
+        const { group } = options as IUnGroupCommandOpts
+        this._historyMgr.execute(new UnGroupCommand(this, group))
         break
       }
       default:
@@ -310,7 +327,7 @@ export class IocEditor implements IIocEditor {
 
       this._connectionMgr.setConnectionType(conn.type)
       const connection = this._connectionMgr.createConnection(fromAnchorPoint, toAnchorPoint)
-      this._connectionMgr.addConnectionToViewPort(connection)
+      this._connectionMgr.addConnectionToEditor(connection)
       connection.setStyle(conn.style)
 
       if (conn.type === ConnectionType.BezierCurve) {

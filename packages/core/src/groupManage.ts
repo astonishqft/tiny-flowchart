@@ -4,7 +4,6 @@ import { Disposable, IDisposable } from './disposable'
 import { NodeEventManage } from './nodeEventManage'
 
 import type { IViewPortManage } from './viewPortManage'
-import type { IConnectionManage } from './connectionManage'
 import type { IStorageManage } from './storageManage'
 import type { IAnchorPoint, IShape } from './shapes'
 import type { INodeGroup } from './shapes/nodeGroup'
@@ -12,22 +11,21 @@ import type { IIocEditor } from './iocEditor'
 
 export interface IGroupManage extends IDisposable {
   createGroup(nodes?: (IShape | INodeGroup)[], groupId?: number): INodeGroup
-  unGroup(): void
   clear(): void
   addGroupToEditor(group: INodeGroup): void
   removeGroupFromEditor(group: INodeGroup): void
+  addShapeToParentGroup(group: INodeGroup): void
+  removeShapeFromParentGroup(group: INodeGroup): void
 }
 
 class GroupManage extends Disposable {
   private _viewPortMgr: IViewPortManage
-  private _connectionMgr: IConnectionManage
   private _storageMgr: IStorageManage
   private _iocEditor: IIocEditor
 
   constructor(iocEditor: IIocEditor) {
     super()
     this._iocEditor = iocEditor
-    this._connectionMgr = iocEditor._connectionMgr
     this._viewPortMgr = iocEditor._viewPortMgr
     this._storageMgr = iocEditor._storageMgr
   }
@@ -62,33 +60,39 @@ class GroupManage extends Disposable {
     })
   }
 
-  unGroup() {
-    const activeGroups = this._storageMgr.getActiveGroups()
-
-    if (activeGroups.length < 1) return
-    const activeGroup = activeGroups[0]
-    this._viewPortMgr.getViewPort().remove(activeGroup)
-    activeGroup.anchor.bars.forEach(bar => this._viewPortMgr.removeElementFromViewPort(bar))
-    activeGroup.shapes.forEach((shape: IShape | INodeGroup) => {
+  // 将shape添加到group的父组中
+  addShapeToParentGroup(group: INodeGroup) {
+    group.shapes.forEach(shape => {
       delete shape.parentGroup
-      if (activeGroup.parentGroup) {
-        shape.parentGroup = activeGroup.parentGroup
-        activeGroup.parentGroup.shapes.push(shape)
-        activeGroup.parentGroup.shapes = activeGroup.parentGroup.shapes.filter(
-          item => item !== activeGroup
-        )
+      if (group.parentGroup) {
+        shape.parentGroup = group.parentGroup
+        group.parentGroup.shapes.push(shape)
+        group.parentGroup.shapes = group.parentGroup.shapes.filter(item => item.id !== group.id)
       }
     })
-    this.removeAssociatedConnection(activeGroup)
-    this._storageMgr.removeGroup(activeGroup)
+
+    if (group.parentGroup) {
+      group.parentGroup.resizeNodeGroup()
+    }
   }
 
-  removeAssociatedConnection(nodeGroup: INodeGroup) {
-    this._storageMgr.getConnections().forEach(connection => {
-      if (connection.fromNode.id === nodeGroup.id || connection.toNode!.id === nodeGroup.id) {
-        this._connectionMgr.removeConnectionFromViewPort(connection)
+  // 将shape从group的父组中移除
+  removeShapeFromParentGroup(group: INodeGroup) {
+    group.shapes.forEach(shape => {
+      if (shape.parentGroup) {
+        // 将shape从父组中移除
+        shape.parentGroup.shapes = shape.parentGroup.shapes.filter(item => item.id !== shape.id)
       }
     })
+
+    group.shapes.forEach(shape => {
+      shape.parentGroup = group
+    })
+
+    if (group.parentGroup) {
+      group.parentGroup.shapes.push(group)
+      group.parentGroup.resizeNodeGroup()
+    }
   }
 
   clear() {

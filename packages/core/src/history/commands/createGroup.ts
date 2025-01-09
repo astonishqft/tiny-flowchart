@@ -8,7 +8,7 @@ export interface ICreateGroupCommandOpts {
 
 class CreateGroupCommand implements Command {
   private iocEditor: IIocEditor
-  private group!: INodeGroup
+  private group: INodeGroup
 
   constructor(iocEditor: IIocEditor, group: INodeGroup) {
     this.iocEditor = iocEditor

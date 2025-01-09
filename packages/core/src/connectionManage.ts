@@ -12,6 +12,8 @@ import type { IStorageManage } from './storageManage'
 import type { IIocEditor } from './iocEditor'
 
 export interface IConnectionManage extends IDisposable {
+  updateConnectionType$: Subject<ConnectionType>
+  updateSelectConnection$: Subject<IConnection>
   createConnection(fromAnchorPoint: IAnchorPoint, toAnchorPoint: IAnchorPoint): IConnection
   createTmpConnection(fromAnchorPoint: IAnchorPoint): void
   moveTmpConnection(x: number, y: number): void
@@ -19,12 +21,11 @@ export interface IConnectionManage extends IDisposable {
   getConnectionByShape(shape: IShape | INodeGroup): IConnection[]
   setConnectionType(type: ConnectionType): void
   refreshConnection(shape: IShape | INodeGroup): void
-  addConnectionToViewPort(connection: IConnection): void
-  removeConnectionFromViewPort(connection: IConnection): void
-  updateConnectionType$: Subject<ConnectionType>
-  updateSelectConnection$: Subject<IConnection>
+  addConnectionToEditor(connection: IConnection): void
+  removeConnectionFromEditor(connection: IConnection): void
   clear(): void
   unActiveConnections(): void
+  getConnectionsByGroup(node: INodeGroup | IShape): IConnection[]
 }
 
 class ConnectionManage extends Disposable {
@@ -90,7 +91,7 @@ class ConnectionManage extends Disposable {
     return connection
   }
 
-  addConnectionToViewPort(connection: IConnection) {
+  addConnectionToEditor(connection: IConnection) {
     this._viewPortMgr.addElementToViewPort(connection)
     this._storageMgr.addConnection(connection)
   }
@@ -109,7 +110,7 @@ class ConnectionManage extends Disposable {
     })
   }
 
-  removeConnectionFromViewPort(connection: IConnection) {
+  removeConnectionFromEditor(connection: IConnection) {
     this._viewPortMgr.removeElementFromViewPort(connection)
     this._storageMgr.removeConnection(connection)
   }
@@ -149,6 +150,12 @@ class ConnectionManage extends Disposable {
 
   getConnectionType(): ConnectionType {
     return this._connectionType
+  }
+
+  getConnectionsByGroup(node: INodeGroup | IShape) {
+    return this._storageMgr
+      .getConnections()
+      .filter(connection => connection.fromNode.id === node.id || connection.toNode!.id === node.id)
   }
 }
 

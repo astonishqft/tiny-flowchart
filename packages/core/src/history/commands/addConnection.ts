@@ -15,10 +15,10 @@ class AddConnectionCommand implements Command {
     this.connection = connection
   }
   execute() {
-    this.iocEditor._connectionMgr.addConnectionToViewPort(this.connection)
+    this.iocEditor._connectionMgr.addConnectionToEditor(this.connection)
   }
   undo() {
-    this.iocEditor._connectionMgr.removeConnectionFromViewPort(this.connection)
+    this.iocEditor._connectionMgr.removeConnectionFromEditor(this.connection)
   }
 
   redo() {
