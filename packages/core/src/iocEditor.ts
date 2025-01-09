@@ -26,7 +26,10 @@ import {
   MoveNodeCommand,
   PatchCommand,
   CreateGroupCommand,
-  UnGroupCommand
+  UnGroupCommand,
+  DragOutToGroupCommand,
+  RemoveNodeFromGroupCommand,
+  DragEnterToGroupCommand
 } from './history/commands'
 
 import type { IRefLineManage } from './refLineManage'
@@ -47,7 +50,10 @@ import type {
   IAddConnectionCommandOpts,
   IMoveNodeCommandOpts,
   ICreateGroupCommandOpts,
-  IUnGroupCommandOpts
+  IUnGroupCommandOpts,
+  IDragOutToGroupCommandOpts,
+  IRemoveNodeFromGroupCommandOpts,
+  IDragEnterToGroupCommandOpts
 } from './history/commands'
 
 import {
@@ -187,6 +193,9 @@ export class IocEditor implements IIocEditor {
       | IMoveNodeCommandOpts
       | ICreateGroupCommandOpts
       | IUnGroupCommandOpts
+      | IDragOutToGroupCommandOpts
+      | IRemoveNodeFromGroupCommandOpts
+      | IDragEnterToGroupCommandOpts
   ) {
     switch (type) {
       case 'addShape': {
@@ -238,6 +247,33 @@ export class IocEditor implements IIocEditor {
         this._historyMgr.execute(new UnGroupCommand(this, group))
         break
       }
+      case 'dragOutToGroup': {
+        // 将一个节点从一个组拖到另一个组
+        const { targetGroup, node, offsetX, offsetY } = options as IDragOutToGroupCommandOpts
+        const patchCommands: Command[] = []
+        patchCommands.push(new DragOutToGroupCommand(this, targetGroup, node))
+        patchCommands.push(new MoveNodeCommand(this, node, offsetX, offsetY))
+        this._historyMgr.execute(new PatchCommand(patchCommands))
+        break
+      }
+      case 'removeNodeFromGroup': {
+        // 将一个节点从一个组移除
+        const { node, offsetX, offsetY } = options as IRemoveNodeFromGroupCommandOpts
+        const patchCommands: Command[] = []
+        patchCommands.push(new RemoveNodeFromGroupCommand(this, node))
+        patchCommands.push(new MoveNodeCommand(this, node, offsetX, offsetY))
+        this._historyMgr.execute(new PatchCommand(patchCommands))
+        break
+      }
+      case 'dragEnterToGroup': {
+        // 将一个节点从外部拖入一个组
+        const { targetGroup, node, offsetX, offsetY } = options as IDragEnterToGroupCommandOpts
+        const patchCommands: Command[] = []
+        patchCommands.push(new DragEnterToGroupCommand(this, targetGroup, node))
+        patchCommands.push(new MoveNodeCommand(this, node, offsetX, offsetY))
+        this._historyMgr.execute(new PatchCommand(patchCommands))
+        break
+      }
       default:
         break
     }
@@ -286,9 +322,7 @@ export class IocEditor implements IIocEditor {
         z
       }: IExportShape) => {
         const config: { x: number; y: number; image?: string } = { x, y }
-        // if (type === 'image') {
-        //   config.image = image
-        // }
+
         const newShape = this._shapeMgr.createShape(type, config)
         this._shapeMgr.addShapeToEditor(newShape)
 

@@ -8,7 +8,7 @@ import type { IStorageManage } from './storageManage'
 import type { IAnchorPoint, IShape } from './shapes'
 import type { INodeGroup } from './shapes/nodeGroup'
 import type { IIocEditor } from './iocEditor'
-
+import type { IConnectionManage } from './connectionManage'
 export interface IGroupManage extends IDisposable {
   createGroup(nodes?: (IShape | INodeGroup)[], groupId?: number): INodeGroup
   clear(): void
@@ -16,18 +16,21 @@ export interface IGroupManage extends IDisposable {
   removeGroupFromEditor(group: INodeGroup): void
   addShapeToParentGroup(group: INodeGroup): void
   removeShapeFromParentGroup(group: INodeGroup): void
+  removeShapeFromGroup(node: INodeGroup | IShape): void
+  addShapeToGroup(node: IShape | INodeGroup, targetGroup: INodeGroup): void
 }
 
 class GroupManage extends Disposable {
   private _viewPortMgr: IViewPortManage
   private _storageMgr: IStorageManage
   private _iocEditor: IIocEditor
-
+  private _connectionMgr: IConnectionManage
   constructor(iocEditor: IIocEditor) {
     super()
     this._iocEditor = iocEditor
     this._viewPortMgr = iocEditor._viewPortMgr
     this._storageMgr = iocEditor._storageMgr
+    this._connectionMgr = iocEditor._connectionMgr
   }
 
   createGroup(nodes: (IShape | INodeGroup)[], groupId?: number) {
@@ -93,6 +96,23 @@ class GroupManage extends Disposable {
       group.parentGroup.shapes.push(group)
       group.parentGroup.resizeNodeGroup()
     }
+  }
+
+  removeShapeFromGroup(node: INodeGroup | IShape) {
+    if (node.parentGroup) {
+      if (node.parentGroup!.shapes.length === 1) return // 确保组内至少有一个元素
+      node.parentGroup!.shapes = node.parentGroup!.shapes.filter(item => item.id !== node.id)
+      node.parentGroup!.resizeNodeGroup()
+      this._connectionMgr.refreshConnection(node.parentGroup)
+      delete node.parentGroup
+    }
+  }
+
+  addShapeToGroup(node: IShape | INodeGroup, targetGroup: INodeGroup) {
+    node.setZ(targetGroup.z + 1)
+    node.parentGroup = targetGroup
+    targetGroup.shapes.push(node)
+    targetGroup.resizeNodeGroup()
   }
 
   clear() {

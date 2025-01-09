@@ -1,5 +1,4 @@
 import Eventful from 'zrender/lib/core/Eventful'
-
 import type { IIocEditor } from './iocEditor'
 import type { IShape } from './shapes'
 import type { INodeGroup } from './shapes/nodeGroup'
@@ -112,16 +111,6 @@ class NodeEventManage {
 
   onMouseUp(e: MouseEvent) {
     this._dragFrameMgr.hide()
-    this._iocEditor.execute('moveNode', {
-      node: this._node,
-      offsetX: (e.offsetX - this._mouseDownX) / this._zoom + this._magneticOffsetX / this._zoom,
-      offsetY: (e.offsetY - this._mouseDownY) / this._zoom + this._magneticOffsetY / this._zoom
-    })
-    // this._node.updatePosition(
-    //   (e.offsetX - this._mouseDownX) / this._zoom + this._magneticOffsetX / this._zoom,
-    //   (e.offsetY - this._mouseDownY) / this._zoom + this._magneticOffsetY / this._zoom
-    // )
-    // this._connectionMgr.refreshConnection(this._node)
 
     this._refLineMgr.clearRefPointAndRefLines()
     this._magneticOffsetX = 0
@@ -130,38 +119,38 @@ class NodeEventManage {
     document.removeEventListener('mousemove', this._onMouseMove)
     document.removeEventListener('mouseup', this._onMouseUp)
 
+    const offsetX = (e.offsetX - this._mouseDownX) / this._zoom + this._magneticOffsetX / this._zoom
+    const offsetY = (e.offsetY - this._mouseDownY) / this._zoom + this._magneticOffsetY / this._zoom
+
     if (this._isDragOutFromGroup && this._dragTargetGroup) {
-      this.removeShapeFromGroup(this._node)
-      this.addShapeToGroup(this._node, this._dragTargetGroup)
+      // 将一个节点从一个组拖到另一个组
+      this._iocEditor.execute('dragOutToGroup', {
+        targetGroup: this._dragTargetGroup,
+        node: this._node,
+        offsetX,
+        offsetY
+      })
+    } else if (this._isRemoveFromGroup) {
+      // 将一个节点从一个组移除
+      this._iocEditor.execute('removeNodeFromGroup', {
+        node: this._node,
+        offsetX,
+        offsetY
+      })
+    } else if (this._isDragEnterToGroup && this._dragTargetGroup) {
+      // 将一个节点从外部拖入一个组
+      // this.addShapeToGroup(this._node, this._dragTargetGroup)
+      this._iocEditor.execute('dragEnterToGroup', {
+        targetGroup: this._dragTargetGroup,
+        node: this._node,
+        offsetX,
+        offsetY
+      })
+    } else {
+      this._iocEditor.execute('moveNode', { node: this._node, offsetX, offsetY })
     }
-
-    if (this._isRemoveFromGroup) {
-      this.removeShapeFromGroup(this._node)
-    }
-    if (this._isDragEnterToGroup && this._dragTargetGroup) {
-      this.addShapeToGroup(this._node, this._dragTargetGroup)
-    }
-
-    this._iocEditor.updateMiniMap$.next()
 
     this._controlFrameMgr.unActive()
-  }
-
-  removeShapeFromGroup(node: INodeGroup | IShape) {
-    if (node.parentGroup) {
-      if (node.parentGroup!.shapes.length === 1) return // 确保组内至少有一个元素
-      node.parentGroup!.shapes = node.parentGroup!.shapes.filter(item => item.id !== node.id)
-      node.parentGroup!.resizeNodeGroup()
-      this._connectionMgr.refreshConnection(node.parentGroup)
-      delete node.parentGroup
-    }
-  }
-
-  addShapeToGroup(node: IShape | INodeGroup, targetGroup: INodeGroup) {
-    node.setZ(targetGroup.z + 1)
-    node.parentGroup = targetGroup
-    targetGroup.shapes.push(node)
-    targetGroup.resizeNodeGroup()
   }
 }
 

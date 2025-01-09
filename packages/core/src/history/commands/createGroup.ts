@@ -1,4 +1,4 @@
-import { INodeGroup } from '../../shapes/nodeGroup'
+import type { INodeGroup } from '../../shapes/nodeGroup'
 import type { Command } from '../historyManage'
 import type { IIocEditor } from '../../iocEditor'
 
