@@ -29,7 +29,8 @@ import {
   UnGroupCommand,
   DragOutToGroupCommand,
   RemoveNodeFromGroupCommand,
-  DragEnterToGroupCommand
+  DragEnterToGroupCommand,
+  UpdateShapePropertyCommand
 } from './history/commands'
 
 import type { IRefLineManage } from './refLineManage'
@@ -53,7 +54,8 @@ import type {
   IUnGroupCommandOpts,
   IDragOutToGroupCommandOpts,
   IRemoveNodeFromGroupCommandOpts,
-  IDragEnterToGroupCommandOpts
+  IDragEnterToGroupCommandOpts,
+  IUpdateShapePropertyCommandOpts
 } from './history/commands'
 
 import {
@@ -196,14 +198,14 @@ export class IocEditor implements IIocEditor {
       | IDragOutToGroupCommandOpts
       | IRemoveNodeFromGroupCommandOpts
       | IDragEnterToGroupCommandOpts
+      | IUpdateShapePropertyCommandOpts
   ) {
     switch (type) {
       case 'addShape': {
         const { shapeType } = options as IAddShapeCommandOpts
         const shape = this._shapeMgr.createShape(shapeType, options as IAddShapeCommandOpts)
         this._historyMgr.execute(new AddShapeCommand(this, shape))
-
-        return shape
+        break
       }
       case 'addConnection': {
         const { connection } = options as IAddConnectionCommandOpts
@@ -274,6 +276,13 @@ export class IocEditor implements IIocEditor {
         this._historyMgr.execute(new PatchCommand(patchCommands))
         break
       }
+      case 'updateShapeProperty': {
+        const { shape, shapeConfig, oldShapeConfig } = options as IUpdateShapePropertyCommandOpts
+        this._historyMgr.execute(
+          new UpdateShapePropertyCommand(this, shape, shapeConfig, oldShapeConfig)
+        )
+        break
+      }
       default:
         break
     }
@@ -327,16 +336,28 @@ export class IocEditor implements IIocEditor {
         this._shapeMgr.addShapeToEditor(newShape)
 
         newShape.setZ(z)
-        newShape.setStyle({
+        newShape.updateShape({
           fill,
           stroke,
           lineWidth,
-          lineDash
+          lineDash,
+          text,
+          fontColor,
+          fontSize,
+          fontStyle,
+          fontWeight,
+          textPosition
         })
-        newShape
-          .getTextContent()
-          .setStyle({ text, fill: fontColor, fontSize, fontStyle, fontWeight })
-        newShape.setTextConfig({ position: textPosition })
+        // newShape.setStyle({
+        //   fill,
+        //   stroke,
+        //   lineWidth,
+        //   lineDash
+        // })
+        // newShape
+        //   .getTextContent()
+        //   .setStyle({ text, fill: fontColor, fontSize, fontStyle, fontWeight })
+        // newShape.setTextConfig({ position: textPosition })
         if (type === 'image') {
           newShape.attr('style', { width, height, image })
         } else {

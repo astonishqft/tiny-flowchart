@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import SceneProperty from './elementProperty/SceneProperty.vue'
-import NodeProperty from './elementProperty/NodeProperty.vue'
+import ShapeProperty from './elementProperty/ShapeProperty.vue'
 import ConnectionProperty from './elementProperty/ConnectionProperty.vue'
 import GroupProperty from './elementProperty/GroupProperty.vue'
 import { NodeType } from '@ioceditor/core'
@@ -53,7 +53,7 @@ const selectNameMap: Record<string, string> = {
     <div class="property-title">{{ selectNameMap[type] }}</div>
     <div class="property-content">
       <SceneProperty v-show="type === 'scene'" :ioc-editor="iocEditor" />
-      <NodeProperty v-show="type === 'shape'" :ioc-editor="iocEditor" />
+      <ShapeProperty v-show="type === 'shape'" :ioc-editor="iocEditor" />
       <ConnectionProperty v-show="type === 'connection'" :ioc-editor="iocEditor" />
       <GroupProperty v-show="type === 'group'" :ioc-editor="iocEditor" />
     </div>

@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { ElColorPicker, ElDivider, ElInput, ElInputNumber, ElOption, ElSelect } from 'element-plus'
 import { ConnectionType } from '@ioceditor/core'
-import { convertLineDashToStrokeType, convertStrokeTypeToLineDash } from '../../utils/utils'
+// import { convertLineDashToStrokeType, convertStrokeTypeToLineDash } from '../../utils/utils'
 import { IocEditor } from '@ioceditor/core'
 
 import type { FontStyle, FontWeight, IConnection } from '@ioceditor/core'
@@ -40,7 +40,7 @@ const fontStyle = ref<FontStyle | undefined>('normal')
 iocEditor._connectionMgr.updateSelectConnection$.subscribe((connection: IConnection) => {
   activeConnection.value = connection
   lineColor.value = connection.getLineColor()
-  lineDash.value = convertLineDashToStrokeType(connection.getLineDash())
+  // lineDash.value = convertLineDashToStrokeType(connection.getLineDash())
   lineWidth.value = connection.getLineWidth()
   lineType.value = connection.getLineType()
   lineTextContent.value = connection.getLineTextContent()
@@ -80,7 +80,7 @@ const changeLineWidth = (width: number) => {
 
 const changeLineDash = (type: string) => {
   lineDash.value = type
-  activeConnection.value?.setLineDash(convertStrokeTypeToLineDash(type))
+  // activeConnection.value?.setLineDash(convertStrokeTypeToLineDash(type))
 }
 const changeLinkFontColor = (color: string | null) => {
   activeConnection.value?.setLineTextFontColor(color as string)

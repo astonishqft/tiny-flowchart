@@ -1,7 +1,7 @@
 import * as zrender from 'zrender'
 import { NodeType } from '../../index'
 
-import type { IExportShape } from '..'
+import type { IExportShape, IExportShapeStyle } from '..'
 import type { INodeGroup } from '../nodeGroup'
 import type { FontStyle, FontWeight } from '../../index'
 import type { Constructor, Dictionary, SafeDisplayable } from '../../types'
@@ -22,6 +22,7 @@ export interface IWidthCommon {
   updatePosition(pos: number[]): void
   setCursor(type: string): void
   setShape(shapeConfig: Dictionary<any>): void
+  updateShape(config: IExportShapeStyle): void
 }
 
 function WidthCommon<TBase extends CommonConstructor>(Base: TBase) {
@@ -96,6 +97,38 @@ function WidthCommon<TBase extends CommonConstructor>(Base: TBase) {
       }
 
       return exportData
+    }
+
+    updateShape(config: IExportShapeStyle) {
+      const {
+        fill,
+        stroke,
+        lineWidth,
+        lineDash,
+        text,
+        fontColor,
+        fontSize,
+        fontStyle,
+        fontWeight,
+        textPosition
+      } = config
+
+      this.setStyle({
+        fill,
+        stroke,
+        lineWidth,
+        lineDash
+      })
+
+      this.getTextContent().setStyle({
+        text,
+        fill: fontColor,
+        fontSize,
+        fontStyle,
+        fontWeight
+      })
+
+      this.setTextConfig({ position: textPosition })
     }
   }
 }

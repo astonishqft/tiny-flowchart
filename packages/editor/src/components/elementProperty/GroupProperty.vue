@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { NodeType, IShape } from '@ioceditor/core'
 import { ElColorPicker, ElDivider, ElInput, ElInputNumber, ElOption, ElSelect } from 'element-plus'
-import { convertLineDashToStrokeType, convertStrokeTypeToLineDash } from '../../utils/utils'
+// import { convertLineDashToStrokeType, convertStrokeTypeToLineDash } from '../../utils/utils'
 import { IocEditor } from '@ioceditor/core'
 
 import type { BuiltinTextPosition, FontStyle, FontWeight, INodeGroup } from '@ioceditor/core'
@@ -73,9 +73,9 @@ iocEditor._sceneMgr.updateSelectNode$.subscribe((group: INodeGroup | IShape) => 
     strokeColor.value = activeGroup.value.groupRect?.style.stroke as string
     fontColor.value = activeGroup.value.groupHead?.getTextContent().style.fill || '#333'
     lineWidth.value = activeGroup.value.groupRect?.style.lineWidth || 1
-    strokeType.value = convertLineDashToStrokeType(
-      (activeGroup.value.groupRect?.style.lineDash as number[]) || [0, 0]
-    )
+    // strokeType.value = convertLineDashToStrokeType(
+    //   (activeGroup.value.groupRect?.style.lineDash as number[]) || [0, 0]
+    // )
     nodeText.value = activeGroup.value.groupHead?.getTextContent().style.text || ''
     fontSize.value = activeGroup.value.groupHead?.getTextContent().style.fontSize as number
     fontStyle.value = activeGroup.value.groupHead?.getTextContent().style.fontStyle || 'normal'
@@ -126,7 +126,7 @@ const changeGroupLineWidth = (width: number) => {
 
 const changeGroupStrokeType = (type: string) => {
   activeGroup.value.groupRect?.setStyle({
-    lineDash: convertStrokeTypeToLineDash(type)
+    // lineDash: convertStrokeTypeToLineDash(type)
   })
 
   strokeType.value = type

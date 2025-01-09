@@ -122,6 +122,9 @@ class NodeEventManage {
     const offsetX = (e.offsetX - this._mouseDownX) / this._zoom + this._magneticOffsetX / this._zoom
     const offsetY = (e.offsetY - this._mouseDownY) / this._zoom + this._magneticOffsetY / this._zoom
 
+    // 如果偏移量小于4，则不执行任何操作, 避免选中节点时误触移动事件
+    if (Math.abs(offsetX) < 2 && Math.abs(offsetY) < 2) return
+
     if (this._isDragOutFromGroup && this._dragTargetGroup) {
       // 将一个节点从一个组拖到另一个组
       this._iocEditor.execute('dragOutToGroup', {

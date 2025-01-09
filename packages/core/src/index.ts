@@ -16,7 +16,13 @@ import type { ISelectFrameManage } from './selectFrameManage'
 import type { IGroupManage } from './groupManage'
 import type { ISettingManage } from './settingManage'
 import type { IGridManage } from './gridManage'
-import type { IConnection, IShape } from './shapes'
+import type {
+  IConnection,
+  IShape,
+  IExportShapeStyle,
+  IExportGroupStyle,
+  LineDashStyle
+} from './shapes'
 import type { INodeGroup } from './shapes/nodeGroup'
 import type { IMiniMapManage } from './miniMapManage'
 import type { BuiltinTextPosition, FontStyle, FontWeight } from 'zrender/lib/core/types'
@@ -47,5 +53,8 @@ export type {
   PatternObject,
   LinearGradientObject,
   RadialGradientObject,
-  IIocEditor
+  IIocEditor,
+  IExportShapeStyle,
+  IExportGroupStyle,
+  LineDashStyle
 }

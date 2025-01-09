@@ -2,16 +2,14 @@
 import { ref } from 'vue'
 import { NodeType } from '@ioceditor/core'
 import { ElColorPicker, ElDivider, ElInput, ElInputNumber, ElOption, ElSelect } from 'element-plus'
-import { convertLineDashToStrokeType, convertStrokeTypeToLineDash } from '../../utils/utils'
 import { IocEditor } from '@ioceditor/core'
 
 import type {
   BuiltinTextPosition,
-  Displayable,
-  FontStyle,
-  FontWeight,
   IShape,
-  INodeGroup
+  INodeGroup,
+  IExportShapeStyle,
+  LineDashStyle
 } from '@ioceditor/core'
 
 const { iocEditor } = defineProps<{
@@ -21,7 +19,7 @@ const { iocEditor } = defineProps<{
 const bgColorList = ['transparent', '#ffc9c9', '#b2f2bb', '#a5d8ff', '#ffec99']
 const strokeColorList = ['#1e1e1e', '#e03131', '#2f9e44', '#1971c2', '#f08c00']
 
-const activeShape = ref<Displayable>()
+const activeShape = ref<IShape>()
 
 interface ITextPosition {
   name: string
@@ -72,111 +70,138 @@ const textPositionList: ITextPosition[] = [
     desc: '置左'
   }
 ]
-const lineWidth = ref(1)
-const fontSize = ref(12)
-const strokeType = ref('solid')
-const nodeText = ref('')
-const bgColor = ref('')
-const strokeColor = ref('')
-const fontColor = ref('')
-const textPosition = ref('inside')
-const fontWeight = ref<FontWeight>('normal')
-const fontStyle = ref<FontStyle>('normal')
+
+const shapeConfig = ref<IExportShapeStyle>({
+  fill: '#fff',
+  stroke: '#333',
+  lineWidth: 1,
+  lineDash: 'solid',
+  text: 'title',
+  fontColor: '#333',
+  fontSize: 12,
+  fontStyle: 'normal',
+  fontWeight: 'normal',
+  textPosition: 'inside'
+})
 
 iocEditor._sceneMgr.updateSelectNode$.subscribe((shape: IShape | INodeGroup) => {
   if (shape.nodeType === NodeType.Shape) {
-    activeShape.value = shape as unknown as Displayable
-    lineWidth.value = activeShape.value.style.lineWidth
-    fontSize.value = activeShape.value.getTextContent().style.fontSize as number
-    strokeType.value = convertLineDashToStrokeType(activeShape.value.style.lineDash || [0, 0])
-    nodeText.value = activeShape.value.getTextContent().style.text || ''
-    bgColor.value = activeShape.value.style.fill
-    strokeColor.value = activeShape.value.style.stroke
-    fontColor.value = activeShape.value.getTextContent().style.fill || '#333'
-    textPosition.value = (activeShape.value.textConfig?.position || 'inside') as BuiltinTextPosition
-    fontStyle.value = activeShape.value.getTextContent().style.fontStyle || 'normal'
-    fontWeight.value = activeShape.value.getTextContent().style.fontWeight || 'normal'
+    activeShape.value = shape as IShape
+    shapeConfig.value.fill = activeShape.value.style.fill
+    shapeConfig.value.stroke = activeShape.value.style.stroke
+    shapeConfig.value.lineWidth = activeShape.value.style.lineWidth
+    shapeConfig.value.lineDash = activeShape.value.style.lineDash || 'solid'
+
+    shapeConfig.value.text = activeShape.value.getTextContent().style.text || ''
+    shapeConfig.value.fontColor = activeShape.value.getTextContent().style.fill || '#333'
+    shapeConfig.value.fontSize = activeShape.value.getTextContent().style.fontSize as number
+    shapeConfig.value.fontStyle = activeShape.value.getTextContent().style.fontStyle || 'normal'
+    shapeConfig.value.fontWeight = activeShape.value.getTextContent().style.fontWeight || 'normal'
+    shapeConfig.value.textPosition = activeShape.value.textConfig?.position || 'inside'
   }
 })
 
 const changeShapeBgColor = (color: string | null) => {
-  activeShape.value!.setStyle({
-    fill: color
+  const oldShapeConfig = { ...activeShape.value!.getExportData().style }
+  shapeConfig.value.fill = color as string
+  iocEditor.execute('updateShapeProperty', {
+    shape: activeShape.value as IShape,
+    shapeConfig: { ...shapeConfig.value },
+    oldShapeConfig
   })
-  bgColor.value = color as string
 }
 
 const changeShapeStrokeColor = (color: string | null) => {
-  activeShape.value!.setStyle({
-    stroke: color
+  const oldShapeConfig = { ...activeShape.value!.getExportData().style }
+  shapeConfig.value.stroke = color as string
+  iocEditor.execute('updateShapeProperty', {
+    shape: activeShape.value as IShape,
+    shapeConfig: { ...shapeConfig.value },
+    oldShapeConfig
   })
-  strokeColor.value = color as string
 }
 
 const changeShapeFontColor = (color: string | null) => {
   if (!color) return
-  activeShape.value!.getTextContent()?.setStyle({
-    fill: color
+  const oldShapeConfig = { ...activeShape.value!.getExportData().style }
+  shapeConfig.value.fontColor = color as string
+  iocEditor.execute('updateShapeProperty', {
+    shape: activeShape.value as IShape,
+    shapeConfig: { ...shapeConfig.value },
+    oldShapeConfig
   })
-  fontColor.value = color as string
 }
 
 const changeShapeFontSize = (size: number | undefined) => {
   if (!size) return
-  activeShape.value!.getTextContent()?.setStyle({
-    fontSize: size
+  const oldShapeConfig = { ...activeShape.value!.getExportData().style }
+  shapeConfig.value.fontSize = size
+  iocEditor.execute('updateShapeProperty', {
+    shape: activeShape.value as IShape,
+    shapeConfig: { ...shapeConfig.value },
+    oldShapeConfig
   })
-
-  fontSize.value = size
 }
 
 const changeShapeLineWidth = (width: number) => {
-  activeShape.value!.setStyle({
-    lineWidth: width
+  const oldShapeConfig = { ...activeShape.value!.getExportData().style }
+  shapeConfig.value.lineWidth = width
+  iocEditor.execute('updateShapeProperty', {
+    shape: activeShape.value as IShape,
+    shapeConfig: { ...shapeConfig.value },
+    oldShapeConfig
   })
-  lineWidth.value = width
 }
 
 const changeShapeStrokeType = (type: string) => {
-  activeShape.value!.setStyle({
-    lineDash: convertStrokeTypeToLineDash(type)
+  const oldShapeConfig = { ...activeShape.value!.getExportData().style }
+  shapeConfig.value.lineDash = type as LineDashStyle
+  iocEditor.execute('updateShapeProperty', {
+    shape: activeShape.value as IShape,
+    shapeConfig: { ...shapeConfig.value },
+    oldShapeConfig
   })
-
-  strokeType.value = type
 }
 
 const changeShapeTextPosition = (position: BuiltinTextPosition) => {
-  activeShape.value!.setTextConfig({
-    position
+  const oldShapeConfig = { ...activeShape.value!.getExportData().style }
+  shapeConfig.value.textPosition = position
+  iocEditor.execute('updateShapeProperty', {
+    shape: activeShape.value as IShape,
+    shapeConfig: { ...shapeConfig.value },
+    oldShapeConfig
   })
-
-  textPosition.value = position
 }
 
 const changeShapeFontStyle = (style: string) => {
-  const fWeight = activeShape.value!.getTextContent().style.fontWeight || 'normal'
-  const fStyle = activeShape.value!.getTextContent().style.fontStyle || 'normal'
+  const fWeight = activeShape.value!.getTextContent().style.fontWeight
+  const fStyle = activeShape.value!.getTextContent().style.fontStyle
+  const oldShapeConfig = { ...activeShape.value!.getExportData().style }
   if (style === 'fontWeight') {
-    activeShape.value!.getTextContent()?.setStyle({
-      fontWeight: fWeight === 'normal' ? 'bold' : 'normal'
+    shapeConfig.value.fontWeight = fWeight === 'normal' ? 'bold' : 'normal'
+    iocEditor.execute('updateShapeProperty', {
+      shape: activeShape.value as IShape,
+      shapeConfig: { ...shapeConfig.value },
+      oldShapeConfig
     })
-
-    fontWeight.value = fWeight === 'normal' ? 'bold' : 'normal'
   } else {
-    activeShape.value!.getTextContent()?.setStyle({
-      fontStyle: fStyle === 'normal' ? 'italic' : 'normal'
+    shapeConfig.value.fontStyle = fStyle === 'normal' ? 'italic' : 'normal'
+    iocEditor.execute('updateShapeProperty', {
+      shape: activeShape.value as IShape,
+      shapeConfig: { ...shapeConfig.value },
+      oldShapeConfig
     })
-
-    fontStyle.value = fStyle === 'normal' ? 'italic' : 'normal'
   }
 }
 
 const changeShapeText = (text: string) => {
-  activeShape.value!.getTextContent()?.setStyle({
-    text
+  const oldShapeConfig = { ...activeShape.value!.getExportData().style }
+  shapeConfig.value.text = text
+  iocEditor.execute('updateShapeProperty', {
+    shape: activeShape.value as IShape,
+    shapeConfig: { ...shapeConfig.value },
+    oldShapeConfig
   })
-
-  nodeText.value = text
 }
 </script>
 <template>
@@ -192,7 +217,11 @@ const changeShapeText = (text: string) => {
           @click="() => changeShapeBgColor(color)"
         />
         <el-divider style="margin: 0 4px; height: 20px" direction="vertical" />
-        <el-color-picker v-model="bgColor" @change="changeShapeBgColor" size="small" />
+        <el-color-picker
+          v-model="shapeConfig.fill as string"
+          @change="changeShapeBgColor"
+          size="small"
+        />
       </div>
     </div>
     <div class="property-item">
@@ -206,14 +235,18 @@ const changeShapeText = (text: string) => {
           @click="() => changeShapeStrokeColor(color)"
         />
         <el-divider style="margin: 0 4px; height: 20px" direction="vertical" />
-        <el-color-picker v-model="strokeColor" @change="changeShapeStrokeColor" size="small" />
+        <el-color-picker
+          v-model="shapeConfig.stroke as string"
+          @change="changeShapeStrokeColor"
+          size="small"
+        />
       </div>
     </div>
     <div class="property-item">
       <div class="property-name">边框宽度</div>
       <div class="property-value">
         <el-select
-          v-model="lineWidth"
+          v-model="shapeConfig.lineWidth"
           size="small"
           style="width: 157px; margin-right: 5px"
           @change="changeShapeLineWidth"
@@ -227,7 +260,7 @@ const changeShapeText = (text: string) => {
       <div class="property-value">
         <el-select
           placeholder="Select"
-          v-model="strokeType"
+          v-model="shapeConfig.lineDash"
           size="small"
           style="width: 157px; margin-right: 5px"
           @change="changeShapeStrokeType"
@@ -254,14 +287,18 @@ const changeShapeText = (text: string) => {
           @click="() => changeShapeFontColor(color)"
         />
         <el-divider style="margin: 0 4px; height: 20px" direction="vertical" />
-        <el-color-picker v-model="fontColor" @change="changeShapeFontColor" size="small" />
+        <el-color-picker
+          v-model="shapeConfig.fontColor"
+          @change="changeShapeFontColor"
+          size="small"
+        />
       </div>
     </div>
     <div class="property-item">
       <div class="property-name">文本内容</div>
       <div class="property-value">
         <el-input
-          v-model="nodeText"
+          v-model="shapeConfig.text"
           :min="12"
           :max="30"
           size="small"
@@ -275,7 +312,7 @@ const changeShapeText = (text: string) => {
       <div class="property-name">文字大小</div>
       <div class="property-value">
         <el-input-number
-          v-model="fontSize"
+          v-model="shapeConfig.fontSize"
           :min="12"
           :max="30"
           size="small"
@@ -290,13 +327,13 @@ const changeShapeText = (text: string) => {
       <div class="property-value">
         <span
           class="icon iconfont font-style-icon icon-zitiyangshi_jiacu"
-          :class="{ active: fontWeight === 'bold' }"
+          :class="{ active: shapeConfig.fontWeight === 'bold' }"
           :title="'加粗'"
           @click="() => changeShapeFontStyle('fontWeight')"
         />
         <span
           class="icon iconfont font-style-icon icon-zitiyangshi_xieti"
-          :class="{ active: fontStyle === 'italic' }"
+          :class="{ active: shapeConfig.fontStyle === 'italic' }"
           :title="'斜体'"
           @click="() => changeShapeFontStyle('fontStyle')"
         />
@@ -307,7 +344,7 @@ const changeShapeText = (text: string) => {
       <div class="property-value">
         <span
           class="icon iconfont position-icon"
-          :class="[position.icon, { active: textPosition === position.name }]"
+          :class="[position.icon, { active: shapeConfig.textPosition === position.name }]"
           v-for="position in textPositionList"
           :key="position.name"
           :title="position.desc"

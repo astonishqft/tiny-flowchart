@@ -7,6 +7,7 @@ import { UnGroupCommand } from './unGroup'
 import { DragOutToGroupCommand } from './dragOutToGroup'
 import { RemoveNodeFromGroupCommand } from './removeNodeFromGroup'
 import { DragEnterToGroupCommand } from './dragEnterToGroup'
+import { UpdateShapePropertyCommand } from './updateShapeProperty'
 
 import type { IAddShapeCommandOpts } from './addShape'
 import type { IAddConnectionCommandOpts } from './addConnection'
@@ -16,6 +17,7 @@ import type { IUnGroupCommandOpts } from './unGroup'
 import type { IDragOutToGroupCommandOpts } from './dragOutToGroup'
 import type { IRemoveNodeFromGroupCommandOpts } from './removeNodeFromGroup'
 import type { IDragEnterToGroupCommandOpts } from './dragEnterToGroup'
+import type { IUpdateShapePropertyCommandOpts } from './updateShapeProperty'
 
 export {
   AddConnectionCommand,
@@ -26,7 +28,8 @@ export {
   UnGroupCommand,
   DragOutToGroupCommand,
   RemoveNodeFromGroupCommand,
-  DragEnterToGroupCommand
+  DragEnterToGroupCommand,
+  UpdateShapePropertyCommand
 }
 
 export type {
@@ -37,5 +40,6 @@ export type {
   IUnGroupCommandOpts,
   IDragOutToGroupCommandOpts,
   IRemoveNodeFromGroupCommandOpts,
-  IDragEnterToGroupCommandOpts
+  IDragEnterToGroupCommandOpts,
+  IUpdateShapePropertyCommandOpts
 }
