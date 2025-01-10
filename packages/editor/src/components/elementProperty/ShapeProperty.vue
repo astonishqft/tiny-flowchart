@@ -3,6 +3,13 @@ import { ref } from 'vue'
 import { NodeType } from '@ioceditor/core'
 import { ElColorPicker, ElDivider, ElInput, ElInputNumber, ElOption, ElSelect } from 'element-plus'
 import { IocEditor } from '@ioceditor/core'
+import {
+  bgColorList,
+  strokeColorList,
+  lineWidthOpts,
+  lineTypeOpt,
+  textPositionList
+} from './config'
 
 import type {
   BuiltinTextPosition,
@@ -16,60 +23,7 @@ const { iocEditor } = defineProps<{
   iocEditor: IocEditor
 }>()
 
-const bgColorList = ['transparent', '#ffc9c9', '#b2f2bb', '#a5d8ff', '#ffec99']
-const strokeColorList = ['#1e1e1e', '#e03131', '#2f9e44', '#1971c2', '#f08c00']
-
 const activeShape = ref<IShape>()
-
-interface ITextPosition {
-  name: string
-  icon: string
-  desc: string
-}
-
-const lineWidthOpts = [1, 2, 3, 4, 5]
-const lineTypeOpt = [
-  {
-    label: '实线',
-    value: 'solid'
-  },
-  {
-    label: '虚线',
-    value: 'dashed'
-  },
-  {
-    label: '点线',
-    value: 'dotted'
-  }
-]
-
-const textPositionList: ITextPosition[] = [
-  {
-    name: 'inside',
-    icon: 'icon-sInLineVertical',
-    desc: '内置'
-  },
-  {
-    name: 'top',
-    icon: 'icon-LineUp',
-    desc: '置顶'
-  },
-  {
-    name: 'right',
-    icon: 'icon-LineRight',
-    desc: '置右'
-  },
-  {
-    name: 'bottom',
-    icon: 'icon-LineDown',
-    desc: '置底'
-  },
-  {
-    name: 'left',
-    icon: 'icon-LineLeft',
-    desc: '置左'
-  }
-]
 
 const shapeConfig = ref<IExportShapeStyle>({
   fill: '#fff',
@@ -206,7 +160,7 @@ const changeShapeText = (text: string) => {
 </script>
 <template>
   <div class="property-container">
-    <div class="property-item">
+    <div class="property-item" v-if="activeShape?.type !== 'image'">
       <div class="property-name">背景色</div>
       <div class="property-value color-wrapper">
         <span
@@ -224,7 +178,7 @@ const changeShapeText = (text: string) => {
         />
       </div>
     </div>
-    <div class="property-item">
+    <div class="property-item" v-if="activeShape?.type !== 'image'">
       <div class="property-name">边框颜色</div>
       <div class="property-value color-wrapper">
         <span
@@ -242,7 +196,7 @@ const changeShapeText = (text: string) => {
         />
       </div>
     </div>
-    <div class="property-item">
+    <div class="property-item" v-if="activeShape?.type !== 'image'">
       <div class="property-name">边框宽度</div>
       <div class="property-value">
         <el-select
@@ -255,7 +209,7 @@ const changeShapeText = (text: string) => {
         </el-select>
       </div>
     </div>
-    <div class="property-item">
+    <div class="property-item" v-if="activeShape?.type !== 'image'">
       <div class="property-name">边框类型</div>
       <div class="property-value">
         <el-select

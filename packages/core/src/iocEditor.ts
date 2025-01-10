@@ -30,7 +30,8 @@ import {
   DragOutToGroupCommand,
   RemoveNodeFromGroupCommand,
   DragEnterToGroupCommand,
-  UpdateShapePropertyCommand
+  UpdateShapePropertyCommand,
+  UpdateGroupPropertyCommand
 } from './history/commands'
 
 import type { IRefLineManage } from './refLineManage'
@@ -55,7 +56,8 @@ import type {
   IDragOutToGroupCommandOpts,
   IRemoveNodeFromGroupCommandOpts,
   IDragEnterToGroupCommandOpts,
-  IUpdateShapePropertyCommandOpts
+  IUpdateShapePropertyCommandOpts,
+  IUpdateGroupPropertyCommandOpts
 } from './history/commands'
 
 import {
@@ -199,6 +201,7 @@ export class IocEditor implements IIocEditor {
       | IRemoveNodeFromGroupCommandOpts
       | IDragEnterToGroupCommandOpts
       | IUpdateShapePropertyCommandOpts
+      | IUpdateGroupPropertyCommandOpts
   ) {
     switch (type) {
       case 'addShape': {
@@ -283,6 +286,13 @@ export class IocEditor implements IIocEditor {
         )
         break
       }
+      case 'updateGroupProperty': {
+        const { group, groupConfig, oldGroupConfig } = options as IUpdateGroupPropertyCommandOpts
+        this._historyMgr.execute(
+          new UpdateGroupPropertyCommand(this, group, groupConfig, oldGroupConfig)
+        )
+        break
+      }
       default:
         break
     }
@@ -306,68 +316,21 @@ export class IocEditor implements IIocEditor {
 
     const { shapes = [], connections = [], groups = [] } = data
 
-    shapes.forEach(
-      ({
-        type,
-        id,
-        x,
-        y,
-        style: {
-          fill,
-          stroke,
-          lineWidth,
-          lineDash,
-          text,
-          fontColor,
-          fontSize,
-          fontStyle,
-          fontWeight,
-          textPosition,
-          image,
-          width, // for Image
-          height // for Image
-        },
-        shape,
-        z
-      }: IExportShape) => {
-        const config: { x: number; y: number; image?: string } = { x, y }
+    shapes.forEach(({ type, id, x, y, style: shapeConfig, shape, z }: IExportShape) => {
+      const config: { x: number; y: number; image?: string } = { x, y }
 
-        const newShape = this._shapeMgr.createShape(type, config)
-        this._shapeMgr.addShapeToEditor(newShape)
+      const newShape = this._shapeMgr.createShape(type, config)
+      this._shapeMgr.addShapeToEditor(newShape)
 
-        newShape.setZ(z)
-        newShape.updateShape({
-          fill,
-          stroke,
-          lineWidth,
-          lineDash,
-          text,
-          fontColor,
-          fontSize,
-          fontStyle,
-          fontWeight,
-          textPosition
-        })
-        // newShape.setStyle({
-        //   fill,
-        //   stroke,
-        //   lineWidth,
-        //   lineDash
-        // })
-        // newShape
-        //   .getTextContent()
-        //   .setStyle({ text, fill: fontColor, fontSize, fontStyle, fontWeight })
-        // newShape.setTextConfig({ position: textPosition })
-        if (type === 'image') {
-          newShape.attr('style', { width, height, image })
-        } else {
-          newShape.setShape(shape)
-        }
-        newShape.anchor.refresh()
-        newShape.id = id
-        newShape.unActive()
+      newShape.setZ(z)
+      newShape.updateShape(shapeConfig)
+      if (type !== 'image') {
+        newShape.setShape(shape)
       }
-    )
+      newShape.anchor.refresh()
+      newShape.id = id
+      newShape.unActive()
+    })
 
     this.initGroup(groups, shapes)
 

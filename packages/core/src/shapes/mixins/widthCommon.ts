@@ -110,15 +110,11 @@ function WidthCommon<TBase extends CommonConstructor>(Base: TBase) {
         fontSize,
         fontStyle,
         fontWeight,
-        textPosition
+        textPosition,
+        image,
+        width,
+        height
       } = config
-
-      this.setStyle({
-        fill,
-        stroke,
-        lineWidth,
-        lineDash
-      })
 
       this.getTextContent().setStyle({
         text,
@@ -127,6 +123,20 @@ function WidthCommon<TBase extends CommonConstructor>(Base: TBase) {
         fontStyle,
         fontWeight
       })
+
+      console.log('this节点', this)
+
+      // 针对Image节点，设置style
+      if (this.type === 'image' && image) {
+        this.setStyle({ width, height, image })
+      } else {
+        this.setStyle({
+          fill,
+          stroke,
+          lineWidth,
+          lineDash
+        })
+      }
 
       this.setTextConfig({ position: textPosition })
     }

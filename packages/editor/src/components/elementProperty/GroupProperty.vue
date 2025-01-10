@@ -2,41 +2,20 @@
 import { ref } from 'vue'
 import { NodeType, IShape } from '@ioceditor/core'
 import { ElColorPicker, ElDivider, ElInput, ElInputNumber, ElOption, ElSelect } from 'element-plus'
-// import { convertLineDashToStrokeType, convertStrokeTypeToLineDash } from '../../utils/utils'
-import { IocEditor } from '@ioceditor/core'
+import { bgColorList, strokeColorList, lineWidthOpts, lineTypeOpt } from './config'
 
-import type { BuiltinTextPosition, FontStyle, FontWeight, INodeGroup } from '@ioceditor/core'
+import type { ITextPosition } from './config'
+import type {
+  BuiltinTextPosition,
+  LineDashStyle,
+  INodeGroup,
+  IExportGroupStyle,
+  IIocEditor
+} from '@ioceditor/core'
 
 const { iocEditor } = defineProps<{
-  iocEditor: IocEditor
+  iocEditor: IIocEditor
 }>()
-
-const bgColorList = ['transparent', '#ffc9c9', '#b2f2bb', '#a5d8ff', '#ffec99']
-const strokeColorList = ['#1e1e1e', '#e03131', '#2f9e44', '#1971c2', '#f08c00']
-
-const activeGroup = ref()
-
-interface ITextPosition {
-  name: string
-  icon: string
-  desc: string
-}
-
-const lineWidthOpts = [1, 2, 3, 4, 5]
-const lineTypeOpt = [
-  {
-    label: '实线',
-    value: 'solid'
-  },
-  {
-    label: '虚线',
-    value: 'dashed'
-  },
-  {
-    label: '点线',
-    value: 'dotted'
-  }
-]
 
 const textPositionList: ITextPosition[] = [
   {
@@ -55,115 +34,136 @@ const textPositionList: ITextPosition[] = [
     desc: '居右'
   }
 ]
-const lineWidth = ref(1)
-const fontSize = ref(12)
-const strokeType = ref('solid')
-const nodeText = ref('')
-const bgColor = ref('')
-const strokeColor = ref('')
-const fontColor = ref('')
-const textPosition = ref('inside')
-const fontWeight = ref<FontWeight>('normal')
-const fontStyle = ref<FontStyle>('normal')
+
+const activeGroup = ref()
+
+const groupConfig = ref<IExportGroupStyle>({
+  fill: '#fff',
+  stroke: '#333',
+  lineWidth: 1,
+  lineDash: 'solid',
+  fontColor: '#333',
+  fontSize: 12,
+  text: '',
+  fontWeight: 'normal',
+  fontStyle: 'normal',
+  textPosition: 'insideLeft'
+})
 
 iocEditor._sceneMgr.updateSelectNode$.subscribe((group: INodeGroup | IShape) => {
   if (group.nodeType === NodeType.Group) {
     activeGroup.value = group
-    bgColor.value = activeGroup.value.groupRect?.style.fill as string
-    strokeColor.value = activeGroup.value.groupRect?.style.stroke as string
-    fontColor.value = activeGroup.value.groupHead?.getTextContent().style.fill || '#333'
-    lineWidth.value = activeGroup.value.groupRect?.style.lineWidth || 1
-    // strokeType.value = convertLineDashToStrokeType(
-    //   (activeGroup.value.groupRect?.style.lineDash as number[]) || [0, 0]
-    // )
-    nodeText.value = activeGroup.value.groupHead?.getTextContent().style.text || ''
-    fontSize.value = activeGroup.value.groupHead?.getTextContent().style.fontSize as number
-    fontStyle.value = activeGroup.value.groupHead?.getTextContent().style.fontStyle || 'normal'
-    fontWeight.value = activeGroup.value.groupHead?.getTextContent().style.fontWeight || 'normal'
-    textPosition.value = activeGroup.value.groupHead?.textConfig?.position || 'insideLeft'
+    groupConfig.value.fill = activeGroup.value.groupRect?.style.fill as string
+    groupConfig.value.stroke = activeGroup.value.groupRect?.style.stroke as string
+    groupConfig.value.fontColor = activeGroup.value.groupHead?.getTextContent().style.fill || '#333'
+    groupConfig.value.lineWidth = activeGroup.value.groupRect?.style.lineWidth || 1
+    groupConfig.value.lineDash = activeGroup.value.groupRect?.style.lineDash || 'solid'
+    groupConfig.value.text = activeGroup.value.groupHead?.getTextContent().style.text || ''
+    groupConfig.value.fontSize = activeGroup.value.groupHead?.getTextContent().style
+      .fontSize as number
+    groupConfig.value.fontStyle =
+      activeGroup.value.groupHead?.getTextContent().style.fontStyle || 'normal'
+    groupConfig.value.fontWeight =
+      activeGroup.value.groupHead?.getTextContent().style.fontWeight || 'normal'
+    groupConfig.value.textPosition =
+      activeGroup.value.groupHead?.textConfig?.position || 'insideLeft'
   }
 })
 
 const changeGroupBgColor = (color: string | null) => {
-  activeGroup.value.groupRect?.setStyle({
-    fill: color as string
+  const oldGroupConfig = { ...activeGroup.value!.getExportData().style }
+  groupConfig.value.fill = color as string
+  iocEditor.execute('updateGroupProperty', {
+    group: activeGroup.value as INodeGroup,
+    groupConfig: { ...groupConfig.value },
+    oldGroupConfig
   })
-  bgColor.value = color as string
 }
 
 const changeGroupStrokeColor = (color: string | null) => {
-  activeGroup.value.groupRect?.setStyle({
-    stroke: color as string
+  const oldGroupConfig = { ...activeGroup.value!.getExportData().style }
+  groupConfig.value.stroke = color as string
+  iocEditor.execute('updateGroupProperty', {
+    group: activeGroup.value as INodeGroup,
+    groupConfig: { ...groupConfig.value },
+    oldGroupConfig
   })
-  strokeColor.value = color as string
-  activeGroup.value.oldStroke = color as string
 }
 
 const changeGroupHeadFontColor = (color: string | null) => {
-  if (!color) return
-  activeGroup.value.groupHead?.getTextContent()?.setStyle({
-    fill: color
+  const oldGroupConfig = { ...activeGroup.value!.getExportData().style }
+  groupConfig.value.fontColor = color as string
+  iocEditor.execute('updateGroupProperty', {
+    group: activeGroup.value as INodeGroup,
+    groupConfig: { ...groupConfig.value },
+    oldGroupConfig
   })
-  fontColor.value = color as string
 }
 
 const changeGroupFontSize = (size: number | undefined) => {
-  if (!size) return
-  activeGroup.value.groupHead?.getTextContent()?.setStyle({
-    fontSize: size
+  const oldGroupConfig = { ...activeGroup.value!.getExportData().style }
+  groupConfig.value.fontSize = size
+  iocEditor.execute('updateGroupProperty', {
+    group: activeGroup.value as INodeGroup,
+    groupConfig: { ...groupConfig.value },
+    oldGroupConfig
   })
-
-  fontSize.value = size
 }
 
 const changeGroupLineWidth = (width: number) => {
-  activeGroup.value!.groupRect?.setStyle({
-    lineWidth: width
+  const oldGroupConfig = { ...activeGroup.value!.getExportData().style }
+  groupConfig.value.lineWidth = width
+  iocEditor.execute('updateGroupProperty', {
+    group: activeGroup.value as INodeGroup,
+    groupConfig: { ...groupConfig.value },
+    oldGroupConfig
   })
-  lineWidth.value = width
-  activeGroup.value!.oldLineWidth = width
 }
 
 const changeGroupStrokeType = (type: string) => {
-  activeGroup.value.groupRect?.setStyle({
-    // lineDash: convertStrokeTypeToLineDash(type)
+  const oldGroupConfig = { ...activeGroup.value!.getExportData().style }
+  groupConfig.value.lineDash = type as LineDashStyle
+  iocEditor.execute('updateGroupProperty', {
+    group: activeGroup.value as INodeGroup,
+    groupConfig: { ...groupConfig.value },
+    oldGroupConfig
   })
-
-  strokeType.value = type
 }
 
 const changeGroupTextPosition = (position: BuiltinTextPosition) => {
-  activeGroup.value.groupHead?.setTextConfig({
-    position
+  const oldGroupConfig = { ...activeGroup.value!.getExportData().style }
+  groupConfig.value.textPosition = position
+  iocEditor.execute('updateGroupProperty', {
+    group: activeGroup.value as INodeGroup,
+    groupConfig: { ...groupConfig.value },
+    oldGroupConfig
   })
-
-  textPosition.value = position
 }
 
 const changeGroupFontStyle = (style: string) => {
+  const oldGroupConfig = { ...activeGroup.value!.getExportData().style }
   const fWeight = activeGroup.value!.groupHead?.getTextContent().style.fontWeight || 'normal'
   const fStyle = activeGroup.value!.groupHead?.getTextContent().style.fontStyle || 'normal'
   if (style === 'fontWeight') {
-    activeGroup.value.groupHead?.getTextContent()?.setStyle({
-      fontWeight: fWeight === 'normal' ? 'bold' : 'normal'
-    })
-
-    fontWeight.value = fWeight === 'normal' ? 'bold' : 'normal'
+    groupConfig.value.fontWeight = fWeight === 'normal' ? 'bold' : 'normal'
   } else {
-    activeGroup.value.groupHead?.getTextContent()?.setStyle({
-      fontStyle: fStyle === 'normal' ? 'italic' : 'normal'
-    })
-
-    fontStyle.value = fStyle === 'normal' ? 'italic' : 'normal'
+    groupConfig.value.fontStyle = fStyle === 'normal' ? 'italic' : 'normal'
   }
+  iocEditor.execute('updateGroupProperty', {
+    group: activeGroup.value as INodeGroup,
+    groupConfig: { ...groupConfig.value },
+    oldGroupConfig
+  })
 }
 
 const changeGroupText = (text: string) => {
-  activeGroup.value.groupHead?.getTextContent()?.setStyle({
-    text
+  const oldGroupConfig = { ...activeGroup.value!.getExportData().style }
+  groupConfig.value.text = text
+  iocEditor.execute('updateGroupProperty', {
+    group: activeGroup.value as INodeGroup,
+    groupConfig: { ...groupConfig.value },
+    oldGroupConfig
   })
-
-  nodeText.value = text
 }
 </script>
 <template>
@@ -179,7 +179,11 @@ const changeGroupText = (text: string) => {
           @click="() => changeGroupBgColor(color)"
         />
         <el-divider style="margin: 0 4px; height: 20px" direction="vertical" />
-        <el-color-picker v-model="bgColor" @change="changeGroupBgColor" size="small" />
+        <el-color-picker
+          v-model="groupConfig.fill as string"
+          @change="changeGroupBgColor"
+          size="small"
+        />
       </div>
     </div>
     <div class="property-item">
@@ -193,14 +197,18 @@ const changeGroupText = (text: string) => {
           @click="() => changeGroupStrokeColor(color)"
         />
         <el-divider style="margin: 0 4px; height: 20px" direction="vertical" />
-        <el-color-picker v-model="strokeColor" @change="changeGroupStrokeColor" size="small" />
+        <el-color-picker
+          v-model="groupConfig.stroke as string"
+          @change="changeGroupStrokeColor"
+          size="small"
+        />
       </div>
     </div>
     <div class="property-item">
       <div class="property-name">边框宽度</div>
       <div class="property-value">
         <el-select
-          v-model="lineWidth"
+          v-model="groupConfig.lineWidth"
           size="small"
           style="width: 157px; margin-right: 5px"
           @change="changeGroupLineWidth"
@@ -214,7 +222,7 @@ const changeGroupText = (text: string) => {
       <div class="property-value">
         <el-select
           placeholder="Select"
-          v-model="strokeType"
+          v-model="groupConfig.lineDash"
           size="small"
           style="width: 157px; margin-right: 5px"
           @change="changeGroupStrokeType"
@@ -241,14 +249,18 @@ const changeGroupText = (text: string) => {
           @click="() => changeGroupHeadFontColor(color)"
         />
         <el-divider style="margin: 0 4px; height: 20px" direction="vertical" />
-        <el-color-picker v-model="fontColor" @change="changeGroupHeadFontColor" size="small" />
+        <el-color-picker
+          v-model="groupConfig.fontColor as string"
+          @change="changeGroupHeadFontColor"
+          size="small"
+        />
       </div>
     </div>
     <div class="property-item">
       <div class="property-name">文本内容</div>
       <div class="property-value">
         <el-input
-          v-model="nodeText"
+          v-model="groupConfig.text"
           :min="12"
           :max="30"
           size="small"
@@ -262,7 +274,7 @@ const changeGroupText = (text: string) => {
       <div class="property-name">文字大小</div>
       <div class="property-value">
         <el-input-number
-          v-model="fontSize"
+          v-model="groupConfig.fontSize as number"
           :min="12"
           :max="30"
           size="small"
@@ -277,13 +289,13 @@ const changeGroupText = (text: string) => {
       <div class="property-value">
         <span
           class="icon iconfont font-style-icon icon-zitiyangshi_jiacu"
-          :class="{ active: fontWeight === 'bold' }"
+          :class="{ active: groupConfig.fontWeight === 'bold' }"
           :title="'加粗'"
           @click="() => changeGroupFontStyle('fontWeight')"
         />
         <span
           class="icon iconfont font-style-icon icon-zitiyangshi_xieti"
-          :class="{ active: fontStyle === 'italic' }"
+          :class="{ active: groupConfig.fontStyle === 'italic' }"
           :title="'斜体'"
           @click="() => changeGroupFontStyle('fontStyle')"
         />
@@ -294,7 +306,7 @@ const changeGroupText = (text: string) => {
       <div class="property-value">
         <span
           class="icon iconfont position-icon"
-          :class="[position.icon, { active: textPosition === position.name }]"
+          :class="[position.icon, { active: groupConfig.textPosition === position.name }]"
           v-for="position in textPositionList"
           :key="position.name"
           :title="position.desc"
