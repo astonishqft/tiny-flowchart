@@ -518,7 +518,7 @@ class Connection extends zrender.Group implements IConnection {
     return this.connectionType
   }
 
-  setLineType(type: ConnectionType) {
+  setConnectionType(type: ConnectionType) {
     this.connectionType = type
     const style = { ...this.getExportData().style }
     this.remove(this._line!)
@@ -568,10 +568,6 @@ class Connection extends zrender.Group implements IConnection {
 
   getConnectionType() {
     return this.connectionType
-  }
-
-  setConnectionType(type: ConnectionType) {
-    this.connectionType = type
   }
 
   getLineText() {

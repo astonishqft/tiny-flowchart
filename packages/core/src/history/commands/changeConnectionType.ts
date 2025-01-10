@@ -28,11 +28,11 @@ class ChangeConnectionTypeCommand implements Command {
   }
 
   execute() {
-    this.connection.setLineType(this.lineType)
+    this.connection.setConnectionType(this.lineType)
   }
 
   undo() {
-    this.connection.setLineType(this.oldLineType)
+    this.connection.setConnectionType(this.oldLineType)
   }
 
   redo() {

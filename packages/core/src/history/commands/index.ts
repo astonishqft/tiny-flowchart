@@ -12,6 +12,7 @@ import { UpdateGroupPropertyCommand } from './updateGroupProperty'
 import { UpdateConnectionPropertyCommand } from './updateConnectionProperty'
 import { ChangeConnectionTypeCommand } from './changeConnectionType'
 import { UpdateControlPointCommand } from './updateControlPoint'
+import { ResizeShapeCommand } from './resizeShape'
 
 import type { IAddShapeCommandOpts } from './addShape'
 import type { IAddConnectionCommandOpts } from './addConnection'
@@ -26,7 +27,7 @@ import type { IUpdateGroupPropertyCommandOpts } from './updateGroupProperty'
 import type { IUpdateConnectionPropertyCommandOpts } from './updateConnectionProperty'
 import type { IChangeConnectionTypeCommandOpts } from './changeConnectionType'
 import type { IUpdateControlPointCommandOpts } from './updateControlPoint'
-
+import type { IResizeShapeCommandOpts } from './resizeShape'
 export {
   AddConnectionCommand,
   AddShapeCommand,
@@ -41,7 +42,8 @@ export {
   UpdateGroupPropertyCommand,
   UpdateConnectionPropertyCommand,
   ChangeConnectionTypeCommand,
-  UpdateControlPointCommand
+  UpdateControlPointCommand,
+  ResizeShapeCommand
 }
 
 export type {
@@ -57,5 +59,6 @@ export type {
   IUpdateGroupPropertyCommandOpts,
   IUpdateConnectionPropertyCommandOpts,
   IChangeConnectionTypeCommandOpts,
-  IUpdateControlPointCommandOpts
+  IUpdateControlPointCommandOpts,
+  IResizeShapeCommandOpts
 }

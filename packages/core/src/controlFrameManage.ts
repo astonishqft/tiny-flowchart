@@ -8,6 +8,7 @@ import type { IShape } from './shapes'
 export interface IControlFrameManage {
   active(node: IShape): void
   unActive(): void
+  reSizeNode(boundingBox: zrender.BoundingRect): void
 }
 
 class ControlFrameManage implements IControlFrameManage {
@@ -123,10 +124,10 @@ class ControlFrameManage implements IControlFrameManage {
     this._lbControlPoint.show()
     this._rbControlPoint.show()
     const boundingBox = node.getBoundingBox()
-    this.reSize(boundingBox)
+    this.reSizeControlFrame(boundingBox)
   }
 
-  reSize(boundingBox: zrender.BoundingRect) {
+  reSizeControlFrame(boundingBox: zrender.BoundingRect) {
     const { x, y, width, height } = boundingBox
     this._controlBox.attr('shape', { width, height })
     this._controlBox.attr('x', x)
@@ -160,7 +161,8 @@ class ControlFrameManage implements IControlFrameManage {
     this._node?.attr('x', x)
     this._node?.attr('y', y)
     this._connectionMgr.refreshConnection(this._node as IShape)
-    this._iocEditor.updateMiniMap$.next()
+    this.reSizeControlFrame(boundingBox)
+    // this._iocEditor.updateMiniMap$.next()
   }
 
   initEvent() {
@@ -177,6 +179,12 @@ class ControlFrameManage implements IControlFrameManage {
     let y = 0
     let width = 0
     let height = 0
+    let oldBoundingBox: zrender.BoundingRect = new zrender.BoundingRect(
+      oldX,
+      oldY,
+      oldWidth,
+      oldHeight
+    )
     ;[
       this._ltControlPoint,
       this._rtControlPoint,
@@ -191,6 +199,7 @@ class ControlFrameManage implements IControlFrameManage {
         oldY = this._controlBox.y
         oldWidth = this._controlBox.shape.width
         oldHeight = this._controlBox.shape.height
+        oldBoundingBox = new zrender.BoundingRect(oldX, oldY, oldWidth, oldHeight)
       })
 
       item.on('drag', (e: zrender.ElementEvent) => {
@@ -226,12 +235,16 @@ class ControlFrameManage implements IControlFrameManage {
             break
         }
 
-        this.reSize(new zrender.BoundingRect(x, y, width, height))
         this.reSizeNode(new zrender.BoundingRect(x, y, width, height))
       })
 
       item.on('dragend', () => {
         isDragging = false
+        this._iocEditor.execute('resizeShape', {
+          node: this._node,
+          oldBoundingBox: oldBoundingBox,
+          boundingBox: new zrender.BoundingRect(x, y, width, height)
+        })
       })
     })
   }

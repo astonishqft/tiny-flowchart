@@ -115,8 +115,6 @@ class ConnectionManage extends Disposable {
       this.updateSelectConnection$.next(conn)
       conn.active()
     })
-
-    if (conn.connectionType !== ConnectionType.BezierCurve) return
   }
 
   removeConnectionFromEditor(connection: IConnection) {

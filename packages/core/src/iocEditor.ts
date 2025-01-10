@@ -34,7 +34,8 @@ import {
   UpdateGroupPropertyCommand,
   UpdateConnectionPropertyCommand,
   ChangeConnectionTypeCommand,
-  UpdateControlPointCommand
+  UpdateControlPointCommand,
+  ResizeShapeCommand
 } from './history/commands'
 
 import type { IRefLineManage } from './refLineManage'
@@ -63,7 +64,8 @@ import type {
   IUpdateGroupPropertyCommandOpts,
   IUpdateConnectionPropertyCommandOpts,
   IChangeConnectionTypeCommandOpts,
-  IUpdateControlPointCommandOpts
+  IUpdateControlPointCommandOpts,
+  IResizeShapeCommandOpts
 } from './history/commands'
 
 import {
@@ -210,6 +212,7 @@ export class IocEditor implements IIocEditor {
       | IUpdateConnectionPropertyCommandOpts
       | IChangeConnectionTypeCommandOpts
       | IUpdateControlPointCommandOpts
+      | IResizeShapeCommandOpts
   ) {
     switch (type) {
       case 'addShape': {
@@ -334,6 +337,11 @@ export class IocEditor implements IIocEditor {
             oldControlPoint2
           )
         )
+        break
+      }
+      case 'resizeShape': {
+        const { node, oldBoundingBox, boundingBox } = options as IResizeShapeCommandOpts
+        this._historyMgr.execute(new ResizeShapeCommand(this, node, oldBoundingBox, boundingBox))
         break
       }
       default:
