@@ -26,6 +26,7 @@ export interface IConnectionManage extends IDisposable {
   clear(): void
   unActiveConnections(): void
   getConnectionsByGroup(node: INodeGroup | IShape): IConnection[]
+  getConnectionType(): ConnectionType
 }
 
 class ConnectionManage extends Disposable {
@@ -84,7 +85,12 @@ class ConnectionManage extends Disposable {
   }
 
   createConnection(fromAnchorPoint: IAnchorPoint, toAnchorPoint: IAnchorPoint): IConnection {
-    const connection = new Connection(fromAnchorPoint, toAnchorPoint, this._connectionType)
+    const connection = new Connection(
+      this._iocEditor,
+      fromAnchorPoint,
+      toAnchorPoint,
+      this._connectionType
+    )
 
     this.initEvent(connection)
 
@@ -105,9 +111,12 @@ class ConnectionManage extends Disposable {
   initEvent(conn: IConnection) {
     conn.on('click', () => {
       this.unActiveConnections()
+      this._iocEditor._sceneMgr.unActive()
       this.updateSelectConnection$.next(conn)
       conn.active()
     })
+
+    if (conn.connectionType !== ConnectionType.BezierCurve) return
   }
 
   removeConnectionFromEditor(connection: IConnection) {

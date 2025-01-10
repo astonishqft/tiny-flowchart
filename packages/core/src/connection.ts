@@ -13,12 +13,10 @@ import type {
 } from './shapes'
 import type { FontStyle, FontWeight } from 'zrender/lib/core/types'
 import type { INodeGroup } from './shapes/nodeGroup'
+import type { IIocEditor } from './iocEditor'
 
 class Connection extends zrender.Group implements IConnection {
-  private _connectionType: ConnectionType = ConnectionType.Line
   private _line: zrender.Line | zrender.BezierCurve | zrender.Polyline | null = null
-  private _controlPoint1: IControlPoint | null = null
-  private _controlPoint2: IControlPoint | null = null
   private _controlLine1: zrender.Line | null = null
   private _controlLine2: zrender.Line | null = null
   private _ortogonalLinePoints: number[][] = []
@@ -28,11 +26,15 @@ class Connection extends zrender.Group implements IConnection {
   // style
   private _stroke: string = '#333'
   private _lineWidth: number = 1
-  private _lineDash: LineDashStyle = [0, 0]
+  private _lineDash: LineDashStyle = 'solid'
   private _lineTextFontSize: number = 12
   private _lineTextFontColor: string = '#333'
   private _lineTextFontStyle: FontStyle = 'normal'
   private _lineTextFontWeight: FontWeight = 'normal'
+  private _iocEditor: IIocEditor
+
+  controlPoint1: IControlPoint | null = null
+  controlPoint2: IControlPoint | null = null
 
   fromAnchorPoint: IAnchorPoint
   toAnchorPoint: IAnchorPoint
@@ -40,15 +42,23 @@ class Connection extends zrender.Group implements IConnection {
   toNode: IShape | INodeGroup
   fromPoint: IAnchor
   toPoint: IAnchor
-  constructor(fromAnchorPoint: IAnchorPoint, toAnchorPoint: IAnchorPoint, type: ConnectionType) {
+  connectionType: ConnectionType = ConnectionType.Line
+  selected: boolean = false
+  constructor(
+    iocEditor: IIocEditor,
+    fromAnchorPoint: IAnchorPoint,
+    toAnchorPoint: IAnchorPoint,
+    type: ConnectionType
+  ) {
     super()
+    this._iocEditor = iocEditor
     this.fromAnchorPoint = fromAnchorPoint
     this.toAnchorPoint = toAnchorPoint
     this.fromNode = fromAnchorPoint.node
     this.fromPoint = fromAnchorPoint.point
     this.toNode = toAnchorPoint.node
     this.toPoint = toAnchorPoint.point
-    this._connectionType = type
+    this.connectionType = type
     this.createConnection()
   }
 
@@ -69,31 +79,35 @@ class Connection extends zrender.Group implements IConnection {
   }
 
   active() {
-    if (this._controlLine1 && this._controlLine2 && this._controlPoint1 && this._controlPoint2) {
+    if (this._controlLine1 && this._controlLine2 && this.controlPoint1 && this.controlPoint2) {
       this._controlLine1.show()
       this._controlLine2.show()
-      this._controlPoint1.show()
-      this._controlPoint2.show()
+      this.controlPoint1.show()
+      this.controlPoint2.show()
     }
 
     this._line?.setStyle({
       shadowColor: '#e85827',
       shadowBlur: 4
     })
+
+    this.selected = true
   }
 
   unActive() {
-    if (this._controlLine1 && this._controlLine2 && this._controlPoint1 && this._controlPoint2) {
+    if (this._controlLine1 && this._controlLine2 && this.controlPoint1 && this.controlPoint2) {
       this._controlLine1.hide()
       this._controlLine2.hide()
-      this._controlPoint1.hide()
-      this._controlPoint2.hide()
+      this.controlPoint1.hide()
+      this.controlPoint2.hide()
     }
 
     this._line?.setStyle({
       shadowColor: 'none',
       shadowBlur: undefined
     })
+
+    this.selected = false
   }
 
   calcControlPoint(anchorPoint: IAnchor): number[] {
@@ -191,7 +205,7 @@ class Connection extends zrender.Group implements IConnection {
     this.getLineTextContent() ? this._lineText.show() : this._lineText.hide()
     this.add(this._lineText)
 
-    switch (this._connectionType) {
+    switch (this.connectionType) {
       case ConnectionType.Line:
         this._line = new zrender.Line({
           style: {
@@ -202,7 +216,7 @@ class Connection extends zrender.Group implements IConnection {
           z: 4
         })
         break
-      case ConnectionType.BezierCurve:
+      case ConnectionType.BezierCurve: {
         this._line = new zrender.BezierCurve({
           style: {
             lineWidth: this._lineWidth,
@@ -212,7 +226,7 @@ class Connection extends zrender.Group implements IConnection {
           z: 4
         })
 
-        this._controlPoint1 = new zrender.Circle({
+        this.controlPoint1 = new zrender.Circle({
           style: {
             fill: 'red'
           },
@@ -222,10 +236,10 @@ class Connection extends zrender.Group implements IConnection {
           z: 40,
           draggable: true
         }) as IControlPoint
-        this._controlPoint1.hide()
-        this._controlPoint1.mark = 'controlPoint'
+        this.controlPoint1.hide()
+        this.controlPoint1.mark = 'controlPoint'
 
-        this._controlPoint2 = new zrender.Circle({
+        this.controlPoint2 = new zrender.Circle({
           style: {
             fill: 'red'
           },
@@ -235,8 +249,8 @@ class Connection extends zrender.Group implements IConnection {
           z: 40,
           draggable: true
         }) as IControlPoint
-        this._controlPoint2.hide()
-        this._controlPoint2.mark = 'controlPoint'
+        this.controlPoint2.hide()
+        this.controlPoint2.mark = 'controlPoint'
 
         this._controlLine1 = new zrender.Line({
           style: {
@@ -254,12 +268,42 @@ class Connection extends zrender.Group implements IConnection {
         })
         this._controlLine2.hide()
 
-        this.add(this._controlPoint1)
-        this.add(this._controlPoint2)
+        this.add(this.controlPoint1)
+        this.add(this.controlPoint2)
         this.add(this._controlLine1)
         this.add(this._controlLine2)
 
-        this._controlPoint1.on('drag', (e: zrender.ElementEvent) => {
+        let oldControlPoint1 = [this.controlPoint1!.x, this.controlPoint1!.y]
+        let oldControlPoint2 = [this.controlPoint2!.x, this.controlPoint2!.y]
+        this.controlPoint1?.on('dragstart', () => {
+          oldControlPoint1 = [this.controlPoint1!.x, this.controlPoint1!.y]
+        })
+        this.controlPoint2?.on('dragstart', () => {
+          oldControlPoint2 = [this.controlPoint2!.x, this.controlPoint2!.y]
+        })
+        this.controlPoint1?.on('dragend', () => {
+          oldControlPoint2 = [this.controlPoint2!.x, this.controlPoint2!.y]
+          this._iocEditor.execute('updateControlPoint', {
+            connection: this,
+            controlPoint1: [this.controlPoint1!.x, this.controlPoint1!.y],
+            controlPoint2: [this.controlPoint2!.x, this.controlPoint2!.y],
+            oldControlPoint1,
+            oldControlPoint2
+          })
+        })
+
+        this.controlPoint2?.on('dragend', () => {
+          oldControlPoint1 = [this.controlPoint1!.x, this.controlPoint1!.y]
+          this._iocEditor.execute('updateControlPoint', {
+            connection: this,
+            controlPoint1: [this.controlPoint1!.x, this.controlPoint1!.y],
+            controlPoint2: [this.controlPoint2!.x, this.controlPoint2!.y],
+            oldControlPoint1,
+            oldControlPoint2
+          })
+        })
+
+        this.controlPoint1.on('drag', (e: zrender.ElementEvent) => {
           const {
             x,
             y,
@@ -280,7 +324,7 @@ class Connection extends zrender.Group implements IConnection {
           this.renderText()
         })
 
-        this._controlPoint2.on('drag', (e: zrender.ElementEvent) => {
+        this.controlPoint2.on('drag', (e: zrender.ElementEvent) => {
           const {
             x,
             y,
@@ -305,6 +349,7 @@ class Connection extends zrender.Group implements IConnection {
         })
 
         break
+      }
       case ConnectionType.OrtogonalLine:
         this._line = new zrender.Polyline({
           style: {
@@ -326,7 +371,7 @@ class Connection extends zrender.Group implements IConnection {
   }
 
   refresh() {
-    switch (this._connectionType) {
+    switch (this.connectionType) {
       case ConnectionType.Line:
         ;(this._line as zrender.Line).attr({
           shape: {
@@ -341,8 +386,8 @@ class Connection extends zrender.Group implements IConnection {
         break
       case ConnectionType.BezierCurve:
         this.setBezierCurve(
-          [this._controlPoint1!.x, this._controlPoint1!.y],
-          [this._controlPoint2!.x, this._controlPoint2!.y]
+          [this.controlPoint1!.x, this.controlPoint1!.y],
+          [this.controlPoint2!.x, this.controlPoint2!.y]
         )
         break
       case ConnectionType.OrtogonalLine:
@@ -436,13 +481,13 @@ class Connection extends zrender.Group implements IConnection {
   }
 
   renderText() {
-    if (this._connectionType === ConnectionType.BezierCurve) {
+    if (this.connectionType === ConnectionType.BezierCurve) {
       const point = this._line && (this._line as zrender.BezierCurve).pointAt(0.5)
 
       if (point) {
         this._textPoints = point
       }
-    } else if (this._connectionType === ConnectionType.OrtogonalLine) {
+    } else if (this.connectionType === ConnectionType.OrtogonalLine) {
       this._textPoints = this.calcOrtogonalLineMidPoint()
     } else {
       this._textPoints = [
@@ -457,55 +502,32 @@ class Connection extends zrender.Group implements IConnection {
     })
   }
 
-  setLineWidth(lineWidth: number) {
-    this._line?.setStyle({
-      lineWidth
-    })
-
-    this._lineWidth = lineWidth
-  }
-
   getLineWidth() {
     return this._line?.style.lineWidth
-  }
-
-  setLineColor(color: string) {
-    this._line?.setStyle({
-      stroke: color
-    })
-
-    this._stroke = color
   }
 
   getLineColor() {
     return this._line?.style.stroke as string | undefined
   }
 
-  setLineDash(type: number[]) {
-    this._line?.setStyle({
-      lineDash: type
-    })
-
-    this._lineDash = type
-  }
-
   getLineDash() {
-    return (this._line?.style.lineDash as number[]) || [0, 0]
+    return (this._line?.style.lineDash as number[]) || 'solid'
   }
 
   getLineType() {
-    return this._connectionType
+    return this.connectionType
   }
 
   setLineType(type: ConnectionType) {
-    this._connectionType = type
+    this.connectionType = type
+    const style = { ...this.getExportData().style }
     this.remove(this._line!)
     this.remove(this._arrow!)
-    if (this._controlPoint1) {
-      this.remove(this._controlPoint1)
+    if (this.controlPoint1) {
+      this.remove(this.controlPoint1)
     }
-    if (this._controlPoint2) {
-      this.remove(this._controlPoint2)
+    if (this.controlPoint2) {
+      this.remove(this.controlPoint2)
     }
     if (this._controlLine1) {
       this.remove(this._controlLine1)
@@ -517,49 +539,19 @@ class Connection extends zrender.Group implements IConnection {
       this.remove(this._lineText)
     }
     this.createConnection()
-  }
-
-  setLineTextContent(content: string) {
-    this._lineText?.setStyle({
-      text: content
-    })
-    this._lineText?.show()
+    this.setStyle(style)
   }
 
   getLineTextContent() {
     return this._lineText?.style.text
   }
 
-  setLineTextFontSize(size: number | undefined) {
-    this._lineText?.setStyle({
-      fontSize: size
-    })
-
-    this._lineTextFontSize = size as number
-  }
-
   getLineTextFontSize() {
     return this._lineText?.style.fontSize
   }
 
-  setLineTextFontColor(color: string | undefined) {
-    this._lineText?.setStyle({
-      fill: color
-    })
-
-    this._lineTextFontColor = color as string
-  }
-
   getLineTextFontColor() {
     return this._lineText?.style.fill
-  }
-
-  setLineFontStyle(style: FontStyle) {
-    this._lineText?.setStyle({
-      fontStyle: style
-    })
-
-    this._lineTextFontStyle = style
   }
 
   getLineFontStyle() {
@@ -570,28 +562,16 @@ class Connection extends zrender.Group implements IConnection {
     return this._lineText?.style.fontWeight
   }
 
-  setLineFontWeight(weight: FontWeight) {
-    this._lineText?.setStyle({
-      fontWeight: weight
-    })
-
-    this._lineTextFontWeight = weight
-  }
-
-  getLineTextPosition() {
-    return this._textPoints
-  }
-
   getId() {
     return this.id
   }
 
   getConnectionType() {
-    return this._connectionType
+    return this.connectionType
   }
 
   setConnectionType(type: ConnectionType) {
-    this._connectionType = type
+    this.connectionType = type
   }
 
   getLineText() {
@@ -600,7 +580,7 @@ class Connection extends zrender.Group implements IConnection {
 
   getExportData() {
     const baseData = {
-      type: this._connectionType,
+      type: this.connectionType,
       id: this.id,
       fromPoint: this.fromPoint.index,
       toPoint: this.toPoint.index,
@@ -614,16 +594,15 @@ class Connection extends zrender.Group implements IConnection {
         fontSize: this._lineText?.style.fontSize,
         fontColor: this._lineText?.style.fill,
         fontStyle: this._lineText?.style.fontStyle,
-        fontWeight: this._lineText?.style.fontWeight,
-        textPosition: this._textPoints
+        fontWeight: this._lineText?.style.fontWeight
       }
     }
 
-    if (this._connectionType == ConnectionType.BezierCurve) {
+    if (this.connectionType == ConnectionType.BezierCurve) {
       return {
         ...baseData,
-        controlPoint1: [this._controlPoint1?.x, this._controlPoint1?.y],
-        controlPoint2: [this._controlPoint2?.x, this._controlPoint2?.y],
+        controlPoint1: [this.controlPoint1?.x, this.controlPoint1?.y],
+        controlPoint2: [this.controlPoint2?.x, this.controlPoint2?.y],
         controlLine1: [
           this._controlLine1?.shape.x1,
           this._controlLine1?.shape.y1,
@@ -650,8 +629,7 @@ class Connection extends zrender.Group implements IConnection {
     fontSize,
     fontColor,
     fontStyle,
-    fontWeight,
-    textPosition
+    fontWeight
   }: IExportConnectionStyle) {
     this._line?.setStyle({
       stroke,
@@ -666,8 +644,11 @@ class Connection extends zrender.Group implements IConnection {
       fontWeight
     })
 
+    this._arrow?.setStyle({
+      fill: stroke
+    })
+
     if (text) {
-      this._textPoints = textPosition
       this._lineText?.show()
       this.renderText()
     } else {
@@ -676,7 +657,7 @@ class Connection extends zrender.Group implements IConnection {
   }
 
   setControlPoint1(position: number[]) {
-    this._controlPoint1?.attr({
+    this.controlPoint1?.attr({
       shape: {
         cx: position[0],
         cy: position[1]
@@ -685,7 +666,7 @@ class Connection extends zrender.Group implements IConnection {
   }
 
   setControlPoint2(position: number[]) {
-    this._controlPoint2?.attr({
+    this.controlPoint2?.attr({
       shape: {
         cx: position[0],
         cy: position[1]
@@ -719,7 +700,7 @@ class Connection extends zrender.Group implements IConnection {
     const [cpx1, cpy1] = this.calcControlPoint(this.fromPoint)
     const [cpx2, cpy2] = this.calcControlPoint(this.toPoint)
 
-    this._controlPoint1?.attr({
+    this.controlPoint1?.attr({
       shape: {
         cx: cpx1,
         cy: cpy1
@@ -728,7 +709,7 @@ class Connection extends zrender.Group implements IConnection {
       y: controlPoint1[1]!
     })
 
-    this._controlPoint2?.attr({
+    this.controlPoint2?.attr({
       shape: {
         cx: cpx2,
         cy: cpy2

@@ -2,13 +2,17 @@
 import { ref } from 'vue'
 import { ElColorPicker, ElDivider, ElInput, ElInputNumber, ElOption, ElSelect } from 'element-plus'
 import { ConnectionType } from '@ioceditor/core'
-// import { convertLineDashToStrokeType, convertStrokeTypeToLineDash } from '../../utils/utils'
-import { IocEditor } from '@ioceditor/core'
+import { lineTypeOpt, strokeColorList, lineWidthOpts } from './config'
 
-import type { FontStyle, FontWeight, IConnection } from '@ioceditor/core'
+import type {
+  LineDashStyle,
+  IConnection,
+  IIocEditor,
+  IExportConnectionStyle
+} from '@ioceditor/core'
 
 const { iocEditor } = defineProps<{
-  iocEditor: IocEditor
+  iocEditor: IIocEditor
 }>()
 
 const lineTypes = [
@@ -26,91 +30,122 @@ const lineTypes = [
   }
 ]
 
+const connectionConfig = ref<IExportConnectionStyle>({
+  stroke: '#1e1e1e',
+  lineWidth: 1,
+  lineDash: 'solid',
+  fontColor: '#333',
+  text: 'title',
+  fontSize: 12,
+  fontWeight: 'normal',
+  fontStyle: 'normal'
+})
+
 const activeConnection = ref<IConnection | null>(null)
-const lineWidth = ref<number | undefined>(1)
-const lineColor = ref<string | undefined>('#1e1e1e')
-const lineDash = ref('solid')
 const lineType = ref<ConnectionType>(ConnectionType.OrtogonalLine)
-const lineTextContent = ref<string | undefined>(undefined)
-const lineTextFontSize = ref<number | undefined>(undefined)
-const lineTextFontColor = ref<string | undefined>('#333')
-const fontWeight = ref<FontWeight | undefined>('normal')
-const fontStyle = ref<FontStyle | undefined>('normal')
 
 iocEditor._connectionMgr.updateSelectConnection$.subscribe((connection: IConnection) => {
   activeConnection.value = connection
-  lineColor.value = connection.getLineColor()
-  // lineDash.value = convertLineDashToStrokeType(connection.getLineDash())
-  lineWidth.value = connection.getLineWidth()
-  lineType.value = connection.getLineType()
-  lineTextContent.value = connection.getLineTextContent()
-  lineTextFontSize.value = connection.getLineTextFontSize() as number
-  lineTextFontColor.value = connection.getLineTextFontColor()
-  fontStyle.value = connection.getLineFontStyle()
-  fontWeight.value = connection.getLineFontWeight()
+  connectionConfig.value.stroke = connection.getLineColor()
+  connectionConfig.value.lineWidth = connection.getLineWidth()
+  connectionConfig.value.lineDash = connection.getLineDash()
+  connectionConfig.value.text = connection.getLineTextContent()
+  connectionConfig.value.fontSize = connection.getLineTextFontSize() as number
+  connectionConfig.value.fontColor = connection.getLineTextFontColor()
+  connectionConfig.value.fontStyle = connection.getLineFontStyle()
+  connectionConfig.value.fontWeight = connection.getLineFontWeight()
+  lineType.value = connection.getConnectionType()
 })
 
-const lineWidthOpts = [1, 2, 3, 4, 5]
-const lineDashList = [
-  {
-    label: '实线',
-    value: 'solid'
-  },
-  {
-    label: '虚线',
-    value: 'dashed'
-  },
-  {
-    label: '点线',
-    value: 'dotted'
-  }
-]
-
-const strokeColorList = ['#1e1e1e', '#e03131', '#2f9e44', '#1971c2', '#f08c00']
-
 const changeLineColor = (color: string | null) => {
-  activeConnection.value?.setLineColor(color as string)
-  lineColor.value = color as string
+  const oldConnectionConfig = { ...activeConnection.value?.getExportData().style }
+  connectionConfig.value.stroke = color as string
+  iocEditor.execute('updateConnectionProperty', {
+    connection: activeConnection.value as IConnection,
+    connectionConfig: { ...connectionConfig.value },
+    oldConnectionConfig
+  })
 }
 
 const changeLineWidth = (width: number) => {
-  lineWidth.value = width
-  activeConnection.value?.setLineWidth(width)
+  const oldConnectionConfig = { ...activeConnection.value?.getExportData().style }
+  connectionConfig.value.lineWidth = width
+  iocEditor.execute('updateConnectionProperty', {
+    connection: activeConnection.value as IConnection,
+    connectionConfig: { ...connectionConfig.value },
+    oldConnectionConfig
+  })
 }
 
 const changeLineDash = (type: string) => {
-  lineDash.value = type
-  // activeConnection.value?.setLineDash(convertStrokeTypeToLineDash(type))
+  const oldConnectionConfig = { ...activeConnection.value?.getExportData().style }
+  connectionConfig.value.lineDash = type as LineDashStyle
+  iocEditor.execute('updateConnectionProperty', {
+    connection: activeConnection.value as IConnection,
+    connectionConfig: { ...connectionConfig.value },
+    oldConnectionConfig
+  })
 }
 const changeLinkFontColor = (color: string | null) => {
-  activeConnection.value?.setLineTextFontColor(color as string)
+  const oldConnectionConfig = { ...activeConnection.value?.getExportData().style }
+  connectionConfig.value.fontColor = color as string
+  iocEditor.execute('updateConnectionProperty', {
+    connection: activeConnection.value as IConnection,
+    connectionConfig: { ...connectionConfig.value },
+    oldConnectionConfig
+  })
 }
 
 const changeLineFontStyle = (style: string) => {
   const fWeight = activeConnection.value?.getLineFontWeight() || 'normal'
   const fStyle = activeConnection.value?.getLineFontStyle() || 'normal'
+  const oldConnectionConfig = { ...activeConnection.value?.getExportData().style }
   if (style === 'fontWeight') {
-    activeConnection.value?.setLineFontWeight(fWeight === 'normal' ? 'bold' : 'normal')
-
-    fontWeight.value = fWeight === 'normal' ? 'bold' : 'normal'
+    iocEditor.execute('updateConnectionProperty', {
+      connection: activeConnection.value as IConnection,
+      connectionConfig: { ...connectionConfig.value },
+      oldConnectionConfig
+    })
+    connectionConfig.value.fontWeight = fWeight === 'normal' ? 'bold' : 'normal'
   } else {
-    activeConnection.value?.setLineFontStyle(fStyle === 'normal' ? 'italic' : 'normal')
+    iocEditor.execute('updateConnectionProperty', {
+      connection: activeConnection.value as IConnection,
+      connectionConfig: { ...connectionConfig.value },
+      oldConnectionConfig
+    })
 
-    fontStyle.value = fStyle === 'normal' ? 'italic' : 'normal'
+    connectionConfig.value.fontStyle = fStyle === 'normal' ? 'italic' : 'normal'
   }
 }
 
 const changeLineTextContent = (text: string) => {
-  activeConnection.value?.setLineTextContent(text)
+  const oldConnectionConfig = { ...activeConnection.value?.getExportData().style }
+  connectionConfig.value.text = text
+  iocEditor.execute('updateConnectionProperty', {
+    connection: activeConnection.value as IConnection,
+    connectionConfig: { ...connectionConfig.value },
+    oldConnectionConfig
+  })
 }
 
 const changeLineFontSize = (size: number | undefined) => {
-  activeConnection.value?.setLineTextFontSize(size)
+  const oldConnectionConfig = { ...activeConnection.value?.getExportData().style }
+  connectionConfig.value.fontSize = size
+  iocEditor.execute('updateConnectionProperty', {
+    connection: activeConnection.value as IConnection,
+    connectionConfig: { ...connectionConfig.value },
+    oldConnectionConfig
+  })
 }
 
 const changeLineType = (type: ConnectionType) => {
+  const oldLineType = activeConnection.value?.getConnectionType()
   lineType.value = type
-  activeConnection.value?.setLineType(type)
+  iocEditor.execute('changeConnectionType', {
+    connection: activeConnection.value as IConnection,
+    lineType: type,
+    oldLineType
+  })
 }
 </script>
 <template>
@@ -126,14 +161,18 @@ const changeLineType = (type: ConnectionType) => {
           @click="() => changeLineColor(color)"
         />
         <el-divider style="margin: 0 4px; height: 20px" direction="vertical" />
-        <el-color-picker v-model="lineColor" @change="changeLineColor" size="small" />
+        <el-color-picker
+          v-model="connectionConfig.stroke as string"
+          @change="changeLineColor"
+          size="small"
+        />
       </div>
     </div>
     <div class="property-item">
       <div class="property-name">线条宽度</div>
       <div class="property-value">
         <el-select
-          v-model="lineWidth"
+          v-model="connectionConfig.lineWidth"
           size="small"
           style="width: 157px; margin-right: 5px"
           @change="changeLineWidth"
@@ -147,13 +186,13 @@ const changeLineType = (type: ConnectionType) => {
       <div class="property-value">
         <el-select
           placeholder="Select"
-          v-model="lineDash"
+          v-model="connectionConfig.lineDash"
           size="small"
           style="width: 157px; margin-right: 5px"
           @change="changeLineDash"
         >
           <el-option
-            v-for="item in lineDashList"
+            v-for="item in lineTypeOpt"
             :key="item.value"
             :label="item.label"
             :value="item.value"
@@ -195,14 +234,18 @@ const changeLineType = (type: ConnectionType) => {
           @click="() => changeLinkFontColor(color)"
         />
         <el-divider style="margin: 0 4px; height: 20px" direction="vertical" />
-        <el-color-picker v-model="lineTextFontColor" @change="changeLinkFontColor" size="small" />
+        <el-color-picker
+          v-model="connectionConfig.fontColor as string"
+          @change="changeLinkFontColor"
+          size="small"
+        />
       </div>
     </div>
     <div class="property-item">
       <div class="property-name">文本内容</div>
       <div class="property-value">
         <el-input
-          v-model="lineTextContent"
+          v-model="connectionConfig.text"
           :min="12"
           :max="30"
           size="small"
@@ -216,7 +259,7 @@ const changeLineType = (type: ConnectionType) => {
       <div class="property-name">文字大小</div>
       <div class="property-value">
         <el-input-number
-          v-model="lineTextFontSize"
+          v-model="connectionConfig.fontSize as number"
           :min="12"
           :max="30"
           size="small"
@@ -231,13 +274,13 @@ const changeLineType = (type: ConnectionType) => {
       <div class="property-value">
         <span
           class="icon iconfont font-style-icon icon-zitiyangshi_jiacu"
-          :class="{ active: fontWeight === 'bold' }"
+          :class="{ active: connectionConfig.fontWeight === 'bold' }"
           :title="'加粗'"
           @click="() => changeLineFontStyle('fontWeight')"
         />
         <span
           class="icon iconfont font-style-icon icon-zitiyangshi_xieti"
-          :class="{ active: fontStyle === 'italic' }"
+          :class="{ active: connectionConfig.fontStyle === 'italic' }"
           :title="'斜体'"
           @click="() => changeLineFontStyle('fontStyle')"
         />

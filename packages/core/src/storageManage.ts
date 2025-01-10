@@ -18,6 +18,7 @@ export interface IStorageManage {
   getActiveGroups(): INodeGroup[]
   getNodes(): (IShape | INodeGroup)[]
   getActiveNodes(): (IShape | INodeGroup)[]
+  getActiveConnections(): IConnection[]
 }
 
 class StorageManage {
@@ -76,21 +77,19 @@ class StorageManage {
   }
 
   getActiveShapes() {
-    return this.getShapes().filter((shape: IShape) => {
-      return shape.selected
-    })
+    return this.getShapes().filter((shape: IShape) => shape.selected)
   }
 
   getActiveGroups(): INodeGroup[] {
-    return this._groups.filter((group: INodeGroup) => {
-      return group.selected
-    })
+    return this._groups.filter((group: INodeGroup) => group.selected)
   }
 
   getActiveNodes() {
-    return this.getNodes().filter((node: IShape | INodeGroup) => {
-      return node.selected
-    })
+    return this.getNodes().filter((node: IShape | INodeGroup) => node.selected)
+  }
+
+  getActiveConnections() {
+    return this._connections.filter(connection => connection.selected)
   }
 }
 

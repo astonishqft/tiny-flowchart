@@ -124,8 +124,6 @@ function WidthCommon<TBase extends CommonConstructor>(Base: TBase) {
         fontWeight
       })
 
-      console.log('this节点', this)
-
       // 针对Image节点，设置style
       if (this.type === 'image' && image) {
         this.setStyle({ width, height, image })

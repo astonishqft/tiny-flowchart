@@ -31,7 +31,10 @@ import {
   RemoveNodeFromGroupCommand,
   DragEnterToGroupCommand,
   UpdateShapePropertyCommand,
-  UpdateGroupPropertyCommand
+  UpdateGroupPropertyCommand,
+  UpdateConnectionPropertyCommand,
+  ChangeConnectionTypeCommand,
+  UpdateControlPointCommand
 } from './history/commands'
 
 import type { IRefLineManage } from './refLineManage'
@@ -57,7 +60,10 @@ import type {
   IRemoveNodeFromGroupCommandOpts,
   IDragEnterToGroupCommandOpts,
   IUpdateShapePropertyCommandOpts,
-  IUpdateGroupPropertyCommandOpts
+  IUpdateGroupPropertyCommandOpts,
+  IUpdateConnectionPropertyCommandOpts,
+  IChangeConnectionTypeCommandOpts,
+  IUpdateControlPointCommandOpts
 } from './history/commands'
 
 import {
@@ -201,7 +207,9 @@ export class IocEditor implements IIocEditor {
       | IRemoveNodeFromGroupCommandOpts
       | IDragEnterToGroupCommandOpts
       | IUpdateShapePropertyCommandOpts
-      | IUpdateGroupPropertyCommandOpts
+      | IUpdateConnectionPropertyCommandOpts
+      | IChangeConnectionTypeCommandOpts
+      | IUpdateControlPointCommandOpts
   ) {
     switch (type) {
       case 'addShape': {
@@ -290,6 +298,41 @@ export class IocEditor implements IIocEditor {
         const { group, groupConfig, oldGroupConfig } = options as IUpdateGroupPropertyCommandOpts
         this._historyMgr.execute(
           new UpdateGroupPropertyCommand(this, group, groupConfig, oldGroupConfig)
+        )
+        break
+      }
+      case 'updateConnectionProperty': {
+        const { connection, connectionConfig, oldConnectionConfig } =
+          options as IUpdateConnectionPropertyCommandOpts
+        this._historyMgr.execute(
+          new UpdateConnectionPropertyCommand(
+            this,
+            connection,
+            connectionConfig,
+            oldConnectionConfig
+          )
+        )
+        break
+      }
+      case 'changeConnectionType': {
+        const { connection, lineType, oldLineType } = options as IChangeConnectionTypeCommandOpts
+        this._historyMgr.execute(
+          new ChangeConnectionTypeCommand(this, connection, lineType, oldLineType)
+        )
+        break
+      }
+      case 'updateControlPoint': {
+        const { connection, controlPoint1, controlPoint2, oldControlPoint1, oldControlPoint2 } =
+          options as IUpdateControlPointCommandOpts
+        this._historyMgr.execute(
+          new UpdateControlPointCommand(
+            this,
+            connection,
+            controlPoint1,
+            controlPoint2,
+            oldControlPoint1,
+            oldControlPoint2
+          )
         )
         break
       }

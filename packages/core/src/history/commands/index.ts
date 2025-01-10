@@ -9,6 +9,9 @@ import { RemoveNodeFromGroupCommand } from './removeNodeFromGroup'
 import { DragEnterToGroupCommand } from './dragEnterToGroup'
 import { UpdateShapePropertyCommand } from './updateShapeProperty'
 import { UpdateGroupPropertyCommand } from './updateGroupProperty'
+import { UpdateConnectionPropertyCommand } from './updateConnectionProperty'
+import { ChangeConnectionTypeCommand } from './changeConnectionType'
+import { UpdateControlPointCommand } from './updateControlPoint'
 
 import type { IAddShapeCommandOpts } from './addShape'
 import type { IAddConnectionCommandOpts } from './addConnection'
@@ -20,6 +23,9 @@ import type { IRemoveNodeFromGroupCommandOpts } from './removeNodeFromGroup'
 import type { IDragEnterToGroupCommandOpts } from './dragEnterToGroup'
 import type { IUpdateShapePropertyCommandOpts } from './updateShapeProperty'
 import type { IUpdateGroupPropertyCommandOpts } from './updateGroupProperty'
+import type { IUpdateConnectionPropertyCommandOpts } from './updateConnectionProperty'
+import type { IChangeConnectionTypeCommandOpts } from './changeConnectionType'
+import type { IUpdateControlPointCommandOpts } from './updateControlPoint'
 
 export {
   AddConnectionCommand,
@@ -32,7 +38,10 @@ export {
   RemoveNodeFromGroupCommand,
   DragEnterToGroupCommand,
   UpdateShapePropertyCommand,
-  UpdateGroupPropertyCommand
+  UpdateGroupPropertyCommand,
+  UpdateConnectionPropertyCommand,
+  ChangeConnectionTypeCommand,
+  UpdateControlPointCommand
 }
 
 export type {
@@ -45,5 +54,8 @@ export type {
   IRemoveNodeFromGroupCommandOpts,
   IDragEnterToGroupCommandOpts,
   IUpdateShapePropertyCommandOpts,
-  IUpdateGroupPropertyCommandOpts
+  IUpdateGroupPropertyCommandOpts,
+  IUpdateConnectionPropertyCommandOpts,
+  IChangeConnectionTypeCommandOpts,
+  IUpdateControlPointCommandOpts
 }

@@ -43,7 +43,6 @@ export interface IExportConnectionStyle {
   fontSize: number | string | undefined
   fontWeight: FontWeight | undefined
   fontStyle: FontStyle | undefined
-  textPosition: number[]
 }
 
 export interface IExportConnection {
@@ -114,30 +113,24 @@ export interface IExportGroup {
 }
 
 export interface IConnection extends zrender.Group {
+  selected: boolean
   fromNode: IShape | INodeGroup
   toNode: IShape | INodeGroup | null
   fromPoint: IAnchor | null
   toPoint: IAnchor | null
+  controlPoint1: IControlPoint | null
+  controlPoint2: IControlPoint | null
+  connectionType: ConnectionType
   setFromPoint(point: IAnchor): void
   setToPoint(point: IAnchor): void
   refresh(): void
   active(): void
   unActive(): void
-  setLineWidth(lineWidth: number): void
   getLineWidth(): number | undefined
-  setLineColor(color: string): void
   getLineColor(): string | undefined
-  setLineDash(type: number[]): void
   getLineDash(): number[]
-  getLineType(): ConnectionType
-  setLineType(type: ConnectionType): void
-  setLineTextContent(content: string): void
   getLineTextContent(): string | undefined
-  setLineTextFontSize(size: number | undefined): void
   getLineTextFontSize(): number | string | undefined
-  setLineFontStyle(style: FontStyle): void
-  setLineFontWeight(weight: FontWeight): void
-  setLineTextFontColor(color: string | undefined): void
   getLineTextFontColor(): string | undefined
   getLineFontStyle(): FontStyle | undefined
   getLineFontWeight(): FontWeight | undefined

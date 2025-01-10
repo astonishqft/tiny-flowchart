@@ -21,6 +21,7 @@ import type {
   IShape,
   IExportShapeStyle,
   IExportGroupStyle,
+  IExportConnectionStyle,
   LineDashStyle
 } from './shapes'
 import type { INodeGroup } from './shapes/nodeGroup'
@@ -56,5 +57,6 @@ export type {
   IIocEditor,
   IExportShapeStyle,
   IExportGroupStyle,
+  IExportConnectionStyle,
   LineDashStyle
 }
