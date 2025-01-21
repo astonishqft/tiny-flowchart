@@ -6,7 +6,7 @@ import type { IIocEditor } from '../../iocEditor'
 
 export interface IMoveNodeCommandOpts {
   iocEditor: IIocEditor
-  node: IShape | INodeGroup
+  nodes: (IShape | INodeGroup)[]
   offsetX: number
   offsetY: number
 }

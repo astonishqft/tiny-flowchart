@@ -162,7 +162,6 @@ class ControlFrameManage implements IControlFrameManage {
     this._node?.attr('y', y)
     this._connectionMgr.refreshConnection(this._node as IShape)
     this.reSizeControlFrame(boundingBox)
-    // this._iocEditor.updateMiniMap$.next()
   }
 
   initEvent() {

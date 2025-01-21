@@ -1,4 +1,6 @@
 import Eventful from 'zrender/lib/core/Eventful'
+import { getBoundingBox, getMinPosition } from './utils'
+
 import type { IIocEditor } from './iocEditor'
 import type { IShape } from './shapes'
 import type { INodeGroup } from './shapes/nodeGroup'
@@ -9,7 +11,7 @@ import type { ISceneManage } from './sceneManage'
 import type { ISettingManage } from './settingManage'
 import type { IZoomManage } from './zoomManage'
 import type { IControlFrameManage } from './controlFrameManage'
-
+import type { IStorageManage } from './storageManage'
 class NodeEventManage {
   private _node: IShape | INodeGroup
   private _iocEditor: IIocEditor
@@ -19,6 +21,7 @@ class NodeEventManage {
   private _sceneMgr: ISceneManage
   private _settingMgr: ISettingManage
   private _zoomMgr: IZoomManage
+  private _storageMgr: IStorageManage
   private _controlFrameMgr: IControlFrameManage
   private _zoom: number = 1
   private _mouseDownX: number = 0
@@ -36,6 +39,7 @@ class NodeEventManage {
     this._iocEditor = iocEditor
     this._node = node
     this._zoomMgr = iocEditor._zoomMgr
+    this._storageMgr = iocEditor._storageMgr
     this._dragFrameMgr = iocEditor._dragFrameMgr
     this._refLineMgr = iocEditor._refLineMgr
     this._connectionMgr = iocEditor._connectionMgr
@@ -53,11 +57,20 @@ class NodeEventManage {
     ;(this._node as Eventful).on('mousedown', e => {
       this._mouseDownX = e.offsetX
       this._mouseDownY = e.offsetY
-      this._node.setOldPosition()
+
+      // 支持拖动多个节点
+      const activeNodes = this._storageMgr.getActiveNodes().length
+        ? this._storageMgr.getActiveNodes()
+        : [this._node]
+      activeNodes.forEach(node => node.setOldPosition())
+
       this._zoom = this._zoomMgr.getZoom()
-      this._dragFrameMgr.updatePosition(this._node.x, this._node.y)
+      this._dragFrameMgr.updatePosition(
+        getMinPosition(activeNodes)[0],
+        getMinPosition(activeNodes)[1]
+      )
       this._dragFrameMgr.show()
-      const { width, height } = this._node.getBoundingBox()
+      const { width, height } = getBoundingBox(activeNodes)
       this._dragFrameMgr.initSize(width, height)
 
       this._refLineMgr.cacheRefLines()
@@ -87,21 +100,27 @@ class NodeEventManage {
   onMouseMove(e: MouseEvent) {
     const nodeName = (e.target as HTMLElement).nodeName
     if (nodeName !== 'CANVAS') return
+    const activeNodes = this._storageMgr.getActiveNodes().length
+      ? this._storageMgr.getActiveNodes()
+      : [this._node]
     const { offsetX, offsetY } = e
     const stepX = offsetX - this._mouseDownX
     const stepY = offsetY - this._mouseDownY
     // 设置一个阈值，避免鼠标发生轻微位移时出现拖动浮层
     if (Math.abs(offsetX / this._zoom) > 2 || Math.abs(offsetY / this._zoom) > 2) {
       this._dragFrameMgr.updatePosition(
-        this._node.x + stepX / this._zoom,
-        this._node.y + stepY / this._zoom
+        getMinPosition(activeNodes)[0] + stepX / this._zoom,
+        getMinPosition(activeNodes)[1] + stepY / this._zoom
       )
-      const { isDragOutFromGroup, dragTargetGroup, isRemoveFromGroup, isDragEnterToGroup } =
-        this._dragFrameMgr.intersectWidthGroups(this._node)
-      this._isDragOutFromGroup = isDragOutFromGroup
-      this._dragTargetGroup = dragTargetGroup
-      this._isRemoveFromGroup = isRemoveFromGroup
-      this._isDragEnterToGroup = isDragEnterToGroup
+      if (activeNodes.length === 1) {
+        // 限制组之间拖动只允许一个节点
+        const { isDragOutFromGroup, dragTargetGroup, isRemoveFromGroup, isDragEnterToGroup } =
+          this._dragFrameMgr.intersectWidthGroups(this._node)
+        this._isDragOutFromGroup = isDragOutFromGroup
+        this._dragTargetGroup = dragTargetGroup
+        this._isRemoveFromGroup = isRemoveFromGroup
+        this._isDragEnterToGroup = isDragEnterToGroup
+      }
     }
     // 拖拽浮层的时候同时更新对其参考线
     const magneticOffset = this._refLineMgr.updateRefLines()
@@ -150,7 +169,13 @@ class NodeEventManage {
         offsetY
       })
     } else {
-      this._iocEditor.execute('moveNode', { node: this._node, offsetX, offsetY })
+      // 支持移动多个节点
+      const nodes =
+        this._storageMgr.getActiveNodes().length > 1
+          ? this._iocEditor._storageMgr.getActiveNodes()
+          : [this._node]
+
+      this._iocEditor.execute('moveNodes', { nodes, offsetX, offsetY })
     }
 
     this._controlFrameMgr.unActive()

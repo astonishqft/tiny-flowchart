@@ -216,6 +216,7 @@ export class IocEditor implements IIocEditor {
   ) {
     switch (type) {
       case 'addShape': {
+        this._sceneMgr.unActive()
         const { shapeType } = options as IAddShapeCommandOpts
         const shape = this._shapeMgr.createShape(shapeType, options as IAddShapeCommandOpts)
         this._historyMgr.execute(new AddShapeCommand(this, shape))
@@ -226,8 +227,8 @@ export class IocEditor implements IIocEditor {
         this._historyMgr.execute(new AddConnectionCommand(this, connection))
         break
       }
-      case 'moveNode': {
-        const { node, offsetX, offsetY } = options as IMoveNodeCommandOpts
+      case 'moveNodes': {
+        const { nodes, offsetX, offsetY } = options as IMoveNodeCommandOpts
         const patchCommands: Command[] = []
 
         const moveGroup = (group: INodeGroup, offsetX: number, offsetY: number) => {
@@ -243,12 +244,15 @@ export class IocEditor implements IIocEditor {
             })
           }
         }
-        if (node.nodeType === NodeType.Group) {
-          moveGroup(node as INodeGroup, offsetX, offsetY)
-        } else {
-          const moveNodeCommand = new MoveNodeCommand(this, node, offsetX, offsetY)
-          patchCommands.push(moveNodeCommand)
-        }
+
+        nodes.forEach((node: IShape | INodeGroup) => {
+          if (node.nodeType === NodeType.Group) {
+            moveGroup(node as INodeGroup, offsetX, offsetY)
+          } else {
+            const moveNodeCommand = new MoveNodeCommand(this, node, offsetX, offsetY)
+            patchCommands.push(moveNodeCommand)
+          }
+        })
 
         this._historyMgr.execute(new PatchCommand(patchCommands))
         break
@@ -342,6 +346,11 @@ export class IocEditor implements IIocEditor {
       case 'resizeShape': {
         const { node, oldBoundingBox, boundingBox } = options as IResizeShapeCommandOpts
         this._historyMgr.execute(new ResizeShapeCommand(this, node, oldBoundingBox, boundingBox))
+        break
+      }
+      case 'delete': {
+        // const { node } = options as IDeleteCommandOpts
+        // this._historyMgr.execute(new DeleteCommand(this, node))
         break
       }
       default:

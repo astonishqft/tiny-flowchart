@@ -169,3 +169,9 @@ export const groupTreeToArray = (treeNode: IGroupTreeNode[]) => {
 export const getChildShapesByGroupId = (groupId: number, shapes: IExportShape[]) => {
   return shapes.filter(shape => shape.parent === groupId)
 }
+
+export const getBoundingBox = (shapes: (IShape | INodeGroup)[]) => {
+  const g = new zrender.Group()
+
+  return g.getBoundingRect(shapes)
+}
