@@ -18,7 +18,7 @@ export interface IConnectionManage extends IDisposable {
   createTmpConnection(fromAnchorPoint: IAnchorPoint): void
   moveTmpConnection(x: number, y: number): void
   removeTmpConnection(): void
-  getConnectionByShape(shape: IShape | INodeGroup): IConnection[]
+  getConnectionsByShape(shape: IShape | INodeGroup): IConnection[]
   setConnectionType(type: ConnectionType): void
   refreshConnection(shape: IShape | INodeGroup): void
   addConnectionToEditor(connection: IConnection): void
@@ -122,7 +122,7 @@ class ConnectionManage extends Disposable {
     this._storageMgr.removeConnection(connection)
   }
 
-  getConnectionByShape(shape: IShape | INodeGroup) {
+  getConnectionsByShape(shape: IShape | INodeGroup) {
     const conns: IConnection[] = []
 
     this._storageMgr.getConnections().forEach((connection: IConnection) => {
@@ -136,7 +136,7 @@ class ConnectionManage extends Disposable {
 
   refreshConnection(shape: IShape | INodeGroup) {
     shape.anchor.refresh()
-    const conns = this.getConnectionByShape(shape)
+    const conns = this.getConnectionsByShape(shape)
 
     conns.forEach(conn => {
       if (conn.fromNode.id === shape.id) {

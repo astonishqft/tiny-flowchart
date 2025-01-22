@@ -27,11 +27,13 @@ class MoveNodeCommand implements Command {
     this.offsetX = offsetX
     this.offsetY = offsetY
   }
+
   execute() {
     this.node.updatePosition([this.oldX + this.offsetX, this.oldY + this.offsetY])
     this.refreshConnections()
     this.updateGroupSize(this.node)
   }
+
   undo() {
     this.node.updatePosition([this.oldX, this.oldY])
     this.refreshConnections()

@@ -35,7 +35,9 @@ import {
   UpdateConnectionPropertyCommand,
   ChangeConnectionTypeCommand,
   UpdateControlPointCommand,
-  ResizeShapeCommand
+  ResizeShapeCommand,
+  DeleteNodeCommand,
+  DeleteConnectionCommand
 } from './history/commands'
 
 import type { IRefLineManage } from './refLineManage'
@@ -65,7 +67,9 @@ import type {
   IUpdateConnectionPropertyCommandOpts,
   IChangeConnectionTypeCommandOpts,
   IUpdateControlPointCommandOpts,
-  IResizeShapeCommandOpts
+  IResizeShapeCommandOpts,
+  IDeleteNodeCommandOpts,
+  IDeleteConnectionCommandOpts
 } from './history/commands'
 
 import {
@@ -120,6 +124,7 @@ export interface IIocEditor {
   redo(): void
   createGroup(): void
   unGroup(): void
+  delete(): void
 }
 
 export class IocEditor implements IIocEditor {
@@ -197,6 +202,14 @@ export class IocEditor implements IIocEditor {
     this.updateMiniMap$.next()
   }
 
+  delete() {
+    const activeNodes = this._storageMgr.getActiveNodes()
+    const activeConnections = this._storageMgr.getActiveConnections()
+    if (activeNodes.length < 1 && activeConnections.length < 1) return
+    this._sceneMgr.unActive()
+    this.execute('delete', { nodes: activeNodes, connections: activeConnections })
+  }
+
   execute(
     type: string,
     options:
@@ -213,6 +226,8 @@ export class IocEditor implements IIocEditor {
       | IChangeConnectionTypeCommandOpts
       | IUpdateControlPointCommandOpts
       | IResizeShapeCommandOpts
+      | IDeleteNodeCommandOpts
+      | IDeleteConnectionCommandOpts
   ) {
     switch (type) {
       case 'addShape': {
@@ -349,8 +364,41 @@ export class IocEditor implements IIocEditor {
         break
       }
       case 'delete': {
-        // const { node } = options as IDeleteCommandOpts
-        // this._historyMgr.execute(new DeleteCommand(this, node))
+        const { nodes, connections } = options as IDeleteNodeCommandOpts
+        const patchCommands: Command[] = []
+
+        const deleteGroup = (group: INodeGroup) => {
+          patchCommands.push(new DeleteNodeCommand(this, group))
+          connections.push(...this._connectionMgr.getConnectionsByShape(group))
+          group.shapes.forEach(shape => {
+            if (shape.nodeType === NodeType.Group) {
+              deleteGroup(shape as INodeGroup)
+            } else {
+              patchCommands.push(new DeleteNodeCommand(this, shape))
+              connections.push(...this._connectionMgr.getConnectionsByShape(shape))
+            }
+          })
+        }
+
+        nodes.forEach(node => {
+          if (node.nodeType === NodeType.Group) {
+            deleteGroup(node as INodeGroup)
+          } else {
+            patchCommands.push(new DeleteNodeCommand(this, node))
+            connections.push(...this._connectionMgr.getConnectionsByShape(node))
+          }
+        })
+
+        connections
+          .filter(
+            (connection, index, self) =>
+              index === self.findIndex((c: IConnection) => c.id === connection.id)
+          )
+          .forEach(connection => {
+            patchCommands.push(new DeleteConnectionCommand(this, connection))
+          })
+
+        this._historyMgr.execute(new PatchCommand(patchCommands))
         break
       }
       default:

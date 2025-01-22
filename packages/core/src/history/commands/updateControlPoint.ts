@@ -17,6 +17,7 @@ class UpdateControlPointCommand implements Command {
   private controlPoint2: (number | undefined)[]
   private oldControlPoint1: (number | undefined)[]
   private oldControlPoint2: (number | undefined)[]
+
   constructor(
     iocEditor: IIocEditor,
     connection: IConnection,

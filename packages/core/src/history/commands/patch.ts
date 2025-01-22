@@ -6,9 +6,11 @@ class PatchCommand implements Command {
   constructor(cmds: Command[]) {
     this.cmds = cmds
   }
+
   execute() {
     this.cmds.forEach(cmd => cmd.execute())
   }
+
   undo() {
     this.cmds.forEach(cmd => cmd.undo())
   }

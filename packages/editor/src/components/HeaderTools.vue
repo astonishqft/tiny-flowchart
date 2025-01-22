@@ -55,6 +55,12 @@ const toolsConfig = ref([
     disabled: false
   },
   {
+    name: 'delete',
+    icon: 'icon-delete',
+    desc: '删除',
+    disabled: false
+  },
+  {
     name: 'clear',
     icon: 'icon-clear',
     desc: '清除画布',
@@ -136,6 +142,9 @@ const command = (name: string) => {
       break
     case 'redo':
       props.iocEditor.redo()
+      break
+    case 'delete':
+      props.iocEditor.delete()
       break
     default:
       break

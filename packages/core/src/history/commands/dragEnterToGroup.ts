@@ -14,6 +14,7 @@ class DragEnterToGroupCommand implements Command {
   private iocEditor: IIocEditor
   private targetGroup: INodeGroup
   private node: IShape | INodeGroup
+
   constructor(iocEditor: IIocEditor, group: INodeGroup, node: IShape | INodeGroup) {
     this.iocEditor = iocEditor
     this.targetGroup = group

@@ -19,9 +19,11 @@ class RemoveNodeFromGroupCommand implements Command {
     this.node = node
     this.parentGroup = node.parentGroup as INodeGroup
   }
+
   execute() {
     this.iocEditor._groupMgr.removeShapeFromGroup(this.node)
   }
+
   undo() {
     this.iocEditor._groupMgr.addShapeToGroup(this.node, this.parentGroup)
   }

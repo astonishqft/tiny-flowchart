@@ -12,6 +12,7 @@ import type { ISettingManage } from './settingManage'
 import type { IZoomManage } from './zoomManage'
 import type { IControlFrameManage } from './controlFrameManage'
 import type { IStorageManage } from './storageManage'
+
 class NodeEventManage {
   private _node: IShape | INodeGroup
   private _iocEditor: IIocEditor

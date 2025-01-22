@@ -25,6 +25,7 @@ class UpdateGroupPropertyCommand implements Command {
     this.groupConfig = groupConfig
     this.oldGroupConfig = oldGroupConfig
   }
+
   execute() {
     this.group.setStyle(this.groupConfig)
   }
