@@ -37,7 +37,8 @@ import {
   UpdateControlPointCommand,
   ResizeShapeCommand,
   DeleteNodeCommand,
-  DeleteConnectionCommand
+  DeleteConnectionCommand,
+  ClearCommand
 } from './history/commands'
 
 import type { IRefLineManage } from './refLineManage'
@@ -69,7 +70,7 @@ import type {
   IUpdateControlPointCommandOpts,
   IResizeShapeCommandOpts,
   IDeleteNodeCommandOpts,
-  IDeleteConnectionCommandOpts
+  IClearCommandOpts
 } from './history/commands'
 
 import {
@@ -114,7 +115,7 @@ export interface IIocEditor {
   initFlowChart(data: IExportData): void
   initGroup(groups: IExportGroup[], shapes: IExportShape[]): void
   getShapeById(id: number): IShape[]
-  getData(): { shapes: IExportShape[]; connections: IExportConnection[]; groups: IExportGroup[] }
+  getExportData(): IExportData
   exportFile(): void
   openFile(): void
   destroy(): void
@@ -125,6 +126,7 @@ export interface IIocEditor {
   createGroup(): void
   unGroup(): void
   delete(): void
+  clear(): void
 }
 
 export class IocEditor implements IIocEditor {
@@ -210,6 +212,11 @@ export class IocEditor implements IIocEditor {
     this.execute('delete', { nodes: activeNodes, connections: activeConnections })
   }
 
+  clear() {
+    const exportData = this.getExportData()
+    this.execute('clear', { exportData })
+  }
+
   execute(
     type: string,
     options:
@@ -227,7 +234,7 @@ export class IocEditor implements IIocEditor {
       | IUpdateControlPointCommandOpts
       | IResizeShapeCommandOpts
       | IDeleteNodeCommandOpts
-      | IDeleteConnectionCommandOpts
+      | IClearCommandOpts
   ) {
     switch (type) {
       case 'addShape': {
@@ -401,6 +408,11 @@ export class IocEditor implements IIocEditor {
         this._historyMgr.execute(new PatchCommand(patchCommands))
         break
       }
+      case 'clear': {
+        const { exportData } = options as IClearCommandOpts
+        this._historyMgr.execute(new ClearCommand(this, exportData))
+        break
+      }
       default:
         break
     }
@@ -516,7 +528,7 @@ export class IocEditor implements IIocEditor {
     return this._storageMgr.getShapes().filter(s => s.id === id)
   }
 
-  getData() {
+  getExportData() {
     const shapes = this._storageMgr.getShapes().map(shape => shape.getExportData())
 
     const connections = this._storageMgr
@@ -532,8 +544,8 @@ export class IocEditor implements IIocEditor {
   }
 
   exportFile() {
-    const str = JSON.stringify(this.getData(), null, 2)
-    console.log('导出的数据为：', this.getData())
+    const str = JSON.stringify(this.getExportData(), null, 2)
+    console.log('导出的数据为：', this.getExportData())
     downloadFile(str, 'ioc-chart-flow.json')
   }
 

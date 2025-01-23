@@ -120,7 +120,7 @@ const command = (name: string) => {
       props.iocEditor._connectionMgr.setConnectionType(currentLineType.value)
       break
     case 'clear':
-      props.iocEditor._sceneMgr.clear()
+      props.iocEditor.clear()
       break
     case 'select':
       props.iocEditor._selectFrameMgr.setSelectFrameStatus(true)

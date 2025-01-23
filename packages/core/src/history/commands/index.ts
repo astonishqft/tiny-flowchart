@@ -15,6 +15,7 @@ import { UpdateControlPointCommand } from './updateControlPoint'
 import { ResizeShapeCommand } from './resizeShape'
 import { DeleteNodeCommand } from './deleteNode'
 import { DeleteConnectionCommand } from './deleteConnection'
+import { ClearCommand } from './clear'
 
 import type { IAddShapeCommandOpts } from './addShape'
 import type { IAddConnectionCommandOpts } from './addConnection'
@@ -32,7 +33,7 @@ import type { IUpdateControlPointCommandOpts } from './updateControlPoint'
 import type { IResizeShapeCommandOpts } from './resizeShape'
 import type { IDeleteNodeCommandOpts } from './deleteNode'
 import type { IDeleteConnectionCommandOpts } from './deleteConnection'
-
+import type { IClearCommandOpts } from './clear'
 export {
   AddConnectionCommand,
   AddShapeCommand,
@@ -50,7 +51,8 @@ export {
   UpdateControlPointCommand,
   ResizeShapeCommand,
   DeleteNodeCommand,
-  DeleteConnectionCommand
+  DeleteConnectionCommand,
+  ClearCommand
 }
 
 export type {
@@ -69,5 +71,6 @@ export type {
   IUpdateControlPointCommandOpts,
   IResizeShapeCommandOpts,
   IDeleteNodeCommandOpts,
-  IDeleteConnectionCommandOpts
+  IDeleteConnectionCommandOpts,
+  IClearCommandOpts
 }

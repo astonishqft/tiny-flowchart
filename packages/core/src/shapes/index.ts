@@ -59,12 +59,6 @@ export interface IExportConnection {
   style: IExportConnectionStyle
 }
 
-export interface IExportData {
-  shapes: any[]
-  connections: any[]
-  groups: any[]
-}
-
 export interface IExportShapeStyle {
   fill: FillStyle
   stroke: StrokeStyle
@@ -192,6 +186,12 @@ export interface IAnchorPoint extends zrender.Circle {
   mark: string
   oldFillColor: string
   anch: IAnchorPoint
+}
+
+export interface IExportData {
+  shapes: IExportShape[]
+  connections: IExportConnection[]
+  groups: IExportGroup[]
 }
 
 export const shapeConfig: IShapeConfig = {
