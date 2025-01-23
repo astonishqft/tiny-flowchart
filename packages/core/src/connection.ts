@@ -9,12 +9,13 @@ import type {
   IAnchorPoint,
   IExportConnectionStyle,
   IShape,
-  LineDashStyle
+  LineDashStyle,
+  StrokeStyle
 } from './shapes'
 import type { FontStyle, FontWeight } from 'zrender/lib/core/types'
 import type { INodeGroup } from './shapes/nodeGroup'
 import type { IIocEditor } from './iocEditor'
-
+import type { ISettingManage } from './settingManage'
 class Connection extends zrender.Group implements IConnection {
   private _line: zrender.Line | zrender.BezierCurve | zrender.Polyline | null = null
   private _controlLine1: zrender.Line | null = null
@@ -24,7 +25,7 @@ class Connection extends zrender.Group implements IConnection {
   private _textPoints: number[] = []
   private _lineText: zrender.Text | null = null
   // style
-  private _stroke: string = '#333'
+  private _stroke: StrokeStyle = '#333'
   private _lineWidth: number = 1
   private _lineDash: LineDashStyle = 'solid'
   private _lineTextFontSize: number = 12
@@ -32,6 +33,10 @@ class Connection extends zrender.Group implements IConnection {
   private _lineTextFontStyle: FontStyle = 'normal'
   private _lineTextFontWeight: FontWeight = 'normal'
   private _iocEditor: IIocEditor
+  private _settingMgr: ISettingManage
+  private _connectionSelectColor: string
+  private _oldStroke: StrokeStyle = '#333'
+  private _oldConnectionWidth = 1
 
   controlPoint1: IControlPoint | null = null
   controlPoint2: IControlPoint | null = null
@@ -52,6 +57,8 @@ class Connection extends zrender.Group implements IConnection {
   ) {
     super()
     this._iocEditor = iocEditor
+    this._settingMgr = iocEditor._settingMgr
+    this._connectionSelectColor = this._settingMgr.get('connectionSelectColor')
     this.fromAnchorPoint = fromAnchorPoint
     this.toAnchorPoint = toAnchorPoint
     this.fromNode = fromAnchorPoint.node
@@ -87,8 +94,11 @@ class Connection extends zrender.Group implements IConnection {
     }
 
     this._line?.setStyle({
-      shadowColor: '#e85827',
-      shadowBlur: 4
+      stroke: this._connectionSelectColor,
+      lineWidth: this._lineWidth * 2
+    })
+    this._arrow?.setStyle({
+      fill: this._connectionSelectColor
     })
 
     this.selected = true
@@ -103,8 +113,11 @@ class Connection extends zrender.Group implements IConnection {
     }
 
     this._line?.setStyle({
-      shadowColor: 'none',
-      shadowBlur: undefined
+      stroke: this._oldStroke,
+      lineWidth: this._oldConnectionWidth
+    })
+    this._arrow?.setStyle({
+      fill: this._oldStroke
     })
 
     this.selected = false
@@ -204,7 +217,8 @@ class Connection extends zrender.Group implements IConnection {
 
     this.getLineTextContent() ? this._lineText.show() : this._lineText.hide()
     this.add(this._lineText)
-
+    this._oldStroke = this._stroke
+    this._oldConnectionWidth = this._lineWidth
     switch (this.connectionType) {
       case ConnectionType.Line:
         this._line = new zrender.Line({
@@ -650,6 +664,11 @@ class Connection extends zrender.Group implements IConnection {
     } else {
       this._lineText?.hide()
     }
+
+    this._oldStroke = stroke
+    this._oldConnectionWidth = lineWidth || 1
+    this._lineWidth = lineWidth || 1
+    this._stroke = stroke
   }
 
   setControlPoint1(position: number[]) {

@@ -4,7 +4,7 @@ import type { IIocEditor } from './iocEditor'
 import type { IViewPortManage } from './viewPortManage'
 import type { IConnectionManage } from './connectionManage'
 import type { IShape } from './shapes'
-
+import type { ISettingManage } from './settingManage'
 export interface IControlFrameManage {
   active(node: IShape): void
   unActive(): void
@@ -20,11 +20,15 @@ class ControlFrameManage implements IControlFrameManage {
   private _connectionMgr: IConnectionManage
   private _viewPortMgr: IViewPortManage
   private _iocEditor: IIocEditor
+  private _settingMgr: ISettingManage
   private _node: IShape | null = null
+  private _controlFrameColor: string
   constructor(iocEditor: IIocEditor) {
     this._iocEditor = iocEditor
     this._connectionMgr = iocEditor._connectionMgr
     this._viewPortMgr = iocEditor._viewPortMgr
+    this._settingMgr = iocEditor._settingMgr
+    this._controlFrameColor = this._settingMgr.get('controlFrameColor')
     this._controlBox = new zrender.Rect({
       shape: {
         x: 0,
@@ -34,7 +38,8 @@ class ControlFrameManage implements IControlFrameManage {
       },
       style: {
         fill: 'transparent',
-        stroke: 'red'
+        stroke: this._controlFrameColor,
+        lineDash: 'dashed'
       }
     })
 
@@ -42,7 +47,7 @@ class ControlFrameManage implements IControlFrameManage {
     this._ltControlPoint = new zrender.Rect({
       style: {
         fill: '#fff',
-        stroke: 'red',
+        stroke: this._controlFrameColor,
         lineWidth: 1
       },
       shape: {
@@ -59,7 +64,7 @@ class ControlFrameManage implements IControlFrameManage {
     this._rtControlPoint = new zrender.Rect({
       style: {
         fill: '#fff',
-        stroke: 'red',
+        stroke: this._controlFrameColor,
         lineWidth: 1
       },
       shape: {
@@ -76,7 +81,7 @@ class ControlFrameManage implements IControlFrameManage {
     this._lbControlPoint = new zrender.Rect({
       style: {
         fill: '#fff',
-        stroke: 'red',
+        stroke: this._controlFrameColor,
         lineWidth: 1
       },
       shape: {
@@ -93,7 +98,7 @@ class ControlFrameManage implements IControlFrameManage {
     this._rbControlPoint = new zrender.Rect({
       style: {
         fill: '#fff',
-        stroke: 'red',
+        stroke: this._controlFrameColor,
         lineWidth: 1
       },
       shape: {
