@@ -15,7 +15,7 @@ const toolsConfig = ref([
   {
     name: 'save',
     icon: 'icon-save',
-    desc: '保存为文件',
+    desc: '保存',
     disabled: false
   },
   {
@@ -28,7 +28,13 @@ const toolsConfig = ref([
     name: 'saveToPicture',
     icon: 'icon-image',
     desc: '保存为图片',
-    disabled: true
+    disabled: false
+  },
+  {
+    name: 'saveToFile',
+    icon: 'icon-LineDown',
+    desc: '保存为文件',
+    disabled: false
   },
   {
     name: 'undo',
@@ -132,7 +138,13 @@ const command = (name: string) => {
       props.iocEditor.unGroup()
       break
     case 'save':
+      props.iocEditor.save()
+      break
+    case 'saveToFile':
       props.iocEditor.exportFile()
+      break
+    case 'saveToPicture':
+      props.iocEditor.exportPicture()
       break
     case 'openFile':
       props.iocEditor.openFile()

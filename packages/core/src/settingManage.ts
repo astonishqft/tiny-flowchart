@@ -16,6 +16,7 @@ export interface IIocEditorConfig {
   connectionSelectColor: string // 连接线选中框的颜色
   showGrid: boolean
   enableMiniMap?: boolean
+  enableGrid?: boolean
   parent?: IIocEditor
 }
 
@@ -38,7 +39,8 @@ class SettingManage extends Disposable {
     refLineColor: '#29b7f3',
     selectFrameColor: '#1971c2',
     controlFrameColor: '#29b7f3',
-    connectionSelectColor: '#29b7f3'
+    connectionSelectColor: '#29b7f3',
+    enableGrid: true
   }
   updatedSetting$ = new Subject<Partial<IIocEditorConfig>>()
   constructor() {

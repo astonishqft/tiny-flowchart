@@ -15,16 +15,16 @@ const changeShowGrid = (isShow: boolean | string | number) => {
   showGrid.value = isShow as boolean
   props.iocEditor._settingMgr.set('showGrid', showGrid.value)
   if (isShow) {
-    props.iocEditor._gridMgr.showGrid()
+    // props.iocEditor._gridMgr.showGrid()
   } else {
-    props.iocEditor._gridMgr.hideGrid()
+    // props.iocEditor._gridMgr.hideGrid()
   }
 }
 
 const changeGridStep = (step: number | undefined) => {
   if (step) {
     props.iocEditor._settingMgr.set('gridStep', step)
-    props.iocEditor._gridMgr.drawGrid()
+    // props.iocEditor._gridMgr.drawGrid()
   }
 }
 </script>

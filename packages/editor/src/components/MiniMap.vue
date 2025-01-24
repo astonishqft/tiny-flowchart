@@ -14,13 +14,13 @@ const { iocEditor } = defineProps<{
 onMounted(() => {
   const miniMapContainer = document.getElementById('mini-map') as HTMLElement
 
-  miniMapIoc.value = new IocEditor(miniMapContainer, { enableMiniMap: true })
+  miniMapIoc.value = new IocEditor(miniMapContainer, { enableMiniMap: true, enableGrid: false })
   miniMapIoc.value.offEvent()
 
   miniMapMgr.value = new MiniMapManage(miniMapIoc.value, iocEditor)
 
   iocEditor.updateMiniMap$.subscribe(() => {
-    miniMapMgr.value?.refreshMap(iocEditor.getData())
+    miniMapMgr.value?.refreshMap(iocEditor.getExportData())
   })
 })
 

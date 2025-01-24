@@ -17,10 +17,12 @@
   "license": "ISC",
   "dependencies": {
     "@ioceditor/orthogonal-connector": "workspace:^",
+    "hotkeys-js": "^3.13.9",
     "rxjs": "^7.8.1",
     "zrender": "5.4.4"
   },
   "devDependencies": {
+    "rollup-plugin-visualizer": "^5.14.0",
     "tslib": "^2.6.2"
   }
 }

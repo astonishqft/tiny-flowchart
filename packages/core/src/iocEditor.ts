@@ -14,6 +14,7 @@ import { SelectFrameManage } from './selectFrameManage'
 import { SettingManage } from './settingManage'
 import { ControlFrameManage } from './controlFrameManage'
 import { HistoryManage } from './history/historyManage'
+import { HotKeysManager } from './hotKeysManage'
 import {
   downloadFile,
   flatGroupArrayToTree,
@@ -127,6 +128,8 @@ export interface IIocEditor {
   unGroup(): void
   delete(): void
   clear(): void
+  save(): void
+  exportPicture(): void
 }
 
 export class IocEditor implements IIocEditor {
@@ -174,6 +177,15 @@ export class IocEditor implements IIocEditor {
     this._sceneMgr = new SceneManage(this)
     this._historyMgr = new HistoryManage()
     this._sceneMgr.init()
+    if (!this._settingMgr.get('enableMiniMap')) {
+      new HotKeysManager(this)
+      if (localStorage.getItem('ioc-chart-flow')) {
+        setTimeout(() => {
+          this.initFlowChart(JSON.parse(localStorage.getItem('ioc-chart-flow') || '{}'))
+          this.updateMiniMap$.next()
+        }, 200)
+      }
+    }
   }
 
   addShape(options: IAddShapeCommandOpts) {
@@ -215,6 +227,58 @@ export class IocEditor implements IIocEditor {
   clear() {
     const exportData = this.getExportData()
     this.execute('clear', { exportData })
+  }
+
+  save() {
+    const exportData = this.getExportData()
+    localStorage.setItem('ioc-chart-flow', JSON.stringify(exportData))
+  }
+
+  exportPicture() {
+    const sceneWidth = this._viewPortMgr.getSceneWidth()
+    const sceneHeight = this._viewPortMgr.getSceneHeight()
+    const imageCanvasContainer = document.createElement('ioc-image-canvas') as HTMLCanvasElement
+    imageCanvasContainer.style.width = sceneWidth + 'px'
+    imageCanvasContainer.style.height = sceneHeight + 'px'
+
+    const imageCanvas = new IocEditor(imageCanvasContainer, {
+      enableMiniMap: false,
+      enableGrid: false
+    })
+    imageCanvas.offEvent()
+    const exportData = this.getExportData()
+
+    imageCanvas.initFlowChart(exportData)
+    const { x, y, width, height } = imageCanvas._viewPortMgr.getBoundingRect([
+      ...this._storageMgr.getNodes(),
+      ...this._storageMgr.getConnections()
+    ])
+
+    const scaleRatio = sceneWidth / width
+
+    const left = -x * scaleRatio
+    const top = -y * scaleRatio
+
+    imageCanvas._viewPortMgr.getViewPort().attr('x', left)
+    imageCanvas._viewPortMgr.getViewPort().attr('y', top)
+    imageCanvas._viewPortMgr.getViewPort().attr('scaleX', scaleRatio)
+    imageCanvas._viewPortMgr.getViewPort().attr('scaleY', scaleRatio)
+
+    ;(imageCanvas._zr.painter as any)
+      .getRenderedCanvas({
+        backgroundColor: 'transparent'
+      })
+      .toBlob((blob: Blob) => {
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = 'ioc-chart-flow.png'
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        // 释放 URL 对象
+        window.URL.revokeObjectURL(url)
+      }, 'image/png')
   }
 
   execute(

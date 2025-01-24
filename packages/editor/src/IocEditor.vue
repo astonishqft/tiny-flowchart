@@ -11,7 +11,8 @@ const editor = ref<IocEditor>()
 
 onMounted(() => {
   editor.value = new IocEditor(document.getElementById('ioc-editor') as HTMLElement, {
-    zoomStep: 0.2325
+    zoomStep: 0.2325,
+    enableGrid: true
   })
 })
 </script>

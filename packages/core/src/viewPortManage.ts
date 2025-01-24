@@ -31,14 +31,16 @@ class ViewPortManage extends Disposable {
   private _settingMgr: ISettingManage
   private _enableMiniMap
   private _currentZom = 1
+  private _enableGrid
 
   constructor(iocEditor: IocEditor) {
     super()
     this._iocEditor = iocEditor
     this._settingMgr = iocEditor._settingMgr
     this._enableMiniMap = this._settingMgr.get('enableMiniMap')
+    this._enableGrid = this._settingMgr.get('enableGrid')
 
-    if (!this._enableMiniMap) {
+    if (!this._enableMiniMap && this._enableGrid) {
       this._gridMgr = new GridManage(iocEditor, this)
     }
 
@@ -88,7 +90,9 @@ class ViewPortManage extends Disposable {
     this._viewPort.attr('x', x)
     this._viewPort.attr('y', y)
     this._gridMgr?.setPosition(x, y)
-    this._gridMgr?.drawGrid()
+    if (this._gridMgr) {
+      this._gridMgr?.drawGrid()
+    }
   }
 
   getPosition() {
