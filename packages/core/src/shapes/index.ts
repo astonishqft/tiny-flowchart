@@ -247,7 +247,7 @@ const getShapeTextConfig = (): IShapeTextConfig => {
         fontFamily: 'Arial'
       },
       z: 11,
-      cursor: 'move'
+      silent: true
     }),
     textConfig: {
       position: 'inside'

@@ -181,7 +181,8 @@ class SceneManage extends Disposable {
         // 创建连线
         const connection = this._connectionMgr.createConnection(
           fromAnchorPoint,
-          e.target as IAnchorPoint
+          e.target as IAnchorPoint,
+          this._connectionMgr.getConnectionType()
         )
         this._iocEditor.execute('addConnection', { connection })
       }

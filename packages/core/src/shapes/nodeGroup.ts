@@ -5,8 +5,8 @@ import { Anchor } from '../anchor'
 
 import type { IAnchor, IExportGroup, IExportGroupStyle, IShape, StrokeStyle } from './index'
 import type { IIocEditor } from '../iocEditor'
-import type { IConnectionManage } from '../connectionManage'
 import type { IViewPortManage } from '../viewPortManage'
+import type { ISettingManage } from '../settingManage'
 import type { IWidthActivate } from './mixins/widthActivate'
 import type { IWidthAnchor } from './mixins/widthAnchor'
 
@@ -43,7 +43,7 @@ export interface INodeGroup extends zrender.Group, IWidthActivate, IWidthAnchor 
 }
 
 class NodeGroup extends zrender.Group implements INodeGroup {
-  private _connectionMgr: IConnectionManage
+  private _settingMgr: ISettingManage
   private _viewPortMgr: IViewPortManage
   nodeType = NodeType.Group
   groupRect: zrender.Rect | null = null
@@ -63,10 +63,11 @@ class NodeGroup extends zrender.Group implements INodeGroup {
   z = 1
   anchor: Anchor
   parentGroup?: INodeGroup
+  groupActiveColor: string
 
   constructor(shapes: (IShape | INodeGroup)[], iocEditor: IIocEditor) {
     super()
-    this._connectionMgr = iocEditor._connectionMgr
+    this._settingMgr = iocEditor._settingMgr
     this._viewPortMgr = iocEditor._viewPortMgr
     this.shapes = shapes
     const [x, y] = getMinPosition(this.shapes)
@@ -77,6 +78,7 @@ class NodeGroup extends zrender.Group implements INodeGroup {
     this.anchor = new Anchor(this)
     this.anchor.bars.forEach(bar => this._viewPortMgr.addElementToViewPort(bar))
     this.anchor.refresh()
+    this.groupActiveColor = this._settingMgr.get('groupActiveColor')
   }
 
   create() {
@@ -172,9 +174,6 @@ class NodeGroup extends zrender.Group implements INodeGroup {
         y2: this.headHeight
       }
     })
-
-    // this.attr('x', x - this.padding)
-    // this.attr('y', y - this.padding - this.headHeight)
 
     this.updatePosition([x - this.padding, y - this.padding - this.headHeight])
 
@@ -289,8 +288,7 @@ class NodeGroup extends zrender.Group implements INodeGroup {
     this.selected = true
     this.groupRect!.attr({
       style: {
-        shadowColor: '#1971c2',
-        shadowBlur: 1
+        stroke: this.groupActiveColor
       }
     })
     this.anchor.show()
@@ -303,10 +301,10 @@ class NodeGroup extends zrender.Group implements INodeGroup {
     this.selected = false
     this.groupRect!.attr({
       style: {
-        shadowColor: '',
-        shadowBlur: 0
+        stroke: this.oldStroke
       }
     })
+    console.log('group unActive')
     this.anchor.hide()
   }
 

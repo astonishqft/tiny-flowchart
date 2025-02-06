@@ -130,6 +130,8 @@ export interface IIocEditor {
   clear(): void
   save(): void
   exportPicture(): void
+  copy(): void
+  paste(): void
 }
 
 export class IocEditor implements IIocEditor {
@@ -149,6 +151,11 @@ export class IocEditor implements IIocEditor {
   _selectFrameMgr: ISelectFrameManage
   _controlFrameMgr: IControlFrameManage
   _historyMgr: IHistoryManage
+  _copyData: IExportData = {
+    shapes: [],
+    connections: [],
+    groups: []
+  }
   updateZoom$ = new Subject<IUpdateZoomOpts>()
   updateMiniMap$ = new Subject<void>()
 
@@ -263,7 +270,6 @@ export class IocEditor implements IIocEditor {
     imageCanvas._viewPortMgr.getViewPort().attr('y', top)
     imageCanvas._viewPortMgr.getViewPort().attr('scaleX', scaleRatio)
     imageCanvas._viewPortMgr.getViewPort().attr('scaleY', scaleRatio)
-
     ;(imageCanvas._zr.painter as any)
       .getRenderedCanvas({
         backgroundColor: 'transparent'
@@ -280,6 +286,10 @@ export class IocEditor implements IIocEditor {
         window.URL.revokeObjectURL(url)
       }, 'image/png')
   }
+
+  copy() {}
+
+  paste() {}
 
   execute(
     type: string,
@@ -440,13 +450,13 @@ export class IocEditor implements IIocEditor {
 
         const deleteGroup = (group: INodeGroup) => {
           patchCommands.push(new DeleteNodeCommand(this, group))
-          connections.push(...this._connectionMgr.getConnectionsByShape(group))
+          connections.push(...this._connectionMgr.getConnectionsByNode(group))
           group.shapes.forEach(shape => {
             if (shape.nodeType === NodeType.Group) {
               deleteGroup(shape as INodeGroup)
             } else {
               patchCommands.push(new DeleteNodeCommand(this, shape))
-              connections.push(...this._connectionMgr.getConnectionsByShape(shape))
+              connections.push(...this._connectionMgr.getConnectionsByNode(shape))
             }
           })
         }
@@ -456,7 +466,7 @@ export class IocEditor implements IIocEditor {
             deleteGroup(node as INodeGroup)
           } else {
             patchCommands.push(new DeleteNodeCommand(this, node))
-            connections.push(...this._connectionMgr.getConnectionsByShape(node))
+            connections.push(...this._connectionMgr.getConnectionsByNode(node))
           }
         })
 
@@ -500,6 +510,12 @@ export class IocEditor implements IIocEditor {
 
     const { shapes = [], connections = [], groups = [] } = data
 
+    this.initShape(shapes)
+    this.initGroup(groups, shapes)
+    this.initConnection(connections)
+  }
+
+  initShape(shapes: IExportShape[]) {
     shapes.forEach(({ type, id, x, y, style: shapeConfig, shape, z }: IExportShape) => {
       const config: { x: number; y: number; image?: string } = { x, y }
 
@@ -515,9 +531,9 @@ export class IocEditor implements IIocEditor {
       newShape.id = id
       newShape.unActive()
     })
+  }
 
-    this.initGroup(groups, shapes)
-
+  initConnection(connections: IExportConnection[]) {
     connections.forEach((conn: IExportConnection) => {
       const fromNode = this.getNodeById(conn.fromNode)
       const toNode = this.getNodeById(conn.toNode)
@@ -528,7 +544,11 @@ export class IocEditor implements IIocEditor {
       if (!fromAnchorPoint || !toAnchorPoint) return
 
       this._connectionMgr.setConnectionType(conn.type)
-      const connection = this._connectionMgr.createConnection(fromAnchorPoint, toAnchorPoint)
+      const connection = this._connectionMgr.createConnection(
+        fromAnchorPoint,
+        toAnchorPoint,
+        conn.type
+      )
       this._connectionMgr.addConnectionToEditor(connection)
       connection.setStyle(conn.style)
 
@@ -545,22 +565,22 @@ export class IocEditor implements IIocEditor {
     }: { groupTree: IGroupTreeNode[]; groupMap: Map<number, IGroupTreeNode> } =
       flatGroupArrayToTree(groups)
 
-    console.log('groupTree', JSON.stringify(groupTree, null, 2))
-    console.log(
-      'groupMap',
-      JSON.stringify(
-        Array.from(groupMap).reduce(
-          (obj, [key, value]) => Object.assign(obj, { [key]: value }),
-          {}
-        ),
-        null,
-        2
-      )
-    )
+    // console.log('groupTree', JSON.stringify(groupTree, null, 2))
+    // console.log(
+    //   'groupMap',
+    //   JSON.stringify(
+    //     Array.from(groupMap).reduce(
+    //       (obj, [key, value]) => Object.assign(obj, { [key]: value }),
+    //       {}
+    //     ),
+    //     null,
+    //     2
+    //   )
+    // )
 
     const treeGroupArray = groupTreeToArray(groupTree)
 
-    console.log('treeArray', JSON.stringify(treeGroupArray), null, 2)
+    // console.log('treeArray', JSON.stringify(treeGroupArray), null, 2)
 
     treeGroupArray.forEach((gId: number) => {
       let childs = []

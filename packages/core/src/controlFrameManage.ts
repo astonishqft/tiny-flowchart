@@ -40,7 +40,8 @@ class ControlFrameManage implements IControlFrameManage {
         fill: 'transparent',
         stroke: this._controlFrameColor,
         lineDash: 'dashed'
-      }
+      },
+      silent: true
     })
 
     // 左上角控制点
@@ -128,8 +129,9 @@ class ControlFrameManage implements IControlFrameManage {
     this._rtControlPoint.show()
     this._lbControlPoint.show()
     this._rbControlPoint.show()
-    const boundingBox = node.getBoundingBox()
-    this.reSizeControlFrame(boundingBox)
+    const { width, height, x, y } = node.getBoundingBox()
+    const lineWidth = node.style.lineWidth
+    this.reSizeControlFrame(new zrender.BoundingRect(x, y, width - lineWidth, height - lineWidth))
   }
 
   reSizeControlFrame(boundingBox: zrender.BoundingRect) {

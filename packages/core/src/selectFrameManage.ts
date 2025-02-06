@@ -57,7 +57,7 @@ class SelectFrameManage implements ISelectFrameManage {
     this._selectFrame.attr({
       shape: {
         width,
-        height
+        height: height - 1
       }
     })
   }
@@ -67,10 +67,9 @@ class SelectFrameManage implements ISelectFrameManage {
     selectFrameBoundingBox.x = this._selectFrame.x
     selectFrameBoundingBox.y = this._selectFrame.y
     this._storageMgr.getNodes().forEach(shape => {
-      const shapeBoundingBox = shape.getBoundingRect()
-      shapeBoundingBox.x = shape.x
-      shapeBoundingBox.y = shape.y
-      if (selectFrameBoundingBox.intersect(shapeBoundingBox)) {
+      const { width, height } = shape.getBoundingRect()
+      const { x, y } = shape
+      if (selectFrameBoundingBox.intersect(new zrender.BoundingRect(x, y, width, height))) {
         shape.active()
       } else {
         shape.unActive()

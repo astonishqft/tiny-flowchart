@@ -16,7 +16,7 @@ class UnGroupCommand implements Command {
   constructor(iocEditor: IIocEditor, group: INodeGroup) {
     this.iocEditor = iocEditor
     this.group = group
-    this.connections = this.iocEditor._connectionMgr.getConnectionsByGroup(this.group)
+    this.connections = this.iocEditor._connectionMgr.getConnectionsByNode(this.group)
   }
 
   execute() {

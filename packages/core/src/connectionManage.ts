@@ -14,18 +14,22 @@ import type { IIocEditor } from './iocEditor'
 export interface IConnectionManage extends IDisposable {
   updateConnectionType$: Subject<ConnectionType>
   updateSelectConnection$: Subject<IConnection>
-  createConnection(fromAnchorPoint: IAnchorPoint, toAnchorPoint: IAnchorPoint): IConnection
+  createConnection(
+    fromAnchorPoint: IAnchorPoint,
+    toAnchorPoint: IAnchorPoint,
+    connectionType: ConnectionType
+  ): IConnection
   createTmpConnection(fromAnchorPoint: IAnchorPoint): void
   moveTmpConnection(x: number, y: number): void
   removeTmpConnection(): void
-  getConnectionsByShape(shape: IShape | INodeGroup): IConnection[]
-  setConnectionType(type: ConnectionType): void
+  getConnectionsByNode(shape: IShape | INodeGroup): IConnection[]
+  getUniqueConnections(connections: IConnection[]): IConnection[]
   refreshConnection(shape: IShape | INodeGroup): void
   addConnectionToEditor(connection: IConnection): void
   removeConnectionFromEditor(connection: IConnection): void
   clear(): void
   unActiveConnections(): void
-  getConnectionsByGroup(node: INodeGroup | IShape): IConnection[]
+  setConnectionType(type: ConnectionType): void
   getConnectionType(): ConnectionType
 }
 
@@ -48,6 +52,10 @@ class ConnectionManage extends Disposable {
 
   setConnectionType(type: ConnectionType): void {
     this._connectionType = type
+  }
+
+  getConnectionType(): ConnectionType {
+    return this._connectionType
   }
 
   createTmpConnection(fromAnchorPoint: IAnchorPoint) {
@@ -84,12 +92,16 @@ class ConnectionManage extends Disposable {
     this._tempConnection = null
   }
 
-  createConnection(fromAnchorPoint: IAnchorPoint, toAnchorPoint: IAnchorPoint): IConnection {
+  createConnection(
+    fromAnchorPoint: IAnchorPoint,
+    toAnchorPoint: IAnchorPoint,
+    connectionType: ConnectionType
+  ): IConnection {
     const connection = new Connection(
       this._iocEditor,
       fromAnchorPoint,
       toAnchorPoint,
-      this._connectionType
+      connectionType
     )
 
     this.initEvent(connection)
@@ -122,21 +134,9 @@ class ConnectionManage extends Disposable {
     this._storageMgr.removeConnection(connection)
   }
 
-  getConnectionsByShape(shape: IShape | INodeGroup) {
-    const conns: IConnection[] = []
-
-    this._storageMgr.getConnections().forEach((connection: IConnection) => {
-      if (connection.fromNode.id === shape.id || connection.toNode!.id === shape.id) {
-        conns.push(connection)
-      }
-    })
-
-    return conns
-  }
-
   refreshConnection(shape: IShape | INodeGroup) {
     shape.anchor.refresh()
-    const conns = this.getConnectionsByShape(shape)
+    const conns = this.getConnectionsByNode(shape)
 
     conns.forEach(conn => {
       if (conn.fromNode.id === shape.id) {
@@ -155,14 +155,14 @@ class ConnectionManage extends Disposable {
     this._storageMgr.clearConnections()
   }
 
-  getConnectionType(): ConnectionType {
-    return this._connectionType
-  }
-
-  getConnectionsByGroup(node: INodeGroup | IShape) {
+  getConnectionsByNode(node: INodeGroup | IShape) {
     return this._storageMgr
       .getConnections()
       .filter(connection => connection.fromNode.id === node.id || connection.toNode!.id === node.id)
+  }
+
+  getUniqueConnections(connections: IConnection[]) {
+    return Array.from(new Map(connections.map(conn => [conn.id, conn])).values())
   }
 }
 

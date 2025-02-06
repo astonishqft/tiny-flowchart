@@ -28,9 +28,13 @@ class HotKeysManager extends Disposable {
     })
 
     hotkeys('⌘+c, ctrl+c', (event: KeyboardEvent) => {
-      console.log('copy')
-      // this._iocEditor.copy()
       event.preventDefault()
+      this._iocEditor.copy()
+    })
+
+    hotkeys('⌘+v, ctrl+v', (event: KeyboardEvent) => {
+      event.preventDefault()
+      this._iocEditor.paste()
     })
   }
 }

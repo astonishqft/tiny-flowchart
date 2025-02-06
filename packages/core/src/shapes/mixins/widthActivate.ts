@@ -18,19 +18,11 @@ function WidthActivate<TBase extends ActivatableConstructor>(Base: TBase) {
 
     active() {
       this.selected = true
-      this.setStyle({
-        shadowColor: '#1971c2',
-        shadowBlur: 1
-      })
       this.anchor.show()
     }
 
     unActive() {
       this.selected = false
-      this.setStyle({
-        shadowColor: '',
-        shadowBlur: 0
-      })
       this.anchor.hide()
     }
   }

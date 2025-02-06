@@ -1,5 +1,5 @@
 import { INodeGroup } from './shapes/nodeGroup'
-import type { IShape } from './shapes'
+import type { IShape, IExportConnection } from './shapes'
 import * as zrender from 'zrender'
 
 import type { IExportGroup, IExportGroupStyle, IExportShape } from './shapes'
@@ -174,4 +174,19 @@ export const getBoundingBox = (shapes: (IShape | INodeGroup)[]) => {
   const g = new zrender.Group()
 
   return g.getBoundingRect(shapes)
+}
+
+export const updateNodeConnectionId = (
+  connections: IExportConnection[],
+  oldId: number,
+  newId: number
+) => {
+  connections.forEach(conn => {
+    if (conn.fromNode === oldId) {
+      conn.fromNode = newId
+    }
+    if (conn.toNode === oldId) {
+      conn.toNode = newId
+    }
+  })
 }

@@ -39,8 +39,8 @@ class DragFrameManage extends Disposable {
       shape: {
         x: 0,
         y: 0,
-        width: 100,
-        height: 100,
+        width: 0,
+        height: 0,
         r: [3]
       },
       style: {
@@ -71,7 +71,6 @@ class DragFrameManage extends Disposable {
       width,
       height
     })
-    this._frame.show()
   }
 
   updatePosition(x: number, y: number) {
