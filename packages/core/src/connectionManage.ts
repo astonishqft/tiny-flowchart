@@ -22,7 +22,7 @@ export interface IConnectionManage extends IDisposable {
   createTmpConnection(fromAnchorPoint: IAnchorPoint): void
   moveTmpConnection(x: number, y: number): void
   removeTmpConnection(): void
-  getConnectionsByNode(shape: IShape | INodeGroup): IConnection[]
+  getConnectionsByNodeId(id: number): IConnection[]
   getUniqueConnections(connections: IConnection[]): IConnection[]
   refreshConnection(shape: IShape | INodeGroup): void
   addConnectionToEditor(connection: IConnection): void
@@ -31,6 +31,8 @@ export interface IConnectionManage extends IDisposable {
   unActiveConnections(): void
   setConnectionType(type: ConnectionType): void
   getConnectionType(): ConnectionType
+  removeDuplicateConnections<T extends { id: number }>(connections: T[]): T[]
+  getConnectionsInNodes(nodes: (IShape | INodeGroup)[]): IConnection[]
 }
 
 class ConnectionManage extends Disposable {
@@ -136,7 +138,7 @@ class ConnectionManage extends Disposable {
 
   refreshConnection(shape: IShape | INodeGroup) {
     shape.anchor.refresh()
-    const conns = this.getConnectionsByNode(shape)
+    const conns = this.getConnectionsByNodeId(shape.id)
 
     conns.forEach(conn => {
       if (conn.fromNode.id === shape.id) {
@@ -155,14 +157,34 @@ class ConnectionManage extends Disposable {
     this._storageMgr.clearConnections()
   }
 
-  getConnectionsByNode(node: INodeGroup | IShape) {
+  getConnectionsByNodeId(id: number) {
     return this._storageMgr
       .getConnections()
-      .filter(connection => connection.fromNode.id === node.id || connection.toNode!.id === node.id)
+      .filter(connection => connection.fromNode.id === id || connection.toNode!.id === id)
   }
 
   getUniqueConnections(connections: IConnection[]) {
     return Array.from(new Map(connections.map(conn => [conn.id, conn])).values())
+  }
+
+  removeDuplicateConnections<T extends { id: number }>(connections: T[]): T[] {
+    const uniqueConnections = new Map<number, T>()
+
+    connections.forEach(connection => {
+      uniqueConnections.set(connection.id, connection)
+    })
+
+    return Array.from(uniqueConnections.values())
+  }
+
+  getConnectionsInNodes(nodes: (IShape | INodeGroup)[]): IConnection[] {
+    const activeNodeIds = new Set(nodes.map(node => node.id))
+    const connections = this._storageMgr.getConnections()
+
+    return connections.filter(
+      connection =>
+        activeNodeIds.has(connection.fromNode.id) && activeNodeIds.has(connection.toNode!.id)
+    )
   }
 }
 

@@ -304,7 +304,6 @@ class NodeGroup extends zrender.Group implements INodeGroup {
         stroke: this.oldStroke
       }
     })
-    console.log('group unActive')
     this.anchor.hide()
   }
 

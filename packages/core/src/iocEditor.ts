@@ -19,7 +19,8 @@ import {
   downloadFile,
   flatGroupArrayToTree,
   getChildShapesByGroupId,
-  groupTreeToArray
+  groupTreeToArray,
+  updateNodeConnectionId
 } from './utils'
 import {
   AddShapeCommand,
@@ -256,7 +257,7 @@ export class IocEditor implements IIocEditor {
     const exportData = this.getExportData()
 
     imageCanvas.initFlowChart(exportData)
-    const { x, y, width, height } = imageCanvas._viewPortMgr.getBoundingRect([
+    const { x, y, width } = imageCanvas._viewPortMgr.getBoundingRect([
       ...this._storageMgr.getNodes(),
       ...this._storageMgr.getConnections()
     ])
@@ -287,9 +288,48 @@ export class IocEditor implements IIocEditor {
       }, 'image/png')
   }
 
-  copy() {}
+  copy() {
+    const activeShapes: IExportShape[] = []
+    const activeGroups: IExportGroup[] = []
+    const activeNodes = this._storageMgr.getActiveNodes()
 
-  paste() {}
+    activeNodes.forEach((node: IShape | INodeGroup) => {
+      if (node.nodeType === NodeType.Group) {
+        activeGroups.push(node.getExportData())
+      } else {
+        activeShapes.push(node.getExportData() as IExportShape)
+      }
+    })
+
+    const connections: IExportConnection[] = this._connectionMgr
+      .getConnectionsInNodes(activeNodes)
+      .map(c => c.getExportData())
+
+    this._copyData = {
+      shapes: zrender.util.clone(activeShapes),
+      groups: zrender.util.clone(activeGroups),
+      connections: zrender.util.clone(connections)
+    }
+  }
+
+  paste() {
+    const { shapes, groups, connections } = this._copyData
+    const [viewPortX, viewPortY] = this._viewPortMgr.getPosition()
+    const zoom = this._viewPortMgr.getZoom()
+
+    const offset = 40
+    shapes.forEach(shape => {
+      const newId = zrender.util.guid()
+      updateNodeConnectionId(connections, shape.id, newId)
+      shape.x = (shape.x + offset) * zoom + viewPortX
+      shape.y = (shape.y + offset) * zoom + viewPortY
+      shape.id = newId
+    })
+
+    this._sceneMgr.unActive()
+    this.initShape(shapes).forEach(s => s.active())
+    this.initConnection(connections)
+  }
 
   execute(
     type: string,
@@ -450,13 +490,13 @@ export class IocEditor implements IIocEditor {
 
         const deleteGroup = (group: INodeGroup) => {
           patchCommands.push(new DeleteNodeCommand(this, group))
-          connections.push(...this._connectionMgr.getConnectionsByNode(group))
+          connections.push(...this._connectionMgr.getConnectionsByNodeId(group.id))
           group.shapes.forEach(shape => {
             if (shape.nodeType === NodeType.Group) {
               deleteGroup(shape as INodeGroup)
             } else {
               patchCommands.push(new DeleteNodeCommand(this, shape))
-              connections.push(...this._connectionMgr.getConnectionsByNode(shape))
+              connections.push(...this._connectionMgr.getConnectionsByNodeId(shape.id))
             }
           })
         }
@@ -466,15 +506,12 @@ export class IocEditor implements IIocEditor {
             deleteGroup(node as INodeGroup)
           } else {
             patchCommands.push(new DeleteNodeCommand(this, node))
-            connections.push(...this._connectionMgr.getConnectionsByNode(node))
+            connections.push(...this._connectionMgr.getConnectionsByNodeId(node.id))
           }
         })
 
-        connections
-          .filter(
-            (connection, index, self) =>
-              index === self.findIndex((c: IConnection) => c.id === connection.id)
-          )
+        this._connectionMgr
+          .removeDuplicateConnections<IConnection>(connections)
           .forEach(connection => {
             patchCommands.push(new DeleteConnectionCommand(this, connection))
           })
@@ -516,6 +553,7 @@ export class IocEditor implements IIocEditor {
   }
 
   initShape(shapes: IExportShape[]) {
+    const newShapes: IShape[] = []
     shapes.forEach(({ type, id, x, y, style: shapeConfig, shape, z }: IExportShape) => {
       const config: { x: number; y: number; image?: string } = { x, y }
 
@@ -530,7 +568,10 @@ export class IocEditor implements IIocEditor {
       newShape.anchor.refresh()
       newShape.id = id
       newShape.unActive()
+      newShapes.push(newShape)
     })
+
+    return newShapes
   }
 
   initConnection(connections: IExportConnection[]) {
