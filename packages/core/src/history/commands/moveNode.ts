@@ -1,25 +1,23 @@
-import { IShape } from '../../shapes'
-import { INodeGroup } from '../../shapes/nodeGroup'
-
+import type { INode } from '../../shapes'
 import type { Command } from '../historyManage'
 import type { IIocEditor } from '../../iocEditor'
 
 export interface IMoveNodeCommandOpts {
   iocEditor: IIocEditor
-  nodes: (IShape | INodeGroup)[]
+  nodes: INode[]
   offsetX: number
   offsetY: number
 }
 
 class MoveNodeCommand implements Command {
-  private node: IShape | INodeGroup
+  private node: INode
   private _iocEditor: IIocEditor
   private oldX: number
   private oldY: number
   private offsetX: number
   private offsetY: number
 
-  constructor(iocEditor: IIocEditor, node: IShape | INodeGroup, offsetX: number, offsetY: number) {
+  constructor(iocEditor: IIocEditor, node: INode, offsetX: number, offsetY: number) {
     this._iocEditor = iocEditor
     this.node = node
     this.oldX = this.node.oldX
@@ -48,7 +46,7 @@ class MoveNodeCommand implements Command {
     this._iocEditor._connectionMgr.refreshConnection(this.node)
   }
 
-  updateGroupSize(node: IShape | INodeGroup) {
+  updateGroupSize(node: INode) {
     if (node.parentGroup) {
       node.parentGroup.resizeNodeGroup()
       this._iocEditor._connectionMgr.refreshConnection(node.parentGroup)

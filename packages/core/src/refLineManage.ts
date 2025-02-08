@@ -1,12 +1,10 @@
 import * as zrender from 'zrender'
 import { getClosestValInSortedArr, isEqualNum } from './utils'
 
-import type { IShape } from './shapes'
 import type { IDragFrameManage } from './dragFrameManage'
 import type { IViewPortManage } from './viewPortManage'
 import type { ISettingManage } from './settingManage'
 import type { IStorageManage } from './storageManage'
-import type { INodeGroup } from './shapes/nodeGroup'
 import type { IIocEditor } from './iocEditor'
 
 export interface IRefLineManage {
@@ -150,13 +148,9 @@ class RefLineManage {
     }
   }
 
-  getAllNodes(): (IShape | INodeGroup)[] {
-    return [...this._storageMgr.getShapes(), ...this._storageMgr.getGroups()]
-  }
-
   cacheRefLines() {
     this.clear()
-    this.getAllNodes().forEach(shape => {
+    this._storageMgr.getNodes().forEach(shape => {
       const { x, y, width, height } = shape.getBoundingRect()
       const hl = x + shape.x
       const hm = hl + width / 2

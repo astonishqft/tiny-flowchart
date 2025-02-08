@@ -9,11 +9,15 @@ import type { IViewPortManage } from './viewPortManage'
 import type { IStorageManage } from './storageManage'
 import type { IocEditor } from './iocEditor'
 import type { IControlFrameManage } from './controlFrameManage'
+import type { INodeGroup } from './shapes/nodeGroup'
+import type { IWidthAnchor } from './shapes/mixins/widthAnchor'
 
 export interface IShapeManage extends IDisposable {
   createShape(type: string, options: { x: number; y: number; url?: string }): IShape
   addShapeToEditor(shape: IShape): void
   removeShapeFromEditor(shape: IShape): void
+  getNodeById(id: number): IShape | INodeGroup
+  getPointByIndex<T extends IWidthAnchor>(node: T, index: number): IAnchorPoint | undefined
   clear(): void
 }
 
@@ -67,6 +71,16 @@ class ShapeManage extends Disposable {
       this._viewPortMgr.removeElementFromViewPort(bar)
     })
     this._viewPortMgr.removeElementFromViewPort(shape)
+  }
+
+  getNodeById(id: number) {
+    const nodes = this._storageMgr.getNodes()
+
+    return nodes.filter(n => n.id === id)[0]
+  }
+
+  getPointByIndex<T extends IWidthAnchor>(node: T, index: number): IAnchorPoint | undefined {
+    return node.anchor.getBarByIndex(index)
   }
 
   clear() {

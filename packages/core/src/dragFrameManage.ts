@@ -7,7 +7,7 @@ import type { IDisposable } from './disposable'
 import type { IViewPortManage } from './viewPortManage'
 import type { IStorageManage } from './storageManage'
 import type { INodeGroup } from './shapes/nodeGroup'
-import type { IShape } from './shapes'
+import type { INode } from './shapes'
 
 export interface IDragFrameManage extends IDisposable {
   show(): void
@@ -17,7 +17,7 @@ export interface IDragFrameManage extends IDisposable {
   getFrame(): zrender.Rect
   getBoundingBox(): zrender.BoundingRect
   isIntersect(shapesBoundingBox: zrender.BoundingRect): boolean
-  intersectWidthGroups(shape: IShape | INodeGroup): IGroupShapeIntersectResult
+  intersectWidthGroups(node: INode): IGroupShapeIntersectResult
 }
 
 export interface IGroupShapeIntersectResult {
@@ -99,7 +99,7 @@ class DragFrameManage extends Disposable {
     }
   }
 
-  intersectWidthGroups(shape: IShape | INodeGroup): IGroupShapeIntersectResult {
+  intersectWidthGroups(node: INode): IGroupShapeIntersectResult {
     // 获取所有节点组，判断是否与拖动浮层相交，如果相交，则将节点组添加到拖动浮层中
     let isDragOutFromGroup = false
     let dragTargetGroup = null
@@ -111,7 +111,7 @@ class DragFrameManage extends Disposable {
       isEnter(this.getBoundingBox(), g.getBoundingBox())
     )
 
-    const parentGroup = shape.parentGroup
+    const parentGroup = node.parentGroup
     groups.forEach(g => g.setOldStyle())
     if (parentGroup) {
       const { z } = parentGroup

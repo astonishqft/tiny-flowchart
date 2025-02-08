@@ -1,5 +1,5 @@
 import type { INodeGroup } from './shapes/nodeGroup'
-import type { IConnection, IShape } from './shapes'
+import type { IConnection, IShape, INode } from './shapes'
 
 export interface IStorageManage {
   addShape(shape: IShape): void
@@ -16,8 +16,8 @@ export interface IStorageManage {
   clearConnections(): void
   getActiveShapes(): IShape[]
   getActiveGroups(): INodeGroup[]
-  getNodes(): (IShape | INodeGroup)[]
-  getActiveNodes(): (IShape | INodeGroup)[]
+  getNodes(): INode[]
+  getActiveNodes(): INode[]
   getActiveConnections(): IConnection[]
 }
 
@@ -85,7 +85,7 @@ class StorageManage {
   }
 
   getActiveNodes() {
-    return this.getNodes().filter((node: IShape | INodeGroup) => node.selected)
+    return this.getNodes().filter((node: INode) => node.selected)
   }
 
   getActiveConnections() {

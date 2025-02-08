@@ -2,7 +2,7 @@ import Eventful from 'zrender/lib/core/Eventful'
 import { getBoundingBox, getMinPosition } from './utils'
 
 import type { IIocEditor } from './iocEditor'
-import type { IShape } from './shapes'
+import type { IShape, INode } from './shapes'
 import type { INodeGroup } from './shapes/nodeGroup'
 import type { IDragFrameManage } from './dragFrameManage'
 import type { IRefLineManage } from './refLineManage'
@@ -14,7 +14,7 @@ import type { IControlFrameManage } from './controlFrameManage'
 import type { IStorageManage } from './storageManage'
 
 class NodeEventManage {
-  private _node: IShape | INodeGroup
+  private _node: INode
   private _iocEditor: IIocEditor
   private _dragFrameMgr: IDragFrameManage
   private _refLineMgr: IRefLineManage
@@ -33,11 +33,11 @@ class NodeEventManage {
   private _isDragOutFromGroup = false
   private _isRemoveFromGroup = false
   private _isDragEnterToGroup = false
-  private _activeNodes: (IShape | INodeGroup)[] = []
+  private _activeNodes: INode[] = []
   private _onMouseMove: (e: MouseEvent) => void
   private _onMouseUp: (e: MouseEvent) => void
 
-  constructor(node: IShape | INodeGroup, iocEditor: IIocEditor) {
+  constructor(node: INode, iocEditor: IIocEditor) {
     this._iocEditor = iocEditor
     this._node = node
     this._zoomMgr = iocEditor._zoomMgr

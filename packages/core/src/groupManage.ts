@@ -5,19 +5,19 @@ import { NodeEventManage } from './nodeEventManage'
 
 import type { IViewPortManage } from './viewPortManage'
 import type { IStorageManage } from './storageManage'
-import type { IAnchorPoint, IShape } from './shapes'
+import type { IAnchorPoint, INode } from './shapes'
 import type { INodeGroup } from './shapes/nodeGroup'
 import type { IIocEditor } from './iocEditor'
 import type { IConnectionManage } from './connectionManage'
 export interface IGroupManage extends IDisposable {
-  createGroup(nodes?: (IShape | INodeGroup)[], groupId?: number): INodeGroup
+  createGroup(nodes?: INode[], groupId?: number, oldId?: number): INodeGroup
   clear(): void
   addGroupToEditor(group: INodeGroup): void
   removeGroupFromEditor(group: INodeGroup): void
   addShapeToParentGroup(group: INodeGroup): void
   removeShapeFromParentGroup(group: INodeGroup): void
-  removeShapeFromGroup(node: INodeGroup | IShape): void
-  addShapeToGroup(node: IShape | INodeGroup, targetGroup: INodeGroup): void
+  removeShapeFromGroup(node: INode): void
+  addShapeToGroup(node: INode, targetGroup: INodeGroup): void
 }
 
 class GroupManage extends Disposable {
@@ -33,7 +33,7 @@ class GroupManage extends Disposable {
     this._connectionMgr = iocEditor._connectionMgr
   }
 
-  createGroup(nodes: (IShape | INodeGroup)[], groupId?: number) {
+  createGroup(nodes: INode[], groupId?: number, oldId?: number) {
     nodes.forEach(shape => shape.unActive())
     const minZLevel = getMinZLevel(nodes)
     const groupNode = new NodeGroup(nodes, this._iocEditor)
@@ -41,6 +41,10 @@ class GroupManage extends Disposable {
     new NodeEventManage(groupNode, this._iocEditor)
     if (groupId) {
       groupNode.id = groupId
+    }
+
+    if (oldId) {
+      groupNode.oldId = oldId
     }
 
     return groupNode
@@ -98,7 +102,7 @@ class GroupManage extends Disposable {
     }
   }
 
-  removeShapeFromGroup(node: INodeGroup | IShape) {
+  removeShapeFromGroup(node: INode) {
     if (node.parentGroup) {
       if (node.parentGroup!.shapes.length === 1) return // 确保组内至少有一个元素
       node.parentGroup!.shapes = node.parentGroup!.shapes.filter(item => item.id !== node.id)
@@ -108,7 +112,7 @@ class GroupManage extends Disposable {
     }
   }
 
-  addShapeToGroup(node: IShape | INodeGroup, targetGroup: INodeGroup) {
+  addShapeToGroup(node: INode, targetGroup: INodeGroup) {
     node.setZ(targetGroup.z + 1)
     node.parentGroup = targetGroup
     targetGroup.shapes.push(node)

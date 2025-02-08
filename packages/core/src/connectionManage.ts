@@ -5,8 +5,7 @@ import { Connection } from './connection'
 import { ConnectionType } from './shapes'
 
 import type { IDisposable } from './disposable'
-import type { IAnchorPoint, IConnection, IShape } from './shapes'
-import type { INodeGroup } from './shapes/nodeGroup'
+import type { IAnchorPoint, IConnection, INode } from './shapes'
 import type { IViewPortManage } from './viewPortManage'
 import type { IStorageManage } from './storageManage'
 import type { IIocEditor } from './iocEditor'
@@ -24,7 +23,7 @@ export interface IConnectionManage extends IDisposable {
   removeTmpConnection(): void
   getConnectionsByNodeId(id: number): IConnection[]
   getUniqueConnections(connections: IConnection[]): IConnection[]
-  refreshConnection(shape: IShape | INodeGroup): void
+  refreshConnection(shape: INode): void
   addConnectionToEditor(connection: IConnection): void
   removeConnectionFromEditor(connection: IConnection): void
   clear(): void
@@ -32,7 +31,7 @@ export interface IConnectionManage extends IDisposable {
   setConnectionType(type: ConnectionType): void
   getConnectionType(): ConnectionType
   removeDuplicateConnections<T extends { id: number }>(connections: T[]): T[]
-  getConnectionsInNodes(nodes: (IShape | INodeGroup)[]): IConnection[]
+  getConnectionsInNodes(nodes: INode[]): IConnection[]
 }
 
 class ConnectionManage extends Disposable {
@@ -136,7 +135,7 @@ class ConnectionManage extends Disposable {
     this._storageMgr.removeConnection(connection)
   }
 
-  refreshConnection(shape: IShape | INodeGroup) {
+  refreshConnection(shape: INode) {
     shape.anchor.refresh()
     const conns = this.getConnectionsByNodeId(shape.id)
 
@@ -177,7 +176,7 @@ class ConnectionManage extends Disposable {
     return Array.from(uniqueConnections.values())
   }
 
-  getConnectionsInNodes(nodes: (IShape | INodeGroup)[]): IConnection[] {
+  getConnectionsInNodes(nodes: INode[]): IConnection[] {
     const activeNodeIds = new Set(nodes.map(node => node.id))
     const connections = this._storageMgr.getConnections()
 

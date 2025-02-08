@@ -36,6 +36,16 @@ class HotKeysManager extends Disposable {
       event.preventDefault()
       this._iocEditor.paste()
     })
+
+    hotkeys('⌘+a, ctrl+a', (event: KeyboardEvent) => {
+      event.preventDefault()
+      this._iocEditor.selectAll()
+    })
+
+    hotkeys('⌘+Backspace, ctrl+Backspace, delete', (event: KeyboardEvent) => {
+      event.preventDefault()
+      this._iocEditor.delete()
+    })
   }
 }
 

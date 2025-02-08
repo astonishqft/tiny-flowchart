@@ -22,7 +22,6 @@
     "zrender": "5.4.4"
   },
   "devDependencies": {
-    "rollup-plugin-visualizer": "^5.14.0",
     "tslib": "^2.6.2"
   }
 }

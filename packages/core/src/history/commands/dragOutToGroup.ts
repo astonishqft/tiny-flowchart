@@ -1,11 +1,11 @@
 import type { INodeGroup } from '../../shapes/nodeGroup'
-import type { IShape } from '../../shapes'
+import type { INode } from '../../shapes'
 import type { Command } from '../historyManage'
 import type { IIocEditor } from '../../iocEditor'
 
 export interface IDragOutToGroupCommandOpts {
   targetGroup: INodeGroup
-  node: IShape | INodeGroup
+  node: INode
   offsetX: number
   offsetY: number
 }
@@ -13,9 +13,9 @@ export interface IDragOutToGroupCommandOpts {
 class DragOutToGroupCommand implements Command {
   private iocEditor: IIocEditor
   private targetGroup: INodeGroup
-  private node: IShape | INodeGroup
+  private node: INode
   private parentGroup: INodeGroup
-  constructor(iocEditor: IIocEditor, group: INodeGroup, node: IShape | INodeGroup) {
+  constructor(iocEditor: IIocEditor, group: INodeGroup, node: INode) {
     this.iocEditor = iocEditor
     this.parentGroup = node.parentGroup as INodeGroup
     this.targetGroup = group

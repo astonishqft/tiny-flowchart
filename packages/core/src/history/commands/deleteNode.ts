@@ -1,21 +1,21 @@
 import { NodeType } from '../../shapes'
 import { INodeGroup } from '../../shapes/nodeGroup'
-import { IShape, IConnection } from '../../shapes'
+import { IShape, IConnection, INode } from '../../shapes'
 
 import type { Command } from '../historyManage'
 import type { IIocEditor } from '../../iocEditor'
 
 export interface IDeleteNodeCommandOpts {
-  nodes: (IShape | INodeGroup)[]
+  nodes: INode[]
   connections: IConnection[]
 }
 
 class DeleteNodeCommand implements Command {
-  private node: IShape | INodeGroup
+  private node: INode
   private iocEditor: IIocEditor
   private nodeType: NodeType
 
-  constructor(iocEditor: IIocEditor, node: IShape | INodeGroup) {
+  constructor(iocEditor: IIocEditor, node: INode) {
     this.iocEditor = iocEditor
     this.node = node
     this.nodeType = node.nodeType

@@ -8,12 +8,11 @@ import type {
   IControlPoint,
   IAnchorPoint,
   IExportConnectionStyle,
-  IShape,
+  INode,
   LineDashStyle,
   StrokeStyle
 } from './shapes'
 import type { FontStyle, FontWeight } from 'zrender/lib/core/types'
-import type { INodeGroup } from './shapes/nodeGroup'
 import type { IIocEditor } from './iocEditor'
 import type { ISettingManage } from './settingManage'
 class Connection extends zrender.Group implements IConnection {
@@ -43,8 +42,8 @@ class Connection extends zrender.Group implements IConnection {
 
   fromAnchorPoint: IAnchorPoint
   toAnchorPoint: IAnchorPoint
-  fromNode: IShape | INodeGroup
-  toNode: IShape | INodeGroup
+  fromNode: INode
+  toNode: INode
   fromPoint: IAnchor
   toPoint: IAnchor
   connectionType: ConnectionType = ConnectionType.Line
@@ -69,11 +68,11 @@ class Connection extends zrender.Group implements IConnection {
     this.createConnection()
   }
 
-  setFromNode(fromNode: IShape | INodeGroup) {
+  setFromNode(fromNode: INode) {
     this.fromNode = fromNode
   }
 
-  setToNode(toNode: IShape | INodeGroup) {
+  setToNode(toNode: INode) {
     this.toNode = toNode
   }
 

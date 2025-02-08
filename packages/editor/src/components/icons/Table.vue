@@ -74,12 +74,7 @@
         <clipPath id="mx-clip-1-9-31-9-0">
           <rect x="1" y="9" width="31" height="9"></rect>
         </clipPath>
-        <g
-          fill="#000000"
-          font-family="Helvetica"
-          clip-path="url(https://app.diagrams.net/#mx-clip-1-9-31-9-0)"
-          font-size="2.52px"
-        >
+        <g fill="#000000" font-family="Helvetica" font-size="2.52px">
           <text x="2.52" y="13.02">Item 1</text>
         </g>
       </g>

@@ -17,10 +17,11 @@ import { HistoryManage } from './history/historyManage'
 import { HotKeysManager } from './hotKeysManage'
 import {
   downloadFile,
-  flatGroupArrayToTree,
+  groupArray2Tree,
   getChildShapesByGroupId,
-  groupTreeToArray,
-  updateNodeConnectionId
+  groupTree2Array,
+  updateNodeConnectionId,
+  getAllRelatedGroups
 } from './utils'
 import {
   AddShapeCommand,
@@ -78,13 +79,13 @@ import type {
 import {
   ConnectionType,
   NodeType,
-  type IAnchorPoint,
   type IConnection,
   type IExportConnection,
   type IExportData,
   type IExportGroup,
   type IExportShape,
-  type IShape
+  type IShape,
+  type INode
 } from './shapes'
 import type { INodeGroup } from './shapes/nodeGroup'
 import type { IGroupTreeNode } from './utils'
@@ -112,17 +113,13 @@ export interface IIocEditor {
   sceneDragStart$: Subject<ISceneDragStartOpts>
   addShape(options: IAddShapeCommandOpts): void
   execute(type: string, options: Dictionary<any>): void
-  getNodeById(id: number): IShape | INodeGroup | undefined
-  getPointByIndex(node: IShape | INodeGroup, index: number): IAnchorPoint | undefined
   initFlowChart(data: IExportData): void
   initGroup(groups: IExportGroup[], shapes: IExportShape[]): void
-  getShapeById(id: number): IShape[]
   getExportData(): IExportData
   exportFile(): void
   openFile(): void
   destroy(): void
   offEvent(): void
-  getBoundingBox(): zrender.BoundingRect
   undo(): void
   redo(): void
   createGroup(): void
@@ -133,6 +130,7 @@ export interface IIocEditor {
   exportPicture(): void
   copy(): void
   paste(): void
+  selectAll(): void
 }
 
 export class IocEditor implements IIocEditor {
@@ -237,6 +235,10 @@ export class IocEditor implements IIocEditor {
     this.execute('clear', { exportData })
   }
 
+  selectAll() {
+    this._storageMgr.getNodes().forEach(node => node.active())
+  }
+
   save() {
     const exportData = this.getExportData()
     localStorage.setItem('ioc-chart-flow', JSON.stringify(exportData))
@@ -289,27 +291,31 @@ export class IocEditor implements IIocEditor {
   }
 
   copy() {
-    const activeShapes: IExportShape[] = []
-    const activeGroups: IExportGroup[] = []
+    const activeShapes: IExportShape[] = this._storageMgr
+      .getActiveShapes()
+      .map(s => s.getExportData())
+    const activeGroups: IExportGroup[] = this._storageMgr
+      .getActiveGroups()
+      .map(g => g.getExportData())
     const activeNodes = this._storageMgr.getActiveNodes()
+    // 需要递归的去找所有的Groups
+    const allGroups = getAllRelatedGroups(
+      activeGroups,
+      this._storageMgr.getGroups().map(g => g.getExportData())
+    )
 
-    activeNodes.forEach((node: IShape | INodeGroup) => {
-      if (node.nodeType === NodeType.Group) {
-        activeGroups.push(node.getExportData())
-      } else {
-        activeShapes.push(node.getExportData() as IExportShape)
-      }
-    })
-
+    // 只复制连线两端同时与节点相连的连线
     const connections: IExportConnection[] = this._connectionMgr
       .getConnectionsInNodes(activeNodes)
       .map(c => c.getExportData())
 
     this._copyData = {
       shapes: zrender.util.clone(activeShapes),
-      groups: zrender.util.clone(activeGroups),
+      groups: zrender.util.clone(allGroups),
       connections: zrender.util.clone(connections)
     }
+
+    console.log('copyData', this._copyData)
   }
 
   paste() {
@@ -328,7 +334,57 @@ export class IocEditor implements IIocEditor {
 
     this._sceneMgr.unActive()
     this.initShape(shapes).forEach(s => s.active())
+
     this.initConnection(connections)
+
+    const {
+      groupTree,
+      groupMap
+    }: { groupTree: IGroupTreeNode[]; groupMap: Map<number, IGroupTreeNode> } =
+      groupArray2Tree(groups)
+
+    const groupList = groupTree2Array(groupTree)
+
+    groupList.forEach((gId: number) => {
+      const groupItem = groupMap.get(gId)
+
+      if (!groupItem) return
+      const childGroupIds = new Set(groupItem.children.map((c: IGroupTreeNode) => c.id) || [])
+      const childGroups = this._storageMgr
+        .getGroups()
+        .filter(g => childGroupIds.has(g.oldId as number))
+
+      const childShapes = this.initShape(
+        getChildShapesByGroupId(
+          gId,
+          this._storageMgr.getShapes().map(s => s.getExportData())
+        )
+      )
+
+      childShapes.forEach(shape => {
+        const newId = zrender.util.guid()
+        updateNodeConnectionId(connections, shape.id, newId)
+        shape.x = (shape.x + offset) * zoom + viewPortX
+        shape.y = (shape.y + offset) * zoom + viewPortY
+        shape.id = newId
+      })
+      let childNodes = []
+      if (groupItem && groupItem.children.length === 0) {
+        // 最底层的group，由shape组成
+        childNodes = childShapes
+      } else {
+        childNodes = [...childGroups, ...childShapes]
+      }
+
+      const newGroup = this._groupMgr.createGroup(childNodes, zrender.util.guid(), gId)
+      this._groupMgr.addGroupToEditor(newGroup)
+
+      newGroup.active()
+      if (groupItem) {
+        newGroup.setZ(groupItem.z + 1)
+        newGroup.setStyle(groupItem.style)
+      }
+    })
   }
 
   execute(
@@ -381,7 +437,7 @@ export class IocEditor implements IIocEditor {
           }
         }
 
-        nodes.forEach((node: IShape | INodeGroup) => {
+        nodes.forEach((node: INode) => {
           if (node.nodeType === NodeType.Group) {
             moveGroup(node as INodeGroup, offsetX, offsetY)
           } else {
@@ -530,23 +586,11 @@ export class IocEditor implements IIocEditor {
 
     this.updateMiniMap$.next()
   }
-  getNodeById(id: number) {
-    const nodes = this._storageMgr.getNodes()
-
-    return nodes.filter(n => n.id === id)[0]
-  }
-
-  getPointByIndex(node: IShape | INodeGroup, index: number): IAnchorPoint | undefined {
-    return node.anchor.getBarByIndex(index)
-  }
 
   initFlowChart(data: IExportData) {
     this._sceneMgr.clear()
-
     this._viewPortMgr.setPosition(0, 0)
-
     const { shapes = [], connections = [], groups = [] } = data
-
     this.initShape(shapes)
     this.initGroup(groups, shapes)
     this.initConnection(connections)
@@ -576,11 +620,11 @@ export class IocEditor implements IIocEditor {
 
   initConnection(connections: IExportConnection[]) {
     connections.forEach((conn: IExportConnection) => {
-      const fromNode = this.getNodeById(conn.fromNode)
-      const toNode = this.getNodeById(conn.toNode)
+      const fromNode = this._shapeMgr.getNodeById(conn.fromNode)
+      const toNode = this._shapeMgr.getNodeById(conn.toNode)
 
-      const fromAnchorPoint = this.getPointByIndex(fromNode, conn.fromPoint)
-      const toAnchorPoint = this.getPointByIndex(toNode, conn.toPoint)
+      const fromAnchorPoint = this._shapeMgr.getPointByIndex(fromNode, conn.fromPoint)
+      const toAnchorPoint = this._shapeMgr.getPointByIndex(toNode, conn.toPoint)
 
       if (!fromAnchorPoint || !toAnchorPoint) return
 
@@ -600,57 +644,38 @@ export class IocEditor implements IIocEditor {
   }
 
   initGroup(groups: IExportGroup[], shapes: IExportShape[]) {
-    const {
-      groupTree,
-      groupMap
-    }: { groupTree: IGroupTreeNode[]; groupMap: Map<number, IGroupTreeNode> } =
-      flatGroupArrayToTree(groups)
+    const { groupTree }: { groupTree: IGroupTreeNode[] } = groupArray2Tree(groups)
 
-    // console.log('groupTree', JSON.stringify(groupTree, null, 2))
-    // console.log(
-    //   'groupMap',
-    //   JSON.stringify(
-    //     Array.from(groupMap).reduce(
-    //       (obj, [key, value]) => Object.assign(obj, { [key]: value }),
-    //       {}
-    //     ),
-    //     null,
-    //     2
-    //   )
-    // )
+    console.log('groupTree', JSON.stringify(groupTree, null, 2))
 
-    const treeGroupArray = groupTreeToArray(groupTree)
-
-    // console.log('treeArray', JSON.stringify(treeGroupArray), null, 2)
-
-    treeGroupArray.forEach((gId: number) => {
-      let childs = []
-      const groupItem = groupMap.get(gId)
-      if (groupItem && groupItem.children.length === 0) {
-        // 最底层的group，由shape组成
-        const childIds = getChildShapesByGroupId(gId, shapes).map(s => s.id)
+    // 创建Group的过程是从最底层Shapes开始创建，接着创建Shapes的父Group，再创建父Group的父Group(如果存在的话)
+    // 通过递归的方式，确保从最底层的形状开始创建，逐步向上构建父组，保持组的层级关系
+    const createGroups = (treeNodes: IGroupTreeNode[]): void => {
+      treeNodes.forEach((node: IGroupTreeNode) => {
+        const childIds = getChildShapesByGroupId(node.id, shapes).map(s => s.id)
         const childShapes = this._storageMgr.getShapes().filter(s => childIds.includes(s.id))
-        childs = childShapes
-      } else {
-        const childGroupIds = groupItem?.children.map((c: IGroupTreeNode) => c.id) || []
-        const childGroups = this._storageMgr.getGroups().filter(g => childGroupIds.includes(g.id))
-        const childIds = getChildShapesByGroupId(gId, shapes).map(s => s.id)
-        const childShapes = this._storageMgr.getShapes().filter(s => childIds.includes(s.id))
-        childs = [...childGroups, ...childShapes]
-      }
-      const newGroup = this._groupMgr.createGroup(childs, gId)
-      this._groupMgr.addGroupToEditor(newGroup)
 
-      newGroup.unActive()
-      if (groupItem) {
-        newGroup.setZ(groupItem.z)
-        newGroup.setStyle(groupItem.style)
-      }
-    })
-  }
+        // 递归创建子组
+        if (node.children.length > 0) {
+          createGroups(node.children)
+        }
 
-  getShapeById(id: number) {
-    return this._storageMgr.getShapes().filter(s => s.id === id)
+        const childGroups = this._storageMgr
+          .getGroups()
+          .filter(g => node.children.map(c => c.id).includes(g.id))
+
+        const childNodes = [...childGroups, ...childShapes]
+
+        const newGroup = this._groupMgr.createGroup(childNodes, node.id)
+        this._groupMgr.addGroupToEditor(newGroup)
+
+        newGroup.unActive()
+        newGroup.setZ(node.z)
+        newGroup.setStyle(node.style)
+      })
+    }
+
+    createGroups(groupTree)
   }
 
   getExportData() {
@@ -716,11 +741,5 @@ export class IocEditor implements IIocEditor {
 
   offEvent() {
     this._zr.off()
-  }
-
-  getBoundingBox() {
-    const g = new zrender.Group()
-
-    return g.getBoundingRect([...this._storageMgr.getNodes(), ...this._storageMgr.getConnections()])
   }
 }

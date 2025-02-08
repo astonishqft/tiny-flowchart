@@ -1,8 +1,13 @@
-import { INodeGroup } from './shapes/nodeGroup'
-import type { IShape, IExportConnection } from './shapes'
 import * as zrender from 'zrender'
 
-import type { IExportGroup, IExportGroupStyle, IExportShape } from './shapes'
+import type { INodeGroup } from './shapes/nodeGroup'
+import type {
+  IExportGroup,
+  IExportGroupStyle,
+  IExportShape,
+  IExportConnection,
+  INode
+} from './shapes'
 
 export const getClosestValInSortedArr = (sortedArr: number[], target: number) => {
   if (sortedArr.length === 0) {
@@ -45,7 +50,7 @@ export const isEqualNum = (num1: number, num2: number) => {
   return Math.abs(num1 - num2) < 0.00001
 }
 
-export const getMinPosition = (shapes: (IShape | INodeGroup)[]): number[] => {
+export const getMinPosition = (shapes: INode[]): number[] => {
   let minX = Infinity
   let minY = Infinity
   shapes.forEach(shape => {
@@ -60,7 +65,7 @@ export const getMinPosition = (shapes: (IShape | INodeGroup)[]): number[] => {
   return [minX, minY]
 }
 
-export const getMinZLevel = (shapes: (IShape | INodeGroup)[]) => {
+export const getMinZLevel = (shapes: INode[]) => {
   let minZLevel = Infinity
   shapes.forEach(shape => {
     if (shape.z! < minZLevel) {
@@ -124,7 +129,7 @@ export interface IGroupTreeNode {
   z: number
 }
 
-export const flatGroupArrayToTree = (flatArray: IExportGroup[]) => {
+export const groupArray2Tree = (flatArray: IExportGroup[]) => {
   const map = new Map()
   flatArray.forEach(item => {
     map.set(item.id, { id: item.id, z: item.z, style: item.style, children: [] })
@@ -151,7 +156,7 @@ export const flatGroupArrayToTree = (flatArray: IExportGroup[]) => {
   }
 }
 
-export const groupTreeToArray = (treeNode: IGroupTreeNode[]) => {
+export const groupTree2Array = (treeNode: IGroupTreeNode[]) => {
   const result: number[] = []
   function traverse(node: IGroupTreeNode) {
     result.push(node.id)
@@ -170,10 +175,10 @@ export const getChildShapesByGroupId = (groupId: number, shapes: IExportShape[])
   return shapes.filter(shape => shape.parent === groupId)
 }
 
-export const getBoundingBox = (shapes: (IShape | INodeGroup)[]) => {
+export const getBoundingBox = <T extends zrender.Element>(nodes: T[]): zrender.BoundingRect => {
   const g = new zrender.Group()
 
-  return g.getBoundingRect(shapes)
+  return g.getBoundingRect(nodes)
 }
 
 export const updateNodeConnectionId = (
@@ -189,4 +194,24 @@ export const updateNodeConnectionId = (
       conn.toNode = newId
     }
   })
+}
+
+export const getAllRelatedGroups = (targetGroup: IExportGroup[], allGroups: IExportGroup[]) => {
+  const relatedGroups: IExportGroup[] = []
+
+  const findChildren = (parentId: number) => {
+    allGroups.forEach(group => {
+      if (group.parent === parentId) {
+        relatedGroups.push(group)
+        findChildren(group.id) // 递归查找子节点
+      }
+    })
+  }
+
+  targetGroup.forEach(g => {
+    relatedGroups.push(g)
+    findChildren(g.id)
+  })
+
+  return relatedGroups
 }

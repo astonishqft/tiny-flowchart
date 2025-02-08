@@ -1,26 +1,25 @@
 import * as zrender from 'zrender'
-import { IShape } from '../../shapes'
-import { INodeGroup } from '../../shapes/nodeGroup'
 
+import type { INode } from '../../shapes'
 import type { Command } from '../historyManage'
 import type { IIocEditor } from '../../iocEditor'
 
 export interface IResizeShapeCommandOpts {
   iocEditor: IIocEditor
-  node: IShape | INodeGroup
+  node: INode
   oldBoundingBox: zrender.BoundingRect
   boundingBox: zrender.BoundingRect
 }
 
 class ResizeShapeCommand implements Command {
-  private node: IShape | INodeGroup
+  private node: INode
   private _iocEditor: IIocEditor
   private oldBoundingBox: zrender.BoundingRect
   private boundingBox: zrender.BoundingRect
 
   constructor(
     iocEditor: IIocEditor,
-    node: IShape | INodeGroup,
+    node: INode,
     oldBoundingBox: zrender.BoundingRect,
     boundingBox: zrender.BoundingRect
   ) {

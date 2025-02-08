@@ -3,7 +3,7 @@ import { getMinPosition } from '../utils'
 import { NodeType } from './index'
 import { Anchor } from '../anchor'
 
-import type { IAnchor, IExportGroup, IExportGroupStyle, IShape, StrokeStyle } from './index'
+import type { IAnchor, IExportGroup, IExportGroupStyle, IShape, StrokeStyle, INode } from './index'
 import type { IIocEditor } from '../iocEditor'
 import type { IViewPortManage } from '../viewPortManage'
 import type { ISettingManage } from '../settingManage'
@@ -11,10 +11,11 @@ import type { IWidthActivate } from './mixins/widthActivate'
 import type { IWidthAnchor } from './mixins/widthAnchor'
 
 export interface INodeGroup extends zrender.Group, IWidthActivate, IWidthAnchor {
+  oldId?: number
   oldX: number
   oldY: number
   boundingBox: zrender.BoundingRect
-  shapes: (IShape | INodeGroup)[]
+  shapes: INode[]
   nodeType: NodeType
   oldStroke: StrokeStyle
   oldLineWidth: number | undefined
@@ -51,7 +52,7 @@ class NodeGroup extends zrender.Group implements INodeGroup {
   textContent: zrender.Text | null = null
   headLine: zrender.Line | null = null
   boundingBox: zrender.BoundingRect
-  shapes: (IShape | INodeGroup)[]
+  shapes: INode[]
   headHeight: number = 30 // 头部高度
   padding = 20
   selected = false
@@ -64,8 +65,9 @@ class NodeGroup extends zrender.Group implements INodeGroup {
   anchor: Anchor
   parentGroup?: INodeGroup
   groupActiveColor: string
+  oldId: number | undefined
 
-  constructor(shapes: (IShape | INodeGroup)[], iocEditor: IIocEditor) {
+  constructor(shapes: INode[], iocEditor: IIocEditor) {
     super()
     this._settingMgr = iocEditor._settingMgr
     this._viewPortMgr = iocEditor._viewPortMgr
@@ -286,11 +288,6 @@ class NodeGroup extends zrender.Group implements INodeGroup {
 
   active() {
     this.selected = true
-    this.groupRect!.attr({
-      style: {
-        stroke: this.groupActiveColor
-      }
-    })
     this.anchor.show()
     this.shapes.forEach(shape => {
       shape.unActive && shape.unActive()
@@ -299,11 +296,6 @@ class NodeGroup extends zrender.Group implements INodeGroup {
 
   unActive() {
     this.selected = false
-    this.groupRect!.attr({
-      style: {
-        stroke: this.oldStroke
-      }
-    })
     this.anchor.hide()
   }
 

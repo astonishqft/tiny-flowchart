@@ -158,6 +158,8 @@ export interface IShape extends zrender.Displayable, IWidthActivate, IWidthAncho
   createAnchors(): void
 }
 
+export type INode = IShape | INodeGroup
+
 type IShapeProps = zrender.RectProps | zrender.EllipseProps | zrender.ImageProps
 
 export interface IShapeConfig {

@@ -27,12 +27,7 @@
         <clipPath id="mx-clip-2-9-28-15-0">
           <rect x="2" y="9" width="28" height="15"></rect>
         </clipPath>
-        <g
-          fill="#000000"
-          font-family="Helvetica"
-          clip-path="url(https://app.diagrams.net/#mx-clip-2-9-28-15-0)"
-          font-size="5.88px"
-        >
+        <g fill="#000000" font-family="Helvetica" font-size="5.88px">
           <text x="3.92" y="16.66">Text Node</text>
         </g>
       </g>

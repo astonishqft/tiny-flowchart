@@ -3,8 +3,7 @@ import { Disposable } from './disposable'
 import { Subject } from 'rxjs'
 
 import type { IDisposable } from './disposable'
-import type { IAnchorPoint, IControlPoint, IShape } from './shapes'
-import type { INodeGroup } from './shapes/nodeGroup'
+import type { IAnchorPoint, IControlPoint, INode } from './shapes'
 import type { IViewPortManage } from './viewPortManage'
 import type { IShapeManage } from './shapeManage'
 import type { IConnectionManage } from './connectionManage'
@@ -19,7 +18,7 @@ import type { IControlFrameManage } from './controlFrameManage'
 export interface ISceneManage extends IDisposable {
   _zr: zrender.ZRenderType
   updateSelectScene$: Subject<null>
-  updateSelectNode$: Subject<IShape | INodeGroup>
+  updateSelectNode$: Subject<INode>
   setCursorStyle(type: string): void
   init(): void
   clear(): void
@@ -42,7 +41,7 @@ class SceneManage extends Disposable {
   private _enableMiniMap
   _zr: zrender.ZRenderType
   updateSelectScene$ = new Subject<null>()
-  updateSelectNode$ = new Subject<IShape | INodeGroup>()
+  updateSelectNode$ = new Subject<INode>()
   constructor(iocEditor: IocEditor) {
     super()
     this._zr = iocEditor._zr
