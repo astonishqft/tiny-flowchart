@@ -33,7 +33,7 @@ class GroupManage extends Disposable {
     this._connectionMgr = iocEditor._connectionMgr
   }
 
-  createGroup(nodes: INode[], groupId?: number, oldId?: number) {
+  createGroup(nodes: INode[], groupId?: number) {
     nodes.forEach(shape => shape.unActive())
     const minZLevel = getMinZLevel(nodes)
     const groupNode = new NodeGroup(nodes, this._iocEditor)
@@ -41,10 +41,6 @@ class GroupManage extends Disposable {
     new NodeEventManage(groupNode, this._iocEditor)
     if (groupId) {
       groupNode.id = groupId
-    }
-
-    if (oldId) {
-      groupNode.oldId = oldId
     }
 
     return groupNode

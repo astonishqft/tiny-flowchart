@@ -19,7 +19,6 @@ import {
   downloadFile,
   groupArray2Tree,
   getChildShapesByGroupId,
-  groupTree2Array,
   updateNodeConnectionId,
   getAllRelatedGroups
 } from './utils'
@@ -298,7 +297,7 @@ export class IocEditor implements IIocEditor {
       .getActiveGroups()
       .map(g => g.getExportData())
     const activeNodes = this._storageMgr.getActiveNodes()
-    // 需要递归的去找所有的Groups
+    // 需要递归的去找所有activeGroups以及其中嵌套的group
     const allGroups = getAllRelatedGroups(
       activeGroups,
       this._storageMgr.getGroups().map(g => g.getExportData())
@@ -337,54 +336,48 @@ export class IocEditor implements IIocEditor {
 
     this.initConnection(connections)
 
-    const {
-      groupTree,
-      groupMap
-    }: { groupTree: IGroupTreeNode[]; groupMap: Map<number, IGroupTreeNode> } =
+    const { groupTree }: { groupTree: IGroupTreeNode[]; groupMap: Map<number, IGroupTreeNode> } =
       groupArray2Tree(groups)
 
-    const groupList = groupTree2Array(groupTree)
-
-    groupList.forEach((gId: number) => {
-      const groupItem = groupMap.get(gId)
-
-      if (!groupItem) return
-      const childGroupIds = new Set(groupItem.children.map((c: IGroupTreeNode) => c.id) || [])
-      const childGroups = this._storageMgr
-        .getGroups()
-        .filter(g => childGroupIds.has(g.oldId as number))
-
-      const childShapes = this.initShape(
-        getChildShapesByGroupId(
-          gId,
-          this._storageMgr.getShapes().map(s => s.getExportData())
+    const copyGroupMap = new Map<number, INodeGroup>()
+    const createGroups = (treeNodes: IGroupTreeNode[]): void => {
+      treeNodes.forEach((node: IGroupTreeNode) => {
+        const childShapes = this.initShape(
+          getChildShapesByGroupId(
+            node.id,
+            this._storageMgr.getShapes().map(s => s.getExportData())
+          )
         )
-      )
+        childShapes.forEach(shape => {
+          const newId = zrender.util.guid()
+          updateNodeConnectionId(connections, shape.id, newId)
+          shape.x = (shape.x + offset) * zoom + viewPortX
+          shape.y = (shape.y + offset) * zoom + viewPortY
+          shape.id = newId
+        })
 
-      childShapes.forEach(shape => {
-        const newId = zrender.util.guid()
-        updateNodeConnectionId(connections, shape.id, newId)
-        shape.x = (shape.x + offset) * zoom + viewPortX
-        shape.y = (shape.y + offset) * zoom + viewPortY
-        shape.id = newId
+        // 递归创建子组
+        if (node.children.length > 0) {
+          createGroups(node.children)
+        }
+
+        const childGroups = node.children
+          .map(c => copyGroupMap.get(c.id))
+          .filter(group => group !== undefined)
+
+        const childNodes = [...childGroups, ...childShapes]
+
+        const newGroup = this._groupMgr.createGroup(childNodes, zrender.util.guid())
+        copyGroupMap.set(node.id, newGroup)
+        this._groupMgr.addGroupToEditor(newGroup)
+
+        newGroup.active()
+        newGroup.setZ(node.z + 1)
+        newGroup.setStyle(node.style)
       })
-      let childNodes = []
-      if (groupItem && groupItem.children.length === 0) {
-        // 最底层的group，由shape组成
-        childNodes = childShapes
-      } else {
-        childNodes = [...childGroups, ...childShapes]
-      }
+    }
 
-      const newGroup = this._groupMgr.createGroup(childNodes, zrender.util.guid(), gId)
-      this._groupMgr.addGroupToEditor(newGroup)
-
-      newGroup.active()
-      if (groupItem) {
-        newGroup.setZ(groupItem.z + 1)
-        newGroup.setStyle(groupItem.style)
-      }
-    })
+    createGroups(groupTree)
   }
 
   execute(
@@ -578,6 +571,11 @@ export class IocEditor implements IIocEditor {
       case 'clear': {
         const { exportData } = options as IClearCommandOpts
         this._historyMgr.execute(new ClearCommand(this, exportData))
+        break
+      }
+      case 'paste': {
+        const patchCommands: Command[] = []
+
         break
       }
       default:

@@ -11,7 +11,6 @@ import type { IWidthActivate } from './mixins/widthActivate'
 import type { IWidthAnchor } from './mixins/widthAnchor'
 
 export interface INodeGroup extends zrender.Group, IWidthActivate, IWidthAnchor {
-  oldId?: number
   oldX: number
   oldY: number
   boundingBox: zrender.BoundingRect
@@ -65,7 +64,6 @@ class NodeGroup extends zrender.Group implements INodeGroup {
   anchor: Anchor
   parentGroup?: INodeGroup
   groupActiveColor: string
-  oldId: number | undefined
 
   constructor(shapes: INode[], iocEditor: IIocEditor) {
     super()
