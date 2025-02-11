@@ -1,13 +1,12 @@
 import * as zrender from 'zrender'
-import { IocEditor } from './iocEditor'
 import { Disposable } from './disposable'
 
 import type { IDisposable } from './disposable'
 import type { IStorageManage } from './storageManage'
 import type { IViewPortManage } from './viewPortManage'
 import type { ISceneDragMoveOpts, IUpdateZoomOpts } from './types'
-import type { IExportData, IShape } from './shapes'
-import type { INodeGroup } from './shapes/nodeGroup'
+import type { IExportData } from './shapes'
+import type { IIocEditor } from './iocEditor'
 
 export interface IMiniMapManage extends IDisposable {
   refreshMap(data: IExportData): void
@@ -19,23 +18,23 @@ export interface IMiniMapManage extends IDisposable {
 }
 
 class MiniMapManage extends Disposable implements IMiniMapManage {
-  private _iocEditor: IocEditor
-  private _parentIocEditor: IocEditor
+  private _iocEditor: IIocEditor
+  private _parentIocEditor: IIocEditor
   private _storageMgr: IStorageManage
   private _viewPortMgr: IViewPortManage
-  private _containerWidth: number = 0
-  private _containerHeight: number = 0
-  private _containerRatio: number = 1
-  private _scaleRatio = 1
+  private _containerWidth: number
+  private _containerHeight: number
+  private _scaleRatio: number = 1
 
-  private _centerX = 0
-  private _centerY = 0
+  private _centerX: number = 0
+  private _centerY: number = 0
 
-  private _oldMapFrameLeft = 0
-  private _oldMapFrameTop = 0
+  private _oldMapFrameLeft: number = 0
+  private _oldMapFrameTop: number = 0
 
   private _miniMapFrame: zrender.Rect
-  constructor(iocEditor: IocEditor, parentIocEditor: IocEditor) {
+
+  constructor(iocEditor: IIocEditor, parentIocEditor: IIocEditor) {
     super()
     this._iocEditor = iocEditor
     this._parentIocEditor = parentIocEditor
@@ -45,15 +44,8 @@ class MiniMapManage extends Disposable implements IMiniMapManage {
     this._containerWidth = this._viewPortMgr.getSceneWidth()
     this._containerHeight = this._viewPortMgr.getSceneHeight()
 
-    this._containerRatio = this._containerWidth / this._containerHeight
-
     this._miniMapFrame = new zrender.Rect({
-      shape: {
-        x: 0,
-        y: 0,
-        width: 0,
-        height: 0
-      },
+      shape: { x: 0, y: 0, width: 0, height: 0 },
       style: {
         fill: '#30303033',
         stroke: 'blue',
@@ -64,6 +56,10 @@ class MiniMapManage extends Disposable implements IMiniMapManage {
 
     this._iocEditor._zr.add(this._miniMapFrame)
 
+    this.initEventSubscriptions()
+  }
+
+  private initEventSubscriptions() {
     this._parentIocEditor.sceneDragMove$.subscribe(({ offsetX, offsetY }: ISceneDragMoveOpts) => {
       const scale = this.getMiniMapFrameScale()
       this.updateMiniMapFramePosition(
@@ -91,13 +87,11 @@ class MiniMapManage extends Disposable implements IMiniMapManage {
   }
 
   updateMiniMapFramePosition(x: number, y: number) {
-    this._miniMapFrame.attr('x', x)
-    this._miniMapFrame.attr('y', y)
+    this._miniMapFrame.attr({ x, y })
   }
 
   updateMiniMapFrameScale(scale: number) {
-    this._miniMapFrame.attr('scaleX', scale)
-    this._miniMapFrame.attr('scaleY', scale)
+    this._miniMapFrame.attr({ scaleX: scale, scaleY: scale })
   }
 
   setMiniMapFrameSize(width: number, height: number) {
@@ -127,24 +121,21 @@ class MiniMapManage extends Disposable implements IMiniMapManage {
       ...this._storageMgr.getConnections()
     ])
 
-    const miniMapRatio = width / height
+    this._scaleRatio = Math.max(this._containerWidth / width, this._containerHeight / height)
 
-    if (miniMapRatio > this._containerRatio) {
-      this._scaleRatio = this._containerWidth / width
-    } else {
-      this._scaleRatio = this._containerHeight / height
-    }
-
-    const sceneWidth = this._parentIocEditor!._viewPortMgr.getSceneWidth()
-    const sceneHeight = this._parentIocEditor!._viewPortMgr.getSceneHeight()
+    const sceneWidth = this._parentIocEditor._viewPortMgr.getSceneWidth()
+    const sceneHeight = this._parentIocEditor._viewPortMgr.getSceneHeight()
 
     const left = -x * this._scaleRatio
     const top = -y * this._scaleRatio
     const scale = this.getMiniMapFrameScale() || 1
-    this._viewPortMgr.getViewPort().attr('x', left)
-    this._viewPortMgr.getViewPort().attr('y', top)
-    this._viewPortMgr.getViewPort().attr('scaleX', this._scaleRatio)
-    this._viewPortMgr.getViewPort().attr('scaleY', this._scaleRatio)
+
+    this._viewPortMgr.getViewPort().attr({
+      x: left,
+      y: top,
+      scaleX: this._scaleRatio,
+      scaleY: this._scaleRatio
+    })
 
     const { x: pX, y: pY } = this._parentIocEditor._viewPortMgr.getViewPort()
 
@@ -155,28 +146,31 @@ class MiniMapManage extends Disposable implements IMiniMapManage {
     )
 
     this.updateOldPosition()
-
-    // fix: https://github.com/apache/echarts/issues/12261 zrender特性，节点中的文字不随节点一起放大缩小
     this.reSetNodeFontSize()
   }
 
   reSetNodeFontSize() {
-    this._storageMgr.getShapes().forEach((s: IShape) => {
-      s.getTextContent()?.setStyle({
-        fontSize: (s.getTextContent()?.style.fontSize as number) * this._scaleRatio
-      })
-    })
+    const updateFontSize = (shape: zrender.Element) => {
+      const textContent = shape.getTextContent()
+      if (textContent) {
+        textContent.setStyle({
+          fontSize: (textContent.style.fontSize as number) * this._scaleRatio
+        })
+      }
+    }
 
-    this._storageMgr.getGroups().forEach((g: INodeGroup) => {
-      g.groupHead?.getTextContent()?.setStyle({
-        fontSize: (g.groupHead?.getTextContent().style.fontSize as number) * this._scaleRatio
-      })
+    this._storageMgr.getShapes().forEach(updateFontSize)
+    this._storageMgr.getGroups().forEach(group => {
+      const groupHead = group.groupHead
+      if (groupHead) {
+        updateFontSize(groupHead)
+      }
     })
   }
 
   updateOldPosition() {
-    const sceneWidth = this._parentIocEditor!._viewPortMgr.getSceneWidth()
-    const sceneHeight = this._parentIocEditor!._viewPortMgr.getSceneHeight()
+    const sceneWidth = this._parentIocEditor._viewPortMgr.getSceneWidth()
+    const sceneHeight = this._parentIocEditor._viewPortMgr.getSceneHeight()
     const scale = this.getMiniMapFrameScale() || 1
     this._oldMapFrameLeft = this.getMiniMapFramePosition()[0]
     this._oldMapFrameTop = this.getMiniMapFramePosition()[1]

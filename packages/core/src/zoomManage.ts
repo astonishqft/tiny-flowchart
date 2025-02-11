@@ -32,28 +32,26 @@ class ZoomManage extends Disposable {
 
   // 放大
   zoomIn() {
-    const zoom = this._zoomScale
-    const pOffsetX = (this._viewPortMgr.getSceneWidth() / 2) * (1 - zoom)
-    const pOffsetY = (this._viewPortMgr.getSceneHeight() / 2) * (1 - zoom)
-    this.setZoom(zoom, pOffsetX, pOffsetY)
+    this.adjustZoom(this._zoomScale)
   }
 
   // 缩小
   zoomOut() {
-    const zoom = 1 / this._zoomScale
+    this.adjustZoom(1 / this._zoomScale)
+  }
+
+  private adjustZoom(zoom: number) {
     const pOffsetX = (this._viewPortMgr.getSceneWidth() / 2) * (1 - zoom)
     const pOffsetY = (this._viewPortMgr.getSceneHeight() / 2) * (1 - zoom)
     this.setZoom(zoom, pOffsetX, pOffsetY)
   }
 
   setZoom(zoom: number, offsetX: number, offsetY: number) {
-    this._currentZoom = this._currentZoom * zoom
-    if (this._currentZoom > this._maxZoom) {
-      return
-    } else if (this._currentZoom < this._minZoom) {
+    const newZoom = this._currentZoom * zoom
+    if (newZoom > this._maxZoom || newZoom < this._minZoom) {
       return
     }
-
+    this._currentZoom = newZoom
     this._iocMgr.updateZoom$.next({ zoom, offsetX, offsetY, currentZoom: this._currentZoom })
   }
 

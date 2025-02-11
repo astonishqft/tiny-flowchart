@@ -44,13 +44,11 @@ class SelectFrameManage implements ISelectFrameManage {
     })
 
     this._viewPortMgr.addElementToViewPort(this._selectFrame)
-
     this.hide()
   }
 
   setPosition(x: number, y: number) {
-    this._selectFrame.attr('x', x)
-    this._selectFrame.attr('y', y)
+    this._selectFrame.attr({ x, y })
   }
 
   resize(width: number, height: number) {
@@ -64,11 +62,8 @@ class SelectFrameManage implements ISelectFrameManage {
 
   multiSelect() {
     const selectFrameBoundingBox = this._selectFrame.getBoundingRect()
-    selectFrameBoundingBox.x = this._selectFrame.x
-    selectFrameBoundingBox.y = this._selectFrame.y
     this._storageMgr.getNodes().forEach(shape => {
-      const { width, height } = shape.getBoundingRect()
-      const { x, y } = shape
+      const { x, y, width, height } = shape.getBoundingRect()
       if (selectFrameBoundingBox.intersect(new zrender.BoundingRect(x, y, width, height))) {
         shape.active()
       } else {

@@ -1,9 +1,8 @@
-import { getShape } from './shapes'
+import { getShape, type IShape } from './shapes'
 import { Anchor } from './anchor'
 import { Disposable, IDisposable } from './disposable'
 import { NodeEventManage } from './nodeEventManage'
 
-import type { IShape } from './shapes'
 import type { IAnchorPoint } from './shapes'
 import type { IViewPortManage } from './viewPortManage'
 import type { IStorageManage } from './storageManage'
@@ -26,6 +25,7 @@ class ShapeManage extends Disposable {
   private _storageMgr: IStorageManage
   private _controlFrameMgr: IControlFrameManage
   private _iocEditor: IocEditor
+
   constructor(iocEditor: IocEditor) {
     super()
     this._viewPortMgr = iocEditor._viewPortMgr
@@ -45,9 +45,7 @@ class ShapeManage extends Disposable {
     })
 
     shape.setType(type)
-
-    const anchor = new Anchor(shape)
-    shape.anchor = anchor
+    shape.anchor = new Anchor(shape)
     shape.anchor.refresh()
     new NodeEventManage(shape, this._iocEditor)
 
@@ -56,9 +54,7 @@ class ShapeManage extends Disposable {
 
   addShapeToEditor(shape: IShape) {
     this._storageMgr.addShape(shape)
-    shape.anchor.bars.forEach((bar: IAnchorPoint) => {
-      this._viewPortMgr.addElementToViewPort(bar)
-    })
+    this.addBarsToViewPort(shape.anchor.bars)
     this._viewPortMgr.addElementToViewPort(shape)
   }
 
@@ -66,9 +62,7 @@ class ShapeManage extends Disposable {
     this._controlFrameMgr.unActive()
     shape.unActive()
     this._storageMgr.removeShape(shape)
-    shape.anchor.bars.forEach((bar: IAnchorPoint) => {
-      this._viewPortMgr.removeElementFromViewPort(bar)
-    })
+    this.removeBarsFromViewPort(shape.anchor.bars)
     this._viewPortMgr.removeElementFromViewPort(shape)
   }
 
@@ -83,9 +77,15 @@ class ShapeManage extends Disposable {
   }
 
   clear() {
-    this._storageMgr.getShapes().forEach((shape: IShape) => {
-      this.removeShapeFromEditor(shape)
-    })
+    this._storageMgr.getShapes().forEach(shape => this.removeShapeFromEditor(shape))
+  }
+
+  private addBarsToViewPort(bars: IAnchorPoint[]) {
+    bars.forEach(bar => this._viewPortMgr.addElementToViewPort(bar))
+  }
+
+  private removeBarsFromViewPort(bars: IAnchorPoint[]) {
+    bars.forEach(bar => this._viewPortMgr.removeElementFromViewPort(bar))
   }
 }
 

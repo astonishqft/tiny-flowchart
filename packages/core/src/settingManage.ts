@@ -46,7 +46,9 @@ class SettingManage extends Disposable {
     enableGrid: true,
     pasteOffset: 40
   }
+
   updatedSetting$ = new Subject<Partial<IIocEditorConfig>>()
+
   constructor() {
     super()
     this._disposables.push(this.updatedSetting$)
@@ -61,7 +63,7 @@ class SettingManage extends Disposable {
     this.updatedSetting$.next({ [key]: value })
   }
 
-  get<K extends keyof IIocEditorConfig>(key: K) {
+  get<K extends keyof IIocEditorConfig>(key: K): IIocEditorConfig[K] {
     return this.config[key]
   }
 }

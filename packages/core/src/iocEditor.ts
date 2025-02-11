@@ -110,6 +110,8 @@ export interface IIocEditor {
   updateZoom$: Subject<IUpdateZoomOpts>
   updateMiniMap$: Subject<void>
   sceneDragStart$: Subject<ISceneDragStartOpts>
+  sceneDragMove$: Subject<ISceneDragMoveOpts>
+  sceneDragEnd$: Subject<void>
   addShape(options: IAddShapeCommandOpts): void
   execute(type: string, options: Dictionary<any>): void
   initFlowChart(data: IExportData): void
@@ -365,7 +367,9 @@ export class IocEditor implements IIocEditor {
         break
       }
       case 'moveNodes': {
-        this.handleMoveNodes(options as IMoveNodeCommandOpts)
+        this._historyMgr.execute(
+          new PatchCommand(this.handleMoveNodes(options as IMoveNodeCommandOpts))
+        )
         break
       }
       case 'createGroup': {
@@ -466,7 +470,7 @@ export class IocEditor implements IIocEditor {
       }
     })
 
-    this._historyMgr.execute(new PatchCommand(patchCommands))
+    return patchCommands
   }
 
   private handleCreateGroup(options: ICreateGroupCommandOpts) {
@@ -480,21 +484,45 @@ export class IocEditor implements IIocEditor {
   private handleDragOutToGroup(options: IDragOutToGroupCommandOpts) {
     const patchCommands: ICommand[] = []
     patchCommands.push(new DragOutToGroupCommand(this, options.targetGroup, options.node))
-    patchCommands.push(new MoveNodeCommand(this, options.node, options.offsetX, options.offsetY))
+    patchCommands.push(
+      ...this.handleMoveNodes({
+        nodes: [options.node],
+        iocEditor: this,
+        offsetX: options.offsetX,
+        offsetY: options.offsetY
+      })
+    )
+
     this._historyMgr.execute(new PatchCommand(patchCommands))
   }
 
   private handleRemoveNodeFromGroup(options: IRemoveNodeFromGroupCommandOpts) {
     const patchCommands: ICommand[] = []
     patchCommands.push(new RemoveNodeFromGroupCommand(this, options.node))
-    patchCommands.push(new MoveNodeCommand(this, options.node, options.offsetX, options.offsetY))
+    patchCommands.push(
+      ...this.handleMoveNodes({
+        nodes: [options.node],
+        iocEditor: this,
+        offsetX: options.offsetX,
+        offsetY: options.offsetY
+      })
+    )
+
     this._historyMgr.execute(new PatchCommand(patchCommands))
   }
 
   private handleDragEnterToGroup(options: IDragEnterToGroupCommandOpts) {
     const patchCommands: ICommand[] = []
     patchCommands.push(new DragEnterToGroupCommand(this, options.targetGroup, options.node))
-    patchCommands.push(new MoveNodeCommand(this, options.node, options.offsetX, options.offsetY))
+    patchCommands.push(
+      ...this.handleMoveNodes({
+        nodes: [options.node],
+        iocEditor: this,
+        offsetX: options.offsetX,
+        offsetY: options.offsetY
+      })
+    )
+
     this._historyMgr.execute(new PatchCommand(patchCommands))
   }
 

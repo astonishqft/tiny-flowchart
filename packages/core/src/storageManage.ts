@@ -22,26 +22,44 @@ export interface IStorageManage {
 }
 
 class StorageManage {
-  _shapes: IShape[] = []
-  _groups: INodeGroup[] = []
-  _connections: IConnection[] = []
+  private _shapes: IShape[] = []
+  private _groups: INodeGroup[] = []
+  private _connections: IConnection[] = []
+
   addShape(shape: IShape) {
     this._shapes.push(shape)
-  }
-
-  clearShapes() {
-    this._shapes = []
-  }
-  addGroup(group: INodeGroup) {
-    this._groups.push(group)
   }
 
   removeShape(shape: IShape) {
     this._shapes = this._shapes.filter(item => item.id !== shape.id)
   }
 
+  clearShapes() {
+    this._shapes.length = 0 // 更高效的清空数组
+  }
+
+  addGroup(group: INodeGroup) {
+    this._groups.push(group)
+  }
+
   removeGroup(group: INodeGroup) {
     this._groups = this._groups.filter(item => item.id !== group.id)
+  }
+
+  clearGroups() {
+    this._groups.length = 0 // 更高效的清空数组
+  }
+
+  addConnection(connection: IConnection) {
+    this._connections.push(connection)
+  }
+
+  removeConnection(connection: IConnection) {
+    this._connections = this._connections.filter(item => item !== connection)
+  }
+
+  clearConnections() {
+    this._connections.length = 0 // 更高效的清空数组
   }
 
   getShapes() {
@@ -52,40 +70,24 @@ class StorageManage {
     return this._groups
   }
 
-  getNodes() {
-    return [...this._shapes, ...this._groups]
-  }
-
-  addConnection(connection: IConnection) {
-    this._connections.push(connection)
-  }
-
   getConnections() {
     return this._connections
   }
 
-  removeConnection(connection: IConnection) {
-    this._connections = this._connections.filter(item => item !== connection)
-  }
-
-  clearConnections() {
-    this._connections = []
-  }
-
-  clearGroups() {
-    this._groups = []
+  getNodes() {
+    return [...this._shapes, ...this._groups]
   }
 
   getActiveShapes() {
-    return this.getShapes().filter((shape: IShape) => shape.selected)
+    return this._shapes.filter(shape => shape.selected)
   }
 
   getActiveGroups(): INodeGroup[] {
-    return this._groups.filter((group: INodeGroup) => group.selected)
+    return this._groups.filter(group => group.selected)
   }
 
   getActiveNodes() {
-    return this.getNodes().filter((node: INode) => node.selected)
+    return this.getNodes().filter(node => node.selected)
   }
 
   getActiveConnections() {

@@ -20,27 +20,25 @@ export interface IViewPortManage extends IDisposable {
   getSceneWidth(): number
   getSceneHeight(): number
   getBoundingRect(includeChildren: zrender.Element[]): zrender.BoundingRect
-  setPosition(x: number, y: number): void
   getZoom(): number
 }
 
 class ViewPortManage extends Disposable {
   private _viewPort: zrender.Group = new zrender.Group()
   private _iocEditor: IocEditor
-  private _gridMgr: IGridManage | undefined
+  private _gridMgr?: IGridManage
   private _settingMgr: ISettingManage
-  private _enableMiniMap
-  private _currentZom = 1
-  private _enableGrid
+  private _currentZoom = 1
 
   constructor(iocEditor: IocEditor) {
     super()
     this._iocEditor = iocEditor
     this._settingMgr = iocEditor._settingMgr
-    this._enableMiniMap = this._settingMgr.get('enableMiniMap')
-    this._enableGrid = this._settingMgr.get('enableGrid')
 
-    if (!this._enableMiniMap && this._enableGrid) {
+    const enableMiniMap = this._settingMgr.get('enableMiniMap')
+    const enableGrid = this._settingMgr.get('enableGrid')
+
+    if (!enableMiniMap && enableGrid) {
       this._gridMgr = new GridManage(iocEditor, this)
     }
 
@@ -50,7 +48,7 @@ class ViewPortManage extends Disposable {
 
     this._iocEditor.updateZoom$.subscribe(
       ({ zoom, offsetX, offsetY, currentZoom }: IUpdateZoomOpts) => {
-        this._currentZom = currentZoom
+        this._currentZoom = currentZoom
         this.setZoom(zoom, offsetX, offsetY)
       }
     )
@@ -73,7 +71,7 @@ class ViewPortManage extends Disposable {
   }
 
   getZoom() {
-    return this._currentZom
+    return this._currentZoom
   }
 
   setScale(x: number, y: number) {
@@ -90,9 +88,7 @@ class ViewPortManage extends Disposable {
     this._viewPort.attr('x', x)
     this._viewPort.attr('y', y)
     this._gridMgr?.setPosition(x, y)
-    if (this._gridMgr) {
-      this._gridMgr?.drawGrid()
-    }
+    this._gridMgr?.drawGrid()
   }
 
   getPosition() {
