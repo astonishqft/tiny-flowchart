@@ -1,13 +1,7 @@
 import * as zrender from 'zrender'
 
 import type { INodeGroup } from './shapes/nodeGroup'
-import type {
-  IExportGroup,
-  IExportGroupStyle,
-  IExportShape,
-  IExportConnection,
-  INode
-} from './shapes'
+import type { IExportGroup, IExportGroupStyle, IExportShape, INode } from './shapes'
 
 export const getClosestValInSortedArr = (sortedArr: number[], target: number) => {
   if (sortedArr.length === 0) {
@@ -179,21 +173,6 @@ export const getBoundingBox = <T extends zrender.Element>(nodes: T[]): zrender.B
   const g = new zrender.Group()
 
   return g.getBoundingRect(nodes)
-}
-
-export const updateNodeConnectionId = (
-  connections: IExportConnection[],
-  oldId: number,
-  newId: number
-) => {
-  connections.forEach(conn => {
-    if (conn.fromNode === oldId) {
-      conn.fromNode = newId
-    }
-    if (conn.toNode === oldId) {
-      conn.toNode = newId
-    }
-  })
 }
 
 export const getAllRelatedGroups = (targetGroup: IExportGroup[], allGroups: IExportGroup[]) => {

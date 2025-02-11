@@ -56,7 +56,6 @@ class ShapeManage extends Disposable {
 
   addShapeToEditor(shape: IShape) {
     this._storageMgr.addShape(shape)
-    shape.unActive()
     shape.anchor.bars.forEach((bar: IAnchorPoint) => {
       this._viewPortMgr.addElementToViewPort(bar)
     })

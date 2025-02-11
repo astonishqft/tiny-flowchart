@@ -10,7 +10,7 @@ import type { INodeGroup } from './shapes/nodeGroup'
 import type { IIocEditor } from './iocEditor'
 import type { IConnectionManage } from './connectionManage'
 export interface IGroupManage extends IDisposable {
-  createGroup(nodes?: INode[], groupId?: number, oldId?: number): INodeGroup
+  createGroup(nodes?: INode[], groupId?: number): INodeGroup
   clear(): void
   addGroupToEditor(group: INodeGroup): void
   removeGroupFromEditor(group: INodeGroup): void
@@ -48,7 +48,6 @@ class GroupManage extends Disposable {
 
   addGroupToEditor(group: INodeGroup) {
     this._storageMgr.addGroup(group)
-    group.unActive()
     this._viewPortMgr.addElementToViewPort(group)
     group.anchor.bars.forEach((bar: IAnchorPoint) => {
       this._viewPortMgr.addElementToViewPort(bar)

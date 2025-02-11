@@ -31,7 +31,7 @@ export interface IConnectionManage extends IDisposable {
   setConnectionType(type: ConnectionType): void
   getConnectionType(): ConnectionType
   removeDuplicateConnections<T extends { id: number }>(connections: T[]): T[]
-  getConnectionsInNodes(nodes: INode[]): IConnection[]
+  getConnectionsInNodes(nodeIds: Set<number>): IConnection[]
 }
 
 class ConnectionManage extends Disposable {
@@ -176,13 +176,11 @@ class ConnectionManage extends Disposable {
     return Array.from(uniqueConnections.values())
   }
 
-  getConnectionsInNodes(nodes: INode[]): IConnection[] {
-    const activeNodeIds = new Set(nodes.map(node => node.id))
+  getConnectionsInNodes(nodesIds: Set<number>): IConnection[] {
     const connections = this._storageMgr.getConnections()
 
     return connections.filter(
-      connection =>
-        activeNodeIds.has(connection.fromNode.id) && activeNodeIds.has(connection.toNode!.id)
+      connection => nodesIds.has(connection.fromNode.id) && nodesIds.has(connection.toNode!.id)
     )
   }
 }

@@ -16,6 +16,7 @@ export interface IIocEditorConfig {
   connectionSelectColor: string // 连接线选中框的颜色
   groupActiveColor: string // 组选中框的颜色
   showGrid: boolean
+  pasteOffset: number // 粘贴偏移量
   enableMiniMap?: boolean
   enableGrid?: boolean
   parent?: IIocEditor
@@ -42,7 +43,8 @@ class SettingManage extends Disposable {
     controlFrameColor: '#29b7f3',
     connectionSelectColor: '#29b7f3',
     groupActiveColor: '#29b7f3',
-    enableGrid: true
+    enableGrid: true,
+    pasteOffset: 40
   }
   updatedSetting$ = new Subject<Partial<IIocEditorConfig>>()
   constructor() {
