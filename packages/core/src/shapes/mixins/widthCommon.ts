@@ -31,6 +31,7 @@ function WidthCommon<TBase extends CommonConstructor>(Base: TBase) {
     oldX: number = 0
     oldY: number = 0
     parentGroup?: INodeGroup
+
     constructor(...args: any[]) {
       super(...args)
     }
@@ -71,72 +72,61 @@ function WidthCommon<TBase extends CommonConstructor>(Base: TBase) {
         id: this.id,
         type: this.type,
         z: this.z,
-        style: {
-          fill: this.style.fill,
-          stroke: this.style.stroke,
-          lineWidth: this.style.lineWidth,
-          lineDash: this.style.lineDash,
-          fontColor: this.getTextContent().style.fill as string,
-          text: this.getTextContent().style.text as string,
-          fontSize: this.getTextContent().style.fontSize as number,
-          fontWeight: this.getTextContent().style.fontWeight as FontWeight,
-          fontStyle: this.getTextContent().style.fontStyle as FontStyle,
-          textPosition: this.textConfig!.position
-        },
-        shape: this.shape
+        style: this.getStyleData(),
+        shape: this.shape,
+        ...(this.parentGroup && { parent: this.parentGroup.id })
       }
 
       if (this.type === 'image') {
-        exportData.style.image = this.style.image
-        exportData.style.width = this.style.width
-        exportData.style.height = this.style.height
-      }
-
-      if (this.parentGroup) {
-        exportData.parent = this.parentGroup.id
+        this.addImageData(exportData)
       }
 
       return exportData
     }
 
+    private getStyleData() {
+      const textContent = this.getTextContent().style
+
+      return {
+        fill: this.style.fill,
+        stroke: this.style.stroke,
+        lineWidth: this.style.lineWidth,
+        lineDash: this.style.lineDash,
+        fontColor: textContent.fill as string,
+        text: textContent.text as string,
+        fontSize: textContent.fontSize as number,
+        fontWeight: textContent.fontWeight as FontWeight,
+        fontStyle: textContent.fontStyle as FontStyle,
+        textPosition: this.textConfig!.position
+      }
+    }
+
+    private addImageData(exportData: IExportShape) {
+      exportData.style.image = this.style.image
+      exportData.style.width = this.style.width
+      exportData.style.height = this.style.height
+    }
+
     updateShape(config: IExportShapeStyle) {
-      const {
-        fill,
-        stroke,
-        lineWidth,
-        lineDash,
-        text,
-        fontColor,
-        fontSize,
-        fontStyle,
-        fontWeight,
-        textPosition,
-        image,
-        width,
-        height
-      } = config
+      this.getTextContent().setStyle(this.getTextStyle(config))
+      this.setShapeStyle(config)
+      this.setTextConfig({ position: config.textPosition })
+    }
 
-      this.getTextContent().setStyle({
-        text,
-        fill: fontColor,
-        fontSize,
-        fontStyle,
-        fontWeight
-      })
+    private getTextStyle(config: IExportShapeStyle) {
+      const { text, fontColor, fontSize, fontStyle, fontWeight } = config
 
-      // 针对Image节点，设置style
+      return { text, fill: fontColor, fontSize, fontStyle, fontWeight }
+    }
+
+    private setShapeStyle(config: IExportShapeStyle) {
+      const { fill, stroke, lineWidth, lineDash, image, width, height } = config
+
       if (this.type === 'image' && image) {
         this.setStyle({ width, height, image })
       } else {
-        this.setStyle({
-          fill,
-          stroke,
-          lineWidth,
-          lineDash
-        })
+        this.setStyle({ fill, stroke, lineWidth, lineDash })
       }
-
-      this.setTextConfig({ position: textPosition })
     }
   }
 }

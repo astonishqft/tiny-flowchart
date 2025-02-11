@@ -8,6 +8,7 @@ export interface IWidthActivate {
   active(): void
   unActive(): void
 }
+
 function WidthActivate<TBase extends ActivatableConstructor>(Base: TBase) {
   return class extends Base {
     selected = false
@@ -17,13 +18,16 @@ function WidthActivate<TBase extends ActivatableConstructor>(Base: TBase) {
     }
 
     active() {
-      this.selected = true
-      this.anchor.show()
+      this.setActiveState(true)
     }
 
     unActive() {
-      this.selected = false
-      this.anchor.hide()
+      this.setActiveState(false)
+    }
+
+    private setActiveState(state: boolean) {
+      this.selected = state
+      state ? this.anchor.show() : this.anchor.hide()
     }
   }
 }

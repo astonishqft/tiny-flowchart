@@ -1,7 +1,6 @@
-import type { IShape } from '../../shapes'
-import type { Command } from '../historyManage'
+import type { IShape, IExportShapeStyle } from '../../shapes'
+import type { ICommand } from '../historyManage'
 import type { IIocEditor } from '../../iocEditor'
-import { IExportShapeStyle } from '../../shapes'
 
 export interface IUpdateShapePropertyCommandOpts {
   shape: IShape
@@ -9,7 +8,7 @@ export interface IUpdateShapePropertyCommandOpts {
   oldShapeConfig: IExportShapeStyle
 }
 
-class UpdateShapePropertyCommand implements Command {
+class UpdateShapePropertyCommand implements ICommand {
   private iocEditor: IIocEditor
   private shape: IShape
   private shapeConfig: IExportShapeStyle
@@ -25,9 +24,11 @@ class UpdateShapePropertyCommand implements Command {
     this.shapeConfig = shapeConfig
     this.oldShapeConfig = oldShapeConfig
   }
+
   execute() {
     this.shape.updateShape(this.shapeConfig)
   }
+
   undo() {
     this.shape.updateShape(this.oldShapeConfig)
   }

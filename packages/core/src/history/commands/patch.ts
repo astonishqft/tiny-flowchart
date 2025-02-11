@@ -1,9 +1,9 @@
-import type { Command } from '../historyManage'
+import type { ICommand } from '../historyManage'
 
-class PatchCommand implements Command {
-  private cmds: Command[]
+class PatchCommand implements ICommand {
+  private cmds: ICommand[]
 
-  constructor(cmds: Command[]) {
+  constructor(cmds: ICommand[]) {
     this.cmds = cmds
   }
 

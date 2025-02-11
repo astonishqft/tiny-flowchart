@@ -1,12 +1,12 @@
 import type { INodeGroup } from '../../shapes/nodeGroup'
-import type { Command } from '../historyManage'
+import type { ICommand } from '../historyManage'
 import type { IIocEditor } from '../../iocEditor'
 
 export interface ICreateGroupCommandOpts {
   group: INodeGroup
 }
 
-class CreateGroupCommand implements Command {
+class CreateGroupCommand implements ICommand {
   private iocEditor: IIocEditor
   private group: INodeGroup
 

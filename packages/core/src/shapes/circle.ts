@@ -1,7 +1,11 @@
 import * as zrender from 'zrender'
+import { getBoundingBox } from '../utils'
+
 import type { IAnchor } from './index'
+
 class Circle extends zrender.Ellipse {
   anchors: IAnchor[] = []
+
   constructor(data: zrender.CircleProps) {
     super(data)
     this.createAnchors()
@@ -17,11 +21,7 @@ class Circle extends zrender.Ellipse {
   }
 
   createAnchors() {
-    this.anchors = []
-    const g = new zrender.Group()
-    // 组内元素的子集。如果 includeChildren 未设置，则获取所有元素的包围盒，否则获得 includeChildren 的包围盒。
-    // 也就是获取了this(图元本身)所在的包围盒，用来计算锚点
-    const box = g.getBoundingRect([this])
+    const box = getBoundingBox([this])
     const cy = box.y + box.height / 2
 
     const t = {

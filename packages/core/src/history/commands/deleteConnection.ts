@@ -1,12 +1,12 @@
-import { IConnection } from '../../shapes'
-import type { Command } from '../historyManage'
+import type { IConnection } from '../../shapes'
+import type { ICommand } from '../historyManage'
 import type { IIocEditor } from '../../iocEditor'
 
 export interface IDeleteConnectionCommandOpts {
   connections: IConnection[]
 }
 
-class DeleteConnectionCommand implements Command {
+class DeleteConnectionCommand implements ICommand {
   private connection: IConnection
   private iocEditor: IIocEditor
 

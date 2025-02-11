@@ -31,18 +31,13 @@ class DragFrameManage extends Disposable {
   private _frame: zrender.Rect
   private _viewPortMgr: IViewPortManage
   private _storageMgr: IStorageManage
+
   constructor(iocEditor: IIocEditor) {
     super()
     this._viewPortMgr = iocEditor._viewPortMgr
     this._storageMgr = iocEditor._storageMgr
     this._frame = new zrender.Rect({
-      shape: {
-        x: 0,
-        y: 0,
-        width: 0,
-        height: 0,
-        r: [3]
-      },
+      shape: { x: 0, y: 0, width: 0, height: 0, r: [3] },
       style: {
         fill: 'rgba(25, 113, 194, 0.2)',
         stroke: '#1971c2',
@@ -113,6 +108,7 @@ class DragFrameManage extends Disposable {
 
     const parentGroup = node.parentGroup
     groups.forEach(g => g.setOldStyle())
+
     if (parentGroup) {
       const { z } = parentGroup
 

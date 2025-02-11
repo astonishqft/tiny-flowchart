@@ -11,11 +11,13 @@ export interface IControlFrameManage {
   reSizeNode(boundingBox: zrender.BoundingRect): void
 }
 
+interface IPointCursor {
+  cursor: string
+  z: number
+}
+
 class ControlFrameManage implements IControlFrameManage {
-  private _ltControlPoint: zrender.Rect
-  private _rtControlPoint: zrender.Rect
-  private _lbControlPoint: zrender.Rect
-  private _rbControlPoint: zrender.Rect
+  private _controlPoints: zrender.Rect[] = []
   private _controlBox: zrender.Rect
   private _connectionMgr: IConnectionManage
   private _viewPortMgr: IViewPortManage
@@ -29,106 +31,48 @@ class ControlFrameManage implements IControlFrameManage {
     this._viewPortMgr = iocEditor._viewPortMgr
     this._settingMgr = iocEditor._settingMgr
     this._controlFrameColor = this._settingMgr.get('controlFrameColor')
+
     this._controlBox = new zrender.Rect({
-      shape: {
-        x: 0,
-        y: 0,
-        width: 0,
-        height: 0
-      },
-      style: {
-        fill: 'transparent',
-        stroke: this._controlFrameColor,
-        lineDash: 'dashed'
-      },
+      shape: { x: 0, y: 0, width: 0, height: 0 },
+      style: { fill: 'transparent', stroke: this._controlFrameColor, lineDash: 'dashed' },
       silent: true
     })
 
-    // 左上角控制点
-    this._ltControlPoint = new zrender.Rect({
-      style: {
-        fill: '#fff',
-        stroke: this._controlFrameColor,
-        lineWidth: 1
-      },
-      shape: {
-        width: 8,
-        height: 8,
-        r: 2
-      },
-      draggable: true,
-      cursor: 'nw-resize',
-      z: 100
-    })
-
-    // 右上角控制点
-    this._rtControlPoint = new zrender.Rect({
-      style: {
-        fill: '#fff',
-        stroke: this._controlFrameColor,
-        lineWidth: 1
-      },
-      shape: {
-        width: 8,
-        height: 8,
-        r: 2
-      },
-      draggable: true,
-      cursor: 'ne-resize',
-      z: 100
-    })
-
-    // 左下角控制点
-    this._lbControlPoint = new zrender.Rect({
-      style: {
-        fill: '#fff',
-        stroke: this._controlFrameColor,
-        lineWidth: 1
-      },
-      shape: {
-        width: 8,
-        height: 8,
-        r: 2
-      },
-      draggable: true,
-      cursor: 'sw-resize',
-      z: 100
-    })
-
-    // 右下角
-    this._rbControlPoint = new zrender.Rect({
-      style: {
-        fill: '#fff',
-        stroke: this._controlFrameColor,
-        lineWidth: 1
-      },
-      shape: {
-        width: 8,
-        height: 8,
-        r: 2
-      },
-      draggable: true,
-      cursor: 'se-resize',
-      z: 100
-    })
-
+    this.createControlPoints()
     this._viewPortMgr.addElementToViewPort(this._controlBox)
-    this._viewPortMgr.addElementToViewPort(this._ltControlPoint)
-    this._viewPortMgr.addElementToViewPort(this._rtControlPoint)
-    this._viewPortMgr.addElementToViewPort(this._lbControlPoint)
-    this._viewPortMgr.addElementToViewPort(this._rbControlPoint)
+    this._controlPoints.forEach(point => this._viewPortMgr.addElementToViewPort(point))
     this.unActive()
-
     this.initEvent()
+  }
+
+  private createControlPoints() {
+    const positions: IPointCursor[] = [
+      { cursor: 'nw-resize', z: 100 },
+      { cursor: 'ne-resize', z: 100 },
+      { cursor: 'sw-resize', z: 100 },
+      { cursor: 'se-resize', z: 100 }
+    ]
+
+    positions.forEach((pos: IPointCursor) => {
+      const controlPoint = new zrender.Rect({
+        style: {
+          fill: '#fff',
+          stroke: this._controlFrameColor,
+          lineWidth: 1
+        },
+        shape: { width: 8, height: 8, r: 2 },
+        draggable: true,
+        cursor: pos.cursor,
+        z: pos.z
+      })
+      this._controlPoints.push(controlPoint)
+    })
   }
 
   active(node: IShape) {
     this._node = node
     this._controlBox.show()
-    this._ltControlPoint.show()
-    this._rtControlPoint.show()
-    this._lbControlPoint.show()
-    this._rbControlPoint.show()
+    this._controlPoints.forEach(point => point.show())
     const { width, height, x, y } = node.getBoundingBox()
     const lineWidth = node.style.lineWidth
     this.reSizeControlFrame(new zrender.BoundingRect(x, y, width - lineWidth, height - lineWidth))
@@ -136,17 +80,12 @@ class ControlFrameManage implements IControlFrameManage {
 
   reSizeControlFrame(boundingBox: zrender.BoundingRect) {
     const { x, y, width, height } = boundingBox
-    this._controlBox.attr('shape', { width, height })
-    this._controlBox.attr('x', x)
-    this._controlBox.attr('y', y)
-    this._ltControlPoint.attr('x', x - 4)
-    this._ltControlPoint.attr('y', y - 4)
-    this._rtControlPoint.attr('x', x + width - 4)
-    this._rtControlPoint.attr('y', y - 4)
-    this._lbControlPoint.attr('x', x - 4)
-    this._lbControlPoint.attr('y', y + height - 4)
-    this._rbControlPoint.attr('x', x + width - 4)
-    this._rbControlPoint.attr('y', y + height - 4)
+    this._controlBox.attr({ shape: { width, height }, x, y })
+    const offsets = [-4, width - 4, height - 4]
+    this._controlPoints[0].attr({ x: x + offsets[0], y: y + offsets[0] }) // 左上角
+    this._controlPoints[1].attr({ x: x + offsets[1], y: y + offsets[0] }) // 右上角
+    this._controlPoints[2].attr({ x: x + offsets[0], y: y + offsets[2] }) // 左下角
+    this._controlPoints[3].attr({ x: x + offsets[1], y: y + offsets[2] }) // 右下角
   }
 
   reSizeNode(boundingBox: zrender.BoundingRect) {
@@ -191,13 +130,9 @@ class ControlFrameManage implements IControlFrameManage {
       oldWidth,
       oldHeight
     )
-    ;[
-      this._ltControlPoint,
-      this._rtControlPoint,
-      this._lbControlPoint,
-      this._rbControlPoint
-    ].forEach((item, i) => {
-      item.on('dragstart', (e: zrender.ElementEvent) => {
+
+    this._controlPoints.forEach((point, i) => {
+      point.on('dragstart', (e: zrender.ElementEvent) => {
         isDragging = true
         startX = e.offsetX
         startY = e.offsetY
@@ -208,7 +143,7 @@ class ControlFrameManage implements IControlFrameManage {
         oldBoundingBox = new zrender.BoundingRect(oldX, oldY, oldWidth, oldHeight)
       })
 
-      item.on('drag', (e: zrender.ElementEvent) => {
+      point.on('drag', (e: zrender.ElementEvent) => {
         if (!isDragging) return
         offsetX = e.offsetX - startX
         offsetY = e.offsetY - startY
@@ -244,7 +179,7 @@ class ControlFrameManage implements IControlFrameManage {
         this.reSizeNode(new zrender.BoundingRect(x, y, width, height))
       })
 
-      item.on('dragend', () => {
+      point.on('dragend', () => {
         isDragging = false
         this._iocEditor.execute('resizeShape', {
           node: this._node,
@@ -257,10 +192,7 @@ class ControlFrameManage implements IControlFrameManage {
 
   unActive() {
     this._controlBox.hide()
-    this._ltControlPoint.hide()
-    this._rtControlPoint.hide()
-    this._lbControlPoint.hide()
-    this._rbControlPoint.hide()
+    this._controlPoints.forEach(point => point.hide())
   }
 }
 

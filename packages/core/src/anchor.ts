@@ -1,87 +1,94 @@
 import * as zrender from 'zrender'
-import type { IAnchorPoint, INode } from './shapes'
+import type { IAnchorPoint, INode, IAnchor } from './shapes'
 
 class Anchor {
   private _radius: number = 4
   shape: INode
   bars: IAnchorPoint[]
+
   constructor(shape: INode) {
     this.shape = shape
     this.bars = []
     this.create()
   }
+
   create() {
-    const points = this.shape.getAnchors()
-    points.forEach(p => {
-      const circle = new zrender.Circle({
-        style: {
-          fill: '#fff',
-          stroke: 'rgb(0,181,237)',
-          lineWidth: 1
-        },
-        shape: {
-          cx: p.x,
-          cy: p.y,
-          r: this._radius
-        },
-        cursor: 'crosshair',
-        z: 30001
-      }) as IAnchorPoint
-      circle.point = p
-      circle.mark = 'anch'
-      circle.node = this.shape
-      circle.anch = circle
-      circle.on('mouseover', () => {
-        circle.oldFillColor = circle.style.fill as string
-        circle.attr({
-          style: {
-            fill: 'rgb(0,181,237)',
-            shadowColor: '#1971c2',
-            shadowBlur: 2
-          }
-        })
-        this.show()
-      })
+    this.shape.getAnchors().forEach(p => this.createCircle(p))
+  }
 
-      circle.on('mouseout', () => {
-        circle.attr({
-          style: {
-            fill: circle.oldFillColor,
-            shadowBlur: 0
-          }
-        })
-        if (this.shape.selected) return
-        this.hide()
-      })
+  private createCircle(p: IAnchor) {
+    const circle = new zrender.Circle({
+      style: {
+        fill: '#fff',
+        stroke: 'rgb(0,181,237)',
+        lineWidth: 1
+      },
+      shape: {
+        cx: p.x,
+        cy: p.y,
+        r: this._radius
+      },
+      cursor: 'crosshair',
+      z: 30001
+    }) as IAnchorPoint
 
-      circle.on('mousedown', () => {
-        circle.attr({
-          style: {
-            fill: 'rgb(0,181,237)'
-          }
-        })
-      })
+    circle.point = p
+    circle.mark = 'anch'
+    circle.node = this.shape
+    circle.anch = circle
 
-      this.bars.push(circle)
+    this.addCircleEvents(circle)
+    this.bars.push(circle)
+  }
+
+  private addCircleEvents(circle: IAnchorPoint) {
+    circle.on('mouseover', () => this.onMouseOver(circle))
+    circle.on('mouseout', () => this.onMouseOut(circle))
+    circle.on('mousedown', () => this.onMouseDown(circle))
+  }
+
+  private onMouseOver(circle: IAnchorPoint) {
+    circle.oldFillColor = circle.style.fill as string
+    circle.attr({
+      style: {
+        fill: 'rgb(0,181,237)',
+        shadowColor: '#1971c2',
+        shadowBlur: 2
+      }
+    })
+    this.show()
+  }
+
+  private onMouseOut(circle: IAnchorPoint) {
+    circle.attr({
+      style: {
+        fill: circle.oldFillColor,
+        shadowBlur: 0
+      }
+    })
+    if (!this.shape.selected) {
+      this.hide()
+    }
+  }
+
+  private onMouseDown(circle: IAnchorPoint) {
+    circle.attr({
+      style: {
+        fill: 'rgb(0,181,237)'
+      }
     })
   }
 
   getBarByIndex(index: number) {
-    return this.bars.filter(bar => {
-      return bar.point.index === index
-    })[0]
+    return this.bars.find(bar => bar.point.index === index)
   }
 
   show() {
-    this.bars.forEach(b => {
-      b.show()
-    })
+    this.bars.forEach(b => b.show())
   }
 
   hide() {
-    this.bars.forEach(b => {
-      b.hide()
-    })
+    this.bars.forEach(b => b.hide())
   }
 
   refresh() {

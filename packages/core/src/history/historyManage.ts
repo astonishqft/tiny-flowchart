@@ -1,19 +1,19 @@
-export interface Command {
+export interface ICommand {
   execute(): void
   undo(): void
   redo(): void
 }
 
 export interface IHistoryManage {
-  execute(command: Command): void
+  execute(command: ICommand): void
   undo(): void
   redo(): void
   reset(): void
 }
 
 class HistoryManage implements IHistoryManage {
-  private undoList: Command[]
-  private redoList: Command[]
+  private undoList: ICommand[]
+  private redoList: ICommand[]
   private maxHistory: number
 
   constructor(maxHistory: number = 100) {
@@ -22,7 +22,7 @@ class HistoryManage implements IHistoryManage {
     this.redoList = []
   }
 
-  execute(command: Command) {
+  execute(command: ICommand) {
     command.execute()
     this.redoList = []
     // 如果超出了最大历史保存数
@@ -35,7 +35,7 @@ class HistoryManage implements IHistoryManage {
 
   undo() {
     if (this.undoList.length) {
-      const command: Command = this.undoList.pop() as Command
+      const command: ICommand = this.undoList.pop() as ICommand
       command.undo()
       this.redoList.push(command)
     }
@@ -43,7 +43,7 @@ class HistoryManage implements IHistoryManage {
 
   redo() {
     if (this.redoList.length) {
-      const command: Command = this.redoList.pop() as Command
+      const command: ICommand = this.redoList.pop() as ICommand
       command.redo()
       this.undoList.push(command)
     }

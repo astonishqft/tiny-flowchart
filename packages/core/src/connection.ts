@@ -85,65 +85,42 @@ class Connection extends zrender.Group implements IConnection {
   }
 
   active() {
-    if (this._controlLine1 && this._controlLine2 && this.controlPoint1 && this.controlPoint2) {
-      this._controlLine1.show()
-      this._controlLine2.show()
-      this.controlPoint1.show()
-      this.controlPoint2.show()
-    }
-
-    this._line?.setStyle({
-      stroke: this._connectionSelectColor,
-      lineWidth: this._lineWidth * 2
-    })
-    this._arrow?.setStyle({
-      fill: this._connectionSelectColor
-    })
-
+    this.toggleControlLines(true)
+    this.setLineStyle(this._connectionSelectColor, this._lineWidth * 2)
     this.selected = true
   }
 
   unActive() {
-    if (this._controlLine1 && this._controlLine2 && this.controlPoint1 && this.controlPoint2) {
-      this._controlLine1.hide()
-      this._controlLine2.hide()
-      this.controlPoint1.hide()
-      this.controlPoint2.hide()
-    }
-
-    this._line?.setStyle({
-      stroke: this._oldStroke,
-      lineWidth: this._oldConnectionWidth
-    })
-    this._arrow?.setStyle({
-      fill: this._oldStroke
-    })
-
+    this.toggleControlLines(false)
+    this.setLineStyle(this._oldStroke, this._oldConnectionWidth)
     this.selected = false
+  }
+
+  private toggleControlLines(show: boolean) {
+    if (this._controlLine1 && this._controlLine2 && this.controlPoint1 && this.controlPoint2) {
+      show ? this._controlLine1.show() : this._controlLine1.hide()
+      show ? this._controlLine2.show() : this._controlLine2.hide()
+      show ? this.controlPoint1.show() : this.controlPoint1.hide()
+      show ? this.controlPoint2.show() : this.controlPoint2.hide()
+    }
+  }
+
+  private setLineStyle(stroke: StrokeStyle, lineWidth: number) {
+    this._line?.setStyle({ stroke, lineWidth })
+    this._arrow?.setStyle({ fill: stroke })
   }
 
   calcControlPoint(anchorPoint: IAnchor): number[] {
     const { direct, x, y } = anchorPoint
-    let point: number[] = []
     const offset = 80
-    switch (direct) {
-      case 'top':
-        point = [x, y - offset]
-        break
-      case 'right':
-        point = [x + offset, y]
-        break
-      case 'bottom':
-        point = [x, y + offset]
-        break
-      case 'left':
-        point = [x - offset, y]
-        break
-      default:
-        break
+    const directions: { [key: string]: number[] } = {
+      top: [x, y - offset],
+      right: [x + offset, y],
+      bottom: [x, y + offset],
+      left: [x - offset, y]
     }
 
-    return point
+    return directions[direct] || []
   }
 
   generateOrtogonalLinePath() {
@@ -216,171 +193,117 @@ class Connection extends zrender.Group implements IConnection {
 
     this.getLineTextContent() ? this._lineText.show() : this._lineText.hide()
     this.add(this._lineText)
+
     this._oldStroke = this._stroke
     this._oldConnectionWidth = this._lineWidth
+
+    this.createLine()
+    this.refresh()
+
+    this.refresh()
+  }
+
+  private createLine() {
+    const lineStyle = {
+      lineWidth: this._lineWidth,
+      stroke: this._stroke,
+      lineDash: this._lineDash
+    }
+
     switch (this.connectionType) {
       case ConnectionType.Line:
-        this._line = new zrender.Line({
-          style: {
-            lineWidth: this._lineWidth,
-            stroke: this._stroke,
-            lineDash: this._lineDash
-          },
-          z: 4
-        })
+        this._line = new zrender.Line({ style: lineStyle, z: 4 })
         break
-      case ConnectionType.BezierCurve: {
-        this._line = new zrender.BezierCurve({
-          style: {
-            lineWidth: this._lineWidth,
-            stroke: this._stroke,
-            lineDash: this._lineDash
-          },
-          z: 4
-        })
-
-        this.controlPoint1 = new zrender.Circle({
-          style: {
-            fill: 'red'
-          },
-          shape: {
-            r: 4
-          },
-          z: 40,
-          draggable: true
-        }) as IControlPoint
-        this.controlPoint1.hide()
-        this.controlPoint1.mark = 'controlPoint'
-
-        this.controlPoint2 = new zrender.Circle({
-          style: {
-            fill: 'red'
-          },
-          shape: {
-            r: 4
-          },
-          z: 40,
-          draggable: true
-        }) as IControlPoint
-        this.controlPoint2.hide()
-        this.controlPoint2.mark = 'controlPoint'
-
-        this._controlLine1 = new zrender.Line({
-          style: {
-            stroke: '#ccc'
-          },
-          z: 39
-        })
-        this._controlLine1.hide()
-
-        this._controlLine2 = new zrender.Line({
-          style: {
-            stroke: '#ccc'
-          },
-          z: 39
-        })
-        this._controlLine2.hide()
-
-        this.add(this.controlPoint1)
-        this.add(this.controlPoint2)
-        this.add(this._controlLine1)
-        this.add(this._controlLine2)
-
-        let oldControlPoint1 = [this.controlPoint1!.x, this.controlPoint1!.y]
-        let oldControlPoint2 = [this.controlPoint2!.x, this.controlPoint2!.y]
-        this.controlPoint1?.on('dragstart', () => {
-          oldControlPoint1 = [this.controlPoint1!.x, this.controlPoint1!.y]
-        })
-        this.controlPoint2?.on('dragstart', () => {
-          oldControlPoint2 = [this.controlPoint2!.x, this.controlPoint2!.y]
-        })
-        this.controlPoint1?.on('dragend', () => {
-          oldControlPoint2 = [this.controlPoint2!.x, this.controlPoint2!.y]
-          this._iocEditor.execute('updateControlPoint', {
-            connection: this,
-            controlPoint1: [this.controlPoint1!.x, this.controlPoint1!.y],
-            controlPoint2: [this.controlPoint2!.x, this.controlPoint2!.y],
-            oldControlPoint1,
-            oldControlPoint2
-          })
-        })
-
-        this.controlPoint2?.on('dragend', () => {
-          oldControlPoint1 = [this.controlPoint1!.x, this.controlPoint1!.y]
-          this._iocEditor.execute('updateControlPoint', {
-            connection: this,
-            controlPoint1: [this.controlPoint1!.x, this.controlPoint1!.y],
-            controlPoint2: [this.controlPoint2!.x, this.controlPoint2!.y],
-            oldControlPoint1,
-            oldControlPoint2
-          })
-        })
-
-        this.controlPoint1.on('drag', (e: zrender.ElementEvent) => {
-          const {
-            x,
-            y,
-            shape: { cx, cy }
-          } = e.target as zrender.Circle
-
-          this._controlLine1?.attr({
-            shape: {
-              x2: x + cx,
-              y2: y + cy
-            }
-          })
-          this._line &&
-            (this._line as zrender.BezierCurve).setShape({
-              cpx1: x + cx,
-              cpy1: y + cy
-            })
-          this.renderText()
-        })
-
-        this.controlPoint2.on('drag', (e: zrender.ElementEvent) => {
-          const {
-            x,
-            y,
-            shape: { cx, cy }
-          } = e.target as zrender.Circle
-
-          this._controlLine2?.attr({
-            shape: {
-              x2: x + cx,
-              y2: y + cy
-            }
-          })
-
-          this._line &&
-            (this._line as zrender.BezierCurve).setShape({
-              cpx2: x + cx,
-              cpy2: y + cy
-            })
-
-          this.renderArrow([x + cx, y + cy])
-          this.renderText()
-        })
-
+      case ConnectionType.BezierCurve:
+        this.createBezierCurve(lineStyle)
         break
-      }
       case ConnectionType.OrtogonalLine:
-        this._line = new zrender.Polyline({
-          style: {
-            lineWidth: this._lineWidth,
-            stroke: this._stroke,
-            lineDash: this._lineDash
-          },
-          z: 4
-        })
+        this._line = new zrender.Polyline({ style: lineStyle, z: 4 })
         break
       default:
         break
     }
-    if (this._line) {
-      this.add(this._line!)
-    }
 
-    this.refresh()
+    if (this._line) {
+      this.add(this._line)
+    }
+  }
+
+  private createBezierCurve(lineStyle: any) {
+    this._line = new zrender.BezierCurve({ style: lineStyle, z: 4 })
+
+    this.controlPoint1 = this.createControlPoint()
+    this.controlPoint2 = this.createControlPoint()
+    this._controlLine1 = this.createControlLine()
+    this._controlLine2 = this.createControlLine()
+
+    this.add(this.controlPoint1)
+    this.add(this.controlPoint2)
+    this.add(this._controlLine1)
+    this.add(this._controlLine2)
+
+    this.setupControlPointEvents(this.controlPoint1)
+    this.setupControlPointEvents(this.controlPoint2)
+  }
+
+  private createControlPoint(): IControlPoint {
+    return new zrender.Circle({
+      style: { fill: 'red' },
+      shape: { r: 4 },
+      z: 40,
+      draggable: true
+    }) as IControlPoint
+  }
+
+  private createControlLine(): zrender.Line {
+    return new zrender.Line({ style: { stroke: '#ccc' }, z: 39 })
+  }
+
+  private setupControlPointEvents(controlPoint: IControlPoint) {
+    let oldControlPoint: number[] = []
+
+    controlPoint.on('dragstart', () => {
+      oldControlPoint = [controlPoint.x, controlPoint.y]
+    })
+
+    controlPoint.on('dragend', () => {
+      this._iocEditor.execute('updateControlPoint', {
+        connection: this,
+        controlPoint1: [this.controlPoint1!.x, this.controlPoint1!.y],
+        controlPoint2: [this.controlPoint2!.x, this.controlPoint2!.y],
+        oldControlPoint1: oldControlPoint,
+        oldControlPoint2: [this.controlPoint2!.x, this.controlPoint2!.y]
+      })
+    })
+
+    controlPoint.on('drag', (e: zrender.ElementEvent) => {
+      const {
+        x,
+        y,
+        shape: { cx, cy }
+      } = e.target as zrender.Circle
+      this.updateControlLine(controlPoint, x, y, cx, cy)
+      this.renderText()
+    })
+  }
+
+  private updateControlLine(
+    controlPoint: IControlPoint,
+    x: number,
+    y: number,
+    cx: number,
+    cy: number
+  ) {
+    const controlLine =
+      controlPoint === this.controlPoint1 ? this._controlLine1 : this._controlLine2
+    controlLine?.attr({ shape: { x2: x + cx, y2: y + cy } })
+
+    if (controlPoint === this.controlPoint1) {
+      ;(this._line as zrender.BezierCurve).setShape({ cpx1: x + cx, cpy1: y + cy })
+    } else {
+      ;(this._line as zrender.BezierCurve).setShape({ cpx2: x + cx, cpy2: y + cy })
+      this.renderArrow([x + cx, y + cy])
+    }
   }
 
   refresh() {
@@ -439,11 +362,7 @@ class Connection extends zrender.Group implements IConnection {
       y2 - arrowLength * Math.sin(angle - offsetAngle)
     ]
 
-    this._arrow!.attr({
-      shape: {
-        points: [p1, p2, p3]
-      }
-    })
+    this._arrow?.attr({ shape: { points: [p1, p2, p3] } })
   }
 
   // 计算正交连线的中点坐标
@@ -451,55 +370,34 @@ class Connection extends zrender.Group implements IConnection {
     if (this._ortogonalLinePoints.length === 0) {
       return [this.fromPoint.x, this.fromPoint.y]
     }
+
     const accList: number[] = [0]
-    const directionList = []
+    const directionList: string[] = []
     for (let i = 1; i < this._ortogonalLinePoints.length; i++) {
       const p1 = this._ortogonalLinePoints[i - 1]
       const p2 = this._ortogonalLinePoints[i]
       const dist = zrender.vector.dist(p1, p2)
       accList.push(accList[i - 1] + dist)
-
-      if (p1[0] === p2[0]) {
-        directionList.push('vertical')
-      } else {
-        directionList.push('horizontal')
-      }
+      directionList.push(p1[0] === p2[0] ? 'vertical' : 'horizontal')
     }
 
     const midLength = accList[accList.length - 1] / 2
+    const index = accList.findIndex((length, i) => midLength <= length && i > 0)
 
-    let index = 0
-    for (let i = 1; i < accList.length; i++) {
-      if (midLength <= accList[i]) {
-        index = i
-        break
-      }
-    }
-
-    // 判断中点所在的线段的方向
     const currentDirection = directionList[index - 1]
     const preNode = this._ortogonalLinePoints[index - 1]
     const nextNode = this._ortogonalLinePoints[index]
     const offsetLength = midLength - accList[index - 1]
 
-    if (currentDirection === 'horizontal') {
-      const delta = nextNode[0] - preNode[0] > 0 ? 1 : -1
-
-      return [preNode[0] + offsetLength * delta, preNode[1]]
-    } else {
-      const delta = nextNode[1] - preNode[1] > 0 ? 1 : -1
-
-      return [preNode[0], preNode[1] + offsetLength * delta]
-    }
+    return currentDirection === 'horizontal'
+      ? [preNode[0] + offsetLength * (nextNode[0] - preNode[0] > 0 ? 1 : -1), preNode[1]]
+      : [preNode[0], preNode[1] + offsetLength * (nextNode[1] - preNode[1] > 0 ? 1 : -1)]
   }
 
   renderText() {
     if (this.connectionType === ConnectionType.BezierCurve) {
       const point = this._line && (this._line as zrender.BezierCurve).pointAt(0.5)
-
-      if (point) {
-        this._textPoints = point
-      }
+      if (point) this._textPoints = point
     } else if (this.connectionType === ConnectionType.OrtogonalLine) {
       this._textPoints = this.calcOrtogonalLineMidPoint()
     } else {
@@ -509,10 +407,7 @@ class Connection extends zrender.Group implements IConnection {
       ]
     }
 
-    this._lineText?.setStyle({
-      x: this._textPoints[0],
-      y: this._textPoints[1]
-    })
+    this._lineText?.setStyle({ x: this._textPoints[0], y: this._textPoints[1] })
   }
 
   getLineWidth() {
@@ -536,21 +431,11 @@ class Connection extends zrender.Group implements IConnection {
     const style = { ...this.getExportData().style }
     this.remove(this._line!)
     this.remove(this._arrow!)
-    if (this.controlPoint1) {
-      this.remove(this.controlPoint1)
-    }
-    if (this.controlPoint2) {
-      this.remove(this.controlPoint2)
-    }
-    if (this._controlLine1) {
-      this.remove(this._controlLine1)
-    }
-    if (this._controlLine2) {
-      this.remove(this._controlLine2)
-    }
-    if (this._lineText) {
-      this.remove(this._lineText)
-    }
+    this.controlPoint1 && this.remove(this.controlPoint1)
+    this.controlPoint2 && this.remove(this.controlPoint2)
+    this._controlLine1 && this.remove(this._controlLine1)
+    this._controlLine2 && this.remove(this._controlLine2)
+    this._lineText && this.remove(this._lineText)
     this.createConnection()
     this.setStyle(style)
   }

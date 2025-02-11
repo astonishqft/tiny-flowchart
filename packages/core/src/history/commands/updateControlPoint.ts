@@ -1,5 +1,5 @@
 import type { IConnection } from '../../shapes'
-import type { Command } from '../historyManage'
+import type { ICommand } from '../historyManage'
 import type { IIocEditor } from '../../iocEditor'
 
 export interface IUpdateControlPointCommandOpts {
@@ -10,7 +10,7 @@ export interface IUpdateControlPointCommandOpts {
   oldControlPoint2: (number | undefined)[]
 }
 
-class UpdateControlPointCommand implements Command {
+class UpdateControlPointCommand implements ICommand {
   private iocEditor: IIocEditor
   private connection: IConnection
   private controlPoint1: (number | undefined)[]

@@ -1,6 +1,6 @@
 import type { INodeGroup } from '../../shapes/nodeGroup'
 import type { INode } from '../../shapes'
-import type { Command } from '../historyManage'
+import type { ICommand } from '../historyManage'
 import type { IIocEditor } from '../../iocEditor'
 
 export interface IDragOutToGroupCommandOpts {
@@ -10,7 +10,7 @@ export interface IDragOutToGroupCommandOpts {
   offsetY: number
 }
 
-class DragOutToGroupCommand implements Command {
+class DragOutToGroupCommand implements ICommand {
   private iocEditor: IIocEditor
   private targetGroup: INodeGroup
   private node: INode

@@ -1,7 +1,7 @@
 import { ConnectionType } from '../../shapes'
 
 import type { IConnection } from '../../shapes'
-import type { Command } from '../historyManage'
+import type { ICommand } from '../historyManage'
 import type { IIocEditor } from '../../iocEditor'
 
 export interface IChangeConnectionTypeCommandOpts {
@@ -10,7 +10,7 @@ export interface IChangeConnectionTypeCommandOpts {
   oldLineType: ConnectionType
 }
 
-class ChangeConnectionTypeCommand implements Command {
+class ChangeConnectionTypeCommand implements ICommand {
   private iocEditor: IIocEditor
   private connection: IConnection
   private lineType: ConnectionType

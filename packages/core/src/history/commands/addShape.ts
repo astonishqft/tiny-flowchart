@@ -1,6 +1,5 @@
-import { IShape } from '../../shapes'
-
-import type { Command } from '../historyManage'
+import type { IShape } from '../../shapes'
+import type { ICommand } from '../historyManage'
 import type { IIocEditor } from '../../iocEditor'
 
 export interface IAddShapeCommandOpts {
@@ -10,7 +9,7 @@ export interface IAddShapeCommandOpts {
   url?: string
 }
 
-class AddShapeCommand implements Command {
+class AddShapeCommand implements ICommand {
   private shape: IShape
   private iocEditor: IIocEditor
 
@@ -18,9 +17,11 @@ class AddShapeCommand implements Command {
     this.iocEditor = iocEditor
     this.shape = shape
   }
+
   execute() {
     this.iocEditor._shapeMgr.addShapeToEditor(this.shape)
   }
+
   undo() {
     this.iocEditor._shapeMgr.removeShapeFromEditor(this.shape)
   }

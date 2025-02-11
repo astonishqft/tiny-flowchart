@@ -1,6 +1,5 @@
-import { INodeGroup } from '../../shapes/nodeGroup'
-
-import type { Command } from '../historyManage'
+import type { INodeGroup } from '../../shapes/nodeGroup'
+import type { ICommand } from '../historyManage'
 import type { IIocEditor } from '../../iocEditor'
 import type { IConnection } from '../../shapes'
 
@@ -8,7 +7,7 @@ export interface IUnGroupCommandOpts {
   group: INodeGroup
 }
 
-class UnGroupCommand implements Command {
+class UnGroupCommand implements ICommand {
   private iocEditor: IIocEditor
   private group: INodeGroup
   private connections: IConnection[] // 与Group相连的连接线

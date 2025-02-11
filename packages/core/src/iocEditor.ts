@@ -88,7 +88,7 @@ import {
 import type { INodeGroup } from './shapes/nodeGroup'
 import type { IGroupTreeNode } from './utils'
 import type { ISceneDragMoveOpts, ISceneDragStartOpts, IUpdateZoomOpts, Dictionary } from './types'
-import type { Command } from './history/historyManage'
+import type { ICommand } from './history/historyManage'
 
 export interface IIocEditor {
   _connectionMgr: IConnectionManage
@@ -184,11 +184,16 @@ export class IocEditor implements IIocEditor {
     this._historyMgr = new HistoryManage()
     this._pasteOffset = this._settingMgr.get('pasteOffset')
     this._sceneMgr.init()
+    this.initializeHotKeysAndFlowChart()
+  }
+
+  private initializeHotKeysAndFlowChart() {
     if (!this._settingMgr.get('enableMiniMap')) {
       new HotKeysManager(this)
-      if (localStorage.getItem('ioc-chart-flow')) {
+      const savedFlow = localStorage.getItem('ioc-chart-flow')
+      if (savedFlow) {
         setTimeout(() => {
-          this.initFlowChart(JSON.parse(localStorage.getItem('ioc-chart-flow') || '{}'))
+          this.initFlowChart(JSON.parse(savedFlow))
           this.updateMiniMap$.next()
         }, 200)
       }
@@ -352,187 +357,282 @@ export class IocEditor implements IIocEditor {
   ) {
     switch (type) {
       case 'addShape': {
-        this._sceneMgr.unActive()
-        const { shapeType } = options as IAddShapeCommandOpts
-        const shape = this._shapeMgr.createShape(shapeType, options as IAddShapeCommandOpts)
-        this._historyMgr.execute(new AddShapeCommand(this, shape))
+        this.handleAddShape(options as IAddShapeCommandOpts)
         break
       }
       case 'addConnection': {
-        const { connection } = options as IAddConnectionCommandOpts
-        this._historyMgr.execute(new AddConnectionCommand(this, connection))
+        this.handleAddConnection(options as IAddConnectionCommandOpts)
         break
       }
       case 'moveNodes': {
-        const { nodes, offsetX, offsetY } = options as IMoveNodeCommandOpts
-        const patchCommands: Command[] = []
-
-        const moveGroup = (group: INodeGroup, offsetX: number, offsetY: number) => {
-          const moveNodeCommand = new MoveNodeCommand(this, group, offsetX, offsetY)
-          patchCommands.push(moveNodeCommand)
-          if (group.nodeType === NodeType.Group) {
-            group.shapes.forEach(shape => {
-              if (shape.nodeType === NodeType.Group) {
-                moveGroup(shape as INodeGroup, offsetX, offsetY)
-              } else {
-                patchCommands.push(new MoveNodeCommand(this, shape, offsetX, offsetY))
-              }
-            })
-          }
-        }
-
-        nodes.forEach((node: INode) => {
-          if (node.nodeType === NodeType.Group) {
-            moveGroup(node as INodeGroup, offsetX, offsetY)
-          } else {
-            const moveNodeCommand = new MoveNodeCommand(this, node, offsetX, offsetY)
-            patchCommands.push(moveNodeCommand)
-          }
-        })
-
-        this._historyMgr.execute(new PatchCommand(patchCommands))
+        this.handleMoveNodes(options as IMoveNodeCommandOpts)
         break
       }
       case 'createGroup': {
-        const { group } = options as ICreateGroupCommandOpts
-        this._historyMgr.execute(new CreateGroupCommand(this, group))
+        this.handleCreateGroup(options as ICreateGroupCommandOpts)
         break
       }
       case 'unGroup': {
-        const { group } = options as IUnGroupCommandOpts
-        this._historyMgr.execute(new UnGroupCommand(this, group))
+        this.handleUnGroup(options as IUnGroupCommandOpts)
         break
       }
       case 'dragOutToGroup': {
-        // 将一个节点从一个组拖到另一个组
-        const { targetGroup, node, offsetX, offsetY } = options as IDragOutToGroupCommandOpts
-        const patchCommands: Command[] = []
-        patchCommands.push(new DragOutToGroupCommand(this, targetGroup, node))
-        patchCommands.push(new MoveNodeCommand(this, node, offsetX, offsetY))
-        this._historyMgr.execute(new PatchCommand(patchCommands))
+        this.handleDragOutToGroup(options as IDragOutToGroupCommandOpts)
         break
       }
       case 'removeNodeFromGroup': {
-        // 将一个节点从一个组移除
-        const { node, offsetX, offsetY } = options as IRemoveNodeFromGroupCommandOpts
-        const patchCommands: Command[] = []
-        patchCommands.push(new RemoveNodeFromGroupCommand(this, node))
-        patchCommands.push(new MoveNodeCommand(this, node, offsetX, offsetY))
-        this._historyMgr.execute(new PatchCommand(patchCommands))
+        this.handleRemoveNodeFromGroup(options as IRemoveNodeFromGroupCommandOpts)
         break
       }
       case 'dragEnterToGroup': {
-        // 将一个节点从外部拖入一个组
-        const { targetGroup, node, offsetX, offsetY } = options as IDragEnterToGroupCommandOpts
-        const patchCommands: Command[] = []
-        patchCommands.push(new DragEnterToGroupCommand(this, targetGroup, node))
-        patchCommands.push(new MoveNodeCommand(this, node, offsetX, offsetY))
-        this._historyMgr.execute(new PatchCommand(patchCommands))
+        this.handleDragEnterToGroup(options as IDragEnterToGroupCommandOpts)
         break
       }
       case 'updateShapeProperty': {
-        const { shape, shapeConfig, oldShapeConfig } = options as IUpdateShapePropertyCommandOpts
-        this._historyMgr.execute(
-          new UpdateShapePropertyCommand(this, shape, shapeConfig, oldShapeConfig)
-        )
+        this.handleUpdateShapeProperty(options as IUpdateShapePropertyCommandOpts)
         break
       }
       case 'updateGroupProperty': {
-        const { group, groupConfig, oldGroupConfig } = options as IUpdateGroupPropertyCommandOpts
-        this._historyMgr.execute(
-          new UpdateGroupPropertyCommand(this, group, groupConfig, oldGroupConfig)
-        )
+        this.handleUpdateGroupProperty(options as IUpdateGroupPropertyCommandOpts)
         break
       }
       case 'updateConnectionProperty': {
-        const { connection, connectionConfig, oldConnectionConfig } =
-          options as IUpdateConnectionPropertyCommandOpts
-        this._historyMgr.execute(
-          new UpdateConnectionPropertyCommand(
-            this,
-            connection,
-            connectionConfig,
-            oldConnectionConfig
-          )
-        )
+        this.handleUpdateConnectionProperty(options as IUpdateConnectionPropertyCommandOpts)
         break
       }
       case 'changeConnectionType': {
-        const { connection, lineType, oldLineType } = options as IChangeConnectionTypeCommandOpts
-        this._historyMgr.execute(
-          new ChangeConnectionTypeCommand(this, connection, lineType, oldLineType)
-        )
+        this.handleChangeConnectionType(options as IChangeConnectionTypeCommandOpts)
         break
       }
       case 'updateControlPoint': {
-        const { connection, controlPoint1, controlPoint2, oldControlPoint1, oldControlPoint2 } =
-          options as IUpdateControlPointCommandOpts
-        this._historyMgr.execute(
-          new UpdateControlPointCommand(
-            this,
-            connection,
-            controlPoint1,
-            controlPoint2,
-            oldControlPoint1,
-            oldControlPoint2
-          )
-        )
+        this.handleUpdateControlPoint(options as IUpdateControlPointCommandOpts)
         break
       }
       case 'resizeShape': {
-        const { node, oldBoundingBox, boundingBox } = options as IResizeShapeCommandOpts
-        this._historyMgr.execute(new ResizeShapeCommand(this, node, oldBoundingBox, boundingBox))
+        this.handleResizeShape(options as IResizeShapeCommandOpts)
         break
       }
       case 'delete': {
-        const { nodes, connections } = options as IDeleteNodeCommandOpts
-        const patchCommands: Command[] = []
-
-        const deleteGroup = (group: INodeGroup) => {
-          patchCommands.push(new DeleteNodeCommand(this, group))
-          connections.push(...this._connectionMgr.getConnectionsByNodeId(group.id))
-          group.shapes.forEach(shape => {
-            if (shape.nodeType === NodeType.Group) {
-              deleteGroup(shape as INodeGroup)
-            } else {
-              patchCommands.push(new DeleteNodeCommand(this, shape))
-              connections.push(...this._connectionMgr.getConnectionsByNodeId(shape.id))
-            }
-          })
-        }
-
-        nodes.forEach(node => {
-          if (node.nodeType === NodeType.Group) {
-            deleteGroup(node as INodeGroup)
-          } else {
-            patchCommands.push(new DeleteNodeCommand(this, node))
-            connections.push(...this._connectionMgr.getConnectionsByNodeId(node.id))
-          }
-        })
-
-        this._connectionMgr
-          .removeDuplicateConnections<IConnection>(connections)
-          .forEach(connection => {
-            patchCommands.push(new DeleteConnectionCommand(this, connection))
-          })
-
-        this._historyMgr.execute(new PatchCommand(patchCommands))
+        this.handleDelete(options as IDeleteNodeCommandOpts)
         break
       }
       case 'clear': {
-        const { exportData } = options as IClearCommandOpts
-        this._historyMgr.execute(new ClearCommand(this, exportData))
+        this.handleClear(options as IClearCommandOpts)
         break
       }
       case 'paste': {
-        const { shapes, groups, connections } = options as IExportData
-        const [viewPortX, viewPortY] = this._viewPortMgr.getPosition()
-        const zoom = this._viewPortMgr.getZoom()
-        const offset = 40
-        const patchCommands: Command[] = []
-        const copyShapeMap = new Map<number, IShape>()
-        this._sceneMgr.unActive()
-        shapes.forEach(s => {
+        this.handlePaste(options as IExportData)
+        break
+      }
+      default:
+        break
+    }
+
+    this.updateMiniMap$.next()
+  }
+
+  private handleAddShape(options: IAddShapeCommandOpts) {
+    this._sceneMgr.unActive()
+    const shape = this._shapeMgr.createShape(options.shapeType, options)
+    this._historyMgr.execute(new AddShapeCommand(this, shape))
+  }
+
+  private handleAddConnection(options: IAddConnectionCommandOpts) {
+    this._historyMgr.execute(new AddConnectionCommand(this, options.connection))
+  }
+
+  private handleMoveNodes(options: IMoveNodeCommandOpts) {
+    const patchCommands: ICommand[] = []
+    const moveGroup = (group: INodeGroup, offsetX: number, offsetY: number) => {
+      const moveNodeCommand = new MoveNodeCommand(this, group, offsetX, offsetY)
+      patchCommands.push(moveNodeCommand)
+      if (group.nodeType === NodeType.Group) {
+        group.shapes.forEach(shape => {
+          if (shape.nodeType === NodeType.Group) {
+            moveGroup(shape as INodeGroup, offsetX, offsetY)
+          } else {
+            patchCommands.push(new MoveNodeCommand(this, shape, offsetX, offsetY))
+          }
+        })
+      }
+    }
+
+    options.nodes.forEach((node: INode) => {
+      if (node.nodeType === NodeType.Group) {
+        moveGroup(node as INodeGroup, options.offsetX, options.offsetY)
+      } else {
+        const moveNodeCommand = new MoveNodeCommand(this, node, options.offsetX, options.offsetY)
+        patchCommands.push(moveNodeCommand)
+      }
+    })
+
+    this._historyMgr.execute(new PatchCommand(patchCommands))
+  }
+
+  private handleCreateGroup(options: ICreateGroupCommandOpts) {
+    this._historyMgr.execute(new CreateGroupCommand(this, options.group))
+  }
+
+  private handleUnGroup(options: IUnGroupCommandOpts) {
+    this._historyMgr.execute(new UnGroupCommand(this, options.group))
+  }
+
+  private handleDragOutToGroup(options: IDragOutToGroupCommandOpts) {
+    const patchCommands: ICommand[] = []
+    patchCommands.push(new DragOutToGroupCommand(this, options.targetGroup, options.node))
+    patchCommands.push(new MoveNodeCommand(this, options.node, options.offsetX, options.offsetY))
+    this._historyMgr.execute(new PatchCommand(patchCommands))
+  }
+
+  private handleRemoveNodeFromGroup(options: IRemoveNodeFromGroupCommandOpts) {
+    const patchCommands: ICommand[] = []
+    patchCommands.push(new RemoveNodeFromGroupCommand(this, options.node))
+    patchCommands.push(new MoveNodeCommand(this, options.node, options.offsetX, options.offsetY))
+    this._historyMgr.execute(new PatchCommand(patchCommands))
+  }
+
+  private handleDragEnterToGroup(options: IDragEnterToGroupCommandOpts) {
+    const patchCommands: ICommand[] = []
+    patchCommands.push(new DragEnterToGroupCommand(this, options.targetGroup, options.node))
+    patchCommands.push(new MoveNodeCommand(this, options.node, options.offsetX, options.offsetY))
+    this._historyMgr.execute(new PatchCommand(patchCommands))
+  }
+
+  private handleUpdateShapeProperty(options: IUpdateShapePropertyCommandOpts) {
+    this._historyMgr.execute(
+      new UpdateShapePropertyCommand(
+        this,
+        options.shape,
+        options.shapeConfig,
+        options.oldShapeConfig
+      )
+    )
+  }
+
+  private handleUpdateGroupProperty(options: IUpdateGroupPropertyCommandOpts) {
+    this._historyMgr.execute(
+      new UpdateGroupPropertyCommand(
+        this,
+        options.group,
+        options.groupConfig,
+        options.oldGroupConfig
+      )
+    )
+  }
+
+  private handleUpdateConnectionProperty(options: IUpdateConnectionPropertyCommandOpts) {
+    this._historyMgr.execute(
+      new UpdateConnectionPropertyCommand(
+        this,
+        options.connection,
+        options.connectionConfig,
+        options.oldConnectionConfig
+      )
+    )
+  }
+
+  private handleChangeConnectionType(options: IChangeConnectionTypeCommandOpts) {
+    this._historyMgr.execute(
+      new ChangeConnectionTypeCommand(
+        this,
+        options.connection,
+        options.lineType,
+        options.oldLineType
+      )
+    )
+  }
+
+  private handleUpdateControlPoint(options: IUpdateControlPointCommandOpts) {
+    this._historyMgr.execute(
+      new UpdateControlPointCommand(
+        this,
+        options.connection,
+        options.controlPoint1,
+        options.controlPoint2,
+        options.oldControlPoint1,
+        options.oldControlPoint2
+      )
+    )
+  }
+
+  private handleResizeShape(options: IResizeShapeCommandOpts) {
+    this._historyMgr.execute(
+      new ResizeShapeCommand(this, options.node, options.oldBoundingBox, options.boundingBox)
+    )
+  }
+
+  private handleDelete(options: IDeleteNodeCommandOpts) {
+    const patchCommands: ICommand[] = []
+    const connections: IConnection[] = []
+
+    const deleteGroup = (group: INodeGroup) => {
+      patchCommands.push(new DeleteNodeCommand(this, group))
+      connections.push(...this._connectionMgr.getConnectionsByNodeId(group.id))
+      group.shapes.forEach(shape => {
+        if (shape.nodeType === NodeType.Group) {
+          deleteGroup(shape as INodeGroup)
+        } else {
+          patchCommands.push(new DeleteNodeCommand(this, shape))
+          connections.push(...this._connectionMgr.getConnectionsByNodeId(shape.id))
+        }
+      })
+    }
+
+    options.nodes.forEach(node => {
+      if (node.nodeType === NodeType.Group) {
+        deleteGroup(node as INodeGroup)
+      } else {
+        patchCommands.push(new DeleteNodeCommand(this, node))
+        connections.push(...this._connectionMgr.getConnectionsByNodeId(node.id))
+      }
+    })
+
+    this._connectionMgr.removeDuplicateConnections<IConnection>(connections).forEach(connection => {
+      patchCommands.push(new DeleteConnectionCommand(this, connection))
+    })
+
+    this._historyMgr.execute(new PatchCommand(patchCommands))
+  }
+
+  private handleClear(options: IClearCommandOpts) {
+    this._historyMgr.execute(new ClearCommand(this, options.exportData))
+  }
+
+  private handlePaste(options: IExportData) {
+    const { shapes, groups, connections } = options as IExportData
+    const [viewPortX, viewPortY] = this._viewPortMgr.getPosition()
+    const zoom = this._viewPortMgr.getZoom()
+    const offset = 40
+    const patchCommands: ICommand[] = []
+    const copyShapeMap = new Map<number, IShape>()
+    this._sceneMgr.unActive()
+    shapes.forEach(s => {
+      const oldId = s.id
+      const newId = zrender.util.guid()
+
+      const newShape = {
+        ...s,
+        id: newId,
+        x: (s.x + offset) * zoom + viewPortX,
+        y: (s.y + offset) * zoom + viewPortY
+      }
+
+      const shape = this.initShape([newShape])[0]
+      shape.active()
+      copyShapeMap.set(oldId, shape)
+      patchCommands.push(new AddShapeCommand(this, shape))
+    })
+
+    const { groupTree }: { groupTree: IGroupTreeNode[]; groupMap: Map<number, IGroupTreeNode> } =
+      groupArray2Tree(groups)
+
+    const copyGroupMap = new Map<number, INodeGroup>()
+    const createGroups = (treeNodes: IGroupTreeNode[]): void => {
+      treeNodes.forEach((node: IGroupTreeNode) => {
+        const childShapes = getChildShapesByGroupId(
+          node.id,
+          this._storageMgr.getShapes().map(s => s.getExportData())
+        ).map(s => {
           const oldId = s.id
           const newId = zrender.util.guid()
 
@@ -542,90 +642,55 @@ export class IocEditor implements IIocEditor {
             x: (s.x + offset) * zoom + viewPortX,
             y: (s.y + offset) * zoom + viewPortY
           }
-
           const shape = this.initShape([newShape])[0]
           shape.active()
           copyShapeMap.set(oldId, shape)
           patchCommands.push(new AddShapeCommand(this, shape))
+
+          return shape
         })
 
-        const {
-          groupTree
-        }: { groupTree: IGroupTreeNode[]; groupMap: Map<number, IGroupTreeNode> } =
-          groupArray2Tree(groups)
-
-        const copyGroupMap = new Map<number, INodeGroup>()
-        const createGroups = (treeNodes: IGroupTreeNode[]): void => {
-          treeNodes.forEach((node: IGroupTreeNode) => {
-            const childShapes = getChildShapesByGroupId(
-              node.id,
-              this._storageMgr.getShapes().map(s => s.getExportData())
-            ).map(s => {
-              const oldId = s.id
-              const newId = zrender.util.guid()
-
-              const newShape = {
-                ...s,
-                id: newId,
-                x: (s.x + offset) * zoom + viewPortX,
-                y: (s.y + offset) * zoom + viewPortY
-              }
-              const shape = this.initShape([newShape])[0]
-              shape.active()
-              copyShapeMap.set(oldId, shape)
-              patchCommands.push(new AddShapeCommand(this, shape))
-
-              return shape
-            })
-
-            if (node.children.length > 0) {
-              createGroups(node.children)
-            }
-
-            const childGroups = node.children
-              .map(c => copyGroupMap.get(c.id))
-              .filter(group => group !== undefined)
-
-            const childNodes = [...childGroups, ...childShapes]
-
-            const newGroup = this._groupMgr.createGroup(childNodes, zrender.util.guid())
-            copyGroupMap.set(node.id, newGroup)
-            newGroup.active()
-            newGroup.setZ(node.z + 1)
-            newGroup.setStyle(node.style)
-
-            patchCommands.push(new CreateGroupCommand(this, newGroup))
-          })
+        if (node.children.length > 0) {
+          createGroups(node.children)
         }
 
-        createGroups(groupTree)
+        const childGroups = node.children
+          .map(c => copyGroupMap.get(c.id))
+          .filter(group => group !== undefined)
 
-        const combinedMap = new Map<number, INode>()
+        const childNodes = [...childGroups, ...childShapes]
 
-        copyShapeMap.forEach((shape, oldId) => {
-          combinedMap.set(oldId, shape)
-        })
+        const newGroup = this._groupMgr.createGroup(childNodes, zrender.util.guid())
+        copyGroupMap.set(node.id, newGroup)
+        newGroup.active()
+        newGroup.setZ(node.z + 1)
+        newGroup.setStyle(node.style)
 
-        copyGroupMap.forEach((group, oldId) => {
-          combinedMap.set(oldId, group)
-        })
-
-        connections.forEach((conn: IExportConnection) => {
-          const fromNode = combinedMap.get(conn.fromNode) as INode
-          const toNode = combinedMap.get(conn.toNode) as INode
-
-          const connection = this.createConnection(conn, fromNode, toNode)
-          connection && patchCommands.push(new AddConnectionCommand(this, connection))
-        })
-
-        this._historyMgr.execute(new PatchCommand(patchCommands))
-        break
-      }
-      default:
-        break
+        patchCommands.push(new CreateGroupCommand(this, newGroup))
+      })
     }
 
-    this.updateMiniMap$.next()
+    createGroups(groupTree)
+
+    const combinedMap = new Map<number, INode>()
+
+    copyShapeMap.forEach((shape, oldId) => {
+      combinedMap.set(oldId, shape)
+    })
+
+    copyGroupMap.forEach((group, oldId) => {
+      combinedMap.set(oldId, group)
+    })
+
+    connections.forEach((conn: IExportConnection) => {
+      const fromNode = combinedMap.get(conn.fromNode) as INode
+      const toNode = combinedMap.get(conn.toNode) as INode
+
+      const connection = this.createConnection(conn, fromNode, toNode)
+      connection && patchCommands.push(new AddConnectionCommand(this, connection))
+    })
+
+    this._historyMgr.execute(new PatchCommand(patchCommands))
   }
 
   initFlowChart(data: IExportData) {
@@ -661,7 +726,7 @@ export class IocEditor implements IIocEditor {
     return newShapes
   }
 
-  createConnection(conn: IExportConnection, fromNode: INode, toNode: INode) {
+  private createConnection(conn: IExportConnection, fromNode: INode, toNode: INode) {
     const fromAnchorPoint = this._shapeMgr.getPointByIndex(fromNode, conn.fromPoint)
     const toAnchorPoint = this._shapeMgr.getPointByIndex(toNode, conn.toPoint)
 
@@ -744,9 +809,9 @@ export class IocEditor implements IIocEditor {
   }
 
   exportFile() {
-    const str = JSON.stringify(this.getExportData(), null, 2)
-    console.log('导出的数据为：', this.getExportData())
-    downloadFile(str, 'ioc-chart-flow.json')
+    const exportData = this.getExportData()
+    console.log('导出的数据为：', exportData)
+    downloadFile(JSON.stringify(exportData, null, 2), 'ioc-chart-flow.json')
   }
 
   openFile() {

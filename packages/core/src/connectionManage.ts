@@ -47,8 +47,7 @@ class ConnectionManage extends Disposable {
     this._iocEditor = iocEditor
     this._viewPortMgr = iocEditor._viewPortMgr
     this._storageMgr = iocEditor._storageMgr
-    this._disposables.push(this.updateConnectionType$)
-    this._disposables.push(this.updateSelectConnection$)
+    this._disposables.push(this.updateConnectionType$, this.updateSelectConnection$)
   }
 
   setConnectionType(type: ConnectionType): void {

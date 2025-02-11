@@ -1,6 +1,6 @@
 import type { INode } from '../../shapes'
 import type { INodeGroup } from '../../shapes/nodeGroup'
-import type { Command } from '../historyManage'
+import type { ICommand } from '../historyManage'
 import type { IIocEditor } from '../../iocEditor'
 
 export interface IRemoveNodeFromGroupCommandOpts {
@@ -9,7 +9,7 @@ export interface IRemoveNodeFromGroupCommandOpts {
   offsetY: number
 }
 
-class RemoveNodeFromGroupCommand implements Command {
+class RemoveNodeFromGroupCommand implements ICommand {
   private node: INode
   private iocEditor: IIocEditor
   private parentGroup: INodeGroup

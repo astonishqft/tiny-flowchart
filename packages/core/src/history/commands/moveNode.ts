@@ -1,5 +1,5 @@
 import type { INode } from '../../shapes'
-import type { Command } from '../historyManage'
+import type { ICommand } from '../historyManage'
 import type { IIocEditor } from '../../iocEditor'
 
 export interface IMoveNodeCommandOpts {
@@ -9,7 +9,7 @@ export interface IMoveNodeCommandOpts {
   offsetY: number
 }
 
-class MoveNodeCommand implements Command {
+class MoveNodeCommand implements ICommand {
   private node: INode
   private _iocEditor: IIocEditor
   private oldX: number
