@@ -27,7 +27,7 @@ export interface IConnectionManage extends IDisposable {
   addConnectionToEditor(connection: IConnection): void
   removeConnectionFromEditor(connection: IConnection): void
   clear(): void
-  unActiveConnections(): void
+  unActive(): void
   setConnectionType(type: ConnectionType): void
   getConnectionType(): ConnectionType
   removeDuplicateConnections<T extends { id: number }>(connections: T[]): T[]
@@ -114,7 +114,7 @@ class ConnectionManage extends Disposable {
     this._storageMgr.addConnection(connection)
   }
 
-  unActiveConnections() {
+  unActive() {
     this._storageMgr.getConnections().forEach((conn: IConnection) => {
       conn.unActive()
     })
@@ -122,7 +122,7 @@ class ConnectionManage extends Disposable {
 
   initEvent(conn: IConnection) {
     conn.on('click', () => {
-      this.unActiveConnections()
+      this.unActive()
       this._iocEditor._sceneMgr.unActive()
       this.updateSelectConnection$.next(conn)
       conn.active()

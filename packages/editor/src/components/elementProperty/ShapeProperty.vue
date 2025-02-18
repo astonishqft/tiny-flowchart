@@ -14,7 +14,7 @@ import {
 import type {
   BuiltinTextPosition,
   IShape,
-  INodeGroup,
+  INode,
   IExportShapeStyle,
   LineDashStyle
 } from '@ioceditor/core'
@@ -38,7 +38,7 @@ const shapeConfig = ref<IExportShapeStyle>({
   textPosition: 'inside'
 })
 
-iocEditor._sceneMgr.updateSelectNode$.subscribe((shape: IShape | INodeGroup) => {
+iocEditor._sceneMgr.updateSelectNode$.subscribe((shape: INode) => {
   if (shape.nodeType === NodeType.Shape) {
     activeShape.value = shape as IShape
     shapeConfig.value.fill = activeShape.value.style.fill

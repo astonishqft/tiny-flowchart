@@ -108,8 +108,8 @@ export interface IExportGroup {
 
 export interface IConnection extends zrender.Group {
   selected: boolean
-  fromNode: IShape | INodeGroup
-  toNode: IShape | INodeGroup | null
+  fromNode: INode
+  toNode: INode | null
   fromPoint: IAnchor | null
   toPoint: IAnchor | null
   controlPoint1: IControlPoint | null
@@ -153,9 +153,11 @@ export type IControlPoint = zrender.Circle & {
 }
 
 export interface IShape extends zrender.Displayable, IWidthActivate, IWidthAnchor, IWidthCommon {
-  parentGroup?: INodeGroup
   anchors: IAnchor[]
+  parentGroup?: INodeGroup
+  nodeType: NodeType
   createAnchors(): void
+  getExportData(): IExportShape
 }
 
 export type INode = IShape | INodeGroup
@@ -184,7 +186,7 @@ export interface IAnchor {
 
 export interface IAnchorPoint extends zrender.Circle {
   point: IAnchor
-  node: IShape | INodeGroup
+  node: INode
   mark: string
   oldFillColor: string
   anch: IAnchorPoint

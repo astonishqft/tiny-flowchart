@@ -74,7 +74,7 @@ class ControlFrameManage implements IControlFrameManage {
     this._controlBox.show()
     this._controlPoints.forEach(point => point.show())
     const { width, height, x, y } = node.getBoundingBox()
-    const lineWidth = node.style.lineWidth
+    const lineWidth = node.style.lineWidth || 1
     this.reSizeControlFrame(new zrender.BoundingRect(x, y, width - lineWidth, height - lineWidth))
   }
 

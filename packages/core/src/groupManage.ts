@@ -101,7 +101,12 @@ class GroupManage extends Disposable {
     if (node.parentGroup) {
       if (node.parentGroup!.shapes.length === 1) return // 确保组内至少有一个元素
       node.parentGroup!.shapes = node.parentGroup!.shapes.filter(item => item.id !== node.id)
-      node.parentGroup!.resizeNodeGroup()
+      // 递归调用 resizeNodeGroup 直到没有 parentGroup
+      let currentGroup: INodeGroup | undefined = node.parentGroup
+      while (currentGroup) {
+        currentGroup.resizeNodeGroup()
+        currentGroup = currentGroup.parentGroup // 向上查找父组
+      }
       this._connectionMgr.refreshConnection(node.parentGroup)
       delete node.parentGroup
     }

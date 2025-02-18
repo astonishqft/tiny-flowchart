@@ -19,6 +19,7 @@ import type { IGridManage } from './gridManage'
 import type {
   IConnection,
   IShape,
+  INode,
   IExportShapeStyle,
   IExportGroupStyle,
   IExportConnectionStyle,
@@ -44,6 +45,7 @@ export type {
   IShapeManage,
   INodeGroup,
   IShape,
+  INode,
   IConnection,
   Displayable,
   FontStyle,

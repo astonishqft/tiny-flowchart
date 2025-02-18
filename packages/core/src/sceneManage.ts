@@ -129,7 +129,7 @@ class SceneManage extends Disposable {
       if (!e.target) {
         // 如果什么都没选中的话
         this.unActive()
-        this._connectionMgr.unActiveConnections()
+        this._connectionMgr.unActive()
         dragModel = 'scene'
         this.updateSelectScene$.next(null)
       }

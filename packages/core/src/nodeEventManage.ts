@@ -63,23 +63,26 @@ class NodeEventManage {
     ;(this._node as Eventful).on('mouseout', this.handleMouseOut.bind(this))
   }
 
+  private isNodeSelectedInActiveNodes(node: INode): boolean {
+    return this._activeNodes.some(activeNode => activeNode.id === node.id)
+  }
+
   private handleMouseDown(e: MouseEvent) {
     this._mouseDownX = e.offsetX
     this._mouseDownY = e.offsetY
 
-    this._activeNodes = this._storageMgr.getActiveNodes().map(node => {
-      if (node.id === this._node.id) {
-        node.setOldPosition()
+    // 判断当前节点是否被选中，如果没有被选中，则清除其他节点的选中状态，并将当前节点设为选中状态
+    this._activeNodes = this._storageMgr.getActiveNodes()
 
-        return node
-      }
+    const isNodeInActive = this.isNodeSelectedInActiveNodes(this._node)
 
-      return node
-    })
-
-    if (this._activeNodes.length === 0) {
-      this._activeNodes = [this._node]
+    if (isNodeInActive) {
+      this._activeNodes.forEach(n => n.setOldPosition())
+    } else {
+      this._sceneMgr.unActive()
+      this._node.active()
       this._node.setOldPosition()
+      this._activeNodes = this._storageMgr.getActiveNodes()
     }
 
     this._zoom = this._zoomMgr.getZoom()
@@ -98,7 +101,7 @@ class NodeEventManage {
   private handleClick() {
     console.log('shape click', this._node)
     this._sceneMgr.unActive()
-    this._connectionMgr.unActiveConnections()
+    this._connectionMgr.unActive()
     this._node.active()
     if (this._node.nodeType === 'Shape') {
       this._controlFrameMgr.active(this._node as IShape)
