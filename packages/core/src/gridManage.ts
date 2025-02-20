@@ -6,6 +6,7 @@ import type { ZRenderType } from './'
 import type { IIocEditor } from './iocEditor'
 import type { ISettingManage } from './settingManage'
 import type { IViewPortManage } from './viewPortManage'
+
 export interface IGridManage {
   drawGrid(): void
   setPosition(x: number, y: number): void

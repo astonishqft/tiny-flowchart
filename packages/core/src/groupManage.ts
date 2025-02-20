@@ -9,6 +9,7 @@ import type { IAnchorPoint, INode } from './shapes'
 import type { INodeGroup } from './shapes/nodeGroup'
 import type { IIocEditor } from './iocEditor'
 import type { IConnectionManage } from './connectionManage'
+
 export interface IGroupManage extends IDisposable {
   createGroup(nodes?: INode[], groupId?: number): INodeGroup
   clear(): void

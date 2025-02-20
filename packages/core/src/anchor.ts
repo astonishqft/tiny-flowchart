@@ -1,4 +1,5 @@
 import { Circle } from './'
+
 import type { IAnchorPoint, INode, IAnchor } from './shapes'
 
 class Anchor {

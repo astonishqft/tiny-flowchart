@@ -12,6 +12,7 @@ export interface IRefLineManage {
   cacheRefLines(): void
   clearRefPointAndRefLines(): void
 }
+
 interface IVerticalLine {
   // 有多个端点的垂直线
   x: number

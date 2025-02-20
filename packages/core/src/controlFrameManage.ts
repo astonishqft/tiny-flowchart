@@ -6,6 +6,7 @@ import type { IViewPortManage } from './viewPortManage'
 import type { IConnectionManage } from './connectionManage'
 import type { IShape } from './shapes'
 import type { ISettingManage } from './settingManage'
+
 export interface IControlFrameManage {
   active(node: IShape): void
   unActive(): void

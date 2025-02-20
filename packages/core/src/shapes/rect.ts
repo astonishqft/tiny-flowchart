@@ -3,6 +3,7 @@ import { getBoundingBox } from '../utils'
 
 import type { IAnchor } from './index'
 import type { RectProps } from '../'
+
 class Rect extends ZRect {
   anchors: IAnchor[] = []
 

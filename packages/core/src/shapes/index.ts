@@ -5,6 +5,7 @@ import { WidthCommon } from './mixins/widthCommon'
 import { Rect } from './rect'
 import { Circle } from './circle'
 import { Image } from './image'
+
 import type { INodeGroup } from './nodeGroup'
 import type {
   BuiltinTextPosition,
@@ -19,7 +20,6 @@ import type {
   ImageProps,
   ElementTextConfig
 } from '../index'
-
 import type { Constructor, Dictionary } from '../types'
 import type { IWidthActivate } from './mixins/widthActivate'
 import type { IWidthAnchor } from './mixins/widthAnchor'

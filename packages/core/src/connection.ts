@@ -15,6 +15,7 @@ import type {
 import type { FontStyle, FontWeight, ElementEvent } from './'
 import type { IIocEditor } from './iocEditor'
 import type { ISettingManage } from './settingManage'
+
 class Connection extends Group implements IConnection {
   private _line: Line | BezierCurve | Polyline | null = null
   private _controlLine1: Line | null = null
