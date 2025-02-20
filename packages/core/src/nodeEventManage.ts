@@ -1,6 +1,6 @@
-import Eventful from 'zrender/lib/core/Eventful'
 import { getBoundingBox, getMinPosition } from './utils'
 
+import type { Element, ElementEvent } from './'
 import type { IIocEditor } from './iocEditor'
 import type { IShape, INode } from './shapes'
 import type { INodeGroup } from './shapes/nodeGroup'
@@ -57,17 +57,17 @@ class NodeEventManage {
   }
 
   initEvent() {
-    ;(this._node as Eventful).on('mousedown', this.handleMouseDown.bind(this))
-    ;(this._node as Eventful).on('click', this.handleClick.bind(this))
-    ;(this._node as Eventful).on('mouseover', this.handleMouseOver.bind(this))
-    ;(this._node as Eventful).on('mouseout', this.handleMouseOut.bind(this))
+    ;(this._node as Element).on('mousedown', this.handleMouseDown.bind(this))
+    ;(this._node as Element).on('click', this.handleClick.bind(this))
+    ;(this._node as Element).on('mouseover', this.handleMouseOver.bind(this))
+    ;(this._node as Element).on('mouseout', this.handleMouseOut.bind(this))
   }
 
   private isNodeSelectedInActiveNodes(node: INode): boolean {
     return this._activeNodes.some(activeNode => activeNode.id === node.id)
   }
 
-  private handleMouseDown(e: MouseEvent) {
+  private handleMouseDown(e: ElementEvent) {
     this._mouseDownX = e.offsetX
     this._mouseDownY = e.offsetY
 

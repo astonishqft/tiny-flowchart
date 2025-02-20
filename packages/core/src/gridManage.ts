@@ -1,8 +1,8 @@
 // 网格性能优化策略，开率建一个缓存池，初始化的时候根据屏幕尺寸的大小、画面整体缩放比例、网格的间距，计算出初始网格点的数量，根据网格点的竖向生成网格池。当画面缩放的时候，需要重新根据上述条件，重新计算网格点数，重新调整缓存池的大小，
 // 如果画面缩放比例保持不变，则缓存池的数量不变。在计算网格点数的时候，可以适当根据情况多生成一些，避免频繁的调整缓存池的大小，导致性能问题。
+import { Group, Circle, init } from './'
 
-import * as zrender from 'zrender'
-
+import type { ZRenderType } from './'
 import type { IIocEditor } from './iocEditor'
 import type { ISettingManage } from './settingManage'
 import type { IViewPortManage } from './viewPortManage'
@@ -16,13 +16,13 @@ export interface IGridManage {
 }
 
 class PointsPool {
-  private _points: zrender.Circle[] = []
+  private _points: Circle[] = []
   private _size: number
-  private _layer: zrender.Group
+  private _layer: Group
   private _iocEditor: IIocEditor
   private _settingMgr: ISettingManage
   private _viewPortMgr: IViewPortManage
-  constructor(iocEditor: IIocEditor, layer: zrender.Group) {
+  constructor(iocEditor: IIocEditor, layer: Group) {
     this._iocEditor = iocEditor
     this._settingMgr = iocEditor._settingMgr
     this._viewPortMgr = iocEditor._viewPortMgr
@@ -32,7 +32,7 @@ class PointsPool {
   }
 
   createPoint() {
-    const p = new zrender.Circle({
+    const p = new Circle({
       shape: {
         r: 0.5,
         cx: 0,
@@ -109,9 +109,9 @@ class GridManage implements IGridManage {
   private _height: number = 0
   private _xPoints: number[] = []
   private _yPoints: number[] = []
-  private _gridLayer: zrender.Group | null = null
+  private _gridLayer: Group | null = null
   private _pointsPool: PointsPool | null = null
-  private _gridZr: zrender.ZRenderType | null = null
+  private _gridZr: ZRenderType | null = null
   private _settingMgr: ISettingManage
   private _viewPortMgr: IViewPortManage
   private _iocEditor: IIocEditor
@@ -130,8 +130,8 @@ class GridManage implements IGridManage {
       container.style.width = '100%'
       container.style.height = '100%'
       this._iocEditor._dom.appendChild(container)
-      this._gridZr = zrender.init(container)
-      this._gridLayer = new zrender.Group()
+      this._gridZr = init(container)
+      this._gridLayer = new Group()
       this._gridZr.add(this._gridLayer)
       this._pointsPool = new PointsPool(this._iocEditor, this._gridLayer)
       this._width = this._gridZr.getWidth()

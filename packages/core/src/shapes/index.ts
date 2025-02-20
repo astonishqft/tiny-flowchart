@@ -1,4 +1,4 @@
-import * as zrender from 'zrender'
+import { Group, Text, Circle as ZCircle } from '../'
 import { WidthActivate } from './mixins/widthActivate'
 import { WidthAnchor } from './mixins/widthAnchor'
 import { WidthCommon } from './mixins/widthCommon'
@@ -12,7 +12,12 @@ import type {
   FontWeight,
   LinearGradientObject,
   PatternObject,
-  RadialGradientObject
+  RadialGradientObject,
+  Displayable,
+  RectProps,
+  EllipseProps,
+  ImageProps,
+  ElementTextConfig
 } from '../index'
 
 import type { Constructor, Dictionary } from '../types'
@@ -106,7 +111,7 @@ export interface IExportGroup {
   parent?: number
 }
 
-export interface IConnection extends zrender.Group {
+export interface IConnection extends Group {
   selected: boolean
   fromNode: INode
   toNode: INode | null
@@ -130,7 +135,7 @@ export interface IConnection extends zrender.Group {
   getLineFontWeight(): FontWeight | undefined
   getId(): number
   getConnectionType(): ConnectionType
-  getLineText(): zrender.Text | null
+  getLineText(): Text | null
   setStyle(style: IExportConnectionStyle): void
   setConnectionType(type: ConnectionType): void
   setBezierCurve(controlPoint1: (number | undefined)[], controlPoint2: (number | undefined)[]): void
@@ -148,11 +153,11 @@ export enum NodeType {
   Shape = 'Shape'
 }
 
-export type IControlPoint = zrender.Circle & {
+export type IControlPoint = ZCircle & {
   mark: string
 }
 
-export interface IShape extends zrender.Displayable, IWidthActivate, IWidthAnchor, IWidthCommon {
+export interface IShape extends Displayable, IWidthActivate, IWidthAnchor, IWidthCommon {
   anchors: IAnchor[]
   parentGroup?: INodeGroup
   nodeType: NodeType
@@ -162,7 +167,7 @@ export interface IShape extends zrender.Displayable, IWidthActivate, IWidthAncho
 
 export type INode = IShape | INodeGroup
 
-type IShapeProps = zrender.RectProps | zrender.EllipseProps | zrender.ImageProps
+type IShapeProps = RectProps | EllipseProps | ImageProps
 
 export interface IShapeConfig {
   [key: string]: IShapeProps
@@ -173,8 +178,8 @@ export interface IShapeMap {
 }
 
 export interface IShapeTextConfig {
-  textContent: zrender.Text
-  textConfig: zrender.ElementTextConfig
+  textContent: Text
+  textConfig: ElementTextConfig
 }
 
 export interface IAnchor {
@@ -184,7 +189,7 @@ export interface IAnchor {
   index: number
 }
 
-export interface IAnchorPoint extends zrender.Circle {
+export interface IAnchorPoint extends Circle {
   point: IAnchor
   node: INode
   mark: string
@@ -243,7 +248,7 @@ export const shapeConfig: IShapeConfig = {
 
 const getShapeTextConfig = (): IShapeTextConfig => {
   return {
-    textContent: new zrender.Text({
+    textContent: new Text({
       style: {
         text: 'title',
         fill: '#333',
@@ -268,7 +273,7 @@ export const shapes: IShapeMap = {
 export const getShape = (type: string, option: { x: number; y: number; image?: string }) => {
   const config: IShapeProps = { ...shapeConfig[type], ...getShapeTextConfig() }
   if (type === 'image') {
-    ;(config as zrender.ImageProps).style!.image = option.image
+    ;(config as ImageProps).style!.image = option.image
     config.textConfig!.position = 'bottom'
   }
   const Shape = WidthAnchor(WidthActivate(WidthCommon(shapes[type])))

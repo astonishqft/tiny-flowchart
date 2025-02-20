@@ -1,4 +1,4 @@
-import * as zrender from 'zrender'
+import { Group, Line, BezierCurve, Polyline, Polygon, Text, Circle, vector } from './'
 import OrthogonalConnector from '@ioceditor/orthogonal-connector'
 import { ConnectionType } from './shapes'
 
@@ -12,17 +12,17 @@ import type {
   LineDashStyle,
   StrokeStyle
 } from './shapes'
-import type { FontStyle, FontWeight } from 'zrender/lib/core/types'
+import type { FontStyle, FontWeight, ElementEvent } from './'
 import type { IIocEditor } from './iocEditor'
 import type { ISettingManage } from './settingManage'
-class Connection extends zrender.Group implements IConnection {
-  private _line: zrender.Line | zrender.BezierCurve | zrender.Polyline | null = null
-  private _controlLine1: zrender.Line | null = null
-  private _controlLine2: zrender.Line | null = null
+class Connection extends Group implements IConnection {
+  private _line: Line | BezierCurve | Polyline | null = null
+  private _controlLine1: Line | null = null
+  private _controlLine2: Line | null = null
   private _ortogonalLinePoints: number[][] = []
-  private _arrow: zrender.Polygon | null = null
+  private _arrow: Polygon | null = null
   private _textPoints: number[] = []
-  private _lineText: zrender.Text | null = null
+  private _lineText: Text | null = null
   // style
   private _stroke: StrokeStyle = '#333'
   private _lineWidth: number = 1
@@ -167,7 +167,7 @@ class Connection extends zrender.Group implements IConnection {
   }
 
   createConnection() {
-    this._arrow = new zrender.Polygon({
+    this._arrow = new Polygon({
       style: {
         fill: '#000'
       },
@@ -175,7 +175,7 @@ class Connection extends zrender.Group implements IConnection {
     })
 
     this.add(this._arrow)
-    this._lineText = new zrender.Text({
+    this._lineText = new Text({
       style: {
         text: this.getLineTextContent(),
         fill: this._lineTextFontColor,
@@ -212,13 +212,13 @@ class Connection extends zrender.Group implements IConnection {
 
     switch (this.connectionType) {
       case ConnectionType.Line:
-        this._line = new zrender.Line({ style: lineStyle, z: 4 })
+        this._line = new Line({ style: lineStyle, z: 4 })
         break
       case ConnectionType.BezierCurve:
         this.createBezierCurve(lineStyle)
         break
       case ConnectionType.OrtogonalLine:
-        this._line = new zrender.Polyline({ style: lineStyle, z: 4 })
+        this._line = new Polyline({ style: lineStyle, z: 4 })
         break
       default:
         break
@@ -230,7 +230,7 @@ class Connection extends zrender.Group implements IConnection {
   }
 
   private createBezierCurve(lineStyle: any) {
-    this._line = new zrender.BezierCurve({ style: lineStyle, z: 4 })
+    this._line = new BezierCurve({ style: lineStyle, z: 4 })
 
     this.controlPoint1 = this.createControlPoint()
     this.controlPoint2 = this.createControlPoint()
@@ -247,7 +247,7 @@ class Connection extends zrender.Group implements IConnection {
   }
 
   private createControlPoint(): IControlPoint {
-    return new zrender.Circle({
+    return new Circle({
       style: { fill: 'red' },
       shape: { r: 4 },
       z: 40,
@@ -255,8 +255,8 @@ class Connection extends zrender.Group implements IConnection {
     }) as IControlPoint
   }
 
-  private createControlLine(): zrender.Line {
-    return new zrender.Line({ style: { stroke: '#ccc' }, z: 39 })
+  private createControlLine(): Line {
+    return new Line({ style: { stroke: '#ccc' }, z: 39 })
   }
 
   private setupControlPointEvents(controlPoint: IControlPoint) {
@@ -276,12 +276,12 @@ class Connection extends zrender.Group implements IConnection {
       })
     })
 
-    controlPoint.on('drag', (e: zrender.ElementEvent) => {
+    controlPoint.on('drag', (e: ElementEvent) => {
       const {
         x,
         y,
         shape: { cx, cy }
-      } = e.target as zrender.Circle
+      } = e.target as Circle
       this.updateControlLine(controlPoint, x, y, cx, cy)
       this.renderText()
     })
@@ -299,9 +299,9 @@ class Connection extends zrender.Group implements IConnection {
     controlLine?.attr({ shape: { x2: x + cx, y2: y + cy } })
 
     if (controlPoint === this.controlPoint1) {
-      ;(this._line as zrender.BezierCurve).setShape({ cpx1: x + cx, cpy1: y + cy })
+      ;(this._line as BezierCurve).setShape({ cpx1: x + cx, cpy1: y + cy })
     } else {
-      ;(this._line as zrender.BezierCurve).setShape({ cpx2: x + cx, cpy2: y + cy })
+      ;(this._line as BezierCurve).setShape({ cpx2: x + cx, cpy2: y + cy })
       this.renderArrow([x + cx, y + cy])
     }
   }
@@ -309,7 +309,7 @@ class Connection extends zrender.Group implements IConnection {
   refresh() {
     switch (this.connectionType) {
       case ConnectionType.Line:
-        ;(this._line as zrender.Line).attr({
+        ;(this._line as Line).attr({
           shape: {
             x1: this.fromPoint.x,
             y1: this.fromPoint.y,
@@ -328,7 +328,7 @@ class Connection extends zrender.Group implements IConnection {
         break
       case ConnectionType.OrtogonalLine:
         this.generateOrtogonalLinePath()
-        ;(this._line as zrender.Polyline).attr({
+        ;(this._line as Polyline).attr({
           shape: {
             points: this._ortogonalLinePoints
           }
@@ -376,7 +376,7 @@ class Connection extends zrender.Group implements IConnection {
     for (let i = 1; i < this._ortogonalLinePoints.length; i++) {
       const p1 = this._ortogonalLinePoints[i - 1]
       const p2 = this._ortogonalLinePoints[i]
-      const dist = zrender.vector.dist(p1, p2)
+      const dist = vector.dist(p1, p2)
       accList.push(accList[i - 1] + dist)
       directionList.push(p1[0] === p2[0] ? 'vertical' : 'horizontal')
     }
@@ -396,7 +396,7 @@ class Connection extends zrender.Group implements IConnection {
 
   renderText() {
     if (this.connectionType === ConnectionType.BezierCurve) {
-      const point = this._line && (this._line as zrender.BezierCurve).pointAt(0.5)
+      const point = this._line && (this._line as BezierCurve).pointAt(0.5)
       if (point) this._textPoints = point
     } else if (this.connectionType === ConnectionType.OrtogonalLine) {
       this._textPoints = this.calcOrtogonalLineMidPoint()
@@ -634,7 +634,7 @@ class Connection extends zrender.Group implements IConnection {
         y2: cpy2 + controlPoint2[1]!
       }
     })
-    ;(this._line as zrender.BezierCurve).attr({
+    ;(this._line as BezierCurve).attr({
       shape: {
         x1: this.fromPoint.x,
         y1: this.fromPoint.y,

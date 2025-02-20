@@ -1,4 +1,4 @@
-import * as zrender from 'zrender'
+import { Line } from './'
 import { getClosestValInSortedArr, isEqualNum } from './utils'
 
 import type { IDragFrameManage } from './dragFrameManage'
@@ -43,8 +43,8 @@ class RefLineManage {
   private _refPointSize: number
   private _refLineColor: string
 
-  private _refLinePool: zrender.Line[] = []
-  private _refPointPool: zrender.Line[][] = []
+  private _refLinePool: Line[] = []
+  private _refPointPool: Line[][] = []
 
   private _magneticSpacing = 0
 
@@ -69,7 +69,7 @@ class RefLineManage {
 
   createRefLinePool() {
     for (let i = 0; i < 6; i++) {
-      const l = new zrender.Line({
+      const l = new Line({
         shape: {
           x1: 0,
           y1: 0,
@@ -92,7 +92,7 @@ class RefLineManage {
 
   createRefPointPool() {
     for (let i = 0; i < 23; i++) {
-      const lineL = new zrender.Line({
+      const lineL = new Line({
         shape: {
           x1: 0,
           y1: 0,
@@ -107,7 +107,7 @@ class RefLineManage {
         z: 100000,
         invisible: true
       })
-      const lineR = new zrender.Line({
+      const lineR = new Line({
         shape: {
           x1: 0,
           y1: 0,

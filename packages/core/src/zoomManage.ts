@@ -41,8 +41,10 @@ class ZoomManage extends Disposable {
   }
 
   private adjustZoom(zoom: number) {
-    const pOffsetX = (this._viewPortMgr.getSceneWidth() / 2) * (1 - zoom)
-    const pOffsetY = (this._viewPortMgr.getSceneHeight() / 2) * (1 - zoom)
+    const sceneWidth = this._viewPortMgr.getSceneWidth() || window.innerWidth
+    const sceneHeight = this._viewPortMgr.getSceneHeight() || window.innerHeight
+    const pOffsetX = (sceneWidth / 2) * (1 - zoom)
+    const pOffsetY = (sceneHeight / 2) * (1 - zoom)
     this.setZoom(zoom, pOffsetX, pOffsetY)
   }
 

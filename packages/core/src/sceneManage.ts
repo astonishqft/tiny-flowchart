@@ -1,7 +1,7 @@
-import * as zrender from 'zrender'
 import { Disposable } from './disposable'
 import { Subject } from 'rxjs'
 
+import type { ZRenderType, Element, ElementEvent } from './'
 import type { IDisposable } from './disposable'
 import type { IAnchorPoint, IControlPoint, INode } from './shapes'
 import type { IViewPortManage } from './viewPortManage'
@@ -16,7 +16,7 @@ import type { IZoomManage } from './zoomManage'
 import type { IControlFrameManage } from './controlFrameManage'
 
 export interface ISceneManage extends IDisposable {
-  _zr: zrender.ZRenderType
+  _zr: ZRenderType
   updateSelectScene$: Subject<null>
   updateSelectNode$: Subject<INode>
   setCursorStyle(type: string): void
@@ -25,7 +25,7 @@ export interface ISceneManage extends IDisposable {
   unActive(): void
 }
 
-export type IMouseEvent = zrender.Element & { nodeType?: string }
+export type IMouseEvent = Element & { nodeType?: string }
 
 class SceneManage extends Disposable {
   private _iocEditor: IocEditor
@@ -39,7 +39,7 @@ class SceneManage extends Disposable {
   private _zoomMgr: IZoomManage
   private _controlFrameMgr: IControlFrameManage
   private _enableMiniMap
-  _zr: zrender.ZRenderType
+  _zr: ZRenderType
   updateSelectScene$ = new Subject<null>()
   updateSelectNode$ = new Subject<INode>()
   constructor(iocEditor: IocEditor) {
@@ -92,7 +92,7 @@ class SceneManage extends Disposable {
     let selectFrameStatus = false
     let zoom = 1
 
-    this._zr.on('mousedown', (e: zrender.ElementEvent) => {
+    this._zr.on('mousedown', (e: ElementEvent) => {
       drag = true
       startX = e.offsetX
       startY = e.offsetY

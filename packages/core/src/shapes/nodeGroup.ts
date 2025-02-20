@@ -1,4 +1,4 @@
-import * as zrender from 'zrender'
+import { Group, BoundingRect, Rect, Line, Text } from '../'
 import { getMinPosition } from '../utils'
 import { NodeType } from './index'
 import { Anchor } from '../anchor'
@@ -10,17 +10,17 @@ import type { ISettingManage } from '../settingManage'
 import type { IWidthActivate } from './mixins/widthActivate'
 import type { IWidthAnchor } from './mixins/widthAnchor'
 
-export interface INodeGroup extends zrender.Group, IWidthActivate, IWidthAnchor {
+export interface INodeGroup extends Group, IWidthActivate, IWidthAnchor {
   oldX: number
   oldY: number
-  boundingBox: zrender.BoundingRect
+  boundingBox: BoundingRect
   shapes: INode[]
   nodeType: NodeType
   oldStroke: StrokeStyle
   oldLineWidth: number | undefined
   z: number
-  groupRect: zrender.Rect | null
-  groupHead: zrender.Rect | null
+  groupRect: Rect | null
+  groupHead: Rect | null
   anchor: Anchor
   parentGroup?: INodeGroup
   refresh(): void
@@ -34,7 +34,7 @@ export interface INodeGroup extends zrender.Group, IWidthActivate, IWidthAnchor 
   setStyle(style: IExportGroupStyle): void
   active(): void
   unActive(): void
-  getBoundingBox(): zrender.BoundingRect
+  getBoundingBox(): BoundingRect
   getAnchors(): IAnchor[]
   getAnchorByIndex(index: number): IAnchor
   setOldPosition(): void
@@ -42,15 +42,15 @@ export interface INodeGroup extends zrender.Group, IWidthActivate, IWidthAnchor 
   updatePosition(pos: number[]): void
 }
 
-class NodeGroup extends zrender.Group implements INodeGroup {
+class NodeGroup extends Group implements INodeGroup {
   private _settingMgr: ISettingManage
   private _viewPortMgr: IViewPortManage
   nodeType = NodeType.Group
-  groupRect: zrender.Rect | null = null
-  groupHead: zrender.Rect | null = null
-  textContent: zrender.Text | null = null
-  headLine: zrender.Line | null = null
-  boundingBox: zrender.BoundingRect
+  groupRect: Rect | null = null
+  groupHead: Rect | null = null
+  textContent: Text | null = null
+  headLine: Line | null = null
+  boundingBox: BoundingRect
   shapes: INode[]
   headHeight: number = 30 // 头部高度
   padding = 20
@@ -72,7 +72,7 @@ class NodeGroup extends zrender.Group implements INodeGroup {
     this.shapes = shapes
     const [x, y] = getMinPosition(this.shapes)
     const { width, height } = this.getBoundingRect(this.shapes)
-    this.boundingBox = new zrender.BoundingRect(x, y, width, height)
+    this.boundingBox = new BoundingRect(x, y, width, height)
     this.shapes.forEach(shape => (shape.parentGroup = this))
     this.create()
     this.anchor = new Anchor(this)
@@ -82,7 +82,7 @@ class NodeGroup extends zrender.Group implements INodeGroup {
   }
 
   create() {
-    this.groupRect = new zrender.Rect({
+    this.groupRect = new Rect({
       style: {
         fill: '#fafafa',
         lineWidth: 1,
@@ -94,7 +94,7 @@ class NodeGroup extends zrender.Group implements INodeGroup {
       z: this.z
     })
 
-    this.textContent = new zrender.Text({
+    this.textContent = new Text({
       style: {
         text: '新建分组',
         fill: '#333',
@@ -105,7 +105,7 @@ class NodeGroup extends zrender.Group implements INodeGroup {
       z: this.z
     })
 
-    this.groupHead = new zrender.Rect({
+    this.groupHead = new Rect({
       style: {
         fill: '#fafafa',
         lineWidth: 0,
@@ -118,7 +118,7 @@ class NodeGroup extends zrender.Group implements INodeGroup {
       z: this.z
     })
 
-    this.headLine = new zrender.Line({
+    this.headLine = new Line({
       style: {
         fill: '#fafafa',
         lineWidth: 1,
@@ -248,7 +248,7 @@ class NodeGroup extends zrender.Group implements INodeGroup {
   getBoundingBox() {
     const { width, height } = this.getBoundingRect()
 
-    return new zrender.BoundingRect(this.x, this.y, width, height)
+    return new BoundingRect(this.x, this.y, width, height)
   }
 
   removeShapeFromGroup(shape: IShape | INodeGroup) {

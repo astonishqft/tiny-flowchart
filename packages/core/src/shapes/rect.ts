@@ -1,12 +1,12 @@
-import * as zrender from 'zrender'
+import { Rect as ZRect } from '../'
 import { getBoundingBox } from '../utils'
 
 import type { IAnchor } from './index'
-
-class Rect extends zrender.Rect {
+import type { RectProps } from '../'
+class Rect extends ZRect {
   anchors: IAnchor[] = []
 
-  constructor(data: zrender.RectProps) {
+  constructor(data: RectProps) {
     super(data)
     this.createAnchors()
   }

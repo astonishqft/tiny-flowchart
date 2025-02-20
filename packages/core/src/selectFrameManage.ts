@@ -1,4 +1,4 @@
-import * as zrender from 'zrender'
+import { Rect, BoundingRect } from './'
 
 import type { IViewPortManage } from './viewPortManage'
 import type { ISettingManage } from './settingManage'
@@ -6,7 +6,7 @@ import type { IStorageManage } from './storageManage'
 import type { IIocEditor } from './iocEditor'
 
 export interface ISelectFrameManage {
-  getSelectFrame(): zrender.Rect
+  getSelectFrame(): Rect
   getSelectFrameStatus(): boolean
   setSelectFrameStatus(status: boolean): void
   setPosition(x: number, y: number): void
@@ -17,7 +17,7 @@ export interface ISelectFrameManage {
 }
 
 class SelectFrameManage implements ISelectFrameManage {
-  private _selectFrame: zrender.Rect
+  private _selectFrame: Rect
   private _selectFrameStatus: boolean = false
   private _settingMgr: ISettingManage
   private _viewPortMgr: IViewPortManage
@@ -27,7 +27,7 @@ class SelectFrameManage implements ISelectFrameManage {
     this._viewPortMgr = iocEditor._viewPortMgr
     this._settingMgr = iocEditor._settingMgr
     this._storageMgr = iocEditor._storageMgr
-    this._selectFrame = new zrender.Rect({
+    this._selectFrame = new Rect({
       shape: {
         x: 0,
         y: 0,
@@ -64,7 +64,7 @@ class SelectFrameManage implements ISelectFrameManage {
     const selectFrameBoundingBox = this._selectFrame.getBoundingRect()
     this._storageMgr.getNodes().forEach(shape => {
       const { x, y, width, height } = shape.getBoundingRect()
-      if (selectFrameBoundingBox.intersect(new zrender.BoundingRect(x, y, width, height))) {
+      if (selectFrameBoundingBox.intersect(new BoundingRect(x, y, width, height))) {
         shape.active()
       } else {
         shape.unActive()

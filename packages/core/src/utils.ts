@@ -1,5 +1,6 @@
-import * as zrender from 'zrender'
+import { Group } from './'
 
+import type { BoundingRect, Element } from './'
 import type { INodeGroup } from './shapes/nodeGroup'
 import type { IExportGroup, IExportGroupStyle, IExportShape, INode } from './shapes'
 
@@ -81,7 +82,7 @@ export const getGroupMaxZLevel = (groups: INodeGroup[]) => {
   return maxZLevel
 }
 
-export const isEnter = (a: zrender.BoundingRect, b: zrender.BoundingRect) => {
+export const isEnter = (a: BoundingRect, b: BoundingRect) => {
   const centerX = a.x + a.width / 2
   const centerY = a.y + a.height / 2
   // 如果a的尺寸大于b的尺寸则直接返回false
@@ -169,8 +170,8 @@ export const getChildShapesByGroupId = (groupId: number, shapes: IExportShape[])
   return shapes.filter(shape => shape.parent === groupId)
 }
 
-export const getBoundingBox = <T extends zrender.Element>(nodes: T[]): zrender.BoundingRect => {
-  const g = new zrender.Group()
+export const getBoundingBox = <T extends Element>(nodes: T[]): BoundingRect => {
+  const g = new Group()
 
   return g.getBoundingRect(nodes)
 }

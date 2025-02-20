@@ -1,5 +1,6 @@
-import * as zrender from 'zrender'
+import { Rect, BoundingRect, Image, Ellipse } from './'
 
+import type { ElementEvent } from './'
 import type { IIocEditor } from './iocEditor'
 import type { IViewPortManage } from './viewPortManage'
 import type { IConnectionManage } from './connectionManage'
@@ -8,7 +9,7 @@ import type { ISettingManage } from './settingManage'
 export interface IControlFrameManage {
   active(node: IShape): void
   unActive(): void
-  reSizeNode(boundingBox: zrender.BoundingRect): void
+  reSizeNode(boundingBox: BoundingRect): void
 }
 
 interface IPointCursor {
@@ -17,8 +18,8 @@ interface IPointCursor {
 }
 
 class ControlFrameManage implements IControlFrameManage {
-  private _controlPoints: zrender.Rect[] = []
-  private _controlBox: zrender.Rect
+  private _controlPoints: Rect[] = []
+  private _controlBox: Rect
   private _connectionMgr: IConnectionManage
   private _viewPortMgr: IViewPortManage
   private _iocEditor: IIocEditor
@@ -32,7 +33,7 @@ class ControlFrameManage implements IControlFrameManage {
     this._settingMgr = iocEditor._settingMgr
     this._controlFrameColor = this._settingMgr.get('controlFrameColor')
 
-    this._controlBox = new zrender.Rect({
+    this._controlBox = new Rect({
       shape: { x: 0, y: 0, width: 0, height: 0 },
       style: { fill: 'transparent', stroke: this._controlFrameColor, lineDash: 'dashed' },
       silent: true
@@ -54,7 +55,7 @@ class ControlFrameManage implements IControlFrameManage {
     ]
 
     positions.forEach((pos: IPointCursor) => {
-      const controlPoint = new zrender.Rect({
+      const controlPoint = new Rect({
         style: {
           fill: '#fff',
           stroke: this._controlFrameColor,
@@ -75,10 +76,10 @@ class ControlFrameManage implements IControlFrameManage {
     this._controlPoints.forEach(point => point.show())
     const { width, height, x, y } = node.getBoundingBox()
     const lineWidth = node.style.lineWidth || 1
-    this.reSizeControlFrame(new zrender.BoundingRect(x, y, width - lineWidth, height - lineWidth))
+    this.reSizeControlFrame(new BoundingRect(x, y, width - lineWidth, height - lineWidth))
   }
 
-  reSizeControlFrame(boundingBox: zrender.BoundingRect) {
+  reSizeControlFrame(boundingBox: BoundingRect) {
     const { x, y, width, height } = boundingBox
     this._controlBox.attr({ shape: { width, height }, x, y })
     const offsets = [-4, width - 4, height - 4]
@@ -88,21 +89,21 @@ class ControlFrameManage implements IControlFrameManage {
     this._controlPoints[3].attr({ x: x + offsets[1], y: y + offsets[2] }) // 右下角
   }
 
-  reSizeNode(boundingBox: zrender.BoundingRect) {
+  reSizeNode(boundingBox: BoundingRect) {
     const { x, y, width, height } = boundingBox
     const { type } = this._node as IShape
 
     if (type === 'image') {
-      ;(this._node as unknown as zrender.Image).attr('style', { width, height })
+      ;(this._node as unknown as Image).attr('style', { width, height })
     } else if (type === 'circle') {
-      ;(this._node as unknown as zrender.Ellipse).attr('shape', {
+      ;(this._node as unknown as Ellipse).attr('shape', {
         cx: width / 2,
         cy: height / 2,
         rx: width / 2,
         ry: height / 2
       })
     } else {
-      ;(this._node as unknown as zrender.Rect).attr('shape', { width, height })
+      ;(this._node as unknown as Rect).attr('shape', { width, height })
     }
     this._node?.attr('x', x)
     this._node?.attr('y', y)
@@ -124,15 +125,10 @@ class ControlFrameManage implements IControlFrameManage {
     let y = 0
     let width = 0
     let height = 0
-    let oldBoundingBox: zrender.BoundingRect = new zrender.BoundingRect(
-      oldX,
-      oldY,
-      oldWidth,
-      oldHeight
-    )
+    let oldBoundingBox: BoundingRect = new BoundingRect(oldX, oldY, oldWidth, oldHeight)
 
     this._controlPoints.forEach((point, i) => {
-      point.on('dragstart', (e: zrender.ElementEvent) => {
+      point.on('dragstart', (e: ElementEvent) => {
         isDragging = true
         startX = e.offsetX
         startY = e.offsetY
@@ -140,10 +136,10 @@ class ControlFrameManage implements IControlFrameManage {
         oldY = this._controlBox.y
         oldWidth = this._controlBox.shape.width
         oldHeight = this._controlBox.shape.height
-        oldBoundingBox = new zrender.BoundingRect(oldX, oldY, oldWidth, oldHeight)
+        oldBoundingBox = new BoundingRect(oldX, oldY, oldWidth, oldHeight)
       })
 
-      point.on('drag', (e: zrender.ElementEvent) => {
+      point.on('drag', (e: ElementEvent) => {
         if (!isDragging) return
         offsetX = e.offsetX - startX
         offsetY = e.offsetY - startY
@@ -176,7 +172,7 @@ class ControlFrameManage implements IControlFrameManage {
             break
         }
 
-        this.reSizeNode(new zrender.BoundingRect(x, y, width, height))
+        this.reSizeNode(new BoundingRect(x, y, width, height))
       })
 
       point.on('dragend', () => {
@@ -184,7 +180,7 @@ class ControlFrameManage implements IControlFrameManage {
         this._iocEditor.execute('resizeShape', {
           node: this._node,
           oldBoundingBox: oldBoundingBox,
-          boundingBox: new zrender.BoundingRect(x, y, width, height)
+          boundingBox: new BoundingRect(x, y, width, height)
         })
       })
     })

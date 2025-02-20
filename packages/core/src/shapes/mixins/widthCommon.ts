@@ -1,6 +1,7 @@
-import * as zrender from 'zrender'
+import { BoundingRect, Group } from '../..'
 import { NodeType } from '../../index'
 
+import type { Element } from '../..'
 import type { IExportShape, IExportShapeStyle } from '..'
 import type { INodeGroup } from '../nodeGroup'
 import type { FontStyle, FontWeight } from '../../index'
@@ -15,7 +16,7 @@ export interface IWidthCommon {
   nodeType: NodeType
   getPosition(): number[]
   setOldPosition(): void
-  getBoundingBox(): zrender.BoundingRect
+  getBoundingBox(): BoundingRect
   setType(type: string): void
   getExportData(): IExportShape
   setZ(z: number): void
@@ -50,10 +51,10 @@ function WidthCommon<TBase extends CommonConstructor>(Base: TBase) {
     }
 
     getBoundingBox() {
-      const g = new zrender.Group()
-      const { width, height } = g.getBoundingRect([this as unknown as zrender.Element])
+      const g = new Group()
+      const { width, height } = g.getBoundingRect([this as unknown as Element])
 
-      return new zrender.BoundingRect(this.x, this.y, width, height)
+      return new BoundingRect(this.x, this.y, width, height)
     }
 
     setZ(z: number) {

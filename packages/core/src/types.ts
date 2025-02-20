@@ -1,9 +1,9 @@
-import * as zrender from 'zrender'
+import type { Displayable } from './'
 
 export type Constructor<T = {}> = new (...args: any[]) => T
 
 export type SafeDisplayable = Omit<
-  zrender.Displayable,
+  Displayable,
   '_$eventProcessor' | 'getOutsideFill' | '_normalState'
 > & { shape: Dictionary<any> }
 

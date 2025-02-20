@@ -1,30 +1,31 @@
-import * as zrender from 'zrender'
 import { IocEditor } from './iocEditor'
 import { Disposable } from './disposable'
 import { GridManage } from './gridManage'
+import { Group } from './'
 
 import type { ISceneDragMoveOpts, IUpdateZoomOpts } from './types'
 import type { IDisposable } from './disposable'
 import type { IGridManage } from './gridManage'
 import type { ISettingManage } from './settingManage'
+import type { ZRenderType, Element, BoundingRect } from './'
 
 export interface IViewPortManage extends IDisposable {
   setPosition(x: number, y: number): void
   getPosition(): number[]
-  addSelfToZr(zr: zrender.ZRenderType): void
-  removeElementFromViewPort(element: zrender.Element): void
-  addElementToViewPort(element: zrender.Element): void
-  getViewPort(): zrender.Group
+  addSelfToZr(zr: ZRenderType): void
+  removeElementFromViewPort(element: Element): void
+  addElementToViewPort(element: Element): void
+  getViewPort(): Group
   setScale(x: number, y: number): void
   getScale(): number[]
-  getSceneWidth(): number
-  getSceneHeight(): number
-  getBoundingRect(includeChildren: zrender.Element[]): zrender.BoundingRect
+  getSceneWidth(): number | undefined
+  getSceneHeight(): number | undefined
+  getBoundingRect(includeChildren: Element[]): BoundingRect
   getZoom(): number
 }
 
 class ViewPortManage extends Disposable {
-  private _viewPort: zrender.Group = new zrender.Group()
+  private _viewPort: Group = new Group()
   private _iocEditor: IocEditor
   private _gridMgr?: IGridManage
   private _settingMgr: ISettingManage
@@ -54,11 +55,11 @@ class ViewPortManage extends Disposable {
     )
   }
 
-  getViewPort(): zrender.Group {
+  getViewPort(): Group {
     return this._viewPort
   }
 
-  getBoundingRect(includeChildren: zrender.Element[]) {
+  getBoundingRect(includeChildren: Element[]) {
     return this._viewPort.getBoundingRect(includeChildren)
   }
 
@@ -95,15 +96,15 @@ class ViewPortManage extends Disposable {
     return [this._viewPort.x, this._viewPort.y]
   }
 
-  addSelfToZr(zr: zrender.ZRenderType) {
+  addSelfToZr(zr: ZRenderType) {
     zr.add(this._viewPort)
   }
 
-  removeElementFromViewPort(element: zrender.Element) {
+  removeElementFromViewPort(element: Element) {
     this._viewPort.remove(element)
   }
 
-  addElementToViewPort(element: zrender.Element) {
+  addElementToViewPort(element: Element) {
     this._viewPort.add(element)
   }
 

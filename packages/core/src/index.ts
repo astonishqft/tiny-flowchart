@@ -1,10 +1,25 @@
+import {
+  registerPainter,
+  Line,
+  Rect,
+  Circle,
+  BezierCurve,
+  Polygon,
+  Polyline,
+  Text,
+  Group,
+  BoundingRect,
+  Image,
+  Ellipse,
+  util,
+  init,
+  vector
+} from 'zrender'
 import { IocEditor } from './iocEditor'
-import * as zrender from 'zrender'
 import CanvasPainter from 'zrender/lib/canvas/Painter.js'
 import { SelectFrameManage } from './selectFrameManage'
 import { GroupManage } from './groupManage'
-import { ConnectionType } from './shapes'
-import { NodeType } from './shapes'
+import { ConnectionType, NodeType } from './shapes'
 import { MiniMapManage } from './miniMapManage'
 
 import type { IIocEditor } from './iocEditor'
@@ -27,15 +42,62 @@ import type {
 } from './shapes'
 import type { INodeGroup } from './shapes/nodeGroup'
 import type { IMiniMapManage } from './miniMapManage'
-import type { BuiltinTextPosition, FontStyle, FontWeight } from 'zrender/lib/core/types'
-import type { LinearGradientObject, PatternObject, RadialGradientObject } from 'zrender/lib/export'
+import type { BuiltinTextPosition, FontStyle, FontWeight } from 'zrender/src/core/types.js'
+import type {
+  LinearGradientObject,
+  PatternObject,
+  RadialGradientObject,
+  Element,
+  ElementEvent,
+  Displayable,
+  ZRenderType,
+  RectProps,
+  EllipseProps,
+  ImageProps,
+  CircleProps,
+  ElementTextConfig
+} from 'zrender'
 
-type Displayable = zrender.Displayable
+registerPainter('canvas', CanvasPainter)
 
-zrender.registerPainter('canvas', CanvasPainter)
+export {
+  BoundingRect,
+  Group,
+  Line,
+  Circle,
+  Rect,
+  Polygon,
+  Polyline,
+  BezierCurve,
+  Image,
+  Ellipse,
+  Text,
+  util,
+  init,
+  vector,
+  IocEditor,
+  SelectFrameManage,
+  GroupManage,
+  ConnectionType,
+  NodeType,
+  MiniMapManage
+}
 
-export { IocEditor, SelectFrameManage, GroupManage, ConnectionType, NodeType, MiniMapManage }
 export type {
+  Displayable,
+  Element,
+  RectProps,
+  EllipseProps,
+  ImageProps,
+  CircleProps,
+  ElementEvent,
+  FontStyle,
+  FontWeight,
+  PatternObject,
+  LinearGradientObject,
+  RadialGradientObject,
+  ZRenderType,
+  ElementTextConfig,
   ISceneManage,
   IZoomManage,
   IConnectionManage,
@@ -47,15 +109,9 @@ export type {
   IShape,
   INode,
   IConnection,
-  Displayable,
-  FontStyle,
-  FontWeight,
   BuiltinTextPosition,
   ISettingManage,
   IGridManage,
-  PatternObject,
-  LinearGradientObject,
-  RadialGradientObject,
   IIocEditor,
   IExportShapeStyle,
   IExportGroupStyle,

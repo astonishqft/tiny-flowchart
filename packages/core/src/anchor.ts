@@ -1,4 +1,4 @@
-import * as zrender from 'zrender'
+import { Circle } from './'
 import type { IAnchorPoint, INode, IAnchor } from './shapes'
 
 class Anchor {
@@ -17,7 +17,7 @@ class Anchor {
   }
 
   private createCircle(p: IAnchor) {
-    const circle = new zrender.Circle({
+    const circle = new Circle({
       style: {
         fill: '#fff',
         stroke: 'rgb(0,181,237)',
@@ -30,7 +30,7 @@ class Anchor {
       },
       cursor: 'crosshair',
       z: 30001
-    }) as IAnchorPoint
+    }) as unknown as IAnchorPoint
 
     circle.point = p
     circle.mark = 'anch'

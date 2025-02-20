@@ -1,17 +1,18 @@
-import * as zrender from 'zrender'
+import { Ellipse, BoundingRect } from '../'
 import { getBoundingBox } from '../utils'
 
 import type { IAnchor } from './index'
+import type { CircleProps } from '../'
 
-class Circle extends zrender.Ellipse {
+class Circle extends Ellipse {
   anchors: IAnchor[] = []
 
-  constructor(data: zrender.CircleProps) {
+  constructor(data: CircleProps) {
     super(data)
     this.createAnchors()
   }
 
-  getPoint(x: number, box: zrender.BoundingRect) {
+  getPoint(x: number, box: BoundingRect) {
     const a = box.width / 2
     const b = box.height / 2
     //椭圆公式 计算y值

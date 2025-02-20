@@ -1,5 +1,5 @@
 import { Subject } from 'rxjs'
-import * as zrender from 'zrender'
+import { Line } from './'
 import { Disposable } from './disposable'
 import { Connection } from './connection'
 import { ConnectionType } from './shapes'
@@ -38,7 +38,7 @@ class ConnectionManage extends Disposable {
   private _viewPortMgr: IViewPortManage
   private _storageMgr: IStorageManage
   private _iocEditor: IIocEditor
-  private _tempConnection: zrender.Line | null = null
+  private _tempConnection: Line | null = null
   private _connectionType: ConnectionType = ConnectionType.OrtogonalLine
   updateConnectionType$ = new Subject<ConnectionType>()
   updateSelectConnection$ = new Subject<IConnection>()
@@ -59,7 +59,7 @@ class ConnectionManage extends Disposable {
   }
 
   createTmpConnection(fromAnchorPoint: IAnchorPoint) {
-    this._tempConnection = new zrender.Line({
+    this._tempConnection = new Line({
       shape: {
         x1: fromAnchorPoint.point.x,
         y1: fromAnchorPoint.point.y,

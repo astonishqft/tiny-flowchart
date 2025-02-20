@@ -1,6 +1,7 @@
-import * as zrender from 'zrender'
+import { Rect } from './'
 import { Disposable } from './disposable'
 
+import type { Element } from './'
 import type { IDisposable } from './disposable'
 import type { IStorageManage } from './storageManage'
 import type { IViewPortManage } from './viewPortManage'
@@ -32,7 +33,7 @@ class MiniMapManage extends Disposable implements IMiniMapManage {
   private _oldMapFrameLeft: number = 0
   private _oldMapFrameTop: number = 0
 
-  private _miniMapFrame: zrender.Rect
+  private _miniMapFrame: Rect
 
   constructor(iocEditor: IIocEditor, parentIocEditor: IIocEditor) {
     super()
@@ -41,10 +42,10 @@ class MiniMapManage extends Disposable implements IMiniMapManage {
     this._storageMgr = iocEditor._storageMgr
     this._viewPortMgr = iocEditor._viewPortMgr
 
-    this._containerWidth = this._viewPortMgr.getSceneWidth()
-    this._containerHeight = this._viewPortMgr.getSceneHeight()
+    this._containerWidth = this._viewPortMgr.getSceneWidth() || window.innerWidth
+    this._containerHeight = this._viewPortMgr.getSceneHeight() || window.innerHeight
 
-    this._miniMapFrame = new zrender.Rect({
+    this._miniMapFrame = new Rect({
       shape: { x: 0, y: 0, width: 0, height: 0 },
       style: {
         fill: '#30303033',
@@ -123,8 +124,8 @@ class MiniMapManage extends Disposable implements IMiniMapManage {
 
     this._scaleRatio = Math.max(this._containerWidth / width, this._containerHeight / height)
 
-    const sceneWidth = this._parentIocEditor._viewPortMgr.getSceneWidth()
-    const sceneHeight = this._parentIocEditor._viewPortMgr.getSceneHeight()
+    const sceneWidth = this._parentIocEditor._viewPortMgr.getSceneWidth() || window.innerWidth
+    const sceneHeight = this._parentIocEditor._viewPortMgr.getSceneHeight() || window.innerHeight
 
     const left = -x * this._scaleRatio
     const top = -y * this._scaleRatio
@@ -146,11 +147,11 @@ class MiniMapManage extends Disposable implements IMiniMapManage {
     )
 
     this.updateOldPosition()
-    this.reSetNodeFontSize()
+    this.setNodeFontSize()
   }
 
-  reSetNodeFontSize() {
-    const updateFontSize = (shape: zrender.Element) => {
+  setNodeFontSize() {
+    const updateFontSize = (shape: Element) => {
       const textContent = shape.getTextContent()
       if (textContent) {
         textContent.setStyle({
@@ -169,8 +170,8 @@ class MiniMapManage extends Disposable implements IMiniMapManage {
   }
 
   updateOldPosition() {
-    const sceneWidth = this._parentIocEditor._viewPortMgr.getSceneWidth()
-    const sceneHeight = this._parentIocEditor._viewPortMgr.getSceneHeight()
+    const sceneWidth = this._parentIocEditor._viewPortMgr.getSceneWidth() || window.innerWidth
+    const sceneHeight = this._parentIocEditor._viewPortMgr.getSceneHeight() || window.innerHeight
     const scale = this.getMiniMapFrameScale() || 1
     this._oldMapFrameLeft = this.getMiniMapFramePosition()[0]
     this._oldMapFrameTop = this.getMiniMapFramePosition()[1]

@@ -1,12 +1,13 @@
-import * as zrender from 'zrender'
+import { Image as ZImage } from '../'
 import { getBoundingBox } from '../utils'
 
+import type { RectProps } from '../'
 import type { IAnchor } from './index'
 
-class Image extends zrender.Image {
+class Image extends ZImage {
   anchors: IAnchor[] = []
 
-  constructor(data: zrender.RectProps) {
+  constructor(data: RectProps) {
     super(data)
     this.createAnchors()
   }

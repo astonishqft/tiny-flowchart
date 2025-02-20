@@ -1,5 +1,5 @@
-import * as zrender from 'zrender'
 import { Disposable } from './disposable'
+import { Rect, BoundingRect } from './'
 import { getTopGroup, isEnter } from './utils'
 
 import type { IIocEditor } from './iocEditor'
@@ -14,9 +14,9 @@ export interface IDragFrameManage extends IDisposable {
   hide(): void
   updatePosition(x: number, y: number): void
   initSize(width: number, height: number): void
-  getFrame(): zrender.Rect
-  getBoundingBox(): zrender.BoundingRect
-  isIntersect(shapesBoundingBox: zrender.BoundingRect): boolean
+  getFrame(): Rect
+  getBoundingBox(): BoundingRect
+  isIntersect(shapesBoundingBox: BoundingRect): boolean
   intersectWidthGroups(node: INode): IGroupShapeIntersectResult
 }
 
@@ -28,7 +28,7 @@ export interface IGroupShapeIntersectResult {
 }
 
 class DragFrameManage extends Disposable {
-  private _frame: zrender.Rect
+  private _frame: Rect
   private _viewPortMgr: IViewPortManage
   private _storageMgr: IStorageManage
 
@@ -36,7 +36,7 @@ class DragFrameManage extends Disposable {
     super()
     this._viewPortMgr = iocEditor._viewPortMgr
     this._storageMgr = iocEditor._storageMgr
-    this._frame = new zrender.Rect({
+    this._frame = new Rect({
       shape: { x: 0, y: 0, width: 0, height: 0, r: [3] },
       style: {
         fill: 'rgba(25, 113, 194, 0.2)',
@@ -151,7 +151,7 @@ class DragFrameManage extends Disposable {
   }
 
   getBoundingBox() {
-    return new zrender.BoundingRect(
+    return new BoundingRect(
       this._frame.x,
       this._frame.y,
       this._frame.shape.width,
@@ -160,7 +160,7 @@ class DragFrameManage extends Disposable {
   }
 
   // 判断是否相交
-  isIntersect(shapesBoundingBox: zrender.BoundingRect) {
+  isIntersect(shapesBoundingBox: BoundingRect) {
     return shapesBoundingBox.intersect(this.getBoundingBox())
   }
 }

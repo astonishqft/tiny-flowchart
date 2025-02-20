@@ -1,4 +1,4 @@
-import * as zrender from 'zrender'
+import { util, init } from './'
 import { Subject } from 'rxjs'
 import { Disposable } from './disposable'
 import { SceneManage } from './sceneManage'
@@ -42,6 +42,7 @@ import {
   ClearCommand
 } from './history/commands'
 
+import type { ZRenderType } from './'
 import type { IRefLineManage } from './refLineManage'
 import type { IDragFrameManage } from './dragFrameManage'
 import type { IGroupManage } from './groupManage'
@@ -104,7 +105,7 @@ export interface IIocEditor {
   _selectFrameMgr: ISelectFrameManage
   _controlFrameMgr: IControlFrameManage
   _zoomMgr: IZoomManage
-  _zr: zrender.ZRenderType
+  _zr: ZRenderType
   _dom: HTMLElement
   _pasteOffset: number
   updateZoom$: Subject<IUpdateZoomOpts>
@@ -135,7 +136,7 @@ export interface IIocEditor {
 }
 
 export class IocEditor implements IIocEditor {
-  _zr: zrender.ZRenderType
+  _zr: ZRenderType
   _dom: HTMLElement
   _manageList: Disposable[] = []
   _dragFrameMgr: IDragFrameManage
@@ -181,7 +182,7 @@ export class IocEditor implements IIocEditor {
     this._controlFrameMgr = new ControlFrameManage(this)
     this._groupMgr = new GroupManage(this)
     this._shapeMgr = new ShapeManage(this)
-    this._zr = zrender.init(dom)
+    this._zr = init(dom)
     this._sceneMgr = new SceneManage(this)
     this._historyMgr = new HistoryManage()
     this._pasteOffset = this._settingMgr.get('pasteOffset')
@@ -253,8 +254,8 @@ export class IocEditor implements IIocEditor {
   }
 
   exportPicture() {
-    const sceneWidth = this._viewPortMgr.getSceneWidth()
-    const sceneHeight = this._viewPortMgr.getSceneHeight()
+    const sceneWidth = this._viewPortMgr.getSceneWidth() || window.innerWidth
+    const sceneHeight = this._viewPortMgr.getSceneHeight() || window.innerHeight
     const imageCanvasContainer = document.createElement('ioc-image-canvas') as HTMLCanvasElement
     imageCanvasContainer.style.width = sceneWidth + 'px'
     imageCanvasContainer.style.height = sceneHeight + 'px'
@@ -325,9 +326,9 @@ export class IocEditor implements IIocEditor {
       .map(c => c.getExportData())
 
     this._copyData = {
-      shapes: zrender.util.clone(activeShapes),
-      groups: zrender.util.clone(allGroups),
-      connections: zrender.util.clone(connections)
+      shapes: util.clone(activeShapes),
+      groups: util.clone(allGroups),
+      connections: util.clone(connections)
     }
 
     console.log('copyData', this._copyData)
@@ -636,7 +637,7 @@ export class IocEditor implements IIocEditor {
     this._sceneMgr.unActive()
     shapes.forEach(s => {
       const oldId = s.id
-      const newId = zrender.util.guid()
+      const newId = util.guid()
 
       const newShape = {
         ...s,
@@ -662,7 +663,7 @@ export class IocEditor implements IIocEditor {
           this._storageMgr.getShapes().map(s => s.getExportData())
         ).map(s => {
           const oldId = s.id
-          const newId = zrender.util.guid()
+          const newId = util.guid()
 
           const newShape = {
             ...s,
@@ -688,7 +689,7 @@ export class IocEditor implements IIocEditor {
 
         const childNodes = [...childGroups, ...childShapes]
 
-        const newGroup = this._groupMgr.createGroup(childNodes, zrender.util.guid())
+        const newGroup = this._groupMgr.createGroup(childNodes, util.guid())
         copyGroupMap.set(node.id, newGroup)
         newGroup.active()
         newGroup.setZ(node.z + 1)

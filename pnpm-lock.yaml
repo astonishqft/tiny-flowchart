@@ -124,8 +124,8 @@ importers:
         specifier: ^7.8.1
         version: 7.8.1
       zrender:
-        specifier: 5.4.4
-        version: 5.4.4
+        specifier: 5.6.1
+        version: 5.6.1
     devDependencies:
       tslib:
         specifier: ^2.6.2
@@ -4508,8 +4508,8 @@ packages:
       commander: 9.5.0
     dev: true
 
-  /zrender@5.4.4:
-    resolution: {integrity: sha512-0VxCNJ7AGOMCWeHVyTrGzUgrK4asT4ml9PEkeGirAkKNYXYzoPJCLvmyfdoOXcjTHPs10OZVMfD1Rwg16AZyYw==, tarball: https://registry.npmmirror.com/zrender/-/zrender-5.4.4.tgz}
+  /zrender@5.6.1:
+    resolution: {integrity: sha512-OFXkDJKcrlx5su2XbzJvj/34Q3m6PvyCZkVPHGYpcCJ52ek4U/ymZyfuV1nKE23AyBJ51E/6Yr0mhZ7xGTO4ag==, tarball: https://registry.npmmirror.com/zrender/-/zrender-5.6.1.tgz}
     dependencies:
       tslib: 2.3.0
     dev: false
