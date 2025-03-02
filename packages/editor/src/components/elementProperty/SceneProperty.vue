@@ -2,10 +2,10 @@
 import { ref } from 'vue'
 import { ElInputNumber, ElSwitch } from 'element-plus'
 
-import { IocEditor } from '@ioceditor/core'
+import type { IIocEditor } from '@ioceditor/core'
 
 const props = defineProps<{
-  iocEditor: IocEditor
+  iocEditor: IIocEditor
 }>()
 
 const showGrid = ref(true)

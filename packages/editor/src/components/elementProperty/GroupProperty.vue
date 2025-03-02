@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { NodeType, IShape } from '@ioceditor/core'
+import { NodeType } from '@ioceditor/core'
 import { ElColorPicker, ElDivider, ElInput, ElInputNumber, ElOption, ElSelect } from 'element-plus'
 import { bgColorList, strokeColorList, lineWidthOpts, lineTypeOpt } from './config'
 
@@ -10,7 +10,8 @@ import type {
   LineDashStyle,
   INodeGroup,
   IExportGroupStyle,
-  IIocEditor
+  IIocEditor,
+  IShape
 } from '@ioceditor/core'
 
 const { iocEditor } = defineProps<{

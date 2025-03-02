@@ -1,11 +1,10 @@
-import { BoundingRect, Group } from '../..'
-import { NodeType } from '../../index'
+import { BoundingRect, NodeType } from '@/index'
+import { getBoundingBox } from '@/utils'
 
-import type { Element } from '../..'
-import type { IExportShape, IExportShapeStyle } from '..'
-import type { INodeGroup } from '../nodeGroup'
-import type { FontStyle, FontWeight } from '../../index'
-import type { Constructor, Dictionary, SafeDisplayable } from '../../types'
+import type { Element, FontStyle, FontWeight } from '@/index'
+import type { IExportShape, IExportShapeStyle } from '@/shapes'
+import type { INodeGroup } from '@/shapes/nodeGroup'
+import type { Constructor, Dictionary, SafeDisplayable } from '@/types'
 
 export type CommonConstructor = Constructor<SafeDisplayable>
 
@@ -51,8 +50,7 @@ function WidthCommon<TBase extends CommonConstructor>(Base: TBase) {
     }
 
     getBoundingBox() {
-      const g = new Group()
-      const { width, height } = g.getBoundingRect([this as unknown as Element])
+      const { width, height } = getBoundingBox([this as unknown as Element])
 
       return new BoundingRect(this.x, this.y, width, height)
     }

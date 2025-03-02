@@ -4,8 +4,8 @@ import SceneProperty from './elementProperty/SceneProperty.vue'
 import ShapeProperty from './elementProperty/ShapeProperty.vue'
 import ConnectionProperty from './elementProperty/ConnectionProperty.vue'
 import GroupProperty from './elementProperty/GroupProperty.vue'
-import { NodeType } from '@ioceditor/core'
-import { IocEditor } from '@ioceditor/core'
+import { NodeType, IocEditor } from '@ioceditor/core'
+
 import type { IConnection, INodeGroup, IShape } from '@ioceditor/core'
 
 const props = defineProps<{

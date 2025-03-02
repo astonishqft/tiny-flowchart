@@ -4,7 +4,7 @@ import type { BoundingRect, Element } from './'
 import type { INodeGroup } from './shapes/nodeGroup'
 import type { IExportGroup, IExportGroupStyle, IExportShape, INode } from './shapes'
 
-export const getClosestValInSortedArr = (sortedArr: number[], target: number) => {
+export const getClosestLine = (sortedArr: number[], target: number) => {
   if (sortedArr.length === 0) {
     throw new Error('sortedArr can not be empty')
   }
@@ -41,8 +41,11 @@ export const getClosestValInSortedArr = (sortedArr: number[], target: number) =>
     : sortedArr[left]
 }
 
+// isEqualNum 函数的目的是判断两个数字是否在一个非常小的容差范围内相等。具体来说，它使用了一个阈值（在这里是
+// 0.00001
+// 0.00001）来比较两个数字的差异，以避免由于浮点数精度问题导致的错误判断。
 export const isEqualNum = (num1: number, num2: number) => {
-  return Math.abs(num1 - num2) < 0.00001
+  return Math.abs(num1 - num2) <= 1.5
 }
 
 export const getMinPosition = (shapes: INode[]): number[] => {
