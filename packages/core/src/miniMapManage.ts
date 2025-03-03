@@ -1,13 +1,15 @@
-import { Rect } from './'
+import { Rect } from '@/index'
 import { Disposable } from './disposable'
 
-import type { Element } from './'
-import type { IDisposable } from './disposable'
-import type { IStorageManage } from './storageManage'
-import type { IViewPortManage } from './viewPortManage'
+import type {
+  Element,
+  IDisposable,
+  IStorageManage,
+  IViewPortManage,
+  IExportData,
+  IIocEditor
+} from '@/index'
 import type { ISceneDragMoveOpts, IUpdateZoomOpts } from './types'
-import type { IExportData } from './shapes'
-import type { IIocEditor } from './iocEditor'
 
 export interface IMiniMapManage extends IDisposable {
   refreshMap(data: IExportData): void

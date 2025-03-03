@@ -1,6 +1,4 @@
-import type { IShape, IExportShapeStyle } from '../../shapes'
-import type { ICommand } from '../historyManage'
-import type { IIocEditor } from '../../iocEditor'
+import type { IShape, IExportShapeStyle, ICommand, IIocEditor } from '@/index'
 
 export interface IUpdateShapePropertyCommandOpts {
   shape: IShape

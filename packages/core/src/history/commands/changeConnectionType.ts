@@ -1,8 +1,6 @@
-import { ConnectionType } from '../../shapes'
+import { ConnectionType } from '@/index'
 
-import type { IConnection } from '../../shapes'
-import type { ICommand } from '../historyManage'
-import type { IIocEditor } from '../../iocEditor'
+import type { IConnection, ICommand, IIocEditor } from '@/index'
 
 export interface IChangeConnectionTypeCommandOpts {
   connection: IConnection

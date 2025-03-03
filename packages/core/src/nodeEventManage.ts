@@ -1,17 +1,21 @@
 import { getBoundingBox, getMinPosition } from './utils'
 
-import type { Element, ElementEvent } from './'
-import type { IIocEditor } from './iocEditor'
-import type { IShape, INode } from './shapes'
-import type { INodeGroup } from './shapes/nodeGroup'
-import type { IDragFrameManage } from './dragFrameManage'
-import type { IRefLineManage } from './refLineManage'
-import type { IConnectionManage } from './connectionManage'
-import type { ISceneManage } from './sceneManage'
-import type { ISettingManage } from './settingManage'
-import type { IZoomManage } from './zoomManage'
-import type { IControlFrameManage } from './controlFrameManage'
-import type { IStorageManage } from './storageManage'
+import type {
+  Element,
+  ElementEvent,
+  IIocEditor,
+  IShape,
+  INode,
+  INodeGroup,
+  ISettingManage,
+  IZoomManage,
+  IControlFrameManage,
+  IStorageManage,
+  IDragFrameManage,
+  IRefLineManage,
+  IConnectionManage,
+  ISceneManage
+} from '@/index'
 
 class NodeEventManage {
   private _node: INode

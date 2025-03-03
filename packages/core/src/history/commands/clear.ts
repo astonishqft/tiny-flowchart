@@ -1,6 +1,4 @@
-import type { IExportData } from '../../shapes'
-import type { ICommand } from '../historyManage'
-import type { IIocEditor } from '../../iocEditor'
+import type { IExportData, ICommand, IIocEditor } from '@/index'
 
 export interface IClearCommandOpts {
   exportData: IExportData

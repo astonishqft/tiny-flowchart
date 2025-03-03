@@ -1,9 +1,6 @@
 import { Rect, BoundingRect } from '@/index'
 
-import type { IViewPortManage } from '@/viewPortManage'
-import type { ISettingManage } from '@/settingManage'
-import type { IStorageManage } from '@/storageManage'
-import type { IIocEditor } from '@/iocEditor'
+import type { IViewPortManage, ISettingManage, IStorageManage, IIocEditor } from '@/index'
 
 export interface ISelectFrameManage {
   getSelectFrame(): Rect

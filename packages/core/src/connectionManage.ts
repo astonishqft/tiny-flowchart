@@ -1,14 +1,17 @@
 import { Subject } from 'rxjs'
-import { Line } from './'
+import { Line, ConnectionType } from '@/index'
 import { Disposable } from './disposable'
 import { Connection } from './connection'
-import { ConnectionType } from './shapes'
 
-import type { IDisposable } from './disposable'
-import type { IAnchorPoint, IConnection, INode } from './shapes'
-import type { IViewPortManage } from './viewPortManage'
-import type { IStorageManage } from './storageManage'
-import type { IIocEditor } from './iocEditor'
+import type {
+  IAnchorPoint,
+  IConnection,
+  INode,
+  IDisposable,
+  IViewPortManage,
+  IStorageManage,
+  IIocEditor
+} from '@/index'
 
 export interface IConnectionManage extends IDisposable {
   updateConnectionType$: Subject<ConnectionType>

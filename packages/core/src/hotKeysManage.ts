@@ -1,7 +1,7 @@
 import hotkeys from 'hotkeys-js'
-import { Disposable } from './disposable'
+import { Disposable } from '@/disposable'
 
-import type { IIocEditor } from './iocEditor'
+import type { IIocEditor } from '@/index'
 
 class HotKeysManager extends Disposable {
   private _iocEditor: IIocEditor

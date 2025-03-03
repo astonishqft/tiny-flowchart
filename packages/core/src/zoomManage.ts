@@ -1,9 +1,6 @@
 import { Disposable } from './disposable'
 
-import type { IIocEditor } from './iocEditor'
-import type { IViewPortManage } from './viewPortManage'
-import type { ISettingManage } from './settingManage'
-import type { IDisposable } from './disposable'
+import type { IIocEditor, IViewPortManage, ISettingManage, IDisposable } from '@/index'
 
 export interface IZoomManage extends IDisposable {
   zoomIn(): void

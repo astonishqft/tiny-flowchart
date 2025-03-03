@@ -1,5 +1,4 @@
-import type { INodeGroup } from './shapes/nodeGroup'
-import type { IConnection, IShape, INode } from './shapes'
+import type { IConnection, IShape, INode, INodeGroup } from '@/index'
 
 export interface IStorageManage {
   addShape(shape: IShape): void

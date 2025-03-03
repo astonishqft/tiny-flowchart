@@ -1,14 +1,20 @@
-import { Group, BoundingRect, Rect, Line, Text } from '../'
-import { getMinPosition } from '../utils'
-import { NodeType } from './index'
-import { Anchor } from '../anchor'
+import { Group, BoundingRect, Rect, Line, Text, NodeType } from '@/index'
+import { getMinPosition } from '@/utils'
+import { Anchor } from '@/anchor'
 
-import type { IAnchor, IExportGroup, IExportGroupStyle, IShape, StrokeStyle, INode } from './index'
-import type { IIocEditor } from '../iocEditor'
-import type { IViewPortManage } from '../viewPortManage'
-import type { ISettingManage } from '../settingManage'
-import type { IWidthActivate } from './mixins/widthActivate'
-import type { IWidthAnchor } from './mixins/widthAnchor'
+import type {
+  IAnchor,
+  IExportGroup,
+  IExportGroupStyle,
+  IShape,
+  StrokeStyle,
+  INode,
+  IIocEditor,
+  IViewPortManage,
+  ISettingManage,
+  IWidthActivate,
+  IWidthAnchor
+} from '@/index'
 
 export interface INodeGroup extends Group, IWidthActivate, IWidthAnchor {
   oldX: number

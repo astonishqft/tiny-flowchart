@@ -1,8 +1,7 @@
-import { Image as ZImage } from '../'
-import { getBoundingBox } from '../utils'
+import { Image as ZImage } from '@/index'
+import { getBoundingBox } from '@/utils'
 
-import type { RectProps } from '../'
-import type { IAnchor } from './index'
+import type { RectProps, IAnchor } from '@/index'
 
 class Image extends ZImage {
   anchors: IAnchor[] = []

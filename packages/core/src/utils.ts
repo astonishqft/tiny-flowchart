@@ -1,8 +1,8 @@
-import { Group } from './'
+import { Group } from '@/index'
 
-import type { BoundingRect, Element } from './'
-import type { INodeGroup } from './shapes/nodeGroup'
-import type { IExportGroup, IExportGroupStyle, IExportShape, INode } from './shapes'
+import type { BoundingRect, Element } from '@/index'
+import type { INodeGroup } from '@/shapes/nodeGroup'
+import type { IExportGroup, IExportGroupStyle, IExportShape, INode } from '@/shapes'
 
 export const getClosestLine = (sortedArr: number[], target: number) => {
   if (sortedArr.length === 0) {

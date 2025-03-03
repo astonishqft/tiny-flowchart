@@ -1,11 +1,13 @@
 import { Line } from '@/index'
 import { getClosestLine, isEqualNum } from '@/utils'
 
-import type { IDragFrameManage } from '@/dragFrameManage'
-import type { IViewPortManage } from '@/viewPortManage'
-import type { ISettingManage } from '@/settingManage'
-import type { IStorageManage } from '@/storageManage'
-import type { IIocEditor } from '@/iocEditor'
+import type {
+  IDragFrameManage,
+  IViewPortManage,
+  ISettingManage,
+  IStorageManage,
+  IIocEditor
+} from '@/index'
 
 export interface IRefLineManage {
   updateRefLines(): { magneticOffsetX: number; magneticOffsetY: number }

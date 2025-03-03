@@ -1,7 +1,4 @@
-import type { IExportShapeStyle } from '../../shapes'
-import type { INodeGroup } from '../../shapes/nodeGroup'
-import type { ICommand } from '../historyManage'
-import type { IIocEditor } from '../../iocEditor'
+import type { IExportShapeStyle, INodeGroup, ICommand, IIocEditor } from '@/index'
 
 export interface IUpdateGroupPropertyCommandOpts {
   group: INodeGroup

@@ -1,13 +1,17 @@
-import { IocEditor } from './iocEditor'
-import { Disposable } from './disposable'
-import { GridManage } from './gridManage'
+import { Disposable } from '@/disposable'
+import { GridManage } from '@/gridManage'
 import { Group } from './'
 
 import type { ISceneDragMoveOpts, IUpdateZoomOpts } from './types'
-import type { IDisposable } from './disposable'
-import type { IGridManage } from './gridManage'
-import type { ISettingManage } from './settingManage'
-import type { ZRenderType, Element, BoundingRect } from './'
+import type {
+  IIocEditor,
+  IDisposable,
+  IGridManage,
+  ISettingManage,
+  ZRenderType,
+  Element,
+  BoundingRect
+} from '@/index'
 
 export interface IViewPortManage extends IDisposable {
   setPosition(x: number, y: number): void
@@ -26,12 +30,12 @@ export interface IViewPortManage extends IDisposable {
 
 class ViewPortManage extends Disposable {
   private _viewPort: Group = new Group()
-  private _iocEditor: IocEditor
+  private _iocEditor: IIocEditor
   private _gridMgr?: IGridManage
   private _settingMgr: ISettingManage
   private _currentZoom = 1
 
-  constructor(iocEditor: IocEditor) {
+  constructor(iocEditor: IIocEditor) {
     super()
     this._iocEditor = iocEditor
     this._settingMgr = iocEditor._settingMgr

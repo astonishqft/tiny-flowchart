@@ -1,9 +1,6 @@
-import { NodeType } from '../../shapes'
+import { NodeType } from '@/index'
 
-import type { IShape, IConnection, INode } from '../../shapes'
-import type { INodeGroup } from '../../shapes/nodeGroup'
-import type { ICommand } from '../historyManage'
-import type { IIocEditor } from '../../iocEditor'
+import type { IShape, IConnection, INode, INodeGroup, ICommand, IIocEditor } from '@/index'
 
 export interface IDeleteNodeCommandOpts {
   nodes: INode[]

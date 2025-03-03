@@ -1,8 +1,7 @@
-import { Ellipse, BoundingRect } from '../'
-import { getBoundingBox } from '../utils'
+import { Ellipse, BoundingRect } from '@/index'
+import { getBoundingBox } from '@/utils'
 
-import type { IAnchor } from './index'
-import type { CircleProps } from '../'
+import type { IAnchor, CircleProps } from '@/index'
 
 class Circle extends Ellipse {
   anchors: IAnchor[] = []
@@ -24,7 +23,7 @@ class Circle extends Ellipse {
   createAnchors() {
     const box = getBoundingBox([this])
     const cy = box.y + box.height / 2
-
+    console.log('circle bounding box', box)
     const t = {
       x: box.x + box.width / 2,
       y: box.y,

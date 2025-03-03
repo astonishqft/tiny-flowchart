@@ -1,6 +1,6 @@
-import { Circle } from './'
+import { Circle } from '@/index'
 
-import type { IAnchorPoint, INode, IAnchor } from './shapes'
+import type { IAnchorPoint, INode, IAnchor } from '@/index'
 
 class Anchor {
   private _radius: number = 4

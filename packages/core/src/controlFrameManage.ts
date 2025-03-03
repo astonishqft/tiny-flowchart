@@ -1,11 +1,13 @@
-import { Rect, BoundingRect, Image, Ellipse } from './'
+import { Rect, BoundingRect, Image, Ellipse } from '@/index'
 
-import type { ElementEvent } from './'
-import type { IIocEditor } from './iocEditor'
-import type { IViewPortManage } from './viewPortManage'
-import type { IConnectionManage } from './connectionManage'
-import type { IShape } from './shapes'
-import type { ISettingManage } from './settingManage'
+import type {
+  ElementEvent,
+  IIocEditor,
+  IViewPortManage,
+  IConnectionManage,
+  IShape,
+  ISettingManage
+} from '@/index'
 
 export interface IControlFrameManage {
   active(node: IShape): void

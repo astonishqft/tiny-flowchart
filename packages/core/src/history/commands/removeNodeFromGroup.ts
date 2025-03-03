@@ -1,7 +1,4 @@
-import type { INode } from '../../shapes'
-import type { INodeGroup } from '../../shapes/nodeGroup'
-import type { ICommand } from '../historyManage'
-import type { IIocEditor } from '../../iocEditor'
+import type { INode, INodeGroup, ICommand, IIocEditor } from '@/index'
 
 export interface IRemoveNodeFromGroupCommandOpts {
   node: INode

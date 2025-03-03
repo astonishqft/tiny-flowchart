@@ -1,4 +1,4 @@
-import type { ICommand } from '../historyManage'
+import type { ICommand } from '@/index'
 
 class PatchCommand implements ICommand {
   private cmds: ICommand[]

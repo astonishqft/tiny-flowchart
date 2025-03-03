@@ -1,8 +1,6 @@
-import { BoundingRect } from '../..'
+import { BoundingRect } from '@/index'
 
-import type { INode } from '../../shapes'
-import type { ICommand } from '../historyManage'
-import type { IIocEditor } from '../../iocEditor'
+import type { INode, ICommand, IIocEditor } from '@/index'
 
 export interface IResizeShapeCommandOpts {
   iocEditor: IIocEditor

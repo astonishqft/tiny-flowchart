@@ -1,7 +1,4 @@
-import type { INodeGroup } from '../../shapes/nodeGroup'
-import type { INode } from '../../shapes'
-import type { ICommand } from '../historyManage'
-import type { IIocEditor } from '../../iocEditor'
+import type { INodeGroup, INode, ICommand, IIocEditor } from '@/index'
 
 export interface IDragOutToGroupCommandOpts {
   targetGroup: INodeGroup

@@ -1,26 +1,26 @@
-import { util, init } from './'
+import { util, init } from '@/index'
 import { Subject } from 'rxjs'
-import { Disposable } from './disposable'
-import { SceneManage } from './sceneManage'
-import { ShapeManage } from './shapeManage'
-import { ViewPortManage } from './viewPortManage'
-import { ConnectionManage } from './connectionManage'
-import { StorageManage } from './storageManage'
-import { GroupManage } from './groupManage'
-import { ZoomManage } from './zoomManage'
-import { DragFrameManage } from './dragFrameManage'
-import { RefLineManage } from './refLineManage'
-import { SelectFrameManage } from './selectFrameManage'
-import { SettingManage } from './settingManage'
-import { ControlFrameManage } from './controlFrameManage'
-import { HistoryManage } from './history/historyManage'
-import { HotKeysManager } from './hotKeysManage'
+import { Disposable } from '@/disposable'
+import { SceneManage } from '@/sceneManage'
+import { ShapeManage } from '@/shapeManage'
+import { ViewPortManage } from '@/viewPortManage'
+import { ConnectionManage } from '@/connectionManage'
+import { StorageManage } from '@/storageManage'
+import { GroupManage } from '@/groupManage'
+import { ZoomManage } from '@/zoomManage'
+import { DragFrameManage } from '@/dragFrameManage'
+import { RefLineManage } from '@/refLineManage'
+import { SelectFrameManage } from '@/selectFrameManage'
+import { SettingManage } from '@/settingManage'
+import { ControlFrameManage } from '@/controlFrameManage'
+import { HistoryManage } from '@/history/historyManage'
+import { HotKeysManager } from '@/hotKeysManage'
 import {
   downloadFile,
   groupArray2Tree,
   getChildShapesByGroupId,
   getAllRelatedGroups
-} from './utils'
+} from '@/utils'
 import {
   AddShapeCommand,
   AddConnectionCommand,
@@ -42,20 +42,31 @@ import {
   ClearCommand
 } from './history/commands'
 
-import type { ZRenderType } from './'
-import type { IRefLineManage } from './refLineManage'
-import type { IDragFrameManage } from './dragFrameManage'
-import type { IGroupManage } from './groupManage'
-import type { IZoomManage } from './zoomManage'
-import type { ISceneManage } from './sceneManage'
-import type { IShapeManage } from './shapeManage'
-import type { IConnectionManage } from './connectionManage'
-import type { IViewPortManage } from './viewPortManage'
-import type { IStorageManage } from './storageManage'
-import type { ISelectFrameManage } from './selectFrameManage'
-import type { IIocEditorConfig, ISettingManage } from './settingManage'
-import type { IControlFrameManage } from './controlFrameManage'
-import type { IHistoryManage } from './history/historyManage'
+import type {
+  ZRenderType,
+  IRefLineManage,
+  IDragFrameManage,
+  IGroupManage,
+  IZoomManage,
+  IViewPortManage,
+  IConnectionManage,
+  ISceneManage,
+  IShapeManage,
+  IStorageManage,
+  ISelectFrameManage,
+  ISettingManage,
+  IHistoryManage,
+  IControlFrameManage,
+  IExportShape,
+  IShape,
+  INode,
+  IExportData,
+  IConnection,
+  IExportConnection,
+  IExportGroup,
+  INodeGroup
+} from '@/index'
+import type { IIocEditorConfig } from './settingManage'
 import type {
   IAddShapeCommandOpts,
   IAddConnectionCommandOpts,
@@ -75,18 +86,7 @@ import type {
   IClearCommandOpts
 } from './history/commands'
 
-import {
-  ConnectionType,
-  NodeType,
-  type IConnection,
-  type IExportConnection,
-  type IExportData,
-  type IExportGroup,
-  type IExportShape,
-  type IShape,
-  type INode
-} from './shapes'
-import type { INodeGroup } from './shapes/nodeGroup'
+import { ConnectionType, NodeType } from './shapes'
 import type { IGroupTreeNode } from './utils'
 import type { ISceneDragMoveOpts, ISceneDragStartOpts, IUpdateZoomOpts, Dictionary } from './types'
 import type { ICommand } from './history/historyManage'

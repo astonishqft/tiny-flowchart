@@ -1,7 +1,4 @@
-import type { INodeGroup } from '../../shapes/nodeGroup'
-import type { ICommand } from '../historyManage'
-import type { IIocEditor } from '../../iocEditor'
-import type { IConnection } from '../../shapes'
+import type { INodeGroup, ICommand, IIocEditor, IConnection } from '@/index'
 
 export interface IUnGroupCommandOpts {
   group: INodeGroup

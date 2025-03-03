@@ -1,14 +1,17 @@
-import { NodeGroup } from './shapes/nodeGroup'
-import { getMinZLevel } from './utils'
-import { Disposable, IDisposable } from './disposable'
-import { NodeEventManage } from './nodeEventManage'
+import { NodeGroup } from '@/shapes/nodeGroup'
+import { getMinZLevel } from '@/utils'
+import { Disposable, IDisposable } from '@/disposable'
+import { NodeEventManage } from '@/nodeEventManage'
 
-import type { IViewPortManage } from './viewPortManage'
-import type { IStorageManage } from './storageManage'
-import type { IAnchorPoint, INode } from './shapes'
-import type { INodeGroup } from './shapes/nodeGroup'
-import type { IIocEditor } from './iocEditor'
-import type { IConnectionManage } from './connectionManage'
+import type {
+  IViewPortManage,
+  IStorageManage,
+  IAnchorPoint,
+  INode,
+  INodeGroup,
+  IIocEditor,
+  IConnectionManage
+} from '@/index'
 
 export interface IGroupManage extends IDisposable {
   createGroup(nodes?: INode[], groupId?: number): INodeGroup

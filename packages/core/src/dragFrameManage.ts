@@ -1,13 +1,15 @@
 import { Disposable } from './disposable'
-import { Rect, BoundingRect } from './'
-import { getTopGroup, isEnter } from './utils'
+import { Rect, BoundingRect } from '@/index'
+import { getTopGroup, isEnter } from '@/utils'
 
-import type { IIocEditor } from './iocEditor'
-import type { IDisposable } from './disposable'
-import type { IViewPortManage } from './viewPortManage'
-import type { IStorageManage } from './storageManage'
-import type { INodeGroup } from './shapes/nodeGroup'
-import type { INode } from './shapes'
+import type {
+  IIocEditor,
+  IDisposable,
+  IViewPortManage,
+  IStorageManage,
+  INodeGroup,
+  INode
+} from '@/index'
 
 export interface IDragFrameManage extends IDisposable {
   show(): void

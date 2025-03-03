@@ -1,6 +1,15 @@
-import { Group, Line, BezierCurve, Polyline, Polygon, Text, Circle, vector } from './'
+import {
+  Group,
+  Line,
+  BezierCurve,
+  Polyline,
+  Polygon,
+  Text,
+  Circle,
+  vector,
+  ConnectionType
+} from '@/index'
 import OrthogonalConnector from '@ioceditor/orthogonal-connector'
-import { ConnectionType } from './shapes'
 
 import type {
   IAnchor,
@@ -10,11 +19,13 @@ import type {
   IExportConnectionStyle,
   INode,
   LineDashStyle,
-  StrokeStyle
-} from './shapes'
-import type { FontStyle, FontWeight, ElementEvent } from './'
-import type { IIocEditor } from './iocEditor'
-import type { ISettingManage } from './settingManage'
+  StrokeStyle,
+  FontStyle,
+  FontWeight,
+  ElementEvent,
+  IIocEditor,
+  ISettingManage
+} from '@/index'
 
 class Connection extends Group implements IConnection {
   private _line: Line | BezierCurve | Polyline | null = null

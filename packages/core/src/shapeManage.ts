@@ -1,14 +1,18 @@
 import { getShape } from './shapes'
 import { Anchor } from './anchor'
-import { Disposable, IDisposable } from './disposable'
+import { Disposable } from './disposable'
 import { NodeEventManage } from './nodeEventManage'
 
-import type { IAnchorPoint, IShape } from './shapes'
-import type { IViewPortManage } from './viewPortManage'
-import type { IStorageManage } from './storageManage'
-import type { IocEditor } from './iocEditor'
-import type { IControlFrameManage } from './controlFrameManage'
-import type { INodeGroup } from './shapes/nodeGroup'
+import type {
+  IAnchorPoint,
+  IShape,
+  IViewPortManage,
+  IDisposable,
+  IStorageManage,
+  IIocEditor,
+  IControlFrameManage,
+  INodeGroup
+} from '@/index'
 import type { IWidthAnchor } from './shapes/mixins/widthAnchor'
 
 export interface IShapeManage extends IDisposable {
@@ -24,9 +28,9 @@ class ShapeManage extends Disposable {
   private _viewPortMgr: IViewPortManage
   private _storageMgr: IStorageManage
   private _controlFrameMgr: IControlFrameManage
-  private _iocEditor: IocEditor
+  private _iocEditor: IIocEditor
 
-  constructor(iocEditor: IocEditor) {
+  constructor(iocEditor: IIocEditor) {
     super()
     this._viewPortMgr = iocEditor._viewPortMgr
     this._storageMgr = iocEditor._storageMgr

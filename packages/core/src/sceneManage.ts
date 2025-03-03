@@ -1,19 +1,25 @@
-import { Disposable } from './disposable'
+import { Disposable } from '@/disposable'
 import { Subject } from 'rxjs'
 
-import type { ZRenderType, Element, ElementEvent } from './'
-import type { IDisposable } from './disposable'
-import type { IAnchorPoint, IControlPoint, INode } from './shapes'
-import type { IViewPortManage } from './viewPortManage'
-import type { IShapeManage } from './shapeManage'
-import type { IConnectionManage } from './connectionManage'
-import type { ISelectFrameManage } from './selectFrameManage'
-import type { IGroupManage } from './groupManage'
-import type { IStorageManage } from './storageManage'
-import type { IocEditor } from './iocEditor'
-import type { ISettingManage } from './settingManage'
-import type { IZoomManage } from './zoomManage'
-import type { IControlFrameManage } from './controlFrameManage'
+import type {
+  ZRenderType,
+  Element,
+  ElementEvent,
+  IShapeManage,
+  IConnectionManage,
+  ISelectFrameManage,
+  IViewPortManage,
+  IGroupManage,
+  IStorageManage,
+  IZoomManage,
+  ISettingManage,
+  IControlFrameManage,
+  IIocEditor,
+  IDisposable,
+  IAnchorPoint,
+  IControlPoint,
+  INode
+} from '@/index'
 
 export interface ISceneManage extends IDisposable {
   _zr: ZRenderType
@@ -28,7 +34,7 @@ export interface ISceneManage extends IDisposable {
 export type IMouseEvent = Element & { nodeType?: string }
 
 class SceneManage extends Disposable {
-  private _iocEditor: IocEditor
+  private _iocEditor: IIocEditor
   private _viewPortMgr: IViewPortManage
   private _shapeMgr: IShapeManage
   private _connectionMgr: IConnectionManage
@@ -42,7 +48,7 @@ class SceneManage extends Disposable {
   _zr: ZRenderType
   updateSelectScene$ = new Subject<null>()
   updateSelectNode$ = new Subject<INode>()
-  constructor(iocEditor: IocEditor) {
+  constructor(iocEditor: IIocEditor) {
     super()
     this._zr = iocEditor._zr
     this._iocEditor = iocEditor

@@ -1,11 +1,8 @@
 // 网格性能优化策略，开率建一个缓存池，初始化的时候根据屏幕尺寸的大小、画面整体缩放比例、网格的间距，计算出初始网格点的数量，根据网格点的竖向生成网格池。当画面缩放的时候，需要重新根据上述条件，重新计算网格点数，重新调整缓存池的大小，
 // 如果画面缩放比例保持不变，则缓存池的数量不变。在计算网格点数的时候，可以适当根据情况多生成一些，避免频繁的调整缓存池的大小，导致性能问题。
-import { Group, Circle, init } from './'
+import { Group, Circle, init } from '@/index'
 
-import type { ZRenderType } from './'
-import type { IIocEditor } from './iocEditor'
-import type { ISettingManage } from './settingManage'
-import type { IViewPortManage } from './viewPortManage'
+import type { ZRenderType, IIocEditor, ISettingManage, IViewPortManage } from '@/index'
 
 export interface IGridManage {
   drawGrid(): void
@@ -60,8 +57,8 @@ class PointsPool {
 
   getPointsSize() {
     const zoom = this._viewPortMgr.getZoom()
-    const width = this._iocEditor._zr.getWidth() / zoom
-    const height = this._iocEditor._zr.getHeight() / zoom
+    const width = (this._iocEditor._zr.getWidth() || 0) / zoom
+    const height = (this._iocEditor._zr.getHeight() || 0) / zoom
     const step = this._settingMgr.get('gridStep')
 
     const xSize = Math.ceil(width / step) + 1
@@ -135,8 +132,8 @@ class GridManage implements IGridManage {
       this._gridLayer = new Group()
       this._gridZr.add(this._gridLayer)
       this._pointsPool = new PointsPool(this._iocEditor, this._gridLayer)
-      this._width = this._gridZr.getWidth()
-      this._height = this._gridZr.getHeight()
+      this._width = this._gridZr.getWidth() as number
+      this._height = this._gridZr.getHeight() as number
       this.drawGrid()
     }, 0)
   }
