@@ -1,7 +1,8 @@
 import { Subject } from 'rxjs'
-import { Disposable } from './disposable'
-import type { IDisposable } from './disposable'
-import type { IIocEditor } from './iocEditor'
+import { Disposable } from '@/disposable'
+
+import type { IDisposable } from '@/disposable'
+import type { IIocEditor } from '@/iocEditor'
 
 export interface IIocEditorConfig {
   zoomStep: number

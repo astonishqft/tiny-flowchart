@@ -1,9 +1,9 @@
-import { Rect, BoundingRect } from './'
+import { Rect, BoundingRect } from '@/index'
 
-import type { IViewPortManage } from './viewPortManage'
-import type { ISettingManage } from './settingManage'
-import type { IStorageManage } from './storageManage'
-import type { IIocEditor } from './iocEditor'
+import type { IViewPortManage } from '@/viewPortManage'
+import type { ISettingManage } from '@/settingManage'
+import type { IStorageManage } from '@/storageManage'
+import type { IIocEditor } from '@/iocEditor'
 
 export interface ISelectFrameManage {
   getSelectFrame(): Rect
@@ -11,6 +11,7 @@ export interface ISelectFrameManage {
   setSelectFrameStatus(status: boolean): void
   setPosition(x: number, y: number): void
   resize(width: number, height: number): void
+  getBoundingBox(): BoundingRect
   multiSelect(): void
   show(): void
   hide(): void
@@ -60,10 +61,19 @@ class SelectFrameManage implements ISelectFrameManage {
     })
   }
 
+  getBoundingBox() {
+    return new BoundingRect(
+      this._selectFrame.x,
+      this._selectFrame.y,
+      this._selectFrame.shape.width,
+      this._selectFrame.shape.height
+    )
+  }
+
   multiSelect() {
-    const selectFrameBoundingBox = this._selectFrame.getBoundingRect()
+    const selectFrameBoundingBox = this.getBoundingBox()
     this._storageMgr.getNodes().forEach(shape => {
-      const { x, y, width, height } = shape.getBoundingRect()
+      const { x, y, width, height } = shape.getBoundingBox()
       if (selectFrameBoundingBox.intersect(new BoundingRect(x, y, width, height))) {
         shape.active()
       } else {
