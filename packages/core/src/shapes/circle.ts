@@ -21,9 +21,10 @@ class Circle extends Ellipse {
   }
 
   createAnchors() {
+    this.anchors = []
     const box = getBoundingBox([this])
     const cy = box.y + box.height / 2
-    console.log('circle bounding box', box)
+
     const t = {
       x: box.x + box.width / 2,
       y: box.y,
