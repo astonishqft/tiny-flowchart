@@ -28,6 +28,7 @@ class MiniMapManage extends Disposable implements IMiniMapManage {
   private _containerWidth: number
   private _containerHeight: number
   private _scaleRatio: number = 1
+  private _containerRatio: number = 1
 
   private _centerX: number = 0
   private _centerY: number = 0
@@ -46,6 +47,8 @@ class MiniMapManage extends Disposable implements IMiniMapManage {
 
     this._containerWidth = this._viewPortMgr.getSceneWidth() || window.innerWidth
     this._containerHeight = this._viewPortMgr.getSceneHeight() || window.innerHeight
+
+    this._containerRatio = this._containerWidth / this._containerHeight
 
     this._miniMapFrame = new Rect({
       shape: { x: 0, y: 0, width: 0, height: 0 },
@@ -124,21 +127,24 @@ class MiniMapManage extends Disposable implements IMiniMapManage {
       ...this._storageMgr.getConnections()
     ])
 
-    this._scaleRatio = Math.max(this._containerWidth / width, this._containerHeight / height)
+    const miniMapRatio = width / height
 
-    const sceneWidth = this._parentIocEditor._viewPortMgr.getSceneWidth() || window.innerWidth
-    const sceneHeight = this._parentIocEditor._viewPortMgr.getSceneHeight() || window.innerHeight
+    if (miniMapRatio > this._containerRatio) {
+      this._scaleRatio = this._containerWidth / width
+    } else {
+      this._scaleRatio = this._containerHeight / height
+    }
+
+    const sceneWidth = this._parentIocEditor!._viewPortMgr.getSceneWidth() as number
+    const sceneHeight = this._parentIocEditor!._viewPortMgr.getSceneHeight() as number
 
     const left = -x * this._scaleRatio
     const top = -y * this._scaleRatio
     const scale = this.getMiniMapFrameScale() || 1
-
-    this._viewPortMgr.getViewPort().attr({
-      x: left,
-      y: top,
-      scaleX: this._scaleRatio,
-      scaleY: this._scaleRatio
-    })
+    this._viewPortMgr.getViewPort().attr('x', left)
+    this._viewPortMgr.getViewPort().attr('y', top)
+    this._viewPortMgr.getViewPort().attr('scaleX', this._scaleRatio)
+    this._viewPortMgr.getViewPort().attr('scaleY', this._scaleRatio)
 
     const { x: pX, y: pY } = this._parentIocEditor._viewPortMgr.getViewPort()
 
@@ -149,6 +155,8 @@ class MiniMapManage extends Disposable implements IMiniMapManage {
     )
 
     this.updateOldPosition()
+
+    // fix: https://github.com/apache/echarts/issues/12261 zrender特性，节点中的文字不随节点一起放大缩小
     this.setNodeFontSize()
   }
 
