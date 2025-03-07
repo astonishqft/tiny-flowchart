@@ -199,9 +199,10 @@ const command = (name: string) => {
   width: 100%;
   display: flex;
   align-items: center;
-  background: #fbfbfb;
+  background: #ffff;
   border-bottom: 1px solid #dadce0;
   padding: 4px 14px;
+  box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.1);
   .tool-icon {
     margin-right: 10px;
     cursor: pointer;

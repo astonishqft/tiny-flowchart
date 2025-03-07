@@ -592,7 +592,7 @@ export class IocEditor implements IIocEditor {
 
   private handleDelete(options: IDeleteNodeCommandOpts) {
     const patchCommands: ICommand[] = []
-    const connections: IConnection[] = []
+    const connections: IConnection[] = options.connections
 
     const deleteGroup = (group: INodeGroup) => {
       patchCommands.push(new DeleteNodeCommand(this, group))
