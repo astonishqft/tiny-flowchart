@@ -1,15 +1,17 @@
-import { Group, Text, Circle as ZCircle } from '../'
+import { Group, Text as ZText, Circle as ZCircle } from '../'
 import { WidthActivate } from './mixins/widthActivate'
 import { WidthAnchor } from './mixins/widthAnchor'
 import { WidthCommon } from './mixins/widthCommon'
 import { Rect } from './rect'
 import { Circle } from './circle'
+import { Text } from './text'
 import { Image } from './image'
 
 import type { INodeGroup } from './nodeGroup'
 import type {
   BuiltinTextPosition,
   FontStyle,
+  TextProps,
   FontWeight,
   LinearGradientObject,
   PatternObject,
@@ -65,43 +67,44 @@ export interface IExportConnection {
 }
 
 export interface IExportShapeStyle {
-  fill: FillStyle
-  stroke: StrokeStyle
-  lineWidth: number
-  lineDash: LineDashStyle
-  fontColor: string
-  text: string
-  fontSize: number
-  fontWeight: FontWeight
-  fontStyle: FontStyle
-  textPosition: BuiltinTextPosition | (number | string)[] | undefined
+  fill?: FillStyle
+  stroke?: StrokeStyle
+  lineWidth?: number
+  lineDash?: LineDashStyle
+  fontColor?: string
+  text?: string
+  fontSize?: number
+  fontWeight?: FontWeight
+  fontStyle?: FontStyle
+  textPosition?: BuiltinTextPosition | (number | string)[] | undefined
   image?: string
-  width?: number // for Image
-  height?: number // for Image
+  width?: number
+  height?: number
+  backgroundColor?: string
 }
 
 export interface IExportShape {
   x: number
   y: number
   style: IExportShapeStyle
-  shape: Dictionary<any>
   type: string
   id: number
   z: number
+  shape?: Dictionary<any>
   parent?: number
 }
 
 export interface IExportGroupStyle {
-  fill: FillStyle
-  stroke: StrokeStyle
-  lineWidth: number | undefined
-  lineDash: LineDashStyle
-  fontColor: string | undefined
-  fontSize: number | string | undefined
-  text: string | undefined
-  fontWeight: FontWeight | undefined
-  fontStyle: FontStyle | undefined
-  textPosition: BuiltinTextPosition | (number | string)[] | undefined
+  fill?: FillStyle
+  stroke?: StrokeStyle
+  lineWidth?: number | undefined
+  lineDash?: LineDashStyle
+  fontColor?: string | undefined
+  fontSize?: number | string | undefined
+  text?: string | undefined
+  fontWeight?: FontWeight | undefined
+  fontStyle?: FontStyle | undefined
+  textPosition?: BuiltinTextPosition | (number | string)[] | undefined
 }
 
 export interface IExportGroup {
@@ -135,7 +138,7 @@ export interface IConnection extends Group {
   getLineFontWeight(): FontWeight | undefined
   getId(): number
   getConnectionType(): ConnectionType
-  getLineText(): Text | null
+  getLineText(): ZText | null
   setStyle(style: IExportConnectionStyle): void
   setConnectionType(type: ConnectionType): void
   setBezierCurve(controlPoint1: (number | undefined)[], controlPoint2: (number | undefined)[]): void
@@ -167,7 +170,7 @@ export interface IShape extends Displayable, IWidthActivate, IWidthAnchor, IWidt
 
 export type INode = IShape | INodeGroup
 
-type IShapeProps = RectProps | EllipseProps | ImageProps
+type IShapeProps = RectProps | EllipseProps | ImageProps | TextProps
 
 export interface IShapeConfig {
   [key: string]: IShapeProps
@@ -178,7 +181,7 @@ export interface IShapeMap {
 }
 
 export interface IShapeTextConfig {
-  textContent: Text
+  textContent: ZText
   textConfig: ElementTextConfig
 }
 
@@ -234,6 +237,17 @@ export const shapeConfig: IShapeConfig = {
     },
     z: 2
   },
+  text: {
+    style: {
+      text: 'Text',
+      fill: '#333', // 文本颜色
+      backgroundColor: '#fff', // 文本背景色
+      fontSize: 16,
+      fontWeight: 'normal',
+      fontStyle: 'normal'
+    },
+    z: 2
+  },
   image: {
     style: {
       x: 0,
@@ -248,7 +262,7 @@ export const shapeConfig: IShapeConfig = {
 
 const getShapeTextConfig = (): IShapeTextConfig => {
   return {
-    textContent: new Text({
+    textContent: new ZText({
       style: {
         text: 'title',
         fill: '#333',
@@ -267,12 +281,15 @@ const getShapeTextConfig = (): IShapeTextConfig => {
 export const shapes: IShapeMap = {
   rect: Rect,
   circle: Circle,
+  text: Text,
   image: Image
 }
 
 export const getShape = (type: string, option: { x: number; y: number; image?: string }) => {
-  const config: IShapeProps = { ...shapeConfig[type], ...getShapeTextConfig() }
-  if (type === 'image') {
+  let config: IShapeProps = { ...shapeConfig[type], ...getShapeTextConfig() }
+  if (type === 'text') {
+    config = { ...shapeConfig[type] }
+  } else if (type === 'image') {
     ;(config as ImageProps).style!.image = option.image
     config.textConfig!.position = 'bottom'
   }

@@ -21,7 +21,7 @@ onMounted(() => {
   <div class="ioc-editor-wrapper">
     <HeaderTools v-if="editor" :ioc-editor="editor" />
     <ElementPanel v-if="editor" :ioc-editor="editor" />
-    <EditorPanel :ioc-editor="editor" />
+    <EditorPanel :ioc-editor="editor as IocEditor" />
     <PropertyPanel v-if="editor" :ioc-editor="editor" />
     <MiniMap v-if="editor" :ioc-editor="editor" />
   </div>

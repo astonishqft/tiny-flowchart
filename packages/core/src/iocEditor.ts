@@ -529,12 +529,7 @@ export class IocEditor implements IIocEditor {
 
   private handleUpdateShapeProperty(options: IUpdateShapePropertyCommandOpts) {
     this._historyMgr.execute(
-      new UpdateShapePropertyCommand(
-        this,
-        options.shape,
-        options.shapeConfig,
-        options.oldShapeConfig
-      )
+      new UpdateShapePropertyCommand(this, options.shape, options.shapeStyle, options.oldShapeStyle)
     )
   }
 
@@ -737,15 +732,13 @@ export class IocEditor implements IIocEditor {
 
   initShape(shapes: IExportShape[]) {
     const newShapes: IShape[] = []
-    shapes.forEach(({ type, id, x, y, style: shapeConfig, shape, z }: IExportShape) => {
+    shapes.forEach(({ type, id, x, y, style, shape, z }: IExportShape) => {
       const config: { x: number; y: number; image?: string } = { x, y }
       const newShape = this._shapeMgr.createShape(type, config)
 
       newShape.setZ(z)
-      newShape.updateShape(shapeConfig)
-      if (type !== 'image') {
-        newShape.setShape(shape)
-      }
+      newShape.updateShapeStyle(style)
+      newShape.setShape && newShape.setShape(shape!)
       newShape.anchor.refresh()
       newShape.id = id
       newShape.unActive()

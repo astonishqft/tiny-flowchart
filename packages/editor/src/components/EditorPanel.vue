@@ -2,7 +2,7 @@
 import { IocEditor } from '@ioceditor/core'
 
 const props = defineProps<{
-  iocEditor?: IocEditor
+  iocEditor: IocEditor
 }>()
 const drop = (event: DragEvent) => {
   // 阻止默认行为（会作为某些元素的链接打开）

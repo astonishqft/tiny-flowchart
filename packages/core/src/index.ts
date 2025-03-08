@@ -70,7 +70,8 @@ import type {
   EllipseProps,
   ImageProps,
   CircleProps,
-  ElementTextConfig
+  ElementTextConfig,
+  TextProps
 } from 'zrender'
 import type { ICommand } from '@/history/historyManage'
 import type { IWidthActivate } from '@/shapes/mixins/widthActivate'
@@ -105,6 +106,7 @@ export type {
   Displayable,
   Element,
   RectProps,
+  TextProps,
   EllipseProps,
   ImageProps,
   CircleProps,

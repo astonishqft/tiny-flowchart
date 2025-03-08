@@ -22,7 +22,7 @@ export interface IWidthCommon {
   updatePosition(pos: number[]): void
   setCursor(type: string): void
   setShape(shapeConfig: Dictionary<any>): void
-  updateShape(config: IExportShapeStyle): void
+  updateShapeStyle(config: IExportShapeStyle): void
 }
 
 function WidthCommon<TBase extends CommonConstructor>(Base: TBase) {
@@ -72,44 +72,65 @@ function WidthCommon<TBase extends CommonConstructor>(Base: TBase) {
         type: this.type,
         z: this.z,
         style: this.getStyleData(),
-        shape: this.shape,
-        ...(this.parentGroup && { parent: this.parentGroup.id })
+        shape: this.shape
       }
-
-      if (this.type === 'image') {
-        this.addImageData(exportData)
+      if (this.parentGroup) {
+        exportData.parent = this.parentGroup.id
       }
 
       return exportData
     }
 
     private getStyleData() {
-      const textContent = this.getTextContent().style
+      if (this.type === 'text') {
+        return {
+          fill: this.style.fill,
+          text: this.style.text,
+          fontSize: this.style.fontSize,
+          backgroundColor: this.style.backgroundColor,
+          fontWeight: this.style.fontWeight,
+          fontStyle: this.style.fontStyle
+        }
+      } else if (this.type === 'image') {
+        const textContent = this.getTextContent().style
 
-      return {
-        fill: this.style.fill,
-        stroke: this.style.stroke,
-        lineWidth: this.style.lineWidth,
-        lineDash: this.style.lineDash,
-        fontColor: textContent.fill as string,
-        text: textContent.text as string,
-        fontSize: textContent.fontSize as number,
-        fontWeight: textContent.fontWeight as FontWeight,
-        fontStyle: textContent.fontStyle as FontStyle,
-        textPosition: this.textConfig!.position
+        return {
+          image: this.style.image,
+          width: this.style.width,
+          height: this.style.height,
+          fontColor: textContent.fill as string,
+          text: textContent.text as string,
+          fontSize: textContent.fontSize as number,
+          fontWeight: textContent.fontWeight as FontWeight,
+          fontStyle: textContent.fontStyle as FontStyle,
+          textPosition: this.textConfig!.position
+        }
+      } else {
+        const textContent = this.getTextContent().style
+
+        return {
+          fill: this.style.fill,
+          stroke: this.style.stroke,
+          lineWidth: this.style.lineWidth,
+          lineDash: this.style.lineDash,
+          fontColor: textContent.fill as string,
+          text: textContent.text as string,
+          fontSize: textContent.fontSize as number,
+          fontWeight: textContent.fontWeight as FontWeight,
+          fontStyle: textContent.fontStyle as FontStyle,
+          textPosition: this.textConfig!.position
+        }
       }
     }
 
-    private addImageData(exportData: IExportShape) {
-      exportData.style.image = this.style.image
-      exportData.style.width = this.style.width
-      exportData.style.height = this.style.height
-    }
-
-    updateShape(config: IExportShapeStyle) {
-      this.getTextContent().setStyle(this.getTextStyle(config))
-      this.setShapeStyle(config)
-      this.setTextConfig({ position: config.textPosition })
+    updateShapeStyle(config: IExportShapeStyle) {
+      if (this.type === 'text') {
+        this.setShapeStyle(config)
+      } else {
+        this.getTextContent().setStyle(this.getTextStyle(config))
+        this.setShapeStyle(config)
+        this.setTextConfig({ position: config.textPosition })
+      }
     }
 
     private getTextStyle(config: IExportShapeStyle) {
@@ -119,10 +140,32 @@ function WidthCommon<TBase extends CommonConstructor>(Base: TBase) {
     }
 
     private setShapeStyle(config: IExportShapeStyle) {
-      const { fill, stroke, lineWidth, lineDash, image, width, height } = config
+      const {
+        fill,
+        stroke,
+        lineWidth,
+        lineDash,
+        image,
+        width,
+        height,
+        text,
+        fontSize,
+        fontWeight,
+        fontStyle,
+        backgroundColor
+      } = config
 
       if (this.type === 'image' && image) {
         this.setStyle({ width, height, image })
+      } else if (this.type === 'text') {
+        this.setStyle({
+          text,
+          fill,
+          fontSize,
+          fontWeight,
+          fontStyle,
+          backgroundColor
+        })
       } else {
         this.setStyle({ fill, stroke, lineWidth, lineDash })
       }
