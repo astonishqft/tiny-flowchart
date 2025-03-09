@@ -166,30 +166,36 @@ const command = (name: string) => {
 
 <template>
   <div class="header-tools">
-    <span
-      class="icon iconfont tool-icon"
-      :class="{
-        [tool.icon]: true,
-        disabled: tool.disabled
-      }"
-      @click="command(tool.name)"
-      v-for="tool in toolsConfig"
-      :key="tool.name"
-      :title="tool.desc"
-    ></span>
-    <el-select
-      v-model="currentLineType"
-      :size="'small'"
-      @change="changeLineType"
-      style="width: 60px"
-    >
-      <el-option
-        v-for="item in lineOptions"
-        :key="item.value"
-        :label="item.label"
-        :value="item.value"
-      />
-    </el-select>
+    <div class="logo-group">
+      <img src="../assets/logo.png" alt="logo" class="logo" />
+    </div>
+    <div class="tools-btn-group">
+      <span
+        class="icon iconfont tool-icon"
+        :class="{
+          [tool.icon]: true,
+          disabled: tool.disabled
+        }"
+        @click="command(tool.name)"
+        v-for="tool in toolsConfig"
+        :key="tool.name"
+        :title="tool.desc"
+      ></span>
+      <el-select
+        v-model="currentLineType"
+        :size="'small'"
+        @change="changeLineType"
+        style="width: 60px"
+      >
+        <el-option
+          v-for="item in lineOptions"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+        />
+      </el-select>
+    </div>
+    <div class="tools-about">自我介绍</div>
   </div>
 </template>
 
@@ -203,6 +209,27 @@ const command = (name: string) => {
   border-bottom: 1px solid #dadce0;
   padding: 4px 14px;
   box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.1);
+  justify-content: space-between;
+  align-items: center;
+  .tools-btn-group {
+    height: 100%;
+    margin: 0 auto;
+  }
+  .logo-group {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    .logo {
+      width: 68px;
+      border-radius: 4px;
+    }
+  }
+
+  .tools-about {
+    height: 100%;
+    width: 80px;
+    background: pink;
+  }
   .tool-icon {
     margin-right: 10px;
     cursor: pointer;

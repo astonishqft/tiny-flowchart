@@ -271,7 +271,7 @@ const changeShapeText = (text: string) => {
       </div>
     </div>
     <div class="property-item" v-if="activeShape?.type === 'text'">
-      <div class="property-name">背景色</div>
+      <div class="property-name">文本背景色</div>
       <div class="property-value color-wrapper">
         <span
           class="color-item"
@@ -340,7 +340,7 @@ const changeShapeText = (text: string) => {
         </el-select>
       </div>
     </div>
-    <div class="property-item">
+    <div class="property-item" v-if="activeShape?.type !== 'text'">
       <div class="property-name">文本颜色</div>
       <div class="property-value color-wrapper">
         <span
@@ -348,10 +348,7 @@ const changeShapeText = (text: string) => {
           :style="{ backgroundColor: color }"
           v-for="color in strokeColorList"
           :key="color"
-          @click="
-            () =>
-              activeShape?.type === 'text' ? changeTextColor(color) : changeShapeFontColor(color)
-          "
+          @click="() => changeShapeFontColor(color)"
         />
         <el-divider style="margin: 0 4px; height: 20px" direction="vertical" />
         <el-color-picker
@@ -361,15 +358,30 @@ const changeShapeText = (text: string) => {
         />
       </div>
     </div>
+    <div class="property-item" v-if="activeShape?.type === 'text'">
+      <div class="property-name">文本颜色</div>
+      <div class="property-value color-wrapper">
+        <span
+          class="color-item"
+          :style="{ backgroundColor: color }"
+          v-for="color in strokeColorList"
+          :key="color"
+          @click="() => changeTextColor(color)"
+        />
+        <el-divider style="margin: 0 4px; height: 20px" direction="vertical" />
+        <el-color-picker
+          v-model="shapeConfig.fill as string"
+          @change="changeTextColor"
+          size="small"
+        />
+      </div>
+    </div>
     <div class="property-item">
       <div class="property-name">文本内容</div>
       <div class="property-value">
         <el-input
           v-model="shapeConfig.text"
-          :min="12"
-          :max="30"
           size="small"
-          :step="1"
           @input="text => (activeShape?.type === 'text' ? changeText(text) : changeShapeText(text))"
           style="width: 157px; margin-right: 5px"
         />
@@ -381,7 +393,7 @@ const changeShapeText = (text: string) => {
         <el-input-number
           v-model="shapeConfig.fontSize"
           :min="12"
-          :max="30"
+          :max="60"
           size="small"
           :step="1"
           @change="
