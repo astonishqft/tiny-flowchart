@@ -1,7 +1,15 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { ElOption, ElSelect } from 'element-plus'
+import {
+  ElOption,
+  ElSelect,
+  ElDropdown,
+  ElIcon,
+  ElDropdownMenu,
+  ElDropdownItem
+} from 'element-plus'
 import { ConnectionType } from '@ioceditor/core'
+import { ArrowDown, QuestionFilled } from '@element-plus/icons-vue'
 
 import type { IIocEditor } from '@ioceditor/core'
 
@@ -162,6 +170,10 @@ const command = (name: string) => {
       break
   }
 }
+
+const aboutMe = (e: MouseEvent) => {
+  e.preventDefault()
+}
 </script>
 
 <template>
@@ -195,7 +207,36 @@ const command = (name: string) => {
         />
       </el-select>
     </div>
-    <div class="tools-about">自我介绍</div>
+    <div class="tools-about">
+      <a href="https://github.com/astonishqft/ioc-editor" title="GitHub" target="_blank">
+        <span class="icon iconfont tool-icon icon-github"></span>
+      </a>
+      <el-dropdown>
+        <span class="el-dropdown-link">
+          <el-icon :size="20">
+            <question-filled />
+          </el-icon>
+          <el-icon class="el-icon--right">
+            <arrow-down />
+          </el-icon>
+        </span>
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item>
+              <a href="" @click="aboutMe">关于我</a>
+            </el-dropdown-item>
+            <el-dropdown-item>
+              <a
+                href="https://github.com/astonishqft/ioc-editor/issues/new"
+                title="GitHub"
+                target="_blank"
+                >意见反馈</a
+              >
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
+    </div>
   </div>
 </template>
 
@@ -214,6 +255,8 @@ const command = (name: string) => {
   .tools-btn-group {
     height: 100%;
     margin: 0 auto;
+    display: flex;
+    align-items: center;
   }
   .logo-group {
     height: 100%;
@@ -227,8 +270,18 @@ const command = (name: string) => {
 
   .tools-about {
     height: 100%;
-    width: 80px;
-    background: pink;
+    display: flex;
+    align-items: center;
+    .el-dropdown-link {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      color: var(--el-color-primary);
+      display: flex;
+    }
+    a {
+      text-decoration: none;
+    }
   }
   .tool-icon {
     margin-right: 10px;

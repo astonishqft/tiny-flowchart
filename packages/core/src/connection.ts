@@ -36,7 +36,7 @@ class Connection extends Group implements IConnection {
   private _textPoints: number[] = []
   private _lineText: Text | null = null
   // style
-  private _stroke: StrokeStyle = '#333'
+  private _stroke: StrokeStyle = '#a3b2c0'
   private _lineWidth: number = 1
   private _lineDash: LineDashStyle = 'solid'
   private _lineTextFontSize: number = 12
@@ -46,7 +46,7 @@ class Connection extends Group implements IConnection {
   private _iocEditor: IIocEditor
   private _settingMgr: ISettingManage
   private _connectionSelectColor: string
-  private _oldStroke: StrokeStyle = '#333'
+  private _oldStroke: StrokeStyle = '#a3b2c0'
   private _oldConnectionWidth = 1
 
   controlPoint1: IControlPoint | null = null

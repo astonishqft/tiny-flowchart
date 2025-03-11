@@ -20,6 +20,7 @@
     "vue": "^3.4.21"
   },
   "dependencies": {
+    "@element-plus/icons-vue": "^2.3.1",
     "@ioceditor/core": "workspace:^",
     "element-plus": "^2.7.4"
   }
