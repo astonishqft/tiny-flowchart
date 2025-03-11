@@ -211,8 +211,6 @@ class Connection extends Group implements IConnection {
 
     this.createLine()
     this.refresh()
-
-    this.refresh()
   }
 
   private createLine() {
