@@ -82,7 +82,8 @@ class RefLineManage {
       const l = new Line({
         style: {
           stroke: this._refLineColor,
-          lineWidth: 1
+          lineWidth: 1,
+          strokeNoScale: true
         },
         silent: true,
         z: 100000,
@@ -99,7 +100,8 @@ class RefLineManage {
       const lineL = new Line({
         style: {
           stroke: this._refLineColor,
-          lineWidth: 1
+          lineWidth: 1,
+          strokeNoScale: true
         },
         silent: true,
         z: 100000,

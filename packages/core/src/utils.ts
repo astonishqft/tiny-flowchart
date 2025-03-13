@@ -198,3 +198,128 @@ export const getAllRelatedGroups = (targetGroup: IExportGroup[], allGroups: IExp
 
   return relatedGroups
 }
+/**
+ * 计算两个向量间的曼哈顿距离
+ *
+ * @param a - 第一个向量
+ * @param b - 第二个向量
+ * @returns 两个向量间的距离
+ */
+export function manhattanDistance(a: Vector, b: Vector): number {
+  return (a as number[]).reduce((sum, v, i) => sum + Math.abs(v - b[i]), 0)
+}
+
+export type Point = [number, number]
+
+/**
+ * 根据给定的半径计算出不共线的三点生成贝塞尔曲线的控制点，以模拟接近圆弧
+ *
+ * @param prevPoint - 前一个点
+ * @param midPoint - 中间点
+ * @param nextPoint - 后一个点
+ * @param radius - 圆角半径
+ * @returns 返回控制点
+ */
+export function getBorderRadiusPoints(
+  prevPoint: Point,
+  midPoint: Point,
+  nextPoint: Point,
+  radius: number
+): [Point, Point] {
+  const d0 = manhattanDistance(prevPoint, midPoint)
+  const d1 = manhattanDistance(nextPoint, midPoint)
+  // 取给定的半径和最小半径之间的较小值 | use the smaller value between the given radius and the minimum radius
+  const r = Math.min(radius, Math.min(d0, d1) / 2)
+  const ps: Point = [
+    midPoint[0] - (r / d0) * (midPoint[0] - prevPoint[0]),
+    midPoint[1] - (r / d0) * (midPoint[1] - prevPoint[1])
+  ]
+  const pt: Point = [
+    midPoint[0] - (r / d1) * (midPoint[0] - nextPoint[0]),
+    midPoint[1] - (r / d1) * (midPoint[1] - nextPoint[1])
+  ]
+
+  return [ps, pt]
+}
+
+export type PathArray = [string, number?, number?, number?, number?][]
+export function getPolylinePath(points: Point[], radius = 0, z = false): PathArray {
+  if (points.length === 0) return []
+  const sourcePoint = points[0]
+  const targetPoint = points[points.length - 1]
+  const controlPoints = points.slice(1, points.length - 1)
+  const pathArray: PathArray = [['M', sourcePoint[0], sourcePoint[1]]]
+  controlPoints.forEach((midPoint, i) => {
+    const prevPoint = controlPoints[i - 1] || sourcePoint
+    const nextPoint = controlPoints[i + 1] || targetPoint
+    // 使用 isCollinear 函数检查前一个点、当前点和下一个点是否共线。如果不共线且 radius 大于 0，则需要绘制圆角。
+    if (!isCollinear(prevPoint, midPoint, nextPoint) && radius) {
+      const [ps, pt] = getBorderRadiusPoints(prevPoint, midPoint, nextPoint, radius)
+      pathArray.push(
+        ['L', ps[0], ps[1]],
+        ['Q', midPoint[0], midPoint[1], pt[0], pt[1]],
+        ['L', pt[0], pt[1]]
+      )
+    } else {
+      pathArray.push(['L', midPoint[0], midPoint[1]])
+    }
+  })
+  pathArray.push(['L', targetPoint[0], targetPoint[1]])
+  if (z) pathArray.push(['Z'])
+
+  return pathArray
+}
+
+/**
+ * 判断是否三点共线
+ *
+ * @param p1 - 第一个点
+ * @param p2 - 第二个点
+ * @param p3 - 第三个点
+ * @returns 是否三点共线
+ */
+export function isCollinear(p1: Point, p2: Point, p3: Point): boolean {
+  return isLinesParallel([p1, p2], [p2, p3])
+}
+
+export type LineSegment = [Point, Point]
+
+export type Vector = [number, number]
+
+/**
+ * 判断两条线段是否平行
+ *
+ * @param l1 - 第一条线段
+ * @param l2 - 第二条线段
+ * @returns 是否平行
+ */
+export function isLinesParallel(l1: LineSegment, l2: LineSegment): boolean {
+  const [p1, p2] = l1
+  const [p3, p4] = l2
+  const v1 = subtract(p1, p2)
+  const v2 = subtract(p3, p4)
+
+  return cross(v1, v2) === 0
+}
+
+/**
+ * 两个向量求差
+ *
+ * @param a - 第一个向量
+ * @param b - 第二个向量
+ * @returns 两个向量的差
+ */
+export function subtract(a: Vector, b: Vector): Vector {
+  return a.map((v, i) => v - b[i]) as Vector
+}
+
+/**
+ * 两个二维向量求叉积
+ *
+ * @param a - 第一个向量
+ * @param b - 第二个向量
+ * @returns 两个向量的叉积
+ */
+export function cross(a: Vector, b: Vector): number {
+  return a[0] * b[1] - a[1] * b[0]
+}

@@ -2,7 +2,7 @@ import {
   Group,
   Line,
   BezierCurve,
-  Polyline,
+  Path,
   Polygon,
   Text,
   Circle,
@@ -10,6 +10,7 @@ import {
   ConnectionType
 } from '@/index'
 import OrthogonalConnector from '@ioceditor/orthogonal-connector'
+import { getPolylinePath } from '@/utils'
 
 import type {
   IAnchor,
@@ -26,12 +27,49 @@ import type {
   IIocEditor,
   ISettingManage
 } from '@/index'
+import type { PathArray, Point } from '@/utils'
+
+const RoundPolyline = Path.extend({
+  type: 'RoundPolyline',
+  shape: {
+    points: []
+  },
+  buildPath: (ctx: CanvasRenderingContext2D, shape) => {
+    const points: PathArray = shape.points
+    ctx.beginPath()
+
+    points.forEach(point => {
+      const [command] = point
+      switch (command) {
+        case 'M':
+          ctx.moveTo(point[1] as number, point[2] as number)
+          break
+        case 'L':
+          ctx.lineTo(point[1] as number, point[2] as number)
+          break
+        case 'Q':
+          ctx.quadraticCurveTo(
+            point[1] as number,
+            point[2] as number,
+            point[3] as number,
+            point[4] as number
+          )
+          break
+        case 'Z':
+          ctx.closePath()
+          break
+        default:
+          break
+      }
+    })
+  }
+})
 
 class Connection extends Group implements IConnection {
-  private _line: Line | BezierCurve | Polyline | null = null
+  private _line: Line | BezierCurve | Path | null = null
   private _controlLine1: Line | null = null
   private _controlLine2: Line | null = null
-  private _ortogonalLinePoints: number[][] = []
+  private _ortogonalLinePoints: Point[] = []
   private _arrow: Polygon | null = null
   private _textPoints: number[] = []
   private _lineText: Text | null = null
@@ -70,6 +108,7 @@ class Connection extends Group implements IConnection {
     this._iocEditor = iocEditor
     this._settingMgr = iocEditor._settingMgr
     this._connectionSelectColor = this._settingMgr.get('connectionSelectColor')
+    this._stroke = this._settingMgr.get('connectionColor')
     this.fromAnchorPoint = fromAnchorPoint
     this.toAnchorPoint = toAnchorPoint
     this.fromNode = fromAnchorPoint.node
@@ -181,7 +220,7 @@ class Connection extends Group implements IConnection {
   createConnection() {
     this._arrow = new Polygon({
       style: {
-        fill: '#000'
+        fill: this._stroke
       },
       z: 40
     })
@@ -217,43 +256,42 @@ class Connection extends Group implements IConnection {
     const lineStyle = {
       lineWidth: this._lineWidth,
       stroke: this._stroke,
-      lineDash: this._lineDash
+      lineDash: this._lineDash,
+      fill: 'none'
     }
 
     switch (this.connectionType) {
       case ConnectionType.Line:
-        this._line = new Line({ style: lineStyle, z: 4 })
+        this._line = new Line()
         break
       case ConnectionType.BezierCurve:
-        this.createBezierCurve(lineStyle)
+        this._line = new BezierCurve({ style: lineStyle, z: 4 })
+
+        this.controlPoint1 = this.createControlPoint()
+        this.controlPoint2 = this.createControlPoint()
+        this._controlLine1 = this.createControlLine()
+        this._controlLine2 = this.createControlLine()
+
+        this.add(this.controlPoint1)
+        this.add(this.controlPoint2)
+        this.add(this._controlLine1)
+        this.add(this._controlLine2)
+
+        this.setupControlPointEvents(this.controlPoint1)
+        this.setupControlPointEvents(this.controlPoint2)
         break
       case ConnectionType.OrtogonalLine:
-        this._line = new Polyline({ style: lineStyle, z: 4 })
+        this._line = new RoundPolyline()
         break
       default:
         break
     }
 
     if (this._line) {
+      this._line.setStyle(lineStyle)
+      this._line.attr({ z: 4 })
       this.add(this._line)
     }
-  }
-
-  private createBezierCurve(lineStyle: any) {
-    this._line = new BezierCurve({ style: lineStyle, z: 4 })
-
-    this.controlPoint1 = this.createControlPoint()
-    this.controlPoint2 = this.createControlPoint()
-    this._controlLine1 = this.createControlLine()
-    this._controlLine2 = this.createControlLine()
-
-    this.add(this.controlPoint1)
-    this.add(this.controlPoint2)
-    this.add(this._controlLine1)
-    this.add(this._controlLine2)
-
-    this.setupControlPointEvents(this.controlPoint1)
-    this.setupControlPointEvents(this.controlPoint2)
   }
 
   private createControlPoint(): IControlPoint {
@@ -336,16 +374,19 @@ class Connection extends Group implements IConnection {
           [this.controlPoint2!.x, this.controlPoint2!.y]
         )
         break
-      case ConnectionType.OrtogonalLine:
+      case ConnectionType.OrtogonalLine: {
         this.generateOrtogonalLinePath()
-        ;(this._line as Polyline).attr({
+        const paths = getPolylinePath(this._ortogonalLinePoints, 5)
+        ;(this._line as Path).attr({
           shape: {
-            points: this._ortogonalLinePoints
+            points: paths
           }
         })
 
         this.renderArrow(this._ortogonalLinePoints[this._ortogonalLinePoints.length - 2])
         break
+      }
+
       default:
         break
     }
@@ -354,7 +395,11 @@ class Connection extends Group implements IConnection {
 
   // 绘制连接线箭头
   renderArrow(preNode: number[]) {
-    if (!preNode) return
+    if (!preNode) {
+      this._arrow?.attr({ invisible: true })
+
+      return
+    }
     const arrowLength = 10
     const offsetAngle = Math.PI / 8
     const [x1, y1] = preNode
@@ -372,7 +417,7 @@ class Connection extends Group implements IConnection {
       y2 - arrowLength * Math.sin(angle - offsetAngle)
     ]
 
-    this._arrow?.attr({ shape: { points: [p1, p2, p3] } })
+    this._arrow?.attr({ shape: { points: [p1, p2, p3] }, invisible: false })
   }
 
   // 计算正交连线的中点坐标

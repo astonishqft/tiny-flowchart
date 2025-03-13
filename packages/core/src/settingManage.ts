@@ -14,6 +14,7 @@ export interface IIocEditorConfig {
   selectFrameColor: string // 选中框的颜色
   controlFrameColor: string // 控制框的颜色
   connectionSelectColor: string // 连接线选中框的颜色
+  connectionColor: string // 连接线的颜色
   groupActiveColor: string // 组选中框的颜色
   showGrid: boolean
   pasteOffset: number // 粘贴偏移量
@@ -42,6 +43,7 @@ class SettingManage extends Disposable {
     selectFrameColor: '#1971c2',
     controlFrameColor: '#29b7f3',
     connectionSelectColor: '#29b7f3',
+    connectionColor: '#a3b2c0',
     groupActiveColor: '#29b7f3',
     enableGrid: true,
     pasteOffset: 40

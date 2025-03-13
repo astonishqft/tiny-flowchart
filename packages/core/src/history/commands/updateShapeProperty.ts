@@ -22,7 +22,6 @@ class UpdateShapePropertyCommand implements ICommand {
   }
 
   execute() {
-    console.log('updateShapeProperty', this.shapeStyle)
     this.shape.updateShapeStyle(this.shapeStyle)
   }
 

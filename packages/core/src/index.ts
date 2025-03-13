@@ -1,5 +1,6 @@
 import {
   registerPainter,
+  Path,
   Line,
   Rect,
   Circle,
@@ -80,6 +81,7 @@ import type { IWidthAnchor } from '@/shapes/mixins/widthAnchor'
 registerPainter('canvas', CanvasPainter)
 
 export {
+  Path,
   BoundingRect,
   Group,
   Line,

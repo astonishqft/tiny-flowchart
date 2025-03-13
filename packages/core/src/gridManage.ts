@@ -39,7 +39,8 @@ class PointsPool {
       style: {
         stroke: '#868e96',
         fill: '#868e96',
-        lineWidth: 1
+        lineWidth: 1,
+        strokeNoScale: true
       },
       silent: true
     })
