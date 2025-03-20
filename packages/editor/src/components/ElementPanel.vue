@@ -1,6 +1,15 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
-import { ElDialog, ElButton, ElForm, ElFormItem, ElInput, FormInstance } from 'element-plus'
+import {
+  ElDialog,
+  ElButton,
+  ElForm,
+  ElFormItem,
+  ElInput,
+  FormInstance,
+  ElCollapse,
+  ElCollapseItem
+} from 'element-plus'
 import IconActor from './icons/Actor.vue'
 import IconCircle from './icons/Circle.vue'
 import IconCross from './icons/Cross.vue'
@@ -53,109 +62,6 @@ const addImage = (url: string) => {
   localStorage.setItem('iocCustomImgs', JSON.stringify(imageList.value))
 }
 
-const elementList = [
-  {
-    component: IconCircle,
-    nodeType: 'circle'
-  },
-  {
-    component: IconRect,
-    nodeType: 'rect'
-  },
-  {
-    component: IconRectRadius,
-    nodeType: 'rectRadius'
-  },
-  {
-    component: IconActor,
-    nodeType: 'actor'
-  },
-  {
-    component: IconCylinde,
-    nodeType: 'cylinde'
-  },
-  {
-    component: IconDiamond,
-    nodeType: 'diamond'
-  },
-  {
-    component: IconEllipse,
-    nodeType: 'ellipse'
-  },
-  {
-    component: IconParallelogram,
-    nodeType: 'parallelogram'
-  },
-  {
-    component: IconText,
-    nodeType: 'text'
-  },
-  {
-    component: IconTriangle,
-    nodeType: 'triangle'
-  },
-  {
-    component: IconLeftArrow,
-    nodeType: 'leftArrow'
-  },
-  {
-    component: IconRightArrow,
-    nodeType: 'rightArrow'
-  },
-  {
-    component: IconHorizontalArrow,
-    nodeType: 'horizontalArrow'
-  },
-  {
-    component: IconUpArrow,
-    nodeType: 'upArrow'
-  },
-  {
-    component: IconDownArrow,
-    nodeType: 'downArrow'
-  },
-  {
-    component: IconVerticalArrow,
-    nodeType: 'verticalArrow'
-  },
-  {
-    component: IconPentagon,
-    nodeType: 'pentagon'
-  },
-  {
-    component: IconHexagon,
-    nodeType: 'hexagon'
-  },
-  {
-    component: IconSeptagon,
-    nodeType: 'septagon'
-  },
-  {
-    component: IconHeptagon,
-    nodeType: 'heptagon'
-  },
-  {
-    component: IconTrapezoid,
-    nodeType: 'trapezoid'
-  },
-  {
-    component: IconCross,
-    nodeType: 'cross'
-  },
-  {
-    component: IconMinus,
-    nodeType: 'minus'
-  },
-  {
-    component: IconTimes,
-    nodeType: 'times'
-  },
-  {
-    component: IconDivide,
-    nodeType: 'divide'
-  }
-]
-
 const dragStart = (event: DragEvent, element: { nodeType: string; url?: string }) => {
   if (event.dataTransfer) {
     event.dataTransfer.setData('addShape', JSON.stringify(element))
@@ -196,38 +102,171 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     }
   })
 }
+
+const elementList = [
+  {
+    title: '基本图形',
+    key: '0',
+    elements: [
+      {
+        component: IconCircle,
+        nodeType: 'circle'
+      },
+      {
+        component: IconRect,
+        nodeType: 'rect'
+      },
+      {
+        component: IconRectRadius,
+        nodeType: 'rectRadius'
+      },
+      {
+        component: IconActor,
+        nodeType: 'actor'
+      },
+      {
+        component: IconCylinde,
+        nodeType: 'cylinde'
+      },
+      {
+        component: IconDiamond,
+        nodeType: 'diamond'
+      },
+      {
+        component: IconEllipse,
+        nodeType: 'ellipse'
+      },
+      {
+        component: IconParallelogram,
+        nodeType: 'parallelogram'
+      },
+      {
+        component: IconPentagon,
+        nodeType: 'pentagon'
+      },
+      {
+        component: IconHexagon,
+        nodeType: 'hexagon'
+      },
+      {
+        component: IconSeptagon,
+        nodeType: 'septagon'
+      },
+      {
+        component: IconHeptagon,
+        nodeType: 'heptagon'
+      },
+      {
+        component: IconTrapezoid,
+        nodeType: 'trapezoid'
+      },
+      {
+        component: IconTriangle,
+        nodeType: 'triangle'
+      },
+      {
+        component: IconText,
+        nodeType: 'text'
+      }
+    ]
+  },
+  {
+    title: '箭头',
+    key: '1',
+    elements: [
+      {
+        component: IconLeftArrow,
+        nodeType: 'leftArrow'
+      },
+      {
+        component: IconRightArrow,
+        nodeType: 'rightArrow'
+      },
+      {
+        component: IconHorizontalArrow,
+        nodeType: 'horizontalArrow'
+      },
+      {
+        component: IconUpArrow,
+        nodeType: 'upArrow'
+      },
+      {
+        component: IconDownArrow,
+        nodeType: 'downArrow'
+      },
+      {
+        component: IconVerticalArrow,
+        nodeType: 'verticalArrow'
+      }
+    ]
+  },
+  {
+    title: '符号',
+    key: '2',
+    elements: [
+      {
+        component: IconCross,
+        nodeType: 'cross'
+      },
+      {
+        component: IconMinus,
+        nodeType: 'minus'
+      },
+      {
+        component: IconTimes,
+        nodeType: 'times'
+      },
+      {
+        component: IconDivide,
+        nodeType: 'divide'
+      }
+    ]
+  }
+]
+
+const elementCategory = ref(['0'])
 </script>
 
 <template>
   <div class="element-panel">
-    <h1 class="element-category-title">普通节点</h1>
-    <ul class="element-category">
-      <li
-        v-for="element in elementList"
-        :key="element.nodeType"
-        :draggable="true"
-        @dragstart="dragStart($event, { nodeType: element.nodeType })"
-        class="element-item"
-      >
-        <component :is="element.component" class="svg-node" />
-      </li>
-    </ul>
-    <h1 class="element-category-title">图片节点</h1>
-    <div class="pic-preview-list">
-      <div
-        class="pic-preview-item"
-        v-for="(item, index) in imageList"
-        :key="`pre-pic-${index}`"
-        @dragstart="dragStart($event, { nodeType: 'image', url: item })"
-      >
-        <img :src="item" alt="" />
-      </div>
-      <div
-        class="pic-preview-item icon iconfont upload-image icon-a-tianjiashangchuantupian"
-        :title="'上传图片'"
-        @click="uploadImage"
-      ></div>
-    </div>
+    <el-collapse v-model="elementCategory">
+      <el-collapse-item :name="item.key" v-for="item in elementList" :key="item.key">
+        <template #title>
+          <div class="element-title">{{ item.title }}</div>
+        </template>
+        <ul class="element-category">
+          <li
+            v-for="element in item.elements"
+            :key="element.nodeType"
+            :draggable="true"
+            @dragstart="dragStart($event, { nodeType: element.nodeType })"
+            class="element-item"
+          >
+            <component :is="element.component" class="svg-node" />
+          </li>
+        </ul>
+      </el-collapse-item>
+      <el-collapse-item name="自定义图片">
+        <template #title>
+          <div class="element-title">自定义图片</div>
+        </template>
+        <div class="pic-preview-list">
+          <div
+            class="pic-preview-item"
+            v-for="(item, index) in imageList"
+            :key="`pre-pic-${index}`"
+            @dragstart="dragStart($event, { nodeType: 'image', url: item })"
+          >
+            <img :src="item" alt="" />
+          </div>
+          <div
+            class="pic-preview-item icon iconfont upload-image icon-a-tianjiashangchuantupian"
+            :title="'上传图片'"
+            @click="uploadImage"
+          ></div>
+        </div>
+      </el-collapse-item>
+    </el-collapse>
 
     <el-dialog
       :before-close="handleBeforeClose"
@@ -257,7 +296,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   </div>
 </template>
 
-<style scoped lang="less">
+<style lang="less">
 ul {
   list-style-type: none;
   padding: 0;
@@ -267,15 +306,16 @@ li {
   display: inline-block;
   margin: 0 4px;
 }
+.element-title {
+  margin-left: 10px;
+  font-weight: 800;
+}
 .element-panel {
   position: absolute;
   left: 0;
   width: 185px;
   height: calc(100% - 40px);
   border-right: 1px solid #dadce0;
-  .element-category {
-    border-bottom: 1px solid #e5e5e5;
-  }
   .element-item {
     padding-top: 2px;
     padding-left: 1px;

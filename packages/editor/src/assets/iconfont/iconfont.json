@@ -6,6 +6,13 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "26329181",
+      "name": "垂直分割线",
+      "font_class": "chuizhifengexian",
+      "unicode": "e609",
+      "unicode_decimal": 58889
+    },
+    {
       "icon_id": "14401714",
       "name": "github",
       "font_class": "github",

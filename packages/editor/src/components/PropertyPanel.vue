@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import SceneProperty from './elementProperty/SceneProperty.vue'
+import { NodeType, IocEditor } from '@ioceditor/core'
 import ShapeProperty from './elementProperty/ShapeProperty.vue'
 import ConnectionProperty from './elementProperty/ConnectionProperty.vue'
 import GroupProperty from './elementProperty/GroupProperty.vue'
-import { NodeType, IocEditor } from '@ioceditor/core'
 
 import type { IConnection, INodeGroup, IShape } from '@ioceditor/core'
 
@@ -49,10 +48,9 @@ const selectNameMap: Record<string, string> = {
 </script>
 
 <template>
-  <div class="property">
+  <div class="property" v-show="type !== 'scene'">
     <div class="property-title">{{ selectNameMap[type] }}</div>
     <div class="property-content">
-      <SceneProperty v-show="type === 'scene'" :ioc-editor="iocEditor" />
       <ShapeProperty v-show="type === 'shape'" :ioc-editor="iocEditor" />
       <ConnectionProperty v-show="type === 'connection'" :ioc-editor="iocEditor" />
       <GroupProperty v-show="type === 'group'" :ioc-editor="iocEditor" />
@@ -63,12 +61,14 @@ const selectNameMap: Record<string, string> = {
 <style scoped lang="less">
 .property {
   width: 260px;
-  position: absolute;
+  position: fixed;
   right: 0;
   top: 40px;
-  height: calc(100% - 200px);
-  border-bottom: 1px solid #dadce0;
-
+  background: #fff;
+  border: 1px solid var(--el-border-color);
+  margin: 10px;
+  border-radius: 5px;
+  box-shadow: var(--el-box-shadow);
   .property-title {
     display: block;
     display: flex;
@@ -76,7 +76,7 @@ const selectNameMap: Record<string, string> = {
     justify-content: center;
     height: 30px;
     font-size: 14px;
-    border-bottom: 1px solid #e5e5e5;
+    border-bottom: 1px solid var(--el-border-color);
     font-weight: bold;
   }
 }

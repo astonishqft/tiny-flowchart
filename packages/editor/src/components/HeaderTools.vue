@@ -1,16 +1,18 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { reactive, ref } from 'vue'
 import {
   ElOption,
   ElSelect,
   ElDropdown,
   ElIcon,
   ElDropdownMenu,
-  ElDropdownItem
+  ElDropdownItem,
+  ElCheckbox
 } from 'element-plus'
 import { ConnectionType } from '@ioceditor/core'
 import { ArrowDown, QuestionFilled } from '@element-plus/icons-vue'
 
+import type { CheckboxValueType } from 'element-plus'
 import type { IIocEditor } from '@ioceditor/core'
 
 const props = defineProps<{
@@ -19,7 +21,7 @@ const props = defineProps<{
 
 const currentLineType = ref(ConnectionType.OrtogonalLine)
 
-const toolsConfig = ref([
+const toolsConfig = reactive([
   {
     name: 'save',
     icon: 'icon-save',
@@ -45,6 +47,10 @@ const toolsConfig = ref([
     disabled: false
   },
   {
+    name: 'divider',
+    icon: 'icon-chuizhifengexian'
+  },
+  {
     name: 'undo',
     icon: 'icon-undo',
     desc: '撤销',
@@ -55,6 +61,10 @@ const toolsConfig = ref([
     icon: 'icon-redo',
     desc: '重做',
     disabled: false
+  },
+  {
+    name: 'divider',
+    icon: 'icon-chuizhifengexian'
   },
   {
     name: 'zoomIn',
@@ -69,6 +79,10 @@ const toolsConfig = ref([
     disabled: false
   },
   {
+    name: 'divider',
+    icon: 'icon-chuizhifengexian'
+  },
+  {
     name: 'delete',
     icon: 'icon-delete',
     desc: '删除',
@@ -79,6 +93,10 @@ const toolsConfig = ref([
     icon: 'icon-clear',
     desc: '清除画布',
     disabled: false
+  },
+  {
+    name: 'divider',
+    icon: 'icon-chuizhifengexian'
   },
   {
     name: 'group',
@@ -93,10 +111,18 @@ const toolsConfig = ref([
     disabled: false
   },
   {
+    name: 'divider',
+    icon: 'icon-chuizhifengexian'
+  },
+  {
     name: 'select',
     icon: 'icon-select',
     desc: '框选',
     disabled: false
+  },
+  {
+    name: 'divider',
+    icon: 'icon-chuizhifengexian'
   }
 ])
 
@@ -174,6 +200,17 @@ const command = (name: string) => {
 const aboutMe = (e: MouseEvent) => {
   e.preventDefault()
 }
+
+const isShowGrid = ref<boolean>(true)
+
+const showGrid = (show: CheckboxValueType) => {
+  isShowGrid.value = show as boolean
+  props.iocEditor._viewPortMgr._gridMgr?.showGrid(isShowGrid.value)
+}
+
+const showMiniMap = (show: CheckboxValueType) => {
+  props.iocEditor.updateMiniMapVisible$.next(show as boolean)
+}
 </script>
 
 <template>
@@ -186,7 +223,8 @@ const aboutMe = (e: MouseEvent) => {
         class="icon iconfont tool-icon"
         :class="{
           [tool.icon]: true,
-          disabled: tool.disabled
+          disabled: tool.disabled,
+          divier: tool.name === 'divider'
         }"
         @click="command(tool.name)"
         v-for="tool in toolsConfig"
@@ -206,6 +244,14 @@ const aboutMe = (e: MouseEvent) => {
           :value="item.value"
         />
       </el-select>
+      <el-checkbox
+        v-model="isShowGrid"
+        label="显示网格线"
+        size="small"
+        @change="showGrid"
+        style="margin-left: 15px"
+      />
+      <el-checkbox v-model="isShowGrid" label="显示小地图" size="small" @change="showMiniMap" />
     </div>
     <div class="tools-about">
       <a href="https://github.com/astonishqft/ioc-editor" title="GitHub" target="_blank">
@@ -287,9 +333,9 @@ const aboutMe = (e: MouseEvent) => {
     margin-right: 10px;
     cursor: pointer;
     font-size: 18px;
-    padding: 4px;
+    padding: 2px;
     margin-right: 8px;
-    color: #000;
+    color: #1f1f1f;
     &:hover {
       cursor: pointer;
       background-color: #eeeeee;
@@ -297,6 +343,10 @@ const aboutMe = (e: MouseEvent) => {
     }
     &.disabled {
       color: #ccc;
+    }
+    &.divier {
+      color: #ccc;
+      padding: 0;
     }
   }
 }

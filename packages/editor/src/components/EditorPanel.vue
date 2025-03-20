@@ -34,7 +34,7 @@ const dragOver = (event: DragEvent) => {
 .ioc-editor-container {
   height: calc(100% - 40px);
   position: absolute;
-  width: calc(100% - 445px);
+  width: calc(100% - 185px);
   left: 185px;
   border-right: 1px solid #dadce0;
   #ioc-editor {

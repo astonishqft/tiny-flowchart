@@ -110,6 +110,7 @@ export interface IIocEditor {
   _pasteOffset: number
   updateZoom$: Subject<IUpdateZoomOpts>
   updateMiniMap$: Subject<void>
+  updateMiniMapVisible$: Subject<boolean>
   sceneDragStart$: Subject<ISceneDragStartOpts>
   sceneDragMove$: Subject<ISceneDragMoveOpts>
   sceneDragEnd$: Subject<void>
@@ -160,6 +161,7 @@ export class IocEditor implements IIocEditor {
   _pasteOffset: number
   updateZoom$ = new Subject<IUpdateZoomOpts>()
   updateMiniMap$ = new Subject<void>()
+  updateMiniMapVisible$ = new Subject<boolean>()
 
   // 鼠标拖拽画布时的移动事件
   sceneDragStart$ = new Subject<ISceneDragStartOpts>()
@@ -874,6 +876,7 @@ export class IocEditor implements IIocEditor {
     this.updateZoom$.unsubscribe()
     this.sceneDragMove$.unsubscribe()
     this.updateMiniMap$.unsubscribe()
+    this.updateMiniMapVisible$.unsubscribe()
   }
 
   offEvent() {

@@ -174,7 +174,7 @@ const changeLineType = (type: ConnectionType) => {
         <el-select
           v-model="connectionConfig.lineWidth"
           size="small"
-          style="width: 157px; margin-right: 5px"
+          style="margin-left: 2px"
           @change="changeLineWidth"
         >
           <el-option v-for="item in lineWidthOpts" :key="item" :label="`${item}px`" :value="item" />
@@ -188,7 +188,7 @@ const changeLineType = (type: ConnectionType) => {
           placeholder="Select"
           v-model="connectionConfig.lineDash"
           size="small"
-          style="width: 157px; margin-right: 5px"
+          style="margin-left: 2px"
           @change="changeLineDash"
         >
           <el-option
@@ -209,7 +209,7 @@ const changeLineType = (type: ConnectionType) => {
           placeholder="Select"
           v-model="lineType"
           size="small"
-          style="width: 157px; margin-right: 5px"
+          style="margin-left: 2px"
           @change="changeLineType"
         >
           <el-option
@@ -251,7 +251,7 @@ const changeLineType = (type: ConnectionType) => {
           size="small"
           :step="1"
           @input="changeLineTextContent"
-          style="width: 157px; margin-right: 5px"
+          style="margin-left: 2px"
         />
       </div>
     </div>
@@ -265,7 +265,7 @@ const changeLineType = (type: ConnectionType) => {
           size="small"
           :step="1"
           @change="changeLineFontSize"
-          style="width: 157px; margin-right: 5px"
+          style="margin-left: 2px; width: 100%"
         />
       </div>
     </div>
@@ -291,25 +291,29 @@ const changeLineType = (type: ConnectionType) => {
 
 <style scoped lang="less">
 .property-container {
-  padding: 15px;
+  padding: 10px 15px 10px 15px;
   .property-item {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     margin-bottom: 10px;
+    width: 100%;
     .property-name {
+      width: 58px;
       font-size: 12px;
+      display: flex;
+      justify-content: flex-start;
     }
     .color-wrapper {
       display: flex;
-      align-items: center;
+      width: calc(100% - 58px);
+      justify-content: space-between;
     }
     .property-value {
-      margin-left: 15px;
+      width: calc(100% - 58px);
       .color-item {
         width: 20px;
         height: 20px;
-        margin: 3px;
+        margin: 2px;
         cursor: pointer;
         border-radius: 5px;
         border: 1px solid rgb(217, 217, 217);
@@ -332,7 +336,7 @@ const changeLineType = (type: ConnectionType) => {
 }
 .font-style-icon {
   font-size: 18px;
-  margin: 3.5px;
+  margin-right: 8px;
   padding: 3px;
   border: 1px solid rgb(217, 217, 217);
   border-radius: 5px;
@@ -340,21 +344,5 @@ const changeLineType = (type: ConnectionType) => {
 .font-style-icon.active {
   background-color: #1971c2;
   color: #fff;
-}
-:global(.el-color-picker) {
-  width: 20px;
-  height: 20px;
-  border: 5px;
-  margin: 3px 5px 3px 3px;
-}
-:global(.el-color-picker__trigger) {
-  padding: 0;
-  width: 20px;
-  height: 20px;
-  border: 0;
-  border-radius: 5px;
-}
-:global(.el-color-picker__color) {
-  border-radius: 5px;
 }
 </style>

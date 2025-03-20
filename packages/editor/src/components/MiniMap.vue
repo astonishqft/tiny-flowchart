@@ -22,6 +22,10 @@ onMounted(() => {
   iocEditor.updateMiniMap$.subscribe(() => {
     miniMapMgr.value?.refreshMap(iocEditor.getExportData())
   })
+
+  iocEditor.updateMiniMapVisible$.subscribe(visible => {
+    miniMapMgr.value?.setVisible(visible)
+  })
 })
 
 const startX = ref(0)
@@ -76,18 +80,21 @@ const handleMouseUp = (e: MouseEvent) => {
     @mouseup="handleMouseUp"
     @mouseleave="handleMouseUp"
   >
-    <!-- <div class="title">缩略图</div> -->
     <div id="mini-map"></div>
   </div>
 </template>
 
 <style scoped lang="less">
 .mini-map-container {
+  padding: 10px;
+  border: 1px solid #ccc;
   width: 260px;
   height: 160px;
-  position: absolute;
-  bottom: 0;
-  right: 0;
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  background: #fff;
+  border-radius: 2px;
   #mini-map {
     width: 100%;
     height: 100%;

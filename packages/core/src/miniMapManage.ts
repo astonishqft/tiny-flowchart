@@ -18,6 +18,7 @@ export interface IMiniMapManage extends IDisposable {
   updateOldPosition(): void
   getScaleRatio(): number
   getZoomScale(): number
+  setVisible(visible: boolean): void
 }
 
 class MiniMapManage extends Disposable implements IMiniMapManage {
@@ -55,6 +56,7 @@ class MiniMapManage extends Disposable implements IMiniMapManage {
       style: {
         fill: '#30303033',
         stroke: 'blue',
+        opacity: 0.5,
         strokeNoScale: true
       },
       z: 10000
@@ -187,6 +189,10 @@ class MiniMapManage extends Disposable implements IMiniMapManage {
     this._oldMapFrameTop = this.getMiniMapFramePosition()[1]
     this._centerX = this._oldMapFrameLeft + ((sceneWidth * this._scaleRatio) / 2) * scale
     this._centerY = this._oldMapFrameTop + ((sceneHeight * this._scaleRatio) / 2) * scale
+  }
+
+  setVisible(visible: boolean) {
+    this._iocEditor._dom.parentElement!.style.display = visible ? 'block' : 'none'
   }
 }
 

@@ -8,8 +8,7 @@ export interface IGridManage {
   drawGrid(): void
   setPosition(x: number, y: number): void
   setScale(x: number, y: number): void
-  hideGrid(): void
-  showGrid(): void
+  showGrid(show: boolean): void
   resizePool(): void
 }
 
@@ -196,12 +195,9 @@ class GridManage implements IGridManage {
     this._pointsPool?.resizePool()
   }
 
-  hideGrid() {
-    this._gridLayer?.hide()
-  }
-
-  showGrid() {
-    this._gridLayer?.show()
+  showGrid(show: boolean) {
+    console.log('===>> grid show', show)
+    show ? this._gridLayer?.show() : this._gridLayer?.hide()
   }
 }
 

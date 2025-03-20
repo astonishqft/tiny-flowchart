@@ -14,6 +14,7 @@ import type {
 } from '@/index'
 
 export interface IViewPortManage extends IDisposable {
+  _gridMgr?: IGridManage
   setPosition(x: number, y: number): void
   getPosition(): number[]
   addSelfToZr(zr: ZRenderType): void
@@ -31,9 +32,9 @@ export interface IViewPortManage extends IDisposable {
 class ViewPortManage extends Disposable {
   private _viewPort: Group = new Group()
   private _iocEditor: IIocEditor
-  private _gridMgr?: IGridManage
   private _settingMgr: ISettingManage
   private _currentZoom = 1
+  _gridMgr?: IGridManage
 
   constructor(iocEditor: IIocEditor) {
     super()

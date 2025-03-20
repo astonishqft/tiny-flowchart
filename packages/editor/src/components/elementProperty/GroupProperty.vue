@@ -208,12 +208,7 @@ const changeGroupText = (text: string) => {
     <div class="property-item">
       <div class="property-name">边框宽度</div>
       <div class="property-value">
-        <el-select
-          v-model="groupConfig.lineWidth"
-          size="small"
-          style="width: 157px; margin-right: 5px"
-          @change="changeGroupLineWidth"
-        >
+        <el-select v-model="groupConfig.lineWidth" size="small" @change="changeGroupLineWidth">
           <el-option v-for="item in lineWidthOpts" :key="item" :label="`${item}px`" :value="item" />
         </el-select>
       </div>
@@ -225,7 +220,6 @@ const changeGroupText = (text: string) => {
           placeholder="Select"
           v-model="groupConfig.lineDash"
           size="small"
-          style="width: 157px; margin-right: 5px"
           @change="changeGroupStrokeType"
         >
           <el-option
@@ -267,7 +261,6 @@ const changeGroupText = (text: string) => {
           size="small"
           :step="1"
           @input="changeGroupText"
-          style="width: 157px; margin-right: 5px"
         />
       </div>
     </div>
@@ -281,7 +274,7 @@ const changeGroupText = (text: string) => {
           size="small"
           :step="1"
           @change="changeGroupFontSize"
-          style="width: 157px; margin-right: 5px"
+          style="width: 100%"
         />
       </div>
     </div>
@@ -320,25 +313,29 @@ const changeGroupText = (text: string) => {
 
 <style scoped lang="less">
 .property-container {
-  padding: 15px;
+  padding: 10px 15px 10px 15px;
   .property-item {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     margin-bottom: 10px;
+    width: 100%;
     .property-name {
+      width: 58px;
       font-size: 12px;
+      display: flex;
+      justify-content: flex-start;
     }
     .color-wrapper {
       display: flex;
-      align-items: center;
+      width: calc(100% - 58px);
+      justify-content: space-between;
     }
     .property-value {
-      margin-left: 15px;
+      width: calc(100% - 58px);
       .color-item {
         width: 20px;
         height: 20px;
-        margin: 3px;
+        margin: 2px;
         cursor: pointer;
         border-radius: 5px;
         border: 1px solid rgb(217, 217, 217);
@@ -361,10 +358,10 @@ const changeGroupText = (text: string) => {
 }
 .position-icon {
   font-size: 18px;
-  margin: 3.5px;
   padding: 3px;
   border: 1px solid rgb(217, 217, 217);
   border-radius: 5px;
+  margin-right: 8px;
   &:hover {
     cursor: pointer;
     background-color: #eeeeee;
@@ -377,7 +374,7 @@ const changeGroupText = (text: string) => {
 }
 .font-style-icon {
   font-size: 18px;
-  margin: 3.5px;
+  margin-right: 8px;
   padding: 3px;
   border: 1px solid rgb(217, 217, 217);
   border-radius: 5px;
@@ -385,21 +382,5 @@ const changeGroupText = (text: string) => {
 .font-style-icon.active {
   background-color: #1971c2;
   color: #fff;
-}
-:global(.el-color-picker) {
-  width: 20px;
-  height: 20px;
-  border: 5px;
-  margin: 3px 5px 3px 3px;
-}
-:global(.el-color-picker__trigger) {
-  padding: 0;
-  width: 20px;
-  height: 20px;
-  border: 0;
-  border-radius: 5px;
-}
-:global(.el-color-picker__color) {
-  border-radius: 5px;
 }
 </style>
