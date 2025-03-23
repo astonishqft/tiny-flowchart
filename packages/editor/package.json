@@ -1,7 +1,7 @@
 {
   "name": "@ioceditor/editor",
   "private": false,
-  "version": "0.0.1",
+  "version": "1.0.0",
   "author": "qi.futao",
   "type": "module",
   "scripts": {

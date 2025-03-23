@@ -1,6 +1,6 @@
 {
   "name": "@ioceditor/core",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "author": "qi.futao",
   "description": "Core library for Ioc Editor",
   "module": "dist/index.js",

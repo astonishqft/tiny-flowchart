@@ -10,6 +10,7 @@ import {
   ElCollapse,
   ElCollapseItem
 } from 'element-plus'
+import IconSquare from './icons/Square.vue'
 import IconActor from './icons/Actor.vue'
 import IconCircle from './icons/Circle.vue'
 import IconCross from './icons/Cross.vue'
@@ -26,7 +27,6 @@ import IconMinus from './icons/Minus.vue'
 import IconParallelogram from './icons/Parallelogram.vue'
 import IconPentagon from './icons/Pentagon.vue'
 import IconRect from './icons/Rect.vue'
-import IconRectRadius from './icons/RectRadius.vue'
 import IconRightArrow from './icons/RightArrow.vue'
 import IconText from './icons/Text.vue'
 import IconTrapezoid from './icons/Trapezoid.vue'
@@ -109,16 +109,24 @@ const elementList = [
     key: '0',
     elements: [
       {
-        component: IconCircle,
-        nodeType: 'circle'
+        component: IconSquare,
+        nodeType: 'square'
       },
       {
         component: IconRect,
         nodeType: 'rect'
       },
       {
-        component: IconRectRadius,
-        nodeType: 'rectRadius'
+        component: IconCircle,
+        nodeType: 'circle'
+      },
+      {
+        component: IconDiamond, // 菱形
+        nodeType: 'diamond'
+      },
+      {
+        component: IconText,
+        nodeType: 'text'
       },
       {
         component: IconActor,
@@ -128,10 +136,7 @@ const elementList = [
         component: IconCylinde,
         nodeType: 'cylinde'
       },
-      {
-        component: IconDiamond,
-        nodeType: 'diamond'
-      },
+
       {
         component: IconEllipse,
         nodeType: 'ellipse'
@@ -163,10 +168,6 @@ const elementList = [
       {
         component: IconTriangle,
         nodeType: 'triangle'
-      },
-      {
-        component: IconText,
-        nodeType: 'text'
       }
     ]
   },

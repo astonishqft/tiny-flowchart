@@ -9,7 +9,7 @@
   "license": "ISC",
   "scripts": {
     "dev": "run-p dev:orthogonal dev:core dev:editor dev:example",
-    "all:build": "pnpm -r exec pnpm run build",
+    "build": "pnpm -r exec pnpm run build",
     "dev:orthogonal": "pnpm -F @ioceditor/orthogonal-connector dev",
     "dev:core": "pnpm -F @ioceditor/core dev",
     "dev:editor": "pnpm -F @ioceditor/editor dev",

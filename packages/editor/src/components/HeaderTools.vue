@@ -202,6 +202,7 @@ const aboutMe = (e: MouseEvent) => {
 }
 
 const isShowGrid = ref<boolean>(true)
+const isShowMiniMap = ref<boolean>(true)
 
 const showGrid = (show: CheckboxValueType) => {
   isShowGrid.value = show as boolean
@@ -209,6 +210,7 @@ const showGrid = (show: CheckboxValueType) => {
 }
 
 const showMiniMap = (show: CheckboxValueType) => {
+  isShowMiniMap.value = show as boolean
   props.iocEditor.updateMiniMapVisible$.next(show as boolean)
 }
 </script>
@@ -251,7 +253,7 @@ const showMiniMap = (show: CheckboxValueType) => {
         @change="showGrid"
         style="margin-left: 15px"
       />
-      <el-checkbox v-model="isShowGrid" label="显示小地图" size="small" @change="showMiniMap" />
+      <el-checkbox v-model="isShowMiniMap" label="显示小地图" size="small" @change="showMiniMap" />
     </div>
     <div class="tools-about">
       <a href="https://github.com/astonishqft/ioc-editor" title="GitHub" target="_blank">

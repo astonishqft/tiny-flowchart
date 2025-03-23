@@ -6,6 +6,8 @@ import { Rect } from './rect'
 import { Circle } from './circle'
 import { Text } from './text'
 import { Image } from './image'
+import { Square } from './square'
+import { Diamond } from './diamond'
 
 import type { INodeGroup } from './nodeGroup'
 import type {
@@ -207,6 +209,22 @@ export interface IExportData {
 }
 
 export const shapeConfig: IShapeConfig = {
+  square: {
+    style: {
+      fill: '#fff',
+      stroke: '#333',
+      lineWidth: 1,
+      opacity: 1
+    },
+    shape: {
+      x: 0,
+      y: 0,
+      width: 80,
+      height: 80,
+      r: 4
+    },
+    z: 1
+  },
   rect: {
     style: {
       fill: '#fff',
@@ -217,10 +235,11 @@ export const shapeConfig: IShapeConfig = {
     shape: {
       x: 0,
       y: 0,
-      width: 60,
-      height: 60
+      width: 100,
+      height: 60,
+      r: 4
     },
-    z: 2
+    z: 1
   },
   circle: {
     style: {
@@ -230,12 +249,27 @@ export const shapeConfig: IShapeConfig = {
       opacity: 1
     },
     shape: {
-      cx: 30,
-      cy: 30,
-      rx: 30,
-      ry: 30
+      cx: 40,
+      cy: 40,
+      rx: 40,
+      ry: 40
     },
-    z: 2
+    z: 1
+  },
+  diamond: {
+    style: {
+      fill: '#fff',
+      stroke: '#333',
+      lineWidth: 1,
+      opacity: 1
+    },
+    shape: {
+      x: 0,
+      y: 0,
+      width: 100,
+      height: 60
+    },
+    z: 1
   },
   text: {
     style: {
@@ -246,7 +280,7 @@ export const shapeConfig: IShapeConfig = {
       fontWeight: 'normal',
       fontStyle: 'normal'
     },
-    z: 2
+    z: 1
   },
   image: {
     style: {
@@ -256,7 +290,7 @@ export const shapeConfig: IShapeConfig = {
       width: 120,
       height: 80
     },
-    z: 2
+    z: 1
   }
 }
 
@@ -282,7 +316,9 @@ export const shapes: IShapeMap = {
   rect: Rect,
   circle: Circle,
   text: Text,
-  image: Image
+  image: Image,
+  square: Square,
+  diamond: Diamond
 }
 
 export const getShape = (type: string, option: { x: number; y: number; image?: string }) => {

@@ -1,6 +1,6 @@
 {
   "name": "@ioceditor/orthogonal-connector",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Orthogonal connector",
   "type": "module",
   "module": "dist/index.js",
