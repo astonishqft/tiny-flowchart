@@ -8,6 +8,7 @@ import { Text } from './text'
 import { Image } from './image'
 import { Square } from './square'
 import { Diamond } from './diamond'
+import { Actor } from './actor'
 
 import type { INodeGroup } from './nodeGroup'
 import type {
@@ -282,6 +283,24 @@ export const shapeConfig: IShapeConfig = {
     },
     z: 1
   },
+  actor: {
+    style: {
+      fill: '#fff',
+      stroke: '#333',
+      lineWidth: 1,
+      opacity: 1
+    },
+    shape: {
+      x: 0,
+      y: 0,
+      width: 40,
+      height: 80
+    },
+    z: 1,
+    textConfig: {
+      position: 'bottom'
+    }
+  },
   image: {
     style: {
       x: 0,
@@ -290,11 +309,14 @@ export const shapeConfig: IShapeConfig = {
       width: 120,
       height: 80
     },
-    z: 1
+    z: 1,
+    textConfig: {
+      position: 'bottom'
+    }
   }
 }
 
-const getShapeTextConfig = (): IShapeTextConfig => {
+const getDefaultShapeTextConfig = (): IShapeTextConfig => {
   return {
     textContent: new ZText({
       style: {
@@ -318,16 +340,17 @@ export const shapes: IShapeMap = {
   text: Text,
   image: Image,
   square: Square,
-  diamond: Diamond
+  diamond: Diamond,
+  actor: Actor
 }
 
 export const getShape = (type: string, option: { x: number; y: number; image?: string }) => {
-  let config: IShapeProps = { ...shapeConfig[type], ...getShapeTextConfig() }
+  const config: IShapeProps = { ...getDefaultShapeTextConfig(), ...shapeConfig[type] }
   if (type === 'text') {
-    config = { ...shapeConfig[type] }
+    delete config.textConfig
+    delete config.textContent
   } else if (type === 'image') {
     ;(config as ImageProps).style!.image = option.image
-    config.textConfig!.position = 'bottom'
   }
   const Shape = WidthAnchor(WidthActivate(WidthCommon(shapes[type])))
   const shape = new Shape(config)

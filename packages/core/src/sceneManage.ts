@@ -86,6 +86,21 @@ class SceneManage extends Disposable {
     this._zr.setCursorStyle(cursor)
   }
 
+  showAnch(x: number, y: number) {
+    const allNodes = this._storageMgr.getNodes()
+    const [vX, vY] = this._viewPortMgr.mapSceneToViewPort(x, y)
+    allNodes.forEach(n => {
+      const box = n.getBoundingBox()
+
+      if (box.contain(vX, vY)) {
+        n.anchor.show()
+        n.setCursor('move')
+      } else {
+        n.anchor.hide()
+      }
+    })
+  }
+
   initEvent() {
     let startX = 0
     let startY = 0
@@ -170,6 +185,10 @@ class SceneManage extends Disposable {
       if (selectFrameStatus) {
         // 框选
         this._selectFrameMgr.resize(offsetX / zoom, offsetY / zoom)
+      }
+
+      if (!drag) {
+        this.showAnch(e.offsetX, e.offsetY)
       }
     })
 

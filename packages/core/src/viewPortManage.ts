@@ -27,6 +27,7 @@ export interface IViewPortManage extends IDisposable {
   getSceneHeight(): number | undefined
   getBoundingRect(includeChildren: Element[]): BoundingRect
   getZoom(): number
+  mapSceneToViewPort(x: number, y: number): number[]
 }
 
 class ViewPortManage extends Disposable {
@@ -119,6 +120,23 @@ class ViewPortManage extends Disposable {
 
   getSceneHeight() {
     return this._iocEditor._zr.getHeight()
+  }
+
+  /**
+   * 将场景坐标转换为视口坐标
+   *
+   * 此函数用于根据当前的位置和缩放因子，将场景中的坐标(x, y)转换为视口中的坐标
+   * 它首先获取当前的坐标位置和缩放因子，然后使用这些信息将传入的场景坐标映射到视口坐标系中
+   *
+   * @param x 场景中的x坐标
+   * @param y 场景中的y坐标
+   * @returns 返回转换后的视口坐标[x, y]
+   */
+  mapSceneToViewPort(x: number, y: number) {
+    const [positionX, positionY] = this.getPosition()
+    const [scaleX, scaleY] = this.getScale()
+
+    return [(x - positionX) / scaleX, (y - positionY) / scaleY]
   }
 }
 

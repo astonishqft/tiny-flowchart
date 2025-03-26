@@ -63,8 +63,6 @@ class NodeEventManage {
   initEvent() {
     ;(this._node as Element).on('mousedown', this.handleMouseDown.bind(this))
     ;(this._node as Element).on('click', this.handleClick.bind(this))
-    ;(this._node as Element).on('mouseover', this.handleMouseOver.bind(this))
-    ;(this._node as Element).on('mouseout', this.handleMouseOut.bind(this))
   }
 
   private isNodeSelectedInActiveNodes(node: INode): boolean {
@@ -111,17 +109,6 @@ class NodeEventManage {
       this._controlFrameMgr.active(this._node as IShape)
     }
     this._sceneMgr.updateSelectNode$.next(this._node)
-  }
-
-  private handleMouseOver() {
-    this._node.anchor.show()
-    this._node.setCursor('move')
-  }
-
-  private handleMouseOut() {
-    if (!this._node.selected) {
-      this._node.anchor.hide()
-    }
   }
 
   onMouseMove(e: MouseEvent) {
