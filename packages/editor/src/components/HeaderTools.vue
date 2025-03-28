@@ -235,7 +235,7 @@ const showMiniMap = (show: CheckboxValueType) => {
       ></span>
       <el-select
         v-model="currentLineType"
-        :size="'small'"
+        size="small"
         @change="changeLineType"
         style="width: 60px"
       >

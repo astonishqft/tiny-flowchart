@@ -150,16 +150,12 @@ class SceneManage extends Disposable {
       if (!e.target) {
         // 如果什么都没选中的话
         this.unActive()
-        this._connectionMgr.unActive()
         dragModel = 'scene'
         this.updateSelectScene$.next(null)
       }
     })
 
-    let time = 0
     this._zr.on('mousemove', e => {
-      if (time && Date.now() - time < 16) return
-      time = Date.now()
       offsetX = e.offsetX - startX
       offsetY = e.offsetY - startY
 
@@ -232,6 +228,7 @@ class SceneManage extends Disposable {
     this._storageMgr.getNodes().forEach(node => {
       node.unActive()
     })
+    this._connectionMgr.unActive()
     this._controlFrameMgr.unActive()
   }
 }

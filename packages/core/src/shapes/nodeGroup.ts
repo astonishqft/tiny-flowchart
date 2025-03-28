@@ -226,11 +226,23 @@ class NodeGroup extends Group implements INodeGroup {
     this.selected = true
     this.anchor.show()
     this.shapes.forEach(shape => shape.unActive && shape.unActive())
+    this.groupRect?.attr({
+      style: {
+        shadowColor: '#29b7f3',
+        shadowBlur: 2
+      }
+    })
   }
 
   unActive() {
     this.selected = false
     this.anchor.hide()
+    this.groupRect?.attr({
+      style: {
+        shadowColor: 'none',
+        shadowBlur: 0
+      }
+    })
   }
 
   setOldStyle() {

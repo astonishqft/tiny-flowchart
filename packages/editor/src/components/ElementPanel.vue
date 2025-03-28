@@ -298,20 +298,20 @@ const elementCategory = ref(['0'])
 </template>
 
 <style lang="less">
-ul {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 4px;
-}
-.element-title {
-  margin-left: 10px;
-  font-weight: 800;
-}
 .element-panel {
+  ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+  li {
+    display: inline-block;
+    margin: 0 4px;
+  }
+  .element-title {
+    margin-left: 10px;
+    font-weight: 800;
+  }
   position: absolute;
   left: 0;
   width: 185px;
