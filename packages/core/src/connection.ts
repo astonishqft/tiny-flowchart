@@ -83,6 +83,7 @@ class Connection extends Group implements IConnection {
   private _lineTextFontWeight: FontWeight = 'normal'
   private _iocEditor: IIocEditor
   private _settingMgr: ISettingManage
+  private _enableMiniMap: boolean
   private _connectionSelectColor: string
   private _oldStroke: StrokeStyle = '#a3b2c0'
   private _oldConnectionWidth = 1
@@ -116,6 +117,7 @@ class Connection extends Group implements IConnection {
     this.toNode = toAnchorPoint.node
     this.toPoint = toAnchorPoint.point
     this.connectionType = type
+    this._enableMiniMap = this._settingMgr.get('enableMiniMap') || false
     this.createConnection()
   }
 
@@ -299,12 +301,13 @@ class Connection extends Group implements IConnection {
       style: { fill: 'red' },
       shape: { r: 4 },
       z: 40,
-      draggable: true
+      draggable: true,
+      invisible: this._enableMiniMap
     }) as IControlPoint
   }
 
   private createControlLine(): Line {
-    return new Line({ style: { stroke: '#ccc' }, z: 39 })
+    return new Line({ style: { stroke: '#ccc' }, z: 39, invisible: this._enableMiniMap })
   }
 
   private setupControlPointEvents(controlPoint: IControlPoint) {

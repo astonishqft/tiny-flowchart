@@ -15,13 +15,15 @@ export interface IControlFrameManage {
   reSizeNode(boundingBox: BoundingRect): void
 }
 
+export type IResizePoint = Rect & { anchor: string }
+
 interface IPointCursor {
   cursor: string
   z: number
 }
 
 class ControlFrameManage implements IControlFrameManage {
-  private _controlPoints: Rect[] = []
+  private _controlPoints: IResizePoint[] = []
   private _controlBox: Rect
   private _connectionMgr: IConnectionManage
   private _viewPortMgr: IViewPortManage
@@ -68,7 +70,9 @@ class ControlFrameManage implements IControlFrameManage {
         draggable: true,
         cursor: pos.cursor,
         z: pos.z
-      })
+      }) as IResizePoint
+
+      controlPoint.anchor = 'resizePoint'
       this._controlPoints.push(controlPoint)
     })
   }

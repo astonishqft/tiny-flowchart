@@ -1,5 +1,6 @@
 import { Disposable } from '@/disposable'
-import { Subject } from 'rxjs'
+
+import { NodeType } from '@/index'
 
 import type {
   ZRenderType,
@@ -13,22 +14,19 @@ import type {
   IStorageManage,
   IZoomManage,
   ISettingManage,
-  IControlFrameManage,
   IIocEditor,
   IDisposable,
   IAnchorPoint,
-  IControlPoint,
-  INode
+  IShape,
+  INodeGroup
 } from '@/index'
+import type { INodeEventManage } from '@/nodeEventManage'
+import type { IResizePoint } from '@/controlFrameManage'
 
 export interface ISceneManage extends IDisposable {
-  _zr: ZRenderType
-  updateSelectScene$: Subject<null>
-  updateSelectNode$: Subject<INode>
   setCursorStyle(type: string): void
   init(): void
   clear(): void
-  unActive(): void
 }
 
 export type IMouseEvent = Element & { nodeType?: string }
@@ -43,11 +41,19 @@ class SceneManage extends Disposable {
   private _storageMgr: IStorageManage
   private _settingMgr: ISettingManage
   private _zoomMgr: IZoomManage
-  private _controlFrameMgr: IControlFrameManage
+  private _nodeEventMgr: INodeEventManage
   private _enableMiniMap
-  _zr: ZRenderType
-  updateSelectScene$ = new Subject<null>()
-  updateSelectNode$ = new Subject<INode>()
+  private _zr: ZRenderType
+
+  private _oldViewPortX = 0
+  private _oldViewPortY = 0
+  private _mouseDownX = 0
+  private _mouseDownY = 0
+  private _isDragging = false
+  private _mouseMoveOffsetX = 0
+  private _mouseMoveOffsetY = 0
+  private _currentZoom = 1
+  private _eventModel = 'canvas'
   constructor(iocEditor: IIocEditor) {
     super()
     this._zr = iocEditor._zr
@@ -59,10 +65,8 @@ class SceneManage extends Disposable {
     this._shapeMgr = iocEditor._shapeMgr
     this._groupMgr = iocEditor._groupMgr
     this._settingMgr = iocEditor._settingMgr
-    this._controlFrameMgr = iocEditor._controlFrameMgr
     this._selectFrameMgr = iocEditor._selectFrameMgr
-    this._disposables.push(this.updateSelectScene$)
-    this._disposables.push(this.updateSelectNode$)
+    this._nodeEventMgr = iocEditor._nodeEventMgr
     this._enableMiniMap = this._settingMgr.get('enableMiniMap')
   }
 
@@ -78,21 +82,37 @@ class SceneManage extends Disposable {
     this.initEvent()
   }
 
-  getActiveShapes() {
-    return this._storageMgr.getShapes().filter(shape => shape.selected)
-  }
-
   setCursorStyle(cursor: string) {
     this._zr.setCursorStyle(cursor)
   }
 
-  showAnch(x: number, y: number) {
-    const allNodes = this._storageMgr.getNodes()
+  getSelectedNode(x: number, y: number) {
     const [vX, vY] = this._viewPortMgr.mapSceneToViewPort(x, y)
-    allNodes.forEach(n => {
-      const box = n.getBoundingBox()
 
-      if (box.contain(vX, vY)) {
+    const selectedNodes: {
+      shapes: IShape[]
+      groups: INodeGroup[]
+    } = {
+      shapes: [],
+      groups: []
+    }
+    this._storageMgr.getNodes().forEach(n => {
+      if (n.getBoundingBox().contain(vX, vY)) {
+        if (n.nodeType === NodeType.Shape) {
+          selectedNodes.shapes.push(n as IShape)
+        } else {
+          selectedNodes.groups.push(n as INodeGroup)
+        }
+      }
+    })
+
+    return selectedNodes
+  }
+
+  showAnch(x: number, y: number) {
+    const [vX, vY] = this._viewPortMgr.mapSceneToViewPort(x, y)
+    this._storageMgr.getNodes().forEach(n => {
+      if (n.getBoundingBox().contain(vX, vY)) {
         n.anchor.show()
         n.setCursor('move')
       } else {
@@ -102,94 +122,111 @@ class SceneManage extends Disposable {
   }
 
   initEvent() {
-    let startX = 0
-    let startY = 0
-    let offsetX = 0
-    let offsetY = 0
-    let drag = false
-    let [oldViewPortX, oldViewPortY] = this._viewPortMgr.getPosition()
-    let dragModel = 'canvas'
     let fromAnchorPoint: IAnchorPoint | null = null
     let selectFrameStatus = false
-    let zoom = 1
 
     this._zr.on('mousedown', (e: ElementEvent) => {
-      drag = true
-      startX = e.offsetX
-      startY = e.offsetY
+      this._isDragging = true
+      this._mouseDownX = e.offsetX
+      this._mouseDownY = e.offsetY
       if (e.target) {
-        drag = false
+        this._isDragging = false
       }
-      oldViewPortX = this._viewPortMgr.getPosition()[0]
-      oldViewPortY = this._viewPortMgr.getPosition()[1]
-      zoom = this._zoomMgr.getZoom()
+      this._oldViewPortX = this._viewPortMgr.getPosition()[0]
+      this._oldViewPortY = this._viewPortMgr.getPosition()[1]
+      this._currentZoom = this._zoomMgr.getZoom()
       selectFrameStatus = this._selectFrameMgr.getSelectFrameStatus() // 是否是选中框
       if (selectFrameStatus) {
-        this._selectFrameMgr.setPosition(
-          (startX - oldViewPortX) / zoom,
-          (startY - oldViewPortY) / zoom
+        this._selectFrameMgr.init(
+          (this._mouseDownX - this._oldViewPortX) / this._currentZoom,
+          (this._mouseDownY - this._oldViewPortY) / this._currentZoom
         )
-        this._selectFrameMgr.resize(0, 0)
-        this._selectFrameMgr.show()
+      }
+
+      if (e.target && (e.target as IResizePoint).anchor === 'resizePoint') {
+        this._eventModel = 'resizePoint'
+
+        return
       }
 
       // 选中锚点
       if (e.target && (e.target as IAnchorPoint).mark === 'anch') {
-        dragModel = 'anchor'
+        this._eventModel = 'anchor'
         fromAnchorPoint = e.target as IAnchorPoint
         this._connectionMgr.createTmpConnection(fromAnchorPoint)
         this.setCursorStyle('crosshair')
+
+        return
       }
 
-      if (e.target && (e.target as IControlPoint).mark === 'controlPoint') {
-        dragModel = 'controlPoint'
+      this._iocEditor.sceneDragStart$.next({
+        startX: this._mouseDownX,
+        startY: this._mouseDownY,
+        oldViewPortX: this._oldViewPortX,
+        oldViewPortY: this._oldViewPortY
+      })
+
+      const { shapes, groups } = this.getSelectedNode(e.offsetX, e.offsetY)
+
+      // 选中节点
+      if (shapes.length > 0) {
+        this._nodeEventMgr.updateNodeMouseDown$.next({ node: shapes[0], e })
+        this._eventModel = 'shape'
+
+        return
       }
 
-      this._iocEditor.sceneDragStart$.next({ startX, startY, oldViewPortX, oldViewPortY })
+      // 选中节点组
+      if (groups.length > 0 && shapes.length === 0) {
+        this._nodeEventMgr.updateNodeMouseDown$.next({ node: groups[0], e })
+        this._eventModel = 'group'
+
+        return
+      }
 
       if (!e.target) {
         // 如果什么都没选中的话
-        this.unActive()
-        dragModel = 'scene'
-        this.updateSelectScene$.next(null)
+        this._iocEditor.unActive()
+        this._eventModel = 'scene'
       }
     })
 
     this._zr.on('mousemove', e => {
-      offsetX = e.offsetX - startX
-      offsetY = e.offsetY - startY
+      this._mouseMoveOffsetX = e.offsetX - this._mouseDownX
+      this._mouseMoveOffsetY = e.offsetY - this._mouseDownY
 
-      if (dragModel === 'anchor') {
+      if (this._eventModel === 'anchor') {
         this._connectionMgr.moveTmpConnection(
-          (e.offsetX - oldViewPortX) / zoom,
-          (e.offsetY - oldViewPortY) / zoom
+          (e.offsetX - this._oldViewPortX) / this._currentZoom,
+          (e.offsetY - this._oldViewPortY) / this._currentZoom
         )
       }
 
       // 拖拽画布(利用的原理是改变Group的 position 坐标)
-      if (drag && dragModel === 'scene' && !selectFrameStatus) {
-        // TODO: 排除没有点击到节点的情况，后续需要继续排除点击到连线等情况
-        // this.setCursorStyle('grabbing')
+      if (this._isDragging && this._eventModel === 'scene' && !selectFrameStatus) {
         this._iocEditor.sceneDragMove$.next({
-          x: offsetX + oldViewPortX,
-          y: offsetY + oldViewPortY,
-          offsetX,
-          offsetY
+          x: this._mouseMoveOffsetX + this._oldViewPortX,
+          y: this._mouseMoveOffsetY + this._oldViewPortY,
+          offsetX: this._mouseMoveOffsetX,
+          offsetY: this._mouseMoveOffsetY
         })
       }
 
       if (selectFrameStatus) {
         // 框选
-        this._selectFrameMgr.resize(offsetX / zoom, offsetY / zoom)
+        this._selectFrameMgr.resize(
+          this._mouseMoveOffsetX / this._currentZoom,
+          this._mouseMoveOffsetY / this._currentZoom
+        )
       }
 
-      if (!drag) {
+      if (!this._isDragging) {
         this.showAnch(e.offsetX, e.offsetY)
       }
     })
 
     this._zr.on('mouseup', e => {
-      drag = false
+      this._isDragging = false
 
       if (
         e.target &&
@@ -207,29 +244,40 @@ class SceneManage extends Disposable {
         this._iocEditor.execute('addConnection', { connection })
       }
 
-      if (dragModel === 'anchor') {
+      if (this._eventModel === 'anchor') {
         // 取消连线创建的临时直线
         this._connectionMgr.removeTmpConnection()
       }
 
       if (selectFrameStatus) {
         this._selectFrameMgr.multiSelect()
-        this._selectFrameMgr.setSelectFrameStatus(false)
         this._selectFrameMgr.hide()
       }
 
       this._iocEditor.sceneDragEnd$.next()
 
-      dragModel = 'scene'
+      this._eventModel = 'scene'
     })
-  }
 
-  unActive() {
-    this._storageMgr.getNodes().forEach(node => {
-      node.unActive()
+    this._zr.on('click', e => {
+      const { shapes, groups } = this.getSelectedNode(e.offsetX, e.offsetY)
+
+      if (shapes.length > 0) {
+        this._nodeEventMgr.updateNodeClick$.next({ node: shapes[0], e })
+
+        return
+      }
+
+      if (groups.length > 0 && shapes.length === 0) {
+        this._nodeEventMgr.updateNodeClick$.next({ node: groups[0], e })
+
+        return
+      }
+
+      if (!e.target) {
+        this._nodeEventMgr.updateNodeClick$.next({ node: null, e })
+      }
     })
-    this._connectionMgr.unActive()
-    this._controlFrameMgr.unActive()
   }
 }
 

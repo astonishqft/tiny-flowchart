@@ -78,6 +78,7 @@ import type {
 import type { ICommand } from '@/history/historyManage'
 import type { IWidthActivate } from '@/shapes/mixins/widthActivate'
 import type { IWidthAnchor } from '@/shapes/mixins/widthAnchor'
+import type { INodeMouseDown } from '@/nodeEventManage'
 
 registerPainter('canvas', CanvasPainter)
 
@@ -150,6 +151,7 @@ export type {
   INodeGroup,
   IShape,
   INode,
+  INodeMouseDown,
   IConnection,
   BuiltinTextPosition,
   ISettingManage,

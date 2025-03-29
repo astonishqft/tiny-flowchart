@@ -1,7 +1,6 @@
 import { NodeGroup } from '@/shapes/nodeGroup'
 import { getMinZLevel } from '@/utils'
 import { Disposable, IDisposable } from '@/disposable'
-import { NodeEventManage } from '@/nodeEventManage'
 
 import type {
   IViewPortManage,
@@ -42,7 +41,7 @@ class GroupManage extends Disposable {
     const minZLevel = getMinZLevel(nodes)
     const groupNode = new NodeGroup(nodes, this._iocEditor)
     groupNode.setZ(minZLevel - 1)
-    new NodeEventManage(groupNode, this._iocEditor)
+
     if (groupId) {
       groupNode.id = groupId
     }

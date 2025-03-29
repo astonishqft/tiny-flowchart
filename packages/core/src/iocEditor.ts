@@ -15,6 +15,8 @@ import { SettingManage } from '@/settingManage'
 import { ControlFrameManage } from '@/controlFrameManage'
 import { HistoryManage } from '@/history/historyManage'
 import { HotKeysManager } from '@/hotKeysManage'
+import { NodeEventManage } from '@/nodeEventManage'
+
 import {
   downloadFile,
   groupArray2Tree,
@@ -90,6 +92,7 @@ import { ConnectionType, NodeType } from './shapes'
 import type { IGroupTreeNode } from './utils'
 import type { ISceneDragMoveOpts, ISceneDragStartOpts, IUpdateZoomOpts, Dictionary } from './types'
 import type { ICommand } from './history/historyManage'
+import type { INodeEventManage } from '@/nodeEventManage'
 
 export interface IIocEditor {
   _connectionMgr: IConnectionManage
@@ -104,6 +107,7 @@ export interface IIocEditor {
   _refLineMgr: IRefLineManage
   _selectFrameMgr: ISelectFrameManage
   _controlFrameMgr: IControlFrameManage
+  _nodeEventMgr: INodeEventManage
   _zoomMgr: IZoomManage
   _zr: ZRenderType
   _dom: HTMLElement
@@ -134,6 +138,7 @@ export interface IIocEditor {
   copy(): void
   paste(): void
   selectAll(): void
+  unActive(): void
 }
 
 export class IocEditor implements IIocEditor {
@@ -153,6 +158,7 @@ export class IocEditor implements IIocEditor {
   _selectFrameMgr: ISelectFrameManage
   _controlFrameMgr: IControlFrameManage
   _historyMgr: IHistoryManage
+  _nodeEventMgr: INodeEventManage
   _copyData: IExportData = {
     shapes: [],
     connections: [],
@@ -185,6 +191,7 @@ export class IocEditor implements IIocEditor {
     this._groupMgr = new GroupManage(this)
     this._shapeMgr = new ShapeManage(this)
     this._zr = init(dom)
+    this._nodeEventMgr = new NodeEventManage(this)
     this._sceneMgr = new SceneManage(this)
     this._historyMgr = new HistoryManage()
     this._pasteOffset = this._settingMgr.get('pasteOffset')
@@ -237,7 +244,7 @@ export class IocEditor implements IIocEditor {
     const activeNodes = this._storageMgr.getActiveNodes()
     const activeConnections = this._storageMgr.getActiveConnections()
     if (activeNodes.length < 1 && activeConnections.length < 1) return
-    this._sceneMgr.unActive()
+    this.unActive()
     this.execute('delete', { nodes: activeNodes, connections: activeConnections })
   }
 
@@ -439,7 +446,7 @@ export class IocEditor implements IIocEditor {
   }
 
   private handleAddShape(options: IAddShapeCommandOpts) {
-    this._sceneMgr.unActive()
+    this.unActive()
     const shape = this._shapeMgr.createShape(options.shapeType, options)
     this._historyMgr.execute(new AddShapeCommand(this, shape))
   }
@@ -631,7 +638,7 @@ export class IocEditor implements IIocEditor {
     const offset = 40
     const patchCommands: ICommand[] = []
     const copyShapeMap = new Map<number, IShape>()
-    this._sceneMgr.unActive()
+    this.unActive()
     shapes.forEach(s => {
       const oldId = s.id
       const newId = util.guid()
@@ -864,6 +871,14 @@ export class IocEditor implements IIocEditor {
     input.click()
   }
 
+  unActive() {
+    this._storageMgr.getNodes().forEach(node => {
+      node.unActive()
+    })
+    this._connectionMgr.unActive()
+    this._controlFrameMgr.unActive()
+  }
+
   destroy() {
     this._sceneMgr.dispose()
     this._shapeMgr.dispose()
@@ -872,6 +887,7 @@ export class IocEditor implements IIocEditor {
     this._shapeMgr.dispose()
     this._groupMgr.dispose()
     this._settingMgr.dispose()
+    this._nodeEventMgr.dispose()
     this._zr.dispose()
     this.updateZoom$.unsubscribe()
     this.sceneDragMove$.unsubscribe()

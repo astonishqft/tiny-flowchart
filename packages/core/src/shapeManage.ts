@@ -1,7 +1,6 @@
 import { getShape } from './shapes'
 import { Anchor } from './anchor'
 import { Disposable } from './disposable'
-import { NodeEventManage } from './nodeEventManage'
 
 import type {
   IAnchorPoint,
@@ -28,14 +27,11 @@ class ShapeManage extends Disposable {
   private _viewPortMgr: IViewPortManage
   private _storageMgr: IStorageManage
   private _controlFrameMgr: IControlFrameManage
-  private _iocEditor: IIocEditor
-
   constructor(iocEditor: IIocEditor) {
     super()
     this._viewPortMgr = iocEditor._viewPortMgr
     this._storageMgr = iocEditor._storageMgr
     this._controlFrameMgr = iocEditor._controlFrameMgr
-    this._iocEditor = iocEditor
   }
 
   createShape(type: string, { x, y, url }: { x: number; y: number; url?: string }): IShape {
@@ -51,7 +47,6 @@ class ShapeManage extends Disposable {
     shape.setType(type)
     shape.anchor = new Anchor(shape)
     shape.anchor.refresh()
-    new NodeEventManage(shape, this._iocEditor)
 
     return shape
   }

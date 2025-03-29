@@ -15,12 +15,12 @@ const Person = Path.extend({
     const { x, y, width, height } = shape
 
     ctx.beginPath()
-    ctx.arc(x + width / 2, y + 10, 6, 0, Math.PI * 2, false)
+    ctx.arc(x + width / 2, y + 6, 6, 0, Math.PI * 2, false)
 
-    ctx.moveTo(x, y + 20)
-    ctx.lineTo(x + width, y + 20)
+    ctx.moveTo(x, y + 16)
+    ctx.lineTo(x + width, y + 16)
 
-    ctx.moveTo(x + width / 2, y + 16)
+    ctx.moveTo(x + width / 2, y + 12)
     ctx.lineTo(x + width / 2, y + (2 / 3) * height)
 
     ctx.moveTo(x + width / 2, y + (2 / 3) * height)

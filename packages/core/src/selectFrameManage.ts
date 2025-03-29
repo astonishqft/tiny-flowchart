@@ -12,6 +12,7 @@ export interface ISelectFrameManage {
   multiSelect(): void
   show(): void
   hide(): void
+  init(x: number, y: number): void
 }
 
 class SelectFrameManage implements ISelectFrameManage {
@@ -79,12 +80,19 @@ class SelectFrameManage implements ISelectFrameManage {
     })
   }
 
+  init(x: number, y: number) {
+    this.setPosition(x, y)
+    this.resize(0, 0)
+    this.show()
+  }
+
   show() {
     this._selectFrame.show()
   }
 
   hide() {
     this._selectFrame.hide()
+    this._selectFrameStatus = false
   }
 
   getSelectFrame() {

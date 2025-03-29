@@ -14,9 +14,9 @@ import {
 import type {
   BuiltinTextPosition,
   IShape,
-  INode,
   IExportShapeStyle,
-  LineDashStyle
+  LineDashStyle,
+  INodeMouseDown
 } from '@ioceditor/core'
 
 const { iocEditor } = defineProps<{
@@ -39,9 +39,9 @@ const shapeConfig = ref<IExportShapeStyle>({
   backgroundColor: '#fff'
 })
 
-iocEditor._sceneMgr.updateSelectNode$.subscribe((shape: INode) => {
-  if (shape.nodeType === NodeType.Shape) {
-    activeShape.value = shape as IShape
+iocEditor._nodeEventMgr.updateNodeClick$.subscribe(({ node }: INodeMouseDown) => {
+  if (node?.nodeType === NodeType.Shape) {
+    activeShape.value = node as IShape
     if (activeShape.value.type === 'text') {
       shapeConfig.value.fontColor = activeShape.value.style.fill
       shapeConfig.value.fontSize = activeShape.value.style.fontSize as number

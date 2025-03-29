@@ -11,7 +11,7 @@ import type {
   INodeGroup,
   IExportGroupStyle,
   IIocEditor,
-  IShape
+  INodeMouseDown
 } from '@ioceditor/core'
 
 const { iocEditor } = defineProps<{
@@ -51,9 +51,9 @@ const groupConfig = ref<IExportGroupStyle>({
   textPosition: 'insideLeft'
 })
 
-iocEditor._sceneMgr.updateSelectNode$.subscribe((group: INodeGroup | IShape) => {
-  if (group.nodeType === NodeType.Group) {
-    activeGroup.value = group
+iocEditor._nodeEventMgr.updateNodeClick$.subscribe(({ node }: INodeMouseDown) => {
+  if (node?.nodeType === NodeType.Group) {
+    activeGroup.value = node as INodeGroup
     groupConfig.value.fill = activeGroup.value.groupRect?.style.fill as string
     groupConfig.value.stroke = activeGroup.value.groupRect?.style.stroke as string
     groupConfig.value.fontColor = activeGroup.value.groupHead?.getTextContent().style.fill || '#333'

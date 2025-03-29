@@ -1,7 +1,10 @@
+import { Subject } from 'rxjs'
 import { getBoundingBox, getMinPosition } from './utils'
+import { Disposable } from '@/disposable'
+import { NodeType } from '@/index'
 
+import type { IDisposable } from '@/disposable'
 import type {
-  Element,
   ElementEvent,
   IIocEditor,
   IShape,
@@ -13,17 +16,24 @@ import type {
   IStorageManage,
   IDragFrameManage,
   IRefLineManage,
-  IConnectionManage,
-  ISceneManage
+  IConnectionManage
 } from '@/index'
 
-class NodeEventManage {
-  private _node: INode
+export interface INodeMouseDown {
+  node: INode | null
+  e: ElementEvent
+}
+export interface INodeEventManage extends IDisposable {
+  updateNodeMouseDown$: Subject<INodeMouseDown>
+  updateNodeClick$: Subject<INodeMouseDown>
+}
+
+class NodeEventManage extends Disposable {
+  private _node?: INode
   private _iocEditor: IIocEditor
   private _dragFrameMgr: IDragFrameManage
   private _refLineMgr: IRefLineManage
   private _connectionMgr: IConnectionManage
-  private _sceneMgr: ISceneManage
   private _settingMgr: ISettingManage
   private _zoomMgr: IZoomManage
   private _storageMgr: IStorageManage
@@ -38,52 +48,64 @@ class NodeEventManage {
   private _isRemoveFromGroup = false
   private _isDragEnterToGroup = false
   private _activeNodes: INode[] = []
+  updateNodeMouseDown$ = new Subject<INodeMouseDown>()
+  updateNodeClick$ = new Subject<INodeMouseDown>()
   private _onMouseMove: (e: MouseEvent) => void
   private _onMouseUp: (e: MouseEvent) => void
 
-  constructor(node: INode, iocEditor: IIocEditor) {
+  constructor(iocEditor: IIocEditor) {
+    super()
     this._iocEditor = iocEditor
-    this._node = node
     this._zoomMgr = iocEditor._zoomMgr
     this._storageMgr = iocEditor._storageMgr
     this._dragFrameMgr = iocEditor._dragFrameMgr
     this._refLineMgr = iocEditor._refLineMgr
     this._connectionMgr = iocEditor._connectionMgr
-    this._sceneMgr = iocEditor._sceneMgr
     this._settingMgr = iocEditor._settingMgr
     this._controlFrameMgr = iocEditor._controlFrameMgr
     this._onMouseUp = this.onMouseUp.bind(this)
     this._onMouseMove = this.onMouseMove.bind(this)
-
+    this._disposables.push(this.updateNodeMouseDown$)
+    this._disposables.push(this.updateNodeClick$)
     if (!this._settingMgr.get('enableMiniMap')) {
       this.initEvent()
     }
   }
 
   initEvent() {
-    ;(this._node as Element).on('mousedown', this.handleMouseDown.bind(this))
-    ;(this._node as Element).on('click', this.handleClick.bind(this))
+    this.updateNodeMouseDown$.subscribe((target: INodeMouseDown) => {
+      if (target.node) {
+        this._node = target.node
+        this.handleMouseDown(target.node, target.e)
+      }
+    })
+
+    this.updateNodeClick$.subscribe((target: INodeMouseDown) => {
+      if (target.node) {
+        this.handleClick(target.node)
+      }
+    })
   }
 
   private isNodeSelectedInActiveNodes(node: INode): boolean {
     return this._activeNodes.some(activeNode => activeNode.id === node.id)
   }
 
-  private handleMouseDown(e: ElementEvent) {
+  private handleMouseDown(node: INode, e: ElementEvent) {
     this._mouseDownX = e.offsetX
     this._mouseDownY = e.offsetY
 
     // 判断当前节点是否被选中，如果没有被选中，则清除其他节点的选中状态，并将当前节点设为选中状态
     this._activeNodes = this._storageMgr.getActiveNodes()
 
-    const isNodeInActive = this.isNodeSelectedInActiveNodes(this._node)
+    const isNodeInActive = this.isNodeSelectedInActiveNodes(node)
 
     if (isNodeInActive) {
       this._activeNodes.forEach(n => n.setOldPosition())
     } else {
-      this._sceneMgr.unActive()
-      this._node.active()
-      this._node.setOldPosition()
+      this._iocEditor.unActive()
+      node.active()
+      node.setOldPosition()
       this._activeNodes = this._storageMgr.getActiveNodes()
     }
 
@@ -100,15 +122,14 @@ class NodeEventManage {
     document.addEventListener('mouseup', this._onMouseUp)
   }
 
-  private handleClick() {
-    console.log('shape click', this._node)
-    this._sceneMgr.unActive()
+  private handleClick(node: INode) {
+    console.log('shape click', node)
+    this._iocEditor.unActive()
     this._connectionMgr.unActive()
-    this._node.active()
-    if (this._node.nodeType === 'Shape') {
+    node.active()
+    if (node.nodeType === NodeType.Shape) {
       this._controlFrameMgr.active(this._node as IShape)
     }
-    this._sceneMgr.updateSelectNode$.next(this._node)
   }
 
   onMouseMove(e: MouseEvent) {
@@ -125,7 +146,7 @@ class NodeEventManage {
     if (this._activeNodes.length === 1) {
       // 限制组之间拖动只允许一个节点
       const { isDragOutFromGroup, dragTargetGroup, isRemoveFromGroup, isDragEnterToGroup } =
-        this._dragFrameMgr.intersectWidthGroups(this._node)
+        this._dragFrameMgr.intersectWidthGroups(this._node as INode)
       this._isDragOutFromGroup = isDragOutFromGroup
       this._dragTargetGroup = dragTargetGroup
       this._isRemoveFromGroup = isRemoveFromGroup
