@@ -14,7 +14,7 @@ import IconSquare from './icons/Square.vue'
 import IconActor from './icons/Actor.vue'
 import IconCircle from './icons/Circle.vue'
 import IconCross from './icons/Cross.vue'
-import IconCylinde from './icons/Cylinde.vue'
+import IconDatabase from './icons/Database.vue'
 import IconDiamond from './icons/Diamond.vue'
 import IconDivide from './icons/Divide.vue'
 import IconDownArrow from './icons/DownArrow.vue'
@@ -129,12 +129,12 @@ const elementList = [
         nodeType: 'text'
       },
       {
-        component: IconActor,
+        component: IconActor, // 角色
         nodeType: 'actor'
       },
       {
-        component: IconCylinde,
-        nodeType: 'cylinde'
+        component: IconDatabase, // 圆柱
+        nodeType: 'database'
       },
 
       {

@@ -9,7 +9,7 @@ import { Image } from './image'
 import { Square } from './square'
 import { Diamond } from './diamond'
 import { Actor } from './actor'
-
+import { Database } from './database'
 import type { INodeGroup } from './nodeGroup'
 import type {
   BuiltinTextPosition,
@@ -287,8 +287,7 @@ export const shapeConfig: IShapeConfig = {
     style: {
       fill: '#fff',
       stroke: '#333',
-      lineWidth: 1,
-      opacity: 1
+      lineWidth: 1
     },
     shape: {
       x: 0,
@@ -300,6 +299,20 @@ export const shapeConfig: IShapeConfig = {
     textConfig: {
       position: 'bottom'
     }
+  },
+  database: {
+    style: {
+      fill: '#fff',
+      stroke: '#333',
+      lineWidth: 1
+    },
+    shape: {
+      x: 0,
+      y: 0,
+      width: 60,
+      height: 80
+    },
+    z: 1
   },
   image: {
     style: {
@@ -341,7 +354,8 @@ export const shapes: IShapeMap = {
   image: Image,
   square: Square,
   diamond: Diamond,
-  actor: Actor
+  actor: Actor,
+  database: Database
 }
 
 export const getShape = (type: string, option: { x: number; y: number; image?: string }) => {
