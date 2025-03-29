@@ -125,7 +125,6 @@ class ConnectionManage extends Disposable {
 
   initEvent(conn: IConnection) {
     conn.on('click', () => {
-      this.unActive()
       this._iocEditor.unActive()
       this.updateSelectConnection$.next(conn)
       conn.active()

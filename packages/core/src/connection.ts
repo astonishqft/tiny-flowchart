@@ -66,7 +66,11 @@ const RoundPolyline = Path.extend({
 })
 
 class Connection extends Group implements IConnection {
-  private _line: Line | BezierCurve | Path | null = null
+  private _line:
+    | (Line & { mark: string })
+    | (BezierCurve & { mark: string })
+    | (Path & { mark: string })
+    | null = null
   private _controlLine1: Line | null = null
   private _controlLine2: Line | null = null
   private _ortogonalLinePoints: Point[] = []
@@ -99,6 +103,7 @@ class Connection extends Group implements IConnection {
   toPoint: IAnchor
   connectionType: ConnectionType = ConnectionType.Line
   selected: boolean = false
+  mark = 'connection'
   constructor(
     iocEditor: IIocEditor,
     fromAnchorPoint: IAnchorPoint,
@@ -264,10 +269,10 @@ class Connection extends Group implements IConnection {
 
     switch (this.connectionType) {
       case ConnectionType.Line:
-        this._line = new Line()
+        this._line = new Line() as Line & { mark: string }
         break
       case ConnectionType.BezierCurve:
-        this._line = new BezierCurve({ style: lineStyle, z: 4 })
+        this._line = new BezierCurve({ style: lineStyle, z: 4 }) as BezierCurve & { mark: string }
 
         this.controlPoint1 = this.createControlPoint()
         this.controlPoint2 = this.createControlPoint()
@@ -283,7 +288,7 @@ class Connection extends Group implements IConnection {
         this.setupControlPointEvents(this.controlPoint2)
         break
       case ConnectionType.OrtogonalLine:
-        this._line = new RoundPolyline()
+        this._line = new RoundPolyline() as Path & { mark: string }
         break
       default:
         break
@@ -292,18 +297,23 @@ class Connection extends Group implements IConnection {
     if (this._line) {
       this._line.setStyle(lineStyle)
       this._line.attr({ z: 4 })
+      this._line.mark = 'connection'
       this.add(this._line)
     }
   }
 
   private createControlPoint(): IControlPoint {
-    return new Circle({
+    const controlPoint = new Circle({
       style: { fill: 'red' },
       shape: { r: 4 },
       z: 40,
       draggable: true,
       invisible: this._enableMiniMap
     }) as IControlPoint
+
+    controlPoint.mark = 'controlPoint'
+
+    return controlPoint
   }
 
   private createControlLine(): Line {

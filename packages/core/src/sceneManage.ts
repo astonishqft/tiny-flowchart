@@ -18,7 +18,8 @@ import type {
   IDisposable,
   IAnchorPoint,
   IShape,
-  INodeGroup
+  INodeGroup,
+  IControlPoint
 } from '@/index'
 import type { INodeEventManage } from '@/nodeEventManage'
 import type { IResizePoint } from '@/controlFrameManage'
@@ -143,8 +144,21 @@ class SceneManage extends Disposable {
         )
       }
 
-      if (e.target && (e.target as IResizePoint).anchor === 'resizePoint') {
+      if (e.target && (e.target as IResizePoint).mark === 'resizePoint') {
         this._eventModel = 'resizePoint'
+
+        return
+      }
+
+      // 选中连线
+      if (e.target && (e.target as Element & { mark: string }).mark === 'connection') {
+        this._eventModel = 'connection'
+
+        return
+      }
+
+      if (e.target && (e.target as IControlPoint).mark === 'controlPoint') {
+        this._eventModel = 'controlPoint'
 
         return
       }
@@ -261,6 +275,10 @@ class SceneManage extends Disposable {
 
     this._zr.on('click', e => {
       const { shapes, groups } = this.getSelectedNode(e.offsetX, e.offsetY)
+
+      if (e.target && (e.target as Element & { mark: string }).mark === 'connection') {
+        return
+      }
 
       if (shapes.length > 0) {
         this._nodeEventMgr.updateNodeClick$.next({ node: shapes[0], e })

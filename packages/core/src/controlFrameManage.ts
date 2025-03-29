@@ -15,7 +15,7 @@ export interface IControlFrameManage {
   reSizeNode(boundingBox: BoundingRect): void
 }
 
-export type IResizePoint = Rect & { anchor: string }
+export type IResizePoint = Rect & { mark: string }
 
 interface IPointCursor {
   cursor: string
@@ -72,7 +72,7 @@ class ControlFrameManage implements IControlFrameManage {
         z: pos.z
       }) as IResizePoint
 
-      controlPoint.anchor = 'resizePoint'
+      controlPoint.mark = 'resizePoint'
       this._controlPoints.push(controlPoint)
     })
   }
