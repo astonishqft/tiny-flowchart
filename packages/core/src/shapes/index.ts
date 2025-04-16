@@ -2,14 +2,46 @@ import { Group, Text as ZText, Circle as ZCircle } from '../'
 import { WidthActivate } from './mixins/widthActivate'
 import { WidthAnchor } from './mixins/widthAnchor'
 import { WidthCommon } from './mixins/widthCommon'
-import { Rect } from './rect'
 import { Circle } from './circle'
 import { Text } from './text'
 import { Image } from './image'
 import { Square } from './square'
+import { Rect } from './rect'
+import { Parallelogram } from './parallelogram'
+import { Pentagon } from './pentagon'
+import { Hexagon } from './hexagon'
+import { Septagon } from './septagon'
+import { Heptagon } from './heptagon'
+import { Trapezoid } from './trapezoid'
 import { Diamond } from './diamond'
-import { Actor } from './actor'
-import { Database } from './database'
+import { Triangle } from './triangle'
+import { Cloud } from './cloud'
+import { ArrowRight } from './arrowRight'
+import { RoundRect } from './aroundRect'
+import { PreRect } from './preRect'
+import { Document } from './document'
+import { Delay } from './delay'
+import { Card } from './card'
+import { Cylinder } from './cylinder'
+import { Prepare } from './prepare'
+import { Loop } from './loop'
+import { Perhaps } from './perhaps'
+import { Collate } from './collate'
+import { Sort } from './sort'
+import { Display } from './display'
+import { Store } from './store'
+import { ManualInput } from './manualInput'
+import { PaperTape } from './paperTape'
+import { SequentialData } from './sequentialData'
+import { ManualOperation } from './manualOperation'
+import { DirectData } from './directData'
+import { StoreData } from './storeData'
+import { ParallelMode } from './parallelMode'
+import { Annotation } from './annotation'
+import { Induce } from './induce'
+import { MultiDocument } from './multiDocument'
+import { ProcessBar } from './processBar'
+
 import type { INodeGroup } from './nodeGroup'
 import type {
   BuiltinTextPosition,
@@ -29,7 +61,6 @@ import type { Constructor, Dictionary } from '../types'
 import type { IWidthActivate } from './mixins/widthActivate'
 import type { IWidthAnchor } from './mixins/widthAnchor'
 import type { IWidthCommon } from './mixins/widthCommon'
-
 export type FillStyle =
   | string
   | PatternObject
@@ -43,6 +74,7 @@ export type StrokeStyle =
   | RadialGradientObject
   | undefined
 export type LineDashStyle = false | number[] | 'solid' | 'dashed' | 'dotted' | undefined
+import type { IInduceProps } from './induce'
 
 export interface IExportConnectionStyle {
   stroke: StrokeStyle
@@ -173,7 +205,7 @@ export interface IShape extends Displayable, IWidthActivate, IWidthAnchor, IWidt
 
 export type INode = IShape | INodeGroup
 
-type IShapeProps = RectProps | EllipseProps | ImageProps | TextProps
+type IShapeProps = RectProps | EllipseProps | ImageProps | TextProps | IInduceProps
 
 export interface IShapeConfig {
   [key: string]: IShapeProps
@@ -209,69 +241,24 @@ export interface IExportData {
   groups: IExportGroup[]
 }
 
-export const shapeConfig: IShapeConfig = {
-  square: {
+const getDefaultShapeConfig = (): IShapeProps => {
+  return {
     style: {
       fill: '#fff',
       stroke: '#333',
-      lineWidth: 1,
-      opacity: 1
+      lineWidth: 1
     },
     shape: {
       x: 0,
       y: 0,
       width: 80,
-      height: 80,
-      r: 4
+      height: 40
     },
     z: 1
-  },
-  rect: {
-    style: {
-      fill: '#fff',
-      stroke: '#333',
-      lineWidth: 1,
-      opacity: 1
-    },
-    shape: {
-      x: 0,
-      y: 0,
-      width: 100,
-      height: 60,
-      r: 4
-    },
-    z: 1
-  },
-  circle: {
-    style: {
-      fill: '#fff',
-      stroke: '#333',
-      lineWidth: 1,
-      opacity: 1
-    },
-    shape: {
-      cx: 40,
-      cy: 40,
-      rx: 40,
-      ry: 40
-    },
-    z: 1
-  },
-  diamond: {
-    style: {
-      fill: '#fff',
-      stroke: '#333',
-      lineWidth: 1,
-      opacity: 1
-    },
-    shape: {
-      x: 0,
-      y: 0,
-      width: 100,
-      height: 60
-    },
-    z: 1
-  },
+  }
+}
+
+export const shapeConfig: IShapeConfig = {
   text: {
     style: {
       text: 'Text',
@@ -280,39 +267,72 @@ export const shapeConfig: IShapeConfig = {
       fontSize: 16,
       fontWeight: 'normal',
       fontStyle: 'normal'
-    },
-    z: 1
-  },
-  actor: {
-    style: {
-      fill: '#fff',
-      stroke: '#333',
-      lineWidth: 1
-    },
-    shape: {
-      x: 0,
-      y: 0,
-      width: 40,
-      height: 80
-    },
-    z: 1,
-    textConfig: {
-      position: 'bottom'
     }
   },
-  database: {
-    style: {
-      fill: '#fff',
-      stroke: '#333',
-      lineWidth: 1
-    },
+  square: {
     shape: {
       x: 0,
       y: 0,
       width: 60,
+      height: 60,
+      r: 4
+    }
+  },
+  circle: {
+    shape: {
+      cx: 30,
+      cy: 30,
+      rx: 30,
+      ry: 30
+    }
+  },
+  pentagon: {
+    shape: {
+      x: 0,
+      y: 0,
+      width: 80,
       height: 80
-    },
-    z: 1
+    }
+  },
+  hexagon: {
+    shape: {
+      x: 0,
+      y: 0,
+      width: 80,
+      height: 80
+    }
+  },
+  septagon: {
+    shape: {
+      x: 0,
+      y: 0,
+      width: 80,
+      height: 80
+    }
+  },
+  heptagon: {
+    shape: {
+      x: 0,
+      y: 0,
+      width: 80,
+      height: 80
+    }
+  },
+  trapezoid: {
+    shape: {
+      x: 0,
+      y: 0,
+      width: 80,
+      height: 80
+    }
+  },
+  triangle: {
+    shape: {
+      x: 0,
+      y: 0,
+      width: 80,
+      height: 80
+    }
   },
   image: {
     style: {
@@ -322,10 +342,130 @@ export const shapeConfig: IShapeConfig = {
       width: 120,
       height: 80
     },
-    z: 1,
     textConfig: {
       position: 'bottom'
     }
+  },
+  // topo
+  document: {
+    shape: {
+      x: 0,
+      y: 0,
+      width: 80,
+      height: 60
+    }
+  },
+  multiDocument: {
+    shape: {
+      x: 0,
+      y: 0,
+      width: 80,
+      height: 60
+    }
+  },
+  cylinder: {
+    shape: {
+      x: 0,
+      y: 0,
+      width: 60,
+      height: 80
+    }
+  },
+  processBar: {
+    shape: {
+      x: 0,
+      y: 0,
+      width: 80,
+      height: 40
+    }
+  },
+  arrowRight: {
+    textConfig: undefined
+  },
+  card: {
+    shape: {
+      x: 0,
+      y: 0,
+      width: 80,
+      height: 80
+    }
+  },
+  perhaps: {
+    shape: {
+      x: 0,
+      y: 0,
+      width: 30,
+      height: 30
+    },
+    textConfig: {
+      position: 'bottom'
+    }
+  },
+  store: {
+    shape: {
+      x: 0,
+      y: 0,
+      width: 80,
+      height: 80
+    }
+  },
+  collate: {
+    shape: {
+      x: 0,
+      y: 0,
+      width: 40,
+      height: 30
+    },
+    textConfig: {
+      position: 'bottom'
+    }
+  },
+  sort: {
+    shape: {
+      x: 0,
+      y: 0,
+      width: 40,
+      height: 40
+    },
+    textConfig: {
+      position: 'bottom'
+    }
+  },
+  sequentialData: {
+    shape: {
+      x: 0,
+      y: 0,
+      width: 60,
+      height: 60
+    }
+  },
+  parallelMode: {
+    shape: {
+      x: 0,
+      y: 0,
+      width: 80,
+      height: 30
+    },
+    textConfig: undefined
+  },
+  annotation: {
+    shape: {
+      x: 0,
+      y: 0,
+      width: 50,
+      height: 80
+    },
+    textConfig: undefined
+  },
+  induce: {
+    shape: {
+      x: 0,
+      y: 0,
+      width: 50,
+      height: 80,
+      direct: 'right'
+    },
+    textConfig: undefined
   }
 }
 
@@ -348,18 +488,55 @@ const getDefaultShapeTextConfig = (): IShapeTextConfig => {
 }
 
 export const shapes: IShapeMap = {
-  rect: Rect,
-  circle: Circle,
   text: Text,
+  circle: Circle,
+  rect: Rect,
   image: Image,
   square: Square,
   diamond: Diamond,
-  actor: Actor,
-  database: Database
+  parallelogram: Parallelogram,
+  pentagon: Pentagon,
+  hexagon: Hexagon,
+  septagon: Septagon,
+  heptagon: Heptagon,
+  trapezoid: Trapezoid,
+  triangle: Triangle,
+  // topo
+  rectangle: Rect,
+  cloud: Cloud,
+  arrowRight: ArrowRight,
+  roundRect: RoundRect,
+  preRect: PreRect,
+  document: Document,
+  multiDocument: MultiDocument,
+  processBar: ProcessBar,
+  delay: Delay,
+  card: Card,
+  cylinder: Cylinder,
+  preparation: Prepare,
+  loop: Loop,
+  perhaps: Perhaps,
+  collate: Collate,
+  sort: Sort,
+  display: Display,
+  store: Store,
+  manualInput: ManualInput,
+  paperTape: PaperTape,
+  sequentialData: SequentialData,
+  manualOperation: ManualOperation,
+  directData: DirectData,
+  storeData: StoreData,
+  parallelMode: ParallelMode,
+  annotation: Annotation,
+  induce: Induce
 }
 
 export const getShape = (type: string, option: { x: number; y: number; image?: string }) => {
-  const config: IShapeProps = { ...getDefaultShapeTextConfig(), ...shapeConfig[type] }
+  const config: IShapeProps = {
+    ...getDefaultShapeTextConfig(),
+    ...getDefaultShapeConfig(),
+    ...(shapeConfig[type] || {})
+  }
   if (type === 'text') {
     delete config.textConfig
     delete config.textContent

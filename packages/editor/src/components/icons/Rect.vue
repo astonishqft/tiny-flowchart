@@ -1,5 +1,5 @@
 <template>
-  <svg class="svg-node">
+  <svg>
     <g transform="translate(0.5,0.5)" style="visibility: visible">
       <rect
         x="2.38"
@@ -16,15 +16,3 @@
     </g>
   </svg>
 </template>
-
-<style scoped>
-.svg-node {
-  left: 1px;
-  top: 1px;
-  width: 32px;
-  height: 30px;
-  display: block;
-  position: relative;
-  overflow: hidden;
-}
-</style>

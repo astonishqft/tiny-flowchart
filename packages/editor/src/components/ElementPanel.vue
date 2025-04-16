@@ -11,30 +11,42 @@ import {
   ElCollapseItem
 } from 'element-plus'
 import IconSquare from './icons/Square.vue'
-import IconActor from './icons/Actor.vue'
+import IconRect from './icons/Rect.vue'
 import IconCircle from './icons/Circle.vue'
-import IconCross from './icons/Cross.vue'
-import IconDatabase from './icons/Database.vue'
 import IconDiamond from './icons/Diamond.vue'
-import IconDivide from './icons/Divide.vue'
-import IconDownArrow from './icons/DownArrow.vue'
-import IconEllipse from './icons/Ellipse.vue'
 import IconHeptagon from './icons/Heptagon.vue'
 import IconHexagon from './icons/Hexagon.vue'
-import IconHorizontalArrow from './icons/HorizontalArrow.vue'
-import IconLeftArrow from './icons/LeftArrow.vue'
-import IconMinus from './icons/Minus.vue'
 import IconParallelogram from './icons/Parallelogram.vue'
 import IconPentagon from './icons/Pentagon.vue'
-import IconRect from './icons/Rect.vue'
-import IconRightArrow from './icons/RightArrow.vue'
 import IconText from './icons/Text.vue'
 import IconTrapezoid from './icons/Trapezoid.vue'
 import IconTriangle from './icons/Triangle.vue'
-import IconUpArrow from './icons/UpArrow.vue'
-import IconVerticalArrow from './icons/VerticalArrow.vue'
 import IconSeptagon from './icons/Septagon.vue'
-import IconTimes from './icons/Times.vue'
+import IconArrowRight from './icons/ArrowRight.vue'
+import IconTerminator from './icons/Terminator.vue'
+import IconProcess from './icons/Process.vue'
+import IconDocument from './icons/Document.vue'
+import IconMultiDocument from './icons/MultiDocument.vue'
+import IconDelay from './icons/Delay.vue'
+import IconProcessBar from './icons/ProcessBar.vue'
+import IconCard from './icons/Card.vue'
+import IconCylinder from './icons/Cylinder.vue'
+import IconPreparation from './icons/Preparation.vue'
+import IconLoop from './icons/Loop.vue'
+import IconPerhaps from './icons/Perhaps.vue'
+import IconCollate from './icons/Collate.vue'
+import IconSort from './icons/Sort.vue'
+import IconDisplay from './icons/Display.vue'
+import IconStore from './icons/Store.vue'
+import IconManualInput from './icons/ManualInput.vue'
+import IconPaperTape from './icons/PaperTape.vue'
+import IconSequentialData from './icons/SequentialData.vue'
+import IconManualOperation from './icons/ManualOperation.vue'
+import IconDirectData from './icons/DirectData.vue'
+import IconStoreData from './icons/StoreData.vue'
+import IconParallelMode from './icons/ParallelMode.vue'
+import IconAnnotation from './icons/Annotation.vue'
+import IconInduce from './icons/Induce.vue'
 
 import type { Component } from 'vue'
 import type { FormRules } from 'element-plus'
@@ -105,127 +117,230 @@ const submitForm = async (formEl: FormInstance | undefined) => {
 
 const elementList = [
   {
-    title: '基本图形',
+    title: '基础图形',
     key: '0',
     elements: [
       {
+        component: IconText,
+        nodeType: 'text',
+        title: '文本'
+      },
+      {
         component: IconSquare,
-        nodeType: 'square'
+        nodeType: 'square',
+        title: '正方形'
       },
       {
         component: IconRect,
-        nodeType: 'rect'
+        nodeType: 'rect',
+        title: '矩形'
       },
       {
         component: IconCircle,
-        nodeType: 'circle'
+        nodeType: 'circle',
+        title: '圆形'
       },
       {
-        component: IconDiamond, // 菱形
-        nodeType: 'diamond'
-      },
-      {
-        component: IconText,
-        nodeType: 'text'
-      },
-      {
-        component: IconActor, // 角色
-        nodeType: 'actor'
-      },
-      {
-        component: IconDatabase, // 圆柱
-        nodeType: 'database'
-      },
-
-      {
-        component: IconEllipse,
-        nodeType: 'ellipse'
-      },
-      {
-        component: IconParallelogram,
-        nodeType: 'parallelogram'
-      },
-      {
-        component: IconPentagon,
-        nodeType: 'pentagon'
-      },
-      {
-        component: IconHexagon,
-        nodeType: 'hexagon'
-      },
-      {
-        component: IconSeptagon,
-        nodeType: 'septagon'
-      },
-      {
-        component: IconHeptagon,
-        nodeType: 'heptagon'
-      },
-      {
-        component: IconTrapezoid,
-        nodeType: 'trapezoid'
+        component: IconDiamond,
+        nodeType: 'diamond',
+        title: '菱形'
       },
       {
         component: IconTriangle,
-        nodeType: 'triangle'
+        nodeType: 'triangle',
+        title: '三角形'
+      },
+      {
+        component: IconParallelogram,
+        nodeType: 'parallelogram',
+        title: '平行四边形'
+      },
+      {
+        component: IconPentagon,
+        nodeType: 'pentagon',
+        title: '五边形'
+      },
+      {
+        component: IconHexagon,
+        nodeType: 'hexagon',
+        title: '六边形'
+      },
+      {
+        component: IconSeptagon,
+        nodeType: 'septagon',
+        title: '七边形'
+      },
+      {
+        component: IconHeptagon,
+        nodeType: 'heptagon',
+        title: '八边形'
+      },
+      {
+        component: IconTrapezoid,
+        nodeType: 'trapezoid',
+        title: '梯形'
       }
     ]
   },
   {
-    title: '箭头',
+    title: 'Flowchart流程图',
     key: '1',
     elements: [
       {
-        component: IconLeftArrow,
-        nodeType: 'leftArrow'
+        component: IconRect,
+        nodeType: 'rectangle',
+        title: '处理'
       },
       {
-        component: IconRightArrow,
-        nodeType: 'rightArrow'
+        component: IconCircle,
+        nodeType: 'circle',
+        title: '圆形'
       },
       {
-        component: IconHorizontalArrow,
-        nodeType: 'horizontalArrow'
+        component: IconText,
+        nodeType: 'text',
+        title: '文本'
       },
       {
-        component: IconUpArrow,
-        nodeType: 'upArrow'
+        component: IconDiamond,
+        nodeType: 'diamond',
+        title: '条件判断'
       },
       {
-        component: IconDownArrow,
-        nodeType: 'downArrow'
+        component: IconParallelogram,
+        nodeType: 'parallelogram',
+        title: '数据输入输出'
       },
       {
-        component: IconVerticalArrow,
-        nodeType: 'verticalArrow'
-      }
-    ]
-  },
-  {
-    title: '符号',
-    key: '2',
-    elements: [
-      {
-        component: IconCross,
-        nodeType: 'cross'
+        component: IconArrowRight,
+        nodeType: 'arrowRight',
+        title: '右箭头'
       },
       {
-        component: IconMinus,
-        nodeType: 'minus'
+        component: IconTerminator,
+        nodeType: 'roundRect',
+        title: '起止端点'
       },
       {
-        component: IconTimes,
-        nodeType: 'times'
+        component: IconProcess,
+        nodeType: 'preRect',
+        title: '预设处理'
       },
       {
-        component: IconDivide,
-        nodeType: 'divide'
+        component: IconDocument,
+        nodeType: 'document',
+        title: '文件'
+      },
+      {
+        component: IconMultiDocument,
+        nodeType: 'multiDocument',
+        title: '多文件'
+      },
+      {
+        component: IconProcessBar,
+        nodeType: 'processBar',
+        title: '流程条'
+      },
+      {
+        component: IconDelay,
+        nodeType: 'delay',
+        title: '延迟'
+      },
+      {
+        component: IconCard,
+        nodeType: 'card',
+        title: '卡片'
+      },
+      {
+        component: IconCylinder,
+        nodeType: 'cylinder',
+        title: '数据库'
+      },
+      {
+        component: IconPreparation,
+        nodeType: 'preparation',
+        title: '准备'
+      },
+      {
+        component: IconLoop,
+        nodeType: 'loop',
+        title: '循环边界'
+      },
+      {
+        component: IconPerhaps,
+        nodeType: 'perhaps',
+        title: '求和函数'
+      },
+      {
+        component: IconCollate,
+        nodeType: 'collate',
+        title: '合并'
+      },
+      {
+        component: IconSort,
+        nodeType: 'sort',
+        title: '排序'
+      },
+      {
+        component: IconDisplay,
+        nodeType: 'display',
+        title: '显示'
+      },
+      {
+        component: IconStore,
+        nodeType: 'store',
+        title: '内部存储'
+      },
+      {
+        component: IconManualInput,
+        nodeType: 'manualInput',
+        title: '手动输入'
+      },
+      {
+        component: IconPaperTape,
+        nodeType: 'paperTape',
+        title: '纸带'
+      },
+      {
+        component: IconSequentialData,
+        nodeType: 'sequentialData',
+        title: '序列数据'
+      },
+      {
+        component: IconManualOperation,
+        nodeType: 'manualOperation',
+        title: '手动操作'
+      },
+      {
+        component: IconDirectData,
+        nodeType: 'directData',
+        title: '直接数据'
+      },
+      {
+        component: IconStoreData,
+        nodeType: 'storeData',
+        title: '存储数据'
+      },
+      {
+        component: IconParallelMode,
+        nodeType: 'parallelMode',
+        title: '并行模式'
+      },
+      {
+        component: IconAnnotation,
+        nodeType: 'annotation',
+        title: '注释'
+      },
+      {
+        component: IconInduce,
+        nodeType: 'induce',
+        title: '引导'
       }
     ]
   }
 ]
 
-const elementCategory = ref(['0'])
+const elementCategory = ref(['0', '1', '2'])
 </script>
 
 <template>
@@ -240,6 +355,7 @@ const elementCategory = ref(['0'])
             v-for="element in item.elements"
             :key="element.nodeType"
             :draggable="true"
+            :title="element.title"
             @dragstart="dragStart($event, { nodeType: element.nodeType })"
             class="element-item"
           >
@@ -247,7 +363,7 @@ const elementCategory = ref(['0'])
           </li>
         </ul>
       </el-collapse-item>
-      <el-collapse-item name="自定义图片">
+      <el-collapse-item name="2">
         <template #title>
           <div class="element-title">自定义图片</div>
         </template>
@@ -290,7 +406,7 @@ const elementCategory = ref(['0'])
       </div>
       <template #footer>
         <div class="dialog-footer">
-          <el-button type="primary" @click="submitForm(ruleFormRef)"> 确定 </el-button>
+          <el-button type="primary" @click="submitForm(ruleFormRef)">确定</el-button>
         </div>
       </template>
     </el-dialog>
