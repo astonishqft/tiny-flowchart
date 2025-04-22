@@ -7,13 +7,17 @@ import {
   ElIcon,
   ElDropdownMenu,
   ElDropdownItem,
-  ElCheckbox
+  ElCheckbox,
+  ElDialog
 } from 'element-plus'
 import { ConnectionType } from '@ioceditor/core'
 import { ArrowDown, QuestionFilled } from '@element-plus/icons-vue'
 
 import type { CheckboxValueType } from 'element-plus'
 import type { IIocEditor } from '@ioceditor/core'
+
+const dialogVisible = ref(false)
+const version = ref(__IOC_EDITOR_VERSION__)
 
 const props = defineProps<{
   iocEditor: IIocEditor
@@ -227,8 +231,9 @@ const command = (name: string) => {
   }
 }
 
-const aboutMe = (e: MouseEvent) => {
+const about = (e: MouseEvent) => {
   e.preventDefault()
+  dialogVisible.value = true
 }
 
 const isShowGrid = ref<boolean>(true)
@@ -301,7 +306,7 @@ const showMiniMap = (show: CheckboxValueType) => {
         <template #dropdown>
           <el-dropdown-menu>
             <el-dropdown-item>
-              <a href="" @click="aboutMe">关于我</a>
+              <a href="" @click="about">关于ioc-editor</a>
             </el-dropdown-item>
             <el-dropdown-item>
               <a
@@ -315,6 +320,33 @@ const showMiniMap = (show: CheckboxValueType) => {
         </template>
       </el-dropdown>
     </div>
+    <el-dialog v-model="dialogVisible" title="" width="500">
+      <div class="about-content">
+        <div class="about-content-logo">
+          <img src="../assets/logo.png" alt="logo" class="logo" />
+        </div>
+        <div class="about-content-info">
+          <div class="about-content-info-desc">
+            ioc-editor是一款基于Canvas和Vue3打造的流程图编辑器，支持流程图的绘制、编辑、保存、导出等功能。
+          </div>
+          <div class="about-content-info-item">
+            <div class="about-content-info-item-label">版本号：</div>
+            <div class="about-content-info-item-value">{{ version }}</div>
+          </div>
+          <div class="about-content-info-item">
+            <div class="about-content-info-item-label">作者：</div>
+            <div class="about-content-info-item-value">
+              <a
+                target="_blank"
+                href="https://github.com/astonishqft"
+                class="about-content-info-author-text"
+                >astonishqft</a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -379,6 +411,51 @@ const showMiniMap = (show: CheckboxValueType) => {
     &.divier {
       color: #ccc;
       padding: 0;
+    }
+  }
+  .about-content {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    .about-content-logo {
+      width: 110px;
+      height: 50px;
+      border-radius: 8px;
+      img {
+        width: 100%;
+        height: 100%;
+        border-radius: 10px;
+      }
+    }
+    .about-content-info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      .about-content-info-desc {
+        font-size: 14px;
+        color: #666;
+        padding: 20px 30px;
+      }
+      .about-content-info-item {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        .about-content-info-item-label {
+          font-size: 12px;
+          color: #666;
+          width: 50%;
+          display: flex;
+          justify-content: flex-end;
+        }
+        .about-content-info-item-value {
+          font-size: 12px;
+          width: 50%;
+          a {
+            color: #1f1f1f;
+            font-weight: 600;
+          }
+        }
+      }
     }
   }
 }

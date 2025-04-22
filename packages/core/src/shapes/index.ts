@@ -278,6 +278,24 @@ export const shapeConfig: IShapeConfig = {
       r: 4
     }
   },
+  rect: {
+    shape: {
+      x: 0,
+      y: 0,
+      width: 80,
+      height: 40,
+      r: 4
+    }
+  },
+  rectangle: {
+    shape: {
+      x: 0,
+      y: 0,
+      width: 80,
+      height: 40,
+      r: 4
+    }
+  },
   circle: {
     shape: {
       cx: 30,

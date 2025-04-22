@@ -34,5 +34,8 @@ export default defineConfig({
     rollupOptions: {
       external: ['vue']
     }
+  },
+  define: {
+    __IOC_EDITOR_VERSION__: JSON.stringify(require('./package.json').version)
   }
 })
