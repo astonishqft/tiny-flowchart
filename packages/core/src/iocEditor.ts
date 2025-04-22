@@ -354,12 +354,14 @@ export class IocEditor implements IIocEditor {
 
   setTop() {
     const activeNodes = this._storageMgr.getActiveNodes()
+    if (activeNodes.length === 0) return
     const level = Math.max(...this._storageMgr.getNodes().map(node => node.getZ()))
     this.execute('setTop', { activeNodes, level })
   }
 
   setBottom() {
     const activeNodes = this._storageMgr.getActiveNodes()
+    if (activeNodes.length === 0) return
     const level = Math.min(...this._storageMgr.getNodes().map(node => node.getZ()))
     this.execute('setBottom', { activeNodes, level })
   }
