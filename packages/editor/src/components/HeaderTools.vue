@@ -253,7 +253,7 @@ const showMiniMap = (show: CheckboxValueType) => {
 <template>
   <div class="header-tools">
     <div class="logo-group">
-      <img src="../assets/logo.png" alt="logo" class="logo" />
+      <img src="../assets/logo.jpg" alt="logo" class="logo" />
     </div>
     <div class="tools-btn-group">
       <span
@@ -323,7 +323,7 @@ const showMiniMap = (show: CheckboxValueType) => {
     <el-dialog v-model="dialogVisible" title="" width="500">
       <div class="about-content">
         <div class="about-content-logo">
-          <img src="../assets/logo.png" alt="logo" class="logo" />
+          <img src="../assets/logo.jpg" alt="logo" class="logo" />
         </div>
         <div class="about-content-info">
           <div class="about-content-info-desc">
@@ -373,7 +373,7 @@ const showMiniMap = (show: CheckboxValueType) => {
     display: flex;
     align-items: center;
     .logo {
-      width: 68px;
+      width: 88px;
       border-radius: 4px;
     }
   }
@@ -418,7 +418,7 @@ const showMiniMap = (show: CheckboxValueType) => {
     align-items: center;
     flex-direction: column;
     .about-content-logo {
-      width: 110px;
+      width: 168px;
       height: 50px;
       border-radius: 8px;
       img {
