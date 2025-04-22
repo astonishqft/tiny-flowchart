@@ -16,6 +16,8 @@ import { ResizeShapeCommand } from './resizeShape'
 import { DeleteNodeCommand } from './deleteNode'
 import { DeleteConnectionCommand } from './deleteConnection'
 import { ClearCommand } from './clear'
+import { SetTopCommand } from './setTop'
+import { SetBottomCommand } from './setBottom'
 
 import type { IAddShapeCommandOpts } from './addShape'
 import type { IAddConnectionCommandOpts } from './addConnection'
@@ -34,6 +36,7 @@ import type { IResizeShapeCommandOpts } from './resizeShape'
 import type { IDeleteNodeCommandOpts } from './deleteNode'
 import type { IDeleteConnectionCommandOpts } from './deleteConnection'
 import type { IClearCommandOpts } from './clear'
+import type { ISetZLevelCommandOpts } from './setTop'
 export {
   AddConnectionCommand,
   AddShapeCommand,
@@ -52,7 +55,9 @@ export {
   ResizeShapeCommand,
   DeleteNodeCommand,
   DeleteConnectionCommand,
-  ClearCommand
+  ClearCommand,
+  SetTopCommand,
+  SetBottomCommand
 }
 
 export type {
@@ -72,5 +77,6 @@ export type {
   IResizeShapeCommandOpts,
   IDeleteNodeCommandOpts,
   IDeleteConnectionCommandOpts,
-  IClearCommandOpts
+  IClearCommandOpts,
+  ISetZLevelCommandOpts
 }

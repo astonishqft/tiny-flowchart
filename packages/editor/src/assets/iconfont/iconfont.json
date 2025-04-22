@@ -6,6 +6,20 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "12550473",
+      "name": "置于顶层",
+      "font_class": "zhiyudingceng",
+      "unicode": "e631",
+      "unicode_decimal": 58929
+    },
+    {
+      "icon_id": "12550474",
+      "name": "置于底层",
+      "font_class": "zhiyudiceng",
+      "unicode": "e632",
+      "unicode_decimal": 58930
+    },
+    {
       "icon_id": "26329181",
       "name": "垂直分割线",
       "font_class": "chuizhifengexian",

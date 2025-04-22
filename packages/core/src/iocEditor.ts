@@ -41,7 +41,9 @@ import {
   ResizeShapeCommand,
   DeleteNodeCommand,
   DeleteConnectionCommand,
-  ClearCommand
+  ClearCommand,
+  SetTopCommand,
+  SetBottomCommand
 } from './history/commands'
 
 import type {
@@ -85,7 +87,8 @@ import type {
   IUpdateControlPointCommandOpts,
   IResizeShapeCommandOpts,
   IDeleteNodeCommandOpts,
-  IClearCommandOpts
+  IClearCommandOpts,
+  ISetZLevelCommandOpts
 } from './history/commands'
 
 import { ConnectionType, NodeType } from './shapes'
@@ -129,6 +132,8 @@ export interface IIocEditor {
   offEvent(): void
   undo(): void
   redo(): void
+  setTop(): void
+  setBottom(): void
   createGroup(): void
   unGroup(): void
   delete(): void
@@ -347,6 +352,28 @@ export class IocEditor implements IIocEditor {
     this.execute('paste', this._copyData)
   }
 
+  setTop() {
+    const activeNodes = this._storageMgr.getActiveNodes()
+    const level = Math.max(...this._storageMgr.getNodes().map(node => node.getZ()))
+    this.execute('setTop', { activeNodes, level })
+  }
+
+  setBottom() {
+    const activeNodes = this._storageMgr.getActiveNodes()
+    const level = Math.min(...this._storageMgr.getNodes().map(node => node.getZ()))
+    this.execute('setBottom', { activeNodes, level })
+  }
+
+  handleSetTop(options: ISetZLevelCommandOpts) {
+    const { activeNodes, level } = options
+    this._historyMgr.execute(new SetTopCommand(this, activeNodes, level))
+  }
+
+  handleSetBottom(options: ISetZLevelCommandOpts) {
+    const { activeNodes, level } = options
+    this._historyMgr.execute(new SetBottomCommand(this, activeNodes, level))
+  }
+
   execute(
     type: string,
     options:
@@ -366,6 +393,7 @@ export class IocEditor implements IIocEditor {
       | IDeleteNodeCommandOpts
       | IClearCommandOpts
       | IExportData
+      | ISetZLevelCommandOpts
   ) {
     switch (type) {
       case 'addShape': {
@@ -436,6 +464,14 @@ export class IocEditor implements IIocEditor {
       }
       case 'paste': {
         this.handlePaste(options as IExportData)
+        break
+      }
+      case 'setTop': {
+        this.handleSetTop(options as ISetZLevelCommandOpts)
+        break
+      }
+      case 'setBottom': {
+        this.handleSetBottom(options as ISetZLevelCommandOpts)
         break
       }
       default:

@@ -32,6 +32,7 @@ export interface INodeGroup extends Group, IWidthActivate, IWidthAnchor {
   refresh(): void
   createAnchors(): void
   setZ(z: number): void
+  getZ(): number
   removeShapeFromGroup(shape: IShape): void
   resizeNodeGroup(): void
   setEnterStyle(): void

@@ -19,6 +19,7 @@ export interface IWidthCommon {
   setType(type: string): void
   getExportData(): IExportShape
   setZ(z: number): void
+  getZ(): number
   updatePosition(pos: number[]): void
   setCursor(type: string): void
   setShape(shapeConfig: Dictionary<any>): void
@@ -57,6 +58,10 @@ function WidthCommon<TBase extends CommonConstructor>(Base: TBase) {
 
     setZ(z: number) {
       this.attr('z', z)
+    }
+
+    getZ(): number {
+      return this.z
     }
 
     updatePosition(pos: number[]) {

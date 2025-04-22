@@ -29,10 +29,18 @@ const toolsConfig = reactive([
     disabled: false
   },
   {
+    name: 'divider',
+    icon: 'icon-chuizhifengexian'
+  },
+  {
     name: 'openFile',
     icon: 'icon-folder-open',
     desc: '打开文件',
     disabled: false
+  },
+  {
+    name: 'divider',
+    icon: 'icon-chuizhifengexian'
   },
   {
     name: 'saveToPicture',
@@ -76,6 +84,22 @@ const toolsConfig = reactive([
     name: 'zoomOut',
     icon: 'icon-zoomout',
     desc: '缩小',
+    disabled: false
+  },
+  {
+    name: 'divider',
+    icon: 'icon-chuizhifengexian'
+  },
+  {
+    name: 'top',
+    icon: 'icon-zhiyudingceng',
+    desc: '置于顶层',
+    disabled: false
+  },
+  {
+    name: 'bottom',
+    icon: 'icon-zhiyudiceng',
+    desc: '置于底层',
     disabled: false
   },
   {
@@ -170,6 +194,12 @@ const command = (name: string) => {
       break
     case 'ungroup':
       props.iocEditor.unGroup()
+      break
+    case 'top':
+      props.iocEditor.setTop()
+      break
+    case 'bottom':
+      props.iocEditor.setBottom()
       break
     case 'save':
       props.iocEditor.save()
