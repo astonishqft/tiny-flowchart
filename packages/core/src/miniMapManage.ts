@@ -7,7 +7,7 @@ import type {
   IStorageManage,
   IViewPortManage,
   IExportData,
-  IIocEditor
+  ITinyFlowchart
 } from '@/index'
 import type { ISceneDragMoveOpts, IUpdateZoomOpts } from './types'
 
@@ -22,8 +22,8 @@ export interface IMiniMapManage extends IDisposable {
 }
 
 class MiniMapManage extends Disposable implements IMiniMapManage {
-  private _iocEditor: IIocEditor
-  private _parentIocEditor: IIocEditor
+  private _iocEditor: ITinyFlowchart
+  private _parentIocEditor: ITinyFlowchart
   private _storageMgr: IStorageManage
   private _viewPortMgr: IViewPortManage
   private _containerWidth: number
@@ -39,12 +39,12 @@ class MiniMapManage extends Disposable implements IMiniMapManage {
 
   private _miniMapFrame: Rect
 
-  constructor(iocEditor: IIocEditor, parentIocEditor: IIocEditor) {
+  constructor(tinyFlowchart: ITinyFlowchart, parentIocEditor: ITinyFlowchart) {
     super()
-    this._iocEditor = iocEditor
+    this._iocEditor = tinyFlowchart
     this._parentIocEditor = parentIocEditor
-    this._storageMgr = iocEditor._storageMgr
-    this._viewPortMgr = iocEditor._viewPortMgr
+    this._storageMgr = tinyFlowchart._storageMgr
+    this._viewPortMgr = tinyFlowchart._viewPortMgr
 
     this._containerWidth = this._viewPortMgr.getSceneWidth() || window.innerWidth
     this._containerHeight = this._viewPortMgr.getSceneHeight() || window.innerHeight

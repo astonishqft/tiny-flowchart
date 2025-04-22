@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { IocEditor } from '@ioceditor/core'
+import { TinyFlowchart } from '@tiny-flowchart/core'
 
 const props = defineProps<{
-  iocEditor: IocEditor
+  tinyFlowchart: TinyFlowchart
 }>()
 const drop = (event: DragEvent) => {
   // 阻止默认行为（会作为某些元素的链接打开）
@@ -13,8 +13,8 @@ const drop = (event: DragEvent) => {
 
   const { nodeType, url } = JSON.parse(data)
 
-  if (props.iocEditor) {
-    props.iocEditor.addShape({ shapeType: nodeType, x: offsetX, y: offsetY, url })
+  if (props.tinyFlowchart) {
+    props.tinyFlowchart.addShape({ shapeType: nodeType, x: offsetX, y: offsetY, url })
   }
 }
 
@@ -25,19 +25,19 @@ const dragOver = (event: DragEvent) => {
 </script>
 
 <template>
-  <div class="ioc-editor-container" @drop="drop" @dragover="dragOver">
-    <div id="ioc-editor"></div>
+  <div class="tiny-flowchart-container" @drop="drop" @dragover="dragOver">
+    <div id="tiny-flowchart"></div>
   </div>
 </template>
 
 <style scoped lang="less">
-.ioc-editor-container {
+.tiny-flowchart-container {
   height: calc(100% - 40px);
   position: absolute;
   width: calc(100% - 185px);
   left: 185px;
   border-right: 1px solid #dadce0;
-  #ioc-editor {
+  #tiny-flowchart {
     width: 100%;
     height: 100%;
     position: absolute;

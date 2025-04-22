@@ -1,23 +1,23 @@
-import type { IExportData, ICommand, IIocEditor } from '@/index'
+import type { IExportData, ICommand, ITinyFlowchart } from '@/index'
 
 export interface IClearCommandOpts {
   exportData: IExportData
 }
 
 class ClearCommand implements ICommand {
-  private iocEditor: IIocEditor
+  private tinyFlowchart: ITinyFlowchart
   private exportData: IExportData
-  constructor(iocEditor: IIocEditor, exportData: IExportData) {
-    this.iocEditor = iocEditor
+  constructor(tinyFlowchart: ITinyFlowchart, exportData: IExportData) {
+    this.tinyFlowchart = tinyFlowchart
     this.exportData = exportData
   }
 
   execute() {
-    this.iocEditor._sceneMgr.clear()
+    this.tinyFlowchart._sceneMgr.clear()
   }
 
   undo() {
-    this.iocEditor.initFlowChart(this.exportData)
+    this.tinyFlowchart.initFlowChart(this.exportData)
   }
 
   redo() {

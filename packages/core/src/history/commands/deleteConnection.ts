@@ -1,4 +1,4 @@
-import type { IConnection, ICommand, IIocEditor } from '@/index'
+import type { IConnection, ICommand, ITinyFlowchart } from '@/index'
 
 export interface IDeleteConnectionCommandOpts {
   connections: IConnection[]
@@ -6,20 +6,20 @@ export interface IDeleteConnectionCommandOpts {
 
 class DeleteConnectionCommand implements ICommand {
   private connection: IConnection
-  private iocEditor: IIocEditor
+  private tinyFlowchart: ITinyFlowchart
 
-  constructor(iocEditor: IIocEditor, connection: IConnection) {
-    this.iocEditor = iocEditor
+  constructor(tinyFlowchart: ITinyFlowchart, connection: IConnection) {
+    this.tinyFlowchart = tinyFlowchart
     this.connection = connection
   }
 
   execute() {
-    this.iocEditor._sceneMgr.unActive()
-    this.iocEditor._connectionMgr.removeConnectionFromEditor(this.connection)
+    this.tinyFlowchart.unActive()
+    this.tinyFlowchart._connectionMgr.removeConnectionFromEditor(this.connection)
   }
 
   undo() {
-    this.iocEditor._connectionMgr.addConnectionToEditor(this.connection)
+    this.tinyFlowchart._connectionMgr.addConnectionToEditor(this.connection)
   }
 
   redo() {

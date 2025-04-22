@@ -2,7 +2,7 @@ import { Rect, BoundingRect, Image, Ellipse } from '@/index'
 
 import type {
   ElementEvent,
-  IIocEditor,
+  ITinyFlowchart,
   IViewPortManage,
   IConnectionManage,
   IShape,
@@ -27,15 +27,15 @@ class ControlFrameManage implements IControlFrameManage {
   private _controlBox: Rect
   private _connectionMgr: IConnectionManage
   private _viewPortMgr: IViewPortManage
-  private _iocEditor: IIocEditor
+  private _iocEditor: ITinyFlowchart
   private _settingMgr: ISettingManage
   private _node: IShape | null = null
   private _controlFrameColor: string
-  constructor(iocEditor: IIocEditor) {
-    this._iocEditor = iocEditor
-    this._connectionMgr = iocEditor._connectionMgr
-    this._viewPortMgr = iocEditor._viewPortMgr
-    this._settingMgr = iocEditor._settingMgr
+  constructor(tinyFlowchart: ITinyFlowchart) {
+    this._iocEditor = tinyFlowchart
+    this._connectionMgr = tinyFlowchart._connectionMgr
+    this._viewPortMgr = tinyFlowchart._viewPortMgr
+    this._settingMgr = tinyFlowchart._settingMgr
     this._controlFrameColor = this._settingMgr.get('controlFrameColor')
 
     this._controlBox = new Rect({

@@ -6,7 +6,7 @@ import type {
   IViewPortManage,
   ISettingManage,
   IStorageManage,
-  IIocEditor
+  ITinyFlowchart
 } from '@/index'
 
 export interface IRefLineManage {
@@ -62,11 +62,11 @@ class RefLineManage {
   private _viewPortMgr: IViewPortManage
   private _dragFrameMgr: IDragFrameManage
 
-  constructor(iocEditor: IIocEditor) {
-    this._settingMgr = iocEditor._settingMgr
-    this._storageMgr = iocEditor._storageMgr
-    this._viewPortMgr = iocEditor._viewPortMgr
-    this._dragFrameMgr = iocEditor._dragFrameMgr
+  constructor(tinyFlowchart: ITinyFlowchart) {
+    this._settingMgr = tinyFlowchart._settingMgr
+    this._storageMgr = tinyFlowchart._storageMgr
+    this._viewPortMgr = tinyFlowchart._viewPortMgr
+    this._dragFrameMgr = tinyFlowchart._dragFrameMgr
 
     this._refPointSize = this._settingMgr.get('refPointSize')
     this._refLineColor = this._settingMgr.get('refLineColor')

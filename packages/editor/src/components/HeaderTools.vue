@@ -10,17 +10,17 @@ import {
   ElCheckbox,
   ElDialog
 } from 'element-plus'
-import { ConnectionType } from '@ioceditor/core'
+import { ConnectionType } from '@tiny-flowchart/core'
 import { ArrowDown, QuestionFilled } from '@element-plus/icons-vue'
 
 import type { CheckboxValueType } from 'element-plus'
-import type { IIocEditor } from '@ioceditor/core'
+import type { ITinyFlowchart } from '@tiny-flowchart/core'
 
 const dialogVisible = ref(false)
-const version = ref(__IOC_EDITOR_VERSION__)
+const version = ref(__TINY_FLOWCHART_VERSION__)
 
 const props = defineProps<{
-  iocEditor: IIocEditor
+  tinyFlowchart: ITinyFlowchart
 }>()
 
 const currentLineType = ref(ConnectionType.OrtogonalLine)
@@ -178,53 +178,53 @@ const command = (name: string) => {
   switch (name) {
     case 'zoomIn':
       // 放大
-      props.iocEditor._zoomMgr.zoomIn()
+      props.tinyFlowchart._zoomMgr.zoomIn()
       break
     case 'zoomOut':
       // 缩小
-      props.iocEditor._zoomMgr.zoomOut()
+      props.tinyFlowchart._zoomMgr.zoomOut()
       break
     case 'lineType':
-      props.iocEditor._connectionMgr.setConnectionType(currentLineType.value)
+      props.tinyFlowchart._connectionMgr.setConnectionType(currentLineType.value)
       break
     case 'clear':
-      props.iocEditor.clear()
+      props.tinyFlowchart.clear()
       break
     case 'select':
-      props.iocEditor._selectFrameMgr.setSelectFrameStatus(true)
+      props.tinyFlowchart._selectFrameMgr.setSelectFrameStatus(true)
       break
     case 'group':
-      props.iocEditor.createGroup()
+      props.tinyFlowchart.createGroup()
       break
     case 'ungroup':
-      props.iocEditor.unGroup()
+      props.tinyFlowchart.unGroup()
       break
     case 'top':
-      props.iocEditor.setTop()
+      props.tinyFlowchart.setTop()
       break
     case 'bottom':
-      props.iocEditor.setBottom()
+      props.tinyFlowchart.setBottom()
       break
     case 'save':
-      props.iocEditor.save()
+      props.tinyFlowchart.save()
       break
     case 'saveToFile':
-      props.iocEditor.exportFile()
+      props.tinyFlowchart.exportFile()
       break
     case 'saveToPicture':
-      props.iocEditor.exportPicture()
+      props.tinyFlowchart.exportPicture()
       break
     case 'openFile':
-      props.iocEditor.openFile()
+      props.tinyFlowchart.openFile()
       break
     case 'undo':
-      props.iocEditor.undo()
+      props.tinyFlowchart.undo()
       break
     case 'redo':
-      props.iocEditor.redo()
+      props.tinyFlowchart.redo()
       break
     case 'delete':
-      props.iocEditor.delete()
+      props.tinyFlowchart.delete()
       break
     default:
       break
@@ -241,12 +241,12 @@ const isShowMiniMap = ref<boolean>(true)
 
 const showGrid = (show: CheckboxValueType) => {
   isShowGrid.value = show as boolean
-  props.iocEditor._viewPortMgr._gridMgr?.showGrid(isShowGrid.value)
+  props.tinyFlowchart._viewPortMgr._gridMgr?.showGrid(isShowGrid.value)
 }
 
 const showMiniMap = (show: CheckboxValueType) => {
   isShowMiniMap.value = show as boolean
-  props.iocEditor.updateMiniMapVisible$.next(show as boolean)
+  props.tinyFlowchart.updateMiniMapVisible$.next(show as boolean)
 }
 </script>
 
@@ -291,7 +291,7 @@ const showMiniMap = (show: CheckboxValueType) => {
       <el-checkbox v-model="isShowMiniMap" label="显示小地图" size="small" @change="showMiniMap" />
     </div>
     <div class="tools-about">
-      <a href="https://github.com/astonishqft/ioc-editor" title="GitHub" target="_blank">
+      <a href="https://github.com/astonishqft/tiny-flowchart" title="GitHub" target="_blank">
         <span class="icon iconfont tool-icon icon-github"></span>
       </a>
       <el-dropdown>
@@ -306,11 +306,11 @@ const showMiniMap = (show: CheckboxValueType) => {
         <template #dropdown>
           <el-dropdown-menu>
             <el-dropdown-item>
-              <a href="" @click="about">关于ioc-editor</a>
+              <a href="" @click="about">关于tiny-flowchart</a>
             </el-dropdown-item>
             <el-dropdown-item>
               <a
-                href="https://github.com/astonishqft/ioc-editor/issues/new"
+                href="https://github.com/astonishqft/tiny-flowchart/issues/new"
                 title="GitHub"
                 target="_blank"
                 >意见反馈</a
@@ -327,7 +327,7 @@ const showMiniMap = (show: CheckboxValueType) => {
         </div>
         <div class="about-content-info">
           <div class="about-content-info-desc">
-            ioc-editor是一款基于Canvas和Vue3打造的流程图编辑器，支持流程图的绘制、编辑、保存、导出等功能。
+            tiny-flowchart是一款基于Canvas和Vue3打造的流程图编辑器，支持流程图的绘制、编辑、保存、导出等功能。
           </div>
           <div class="about-content-info-item">
             <div class="about-content-info-item-label">版本号：</div>

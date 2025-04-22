@@ -8,7 +8,7 @@ import type {
   IViewPortManage,
   IDisposable,
   IStorageManage,
-  IIocEditor,
+  ITinyFlowchart,
   IControlFrameManage,
   INodeGroup
 } from '@/index'
@@ -27,11 +27,11 @@ class ShapeManage extends Disposable {
   private _viewPortMgr: IViewPortManage
   private _storageMgr: IStorageManage
   private _controlFrameMgr: IControlFrameManage
-  constructor(iocEditor: IIocEditor) {
+  constructor(tinyFlowchart: ITinyFlowchart) {
     super()
-    this._viewPortMgr = iocEditor._viewPortMgr
-    this._storageMgr = iocEditor._storageMgr
-    this._controlFrameMgr = iocEditor._controlFrameMgr
+    this._viewPortMgr = tinyFlowchart._viewPortMgr
+    this._storageMgr = tinyFlowchart._storageMgr
+    this._controlFrameMgr = tinyFlowchart._controlFrameMgr
   }
 
   createShape(type: string, { x, y, url }: { x: number; y: number; url?: string }): IShape {

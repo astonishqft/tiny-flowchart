@@ -1,6 +1,6 @@
 <template>
   <div class="editor-container">
-    <ioc-editor></ioc-editor>
+    <tiny-flowchart></tiny-flowchart>
   </div>
 </template>
 

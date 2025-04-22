@@ -2,7 +2,7 @@
 // 如果画面缩放比例保持不变，则缓存池的数量不变。在计算网格点数的时候，可以适当根据情况多生成一些，避免频繁的调整缓存池的大小，导致性能问题。
 import { Group, Circle, init } from '@/index'
 
-import type { ZRenderType, IIocEditor, ISettingManage, IViewPortManage } from '@/index'
+import type { ZRenderType, ITinyFlowchart, ISettingManage, IViewPortManage } from '@/index'
 
 export interface IGridManage {
   drawGrid(): void
@@ -16,13 +16,13 @@ class PointsPool {
   private _points: Circle[] = []
   private _size: number
   private _layer: Group
-  private _iocEditor: IIocEditor
+  private _iocEditor: ITinyFlowchart
   private _settingMgr: ISettingManage
   private _viewPortMgr: IViewPortManage
-  constructor(iocEditor: IIocEditor, layer: Group) {
-    this._iocEditor = iocEditor
-    this._settingMgr = iocEditor._settingMgr
-    this._viewPortMgr = iocEditor._viewPortMgr
+  constructor(tinyFlowchart: ITinyFlowchart, layer: Group) {
+    this._iocEditor = tinyFlowchart
+    this._settingMgr = tinyFlowchart._settingMgr
+    this._viewPortMgr = tinyFlowchart._viewPortMgr
     this._size = this.getPointsSize()
     this._layer = layer
     this.initPool()
@@ -112,12 +112,12 @@ class GridManage implements IGridManage {
   private _gridZr: ZRenderType | null = null
   private _settingMgr: ISettingManage
   private _viewPortMgr: IViewPortManage
-  private _iocEditor: IIocEditor
+  private _iocEditor: ITinyFlowchart
 
-  constructor(iocEditor: IIocEditor, viewPortMgr: IViewPortManage) {
-    this._settingMgr = iocEditor._settingMgr
+  constructor(tinyFlowchart: ITinyFlowchart, viewPortMgr: IViewPortManage) {
+    this._settingMgr = tinyFlowchart._settingMgr
     this._viewPortMgr = viewPortMgr
-    this._iocEditor = iocEditor
+    this._iocEditor = tinyFlowchart
 
     setTimeout(() => {
       const container = document.createElement('div')

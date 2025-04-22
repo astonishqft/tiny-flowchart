@@ -1,4 +1,4 @@
-import type { IShape, IExportShapeStyle, ICommand, IIocEditor } from '@/index'
+import type { IShape, IExportShapeStyle, ICommand, ITinyFlowchart } from '@/index'
 
 export interface IUpdateShapePropertyCommandOpts {
   shape: IShape
@@ -11,7 +11,7 @@ class UpdateShapePropertyCommand implements ICommand {
   private shapeStyle: IExportShapeStyle
   private oldShapeStyle: IExportShapeStyle
   constructor(
-    iocEditor: IIocEditor,
+    tinyFlowchart: ITinyFlowchart,
     shape: IShape,
     shapeStyle: IExportShapeStyle,
     oldShapeStyle: IExportShapeStyle

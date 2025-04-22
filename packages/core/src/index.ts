@@ -17,13 +17,13 @@ import {
   vector
 } from 'zrender'
 import CanvasPainter from 'zrender/lib/canvas/Painter.js'
-import { IocEditor } from '@/iocEditor'
+import { TinyFlowchart } from '@/tinyFlowchart'
 import { SelectFrameManage } from '@/selectFrameManage'
 import { GroupManage } from '@/groupManage'
 import { ConnectionType, NodeType } from '@/shapes'
 import { MiniMapManage } from '@/miniMapManage'
 
-import type { IIocEditor } from '@/iocEditor'
+import type { ITinyFlowchart } from '@/tinyFlowchart'
 import type { ISceneManage } from '@/sceneManage'
 import type { IZoomManage } from '@/zoomManage'
 import type { IShapeManage } from '@/shapeManage'
@@ -98,7 +98,7 @@ export {
   util,
   init,
   vector,
-  IocEditor,
+  TinyFlowchart,
   SelectFrameManage,
   GroupManage,
   ConnectionType,
@@ -156,7 +156,7 @@ export type {
   BuiltinTextPosition,
   ISettingManage,
   IGridManage,
-  IIocEditor,
+  ITinyFlowchart,
   IExportShapeStyle,
   IExportGroupStyle,
   IExportConnectionStyle,

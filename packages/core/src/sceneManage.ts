@@ -14,7 +14,7 @@ import type {
   IStorageManage,
   IZoomManage,
   ISettingManage,
-  IIocEditor,
+  ITinyFlowchart,
   IDisposable,
   IAnchorPoint,
   IShape,
@@ -33,7 +33,7 @@ export interface ISceneManage extends IDisposable {
 export type IMouseEvent = Element & { nodeType?: string }
 
 class SceneManage extends Disposable {
-  private _iocEditor: IIocEditor
+  private _iocEditor: ITinyFlowchart
   private _viewPortMgr: IViewPortManage
   private _shapeMgr: IShapeManage
   private _connectionMgr: IConnectionManage
@@ -55,19 +55,19 @@ class SceneManage extends Disposable {
   private _mouseMoveOffsetY = 0
   private _currentZoom = 1
   private _eventModel = 'canvas'
-  constructor(iocEditor: IIocEditor) {
+  constructor(tinyFlowchart: ITinyFlowchart) {
     super()
-    this._zr = iocEditor._zr
-    this._iocEditor = iocEditor
-    this._connectionMgr = iocEditor._connectionMgr
-    this._storageMgr = iocEditor._storageMgr
-    this._zoomMgr = iocEditor._zoomMgr
-    this._viewPortMgr = iocEditor._viewPortMgr
-    this._shapeMgr = iocEditor._shapeMgr
-    this._groupMgr = iocEditor._groupMgr
-    this._settingMgr = iocEditor._settingMgr
-    this._selectFrameMgr = iocEditor._selectFrameMgr
-    this._nodeEventMgr = iocEditor._nodeEventMgr
+    this._zr = tinyFlowchart._zr
+    this._iocEditor = tinyFlowchart
+    this._connectionMgr = tinyFlowchart._connectionMgr
+    this._storageMgr = tinyFlowchart._storageMgr
+    this._zoomMgr = tinyFlowchart._zoomMgr
+    this._viewPortMgr = tinyFlowchart._viewPortMgr
+    this._shapeMgr = tinyFlowchart._shapeMgr
+    this._groupMgr = tinyFlowchart._groupMgr
+    this._settingMgr = tinyFlowchart._settingMgr
+    this._selectFrameMgr = tinyFlowchart._selectFrameMgr
+    this._nodeEventMgr = tinyFlowchart._nodeEventMgr
     this._enableMiniMap = this._settingMgr.get('enableMiniMap')
   }
 

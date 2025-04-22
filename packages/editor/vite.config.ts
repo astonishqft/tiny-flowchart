@@ -36,6 +36,6 @@ export default defineConfig({
     }
   },
   define: {
-    __IOC_EDITOR_VERSION__: JSON.stringify(require('./package.json').version)
+    __TINY_FLOWCHART_VERSION__: JSON.stringify(require('./package.json').version)
   }
 })

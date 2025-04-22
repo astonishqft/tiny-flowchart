@@ -1,24 +1,24 @@
-import type { INodeGroup, ICommand, IIocEditor } from '@/index'
+import type { INodeGroup, ICommand, ITinyFlowchart } from '@/index'
 
 export interface ICreateGroupCommandOpts {
   group: INodeGroup
 }
 
 class CreateGroupCommand implements ICommand {
-  private iocEditor: IIocEditor
+  private tinyFlowchart: ITinyFlowchart
   private group: INodeGroup
 
-  constructor(iocEditor: IIocEditor, group: INodeGroup) {
-    this.iocEditor = iocEditor
+  constructor(tinyFlowchart: ITinyFlowchart, group: INodeGroup) {
+    this.tinyFlowchart = tinyFlowchart
     this.group = group
   }
 
   execute() {
-    this.iocEditor._groupMgr.addGroupToEditor(this.group)
+    this.tinyFlowchart._groupMgr.addGroupToEditor(this.group)
   }
 
   undo() {
-    this.iocEditor._groupMgr.removeGroupFromEditor(this.group)
+    this.tinyFlowchart._groupMgr.removeGroupFromEditor(this.group)
   }
 
   redo() {

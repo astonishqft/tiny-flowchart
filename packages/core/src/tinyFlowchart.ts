@@ -1,5 +1,5 @@
-import { util, init } from '@/index'
 import { Subject } from 'rxjs'
+import { util, init } from '@/index'
 import { Disposable } from '@/disposable'
 import { SceneManage } from '@/sceneManage'
 import { ShapeManage } from '@/shapeManage'
@@ -97,7 +97,7 @@ import type { ISceneDragMoveOpts, ISceneDragStartOpts, IUpdateZoomOpts, Dictiona
 import type { ICommand } from './history/historyManage'
 import type { INodeEventManage } from '@/nodeEventManage'
 
-export interface IIocEditor {
+export interface ITinyFlowchart {
   _connectionMgr: IConnectionManage
   _shapeMgr: IShapeManage
   _historyMgr: IHistoryManage
@@ -146,7 +146,7 @@ export interface IIocEditor {
   unActive(): void
 }
 
-export class IocEditor implements IIocEditor {
+export class TinyFlowchart implements ITinyFlowchart {
   _zr: ZRenderType
   _dom: HTMLElement
   _manageList: Disposable[] = []
@@ -274,7 +274,7 @@ export class IocEditor implements IIocEditor {
     imageCanvasContainer.style.width = sceneWidth + 'px'
     imageCanvasContainer.style.height = sceneHeight + 'px'
 
-    const imageCanvas = new IocEditor(imageCanvasContainer, {
+    const imageCanvas = new TinyFlowchart(imageCanvasContainer, {
       enableMiniMap: false,
       enableGrid: false
     })
@@ -535,7 +535,7 @@ export class IocEditor implements IIocEditor {
     patchCommands.push(
       ...this.handleMoveNodes({
         nodes: [options.node],
-        iocEditor: this,
+        tinyFlowchart: this,
         offsetX: options.offsetX,
         offsetY: options.offsetY
       })
@@ -550,7 +550,7 @@ export class IocEditor implements IIocEditor {
     patchCommands.push(
       ...this.handleMoveNodes({
         nodes: [options.node],
-        iocEditor: this,
+        tinyFlowchart: this,
         offsetX: options.offsetX,
         offsetY: options.offsetY
       })
@@ -565,7 +565,7 @@ export class IocEditor implements IIocEditor {
     patchCommands.push(
       ...this.handleMoveNodes({
         nodes: [options.node],
-        iocEditor: this,
+        tinyFlowchart: this,
         offsetX: options.offsetX,
         offsetY: options.offsetY
       })

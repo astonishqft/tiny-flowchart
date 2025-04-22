@@ -1,4 +1,4 @@
-import type { IConnection, ICommand, IIocEditor } from '@/index'
+import type { IConnection, ICommand, ITinyFlowchart } from '@/index'
 
 export interface IUpdateControlPointCommandOpts {
   connection: IConnection
@@ -9,7 +9,7 @@ export interface IUpdateControlPointCommandOpts {
 }
 
 class UpdateControlPointCommand implements ICommand {
-  private iocEditor: IIocEditor
+  private tinyFlowchart: ITinyFlowchart
   private connection: IConnection
   private controlPoint1: (number | undefined)[]
   private controlPoint2: (number | undefined)[]
@@ -17,14 +17,14 @@ class UpdateControlPointCommand implements ICommand {
   private oldControlPoint2: (number | undefined)[]
 
   constructor(
-    iocEditor: IIocEditor,
+    tinyFlowchart: ITinyFlowchart,
     connection: IConnection,
     controlPoint1: (number | undefined)[],
     controlPoint2: (number | undefined)[],
     oldControlPoint1: (number | undefined)[],
     oldControlPoint2: (number | undefined)[]
   ) {
-    this.iocEditor = iocEditor
+    this.tinyFlowchart = tinyFlowchart
     this.connection = connection
     this.controlPoint1 = controlPoint1
     this.controlPoint2 = controlPoint2

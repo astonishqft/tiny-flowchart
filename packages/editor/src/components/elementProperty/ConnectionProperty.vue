@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { ElColorPicker, ElDivider, ElInput, ElInputNumber, ElOption, ElSelect } from 'element-plus'
-import { ConnectionType } from '@ioceditor/core'
+import { ConnectionType } from '@tiny-flowchart/core'
 import { lineTypeOpt, strokeColorList, lineWidthOpts } from './config'
 
 import type {
   LineDashStyle,
   IConnection,
-  IIocEditor,
+  ITinyFlowchart,
   IExportConnectionStyle
-} from '@ioceditor/core'
+} from '@tiny-flowchart/core'
 
-const { iocEditor } = defineProps<{
-  iocEditor: IIocEditor
+const { tinyFlowchart } = defineProps<{
+  tinyFlowchart: ITinyFlowchart
 }>()
 
 const lineTypes = [
@@ -44,7 +44,7 @@ const connectionConfig = ref<IExportConnectionStyle>({
 const activeConnection = ref<IConnection | null>(null)
 const lineType = ref<ConnectionType>(ConnectionType.OrtogonalLine)
 
-iocEditor._connectionMgr.updateSelectConnection$.subscribe((connection: IConnection) => {
+tinyFlowchart._connectionMgr.updateSelectConnection$.subscribe((connection: IConnection) => {
   activeConnection.value = connection
   connectionConfig.value.stroke = connection.getLineColor()
   connectionConfig.value.lineWidth = connection.getLineWidth()
@@ -60,7 +60,7 @@ iocEditor._connectionMgr.updateSelectConnection$.subscribe((connection: IConnect
 const changeLineColor = (color: string | null) => {
   const oldConnectionConfig = { ...activeConnection.value?.getExportData().style }
   connectionConfig.value.stroke = color as string
-  iocEditor.execute('updateConnectionProperty', {
+  tinyFlowchart.execute('updateConnectionProperty', {
     connection: activeConnection.value as IConnection,
     connectionConfig: { ...connectionConfig.value },
     oldConnectionConfig
@@ -70,7 +70,7 @@ const changeLineColor = (color: string | null) => {
 const changeLineWidth = (width: number) => {
   const oldConnectionConfig = { ...activeConnection.value?.getExportData().style }
   connectionConfig.value.lineWidth = width
-  iocEditor.execute('updateConnectionProperty', {
+  tinyFlowchart.execute('updateConnectionProperty', {
     connection: activeConnection.value as IConnection,
     connectionConfig: { ...connectionConfig.value },
     oldConnectionConfig
@@ -80,7 +80,7 @@ const changeLineWidth = (width: number) => {
 const changeLineDash = (type: string) => {
   const oldConnectionConfig = { ...activeConnection.value?.getExportData().style }
   connectionConfig.value.lineDash = type as LineDashStyle
-  iocEditor.execute('updateConnectionProperty', {
+  tinyFlowchart.execute('updateConnectionProperty', {
     connection: activeConnection.value as IConnection,
     connectionConfig: { ...connectionConfig.value },
     oldConnectionConfig
@@ -89,7 +89,7 @@ const changeLineDash = (type: string) => {
 const changeLinkFontColor = (color: string | null) => {
   const oldConnectionConfig = { ...activeConnection.value?.getExportData().style }
   connectionConfig.value.fontColor = color as string
-  iocEditor.execute('updateConnectionProperty', {
+  tinyFlowchart.execute('updateConnectionProperty', {
     connection: activeConnection.value as IConnection,
     connectionConfig: { ...connectionConfig.value },
     oldConnectionConfig
@@ -101,14 +101,14 @@ const changeLineFontStyle = (style: string) => {
   const fStyle = activeConnection.value?.getLineFontStyle() || 'normal'
   const oldConnectionConfig = { ...activeConnection.value?.getExportData().style }
   if (style === 'fontWeight') {
-    iocEditor.execute('updateConnectionProperty', {
+    tinyFlowchart.execute('updateConnectionProperty', {
       connection: activeConnection.value as IConnection,
       connectionConfig: { ...connectionConfig.value },
       oldConnectionConfig
     })
     connectionConfig.value.fontWeight = fWeight === 'normal' ? 'bold' : 'normal'
   } else {
-    iocEditor.execute('updateConnectionProperty', {
+    tinyFlowchart.execute('updateConnectionProperty', {
       connection: activeConnection.value as IConnection,
       connectionConfig: { ...connectionConfig.value },
       oldConnectionConfig
@@ -121,7 +121,7 @@ const changeLineFontStyle = (style: string) => {
 const changeLineTextContent = (text: string) => {
   const oldConnectionConfig = { ...activeConnection.value?.getExportData().style }
   connectionConfig.value.text = text
-  iocEditor.execute('updateConnectionProperty', {
+  tinyFlowchart.execute('updateConnectionProperty', {
     connection: activeConnection.value as IConnection,
     connectionConfig: { ...connectionConfig.value },
     oldConnectionConfig
@@ -131,7 +131,7 @@ const changeLineTextContent = (text: string) => {
 const changeLineFontSize = (size: number | undefined) => {
   const oldConnectionConfig = { ...activeConnection.value?.getExportData().style }
   connectionConfig.value.fontSize = size
-  iocEditor.execute('updateConnectionProperty', {
+  tinyFlowchart.execute('updateConnectionProperty', {
     connection: activeConnection.value as IConnection,
     connectionConfig: { ...connectionConfig.value },
     oldConnectionConfig
@@ -141,7 +141,7 @@ const changeLineFontSize = (size: number | undefined) => {
 const changeLineType = (type: ConnectionType) => {
   const oldLineType = activeConnection.value?.getConnectionType()
   lineType.value = type
-  iocEditor.execute('changeConnectionType', {
+  tinyFlowchart.execute('changeConnectionType', {
     connection: activeConnection.value as IConnection,
     lineType: type,
     oldLineType

@@ -4,7 +4,7 @@ import { Group } from './'
 
 import type { ISceneDragMoveOpts, IUpdateZoomOpts } from './types'
 import type {
-  IIocEditor,
+  ITinyFlowchart,
   IDisposable,
   IGridManage,
   ISettingManage,
@@ -32,21 +32,21 @@ export interface IViewPortManage extends IDisposable {
 
 class ViewPortManage extends Disposable {
   private _viewPort: Group = new Group()
-  private _iocEditor: IIocEditor
+  private _iocEditor: ITinyFlowchart
   private _settingMgr: ISettingManage
   private _currentZoom = 1
   _gridMgr?: IGridManage
 
-  constructor(iocEditor: IIocEditor) {
+  constructor(tinyFlowchart: ITinyFlowchart) {
     super()
-    this._iocEditor = iocEditor
-    this._settingMgr = iocEditor._settingMgr
+    this._iocEditor = tinyFlowchart
+    this._settingMgr = tinyFlowchart._settingMgr
 
     const enableMiniMap = this._settingMgr.get('enableMiniMap')
     const enableGrid = this._settingMgr.get('enableGrid')
 
     if (!enableMiniMap && enableGrid) {
-      this._gridMgr = new GridManage(iocEditor, this)
+      this._gridMgr = new GridManage(tinyFlowchart, this)
     }
 
     this._iocEditor.sceneDragMove$.subscribe(({ x, y }: ISceneDragMoveOpts) => {

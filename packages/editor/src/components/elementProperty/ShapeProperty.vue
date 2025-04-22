@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { NodeType, BoundingRect } from '@ioceditor/core'
+import { NodeType, BoundingRect } from '@tiny-flowchart/core'
 import { ElColorPicker, ElDivider, ElInput, ElInputNumber, ElOption, ElSelect } from 'element-plus'
-import { IocEditor } from '@ioceditor/core'
+import { TinyFlowchart } from '@tiny-flowchart/core'
 import {
   bgColorList,
   strokeColorList,
@@ -17,10 +17,10 @@ import type {
   IExportShapeStyle,
   LineDashStyle,
   INodeMouseDown
-} from '@ioceditor/core'
+} from '@tiny-flowchart/core'
 
-const { iocEditor } = defineProps<{
-  iocEditor: IocEditor
+const { tinyFlowchart } = defineProps<{
+  tinyFlowchart: TinyFlowchart
 }>()
 
 const activeShape = ref<IShape>()
@@ -39,7 +39,7 @@ const shapeConfig = ref<IExportShapeStyle>({
   backgroundColor: '#fff'
 })
 
-iocEditor._nodeEventMgr.updateNodeClick$.subscribe(({ node }: INodeMouseDown) => {
+tinyFlowchart._nodeEventMgr.updateNodeClick$.subscribe(({ node }: INodeMouseDown) => {
   if (node?.nodeType === NodeType.Shape) {
     activeShape.value = node as IShape
     if (activeShape.value.type === 'text') {
@@ -67,7 +67,7 @@ iocEditor._nodeEventMgr.updateNodeClick$.subscribe(({ node }: INodeMouseDown) =>
 const changeShapeBgColor = (color: string | null) => {
   const oldShapeStyle = { ...activeShape.value!.getExportData().style }
   shapeConfig.value.fill = color as string
-  iocEditor.execute('updateShapeProperty', {
+  tinyFlowchart.execute('updateShapeProperty', {
     shape: activeShape.value as IShape,
     shapeStyle: { ...oldShapeStyle, fill: color as string },
     oldShapeStyle
@@ -77,7 +77,7 @@ const changeShapeBgColor = (color: string | null) => {
 const changeShapeStrokeColor = (color: string | null) => {
   const oldShapeStyle = { ...activeShape.value!.getExportData().style }
   shapeConfig.value.stroke = color as string
-  iocEditor.execute('updateShapeProperty', {
+  tinyFlowchart.execute('updateShapeProperty', {
     shape: activeShape.value as IShape,
     shapeStyle: { ...oldShapeStyle, stroke: color as string },
     oldShapeStyle
@@ -88,7 +88,7 @@ const changeShapeFontColor = (color: string | null) => {
   if (!color) return
   const oldShapeStyle = { ...activeShape.value!.getExportData().style }
   shapeConfig.value.fontColor = color as string
-  iocEditor.execute('updateShapeProperty', {
+  tinyFlowchart.execute('updateShapeProperty', {
     shape: activeShape.value as IShape,
     shapeStyle: { ...oldShapeStyle, fontColor: color },
     oldShapeStyle
@@ -101,7 +101,7 @@ const changeTextColor = (color: string | null) => {
   const oldShapeStyle = { ...activeShape.value!.getExportData().style }
 
   shapeConfig.value.fontColor = color as string
-  iocEditor.execute('updateShapeProperty', {
+  tinyFlowchart.execute('updateShapeProperty', {
     shape: activeShape.value as IShape,
     shapeStyle: { ...oldShapeStyle, fill: color },
     oldShapeStyle
@@ -114,7 +114,7 @@ const changeTextBgColor = (color: string | null) => {
   const oldShapeStyle = { ...activeShape.value!.getExportData().style }
 
   shapeConfig.value.fontColor = color as string
-  iocEditor.execute('updateShapeProperty', {
+  tinyFlowchart.execute('updateShapeProperty', {
     shape: activeShape.value as IShape,
     shapeStyle: { ...oldShapeStyle, backgroundColor: color },
     oldShapeStyle
@@ -127,7 +127,7 @@ const changeTextFontSize = (size: number | undefined) => {
   const oldShapeStyle = { ...activeShape.value!.getExportData().style }
 
   shapeConfig.value.fontSize = size
-  iocEditor.execute('updateShapeProperty', {
+  tinyFlowchart.execute('updateShapeProperty', {
     shape: activeShape.value as IShape,
     shapeStyle: { ...oldShapeStyle, fontSize: size },
     oldShapeStyle
@@ -143,14 +143,14 @@ const changeTextFontStyle = (style: string) => {
   const oldShapeStyle = { ...activeShape.value!.getExportData().style }
   if (style === 'fontWeight') {
     shapeConfig.value.fontWeight = fWeight === 'normal' ? 'bold' : 'normal'
-    iocEditor.execute('updateShapeProperty', {
+    tinyFlowchart.execute('updateShapeProperty', {
       shape: activeShape.value as IShape,
       shapeStyle: { ...oldShapeStyle, fontWeight: shapeConfig.value.fontWeight },
       oldShapeStyle
     })
   } else {
     shapeConfig.value.fontStyle = fStyle === 'normal' ? 'italic' : 'normal'
-    iocEditor.execute('updateShapeProperty', {
+    tinyFlowchart.execute('updateShapeProperty', {
       shape: activeShape.value as IShape,
       shapeStyle: { ...oldShapeStyle, fontStyle: shapeConfig.value.fontStyle },
       oldShapeStyle
@@ -161,7 +161,7 @@ const changeTextFontStyle = (style: string) => {
 const updateTextAnchorAndCtrFrame = () => {
   const { width, height } = activeShape.value!.getBoundingRect()
   const { x, y } = activeShape.value!
-  iocEditor._controlFrameMgr.reSizeNode(new BoundingRect(x, y, width, height))
+  tinyFlowchart._controlFrameMgr.reSizeNode(new BoundingRect(x, y, width, height))
   activeShape.value?.anchor.refresh()
 }
 
@@ -169,7 +169,7 @@ const updateTextAnchorAndCtrFrame = () => {
 const changeText = (text: string) => {
   const oldShapeStyle = { ...activeShape.value!.getExportData().style }
   shapeConfig.value.text = text
-  iocEditor.execute('updateShapeProperty', {
+  tinyFlowchart.execute('updateShapeProperty', {
     shape: activeShape.value as IShape,
     shapeStyle: { ...oldShapeStyle, text },
     oldShapeStyle
@@ -182,7 +182,7 @@ const changeShapeFontSize = (size: number | undefined) => {
   if (!size) return
   const oldShapeStyle = { ...activeShape.value!.getExportData().style }
   shapeConfig.value.fontSize = size
-  iocEditor.execute('updateShapeProperty', {
+  tinyFlowchart.execute('updateShapeProperty', {
     shape: activeShape.value as IShape,
     shapeStyle: { ...oldShapeStyle, fontSize: size },
     oldShapeStyle
@@ -192,7 +192,7 @@ const changeShapeFontSize = (size: number | undefined) => {
 const changeShapeLineWidth = (width: number) => {
   const oldShapeStyle = { ...activeShape.value!.getExportData().style }
   shapeConfig.value.lineWidth = width
-  iocEditor.execute('updateShapeProperty', {
+  tinyFlowchart.execute('updateShapeProperty', {
     shape: activeShape.value as IShape,
     shapeStyle: { ...oldShapeStyle, lineWidth: width },
     oldShapeStyle
@@ -202,7 +202,7 @@ const changeShapeLineWidth = (width: number) => {
 const changeShapeStrokeType = (type: string) => {
   const oldShapeStyle = { ...activeShape.value!.getExportData().style }
   shapeConfig.value.lineDash = type as LineDashStyle
-  iocEditor.execute('updateShapeProperty', {
+  tinyFlowchart.execute('updateShapeProperty', {
     shape: activeShape.value as IShape,
     shapeStyle: { ...oldShapeStyle, lineDash: type as LineDashStyle },
     oldShapeStyle
@@ -212,7 +212,7 @@ const changeShapeStrokeType = (type: string) => {
 const changeShapeTextPosition = (position: BuiltinTextPosition) => {
   const oldShapeStyle = { ...activeShape.value!.getExportData().style }
   shapeConfig.value.textPosition = position
-  iocEditor.execute('updateShapeProperty', {
+  tinyFlowchart.execute('updateShapeProperty', {
     shape: activeShape.value as IShape,
     shapeStyle: { ...oldShapeStyle, textPosition: position },
     oldShapeStyle
@@ -225,14 +225,14 @@ const changeShapeFontStyle = (style: string) => {
   const oldShapeStyle = { ...activeShape.value!.getExportData().style }
   if (style === 'fontWeight') {
     shapeConfig.value.fontWeight = fWeight === 'normal' ? 'bold' : 'normal'
-    iocEditor.execute('updateShapeProperty', {
+    tinyFlowchart.execute('updateShapeProperty', {
       shape: activeShape.value as IShape,
       shapeStyle: { ...oldShapeStyle, fontWeight: shapeConfig.value.fontWeight },
       oldShapeStyle
     })
   } else {
     shapeConfig.value.fontStyle = fStyle === 'normal' ? 'italic' : 'normal'
-    iocEditor.execute('updateShapeProperty', {
+    tinyFlowchart.execute('updateShapeProperty', {
       shape: activeShape.value as IShape,
       shapeStyle: { ...oldShapeStyle, fontStyle: shapeConfig.value.fontStyle },
       oldShapeStyle
@@ -243,7 +243,7 @@ const changeShapeFontStyle = (style: string) => {
 const changeShapeText = (text: string) => {
   const oldShapeStyle = { ...activeShape.value!.getExportData().style }
   shapeConfig.value.text = text
-  iocEditor.execute('updateShapeProperty', {
+  tinyFlowchart.execute('updateShapeProperty', {
     shape: activeShape.value as IShape,
     shapeStyle: { ...oldShapeStyle, text },
     oldShapeStyle

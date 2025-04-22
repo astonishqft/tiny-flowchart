@@ -1,4 +1,4 @@
-import type { INodeGroup, INode, ICommand, IIocEditor } from '@/index'
+import type { INodeGroup, INode, ICommand, ITinyFlowchart } from '@/index'
 
 export interface IDragEnterToGroupCommandOpts {
   targetGroup: INodeGroup
@@ -8,22 +8,22 @@ export interface IDragEnterToGroupCommandOpts {
 }
 
 class DragEnterToGroupCommand implements ICommand {
-  private iocEditor: IIocEditor
+  private tinyFlowchart: ITinyFlowchart
   private targetGroup: INodeGroup
   private node: INode
 
-  constructor(iocEditor: IIocEditor, group: INodeGroup, node: INode) {
-    this.iocEditor = iocEditor
+  constructor(tinyFlowchart: ITinyFlowchart, group: INodeGroup, node: INode) {
+    this.tinyFlowchart = tinyFlowchart
     this.targetGroup = group
     this.node = node
   }
 
   execute() {
-    this.iocEditor._groupMgr.addShapeToGroup(this.node, this.targetGroup)
+    this.tinyFlowchart._groupMgr.addShapeToGroup(this.node, this.targetGroup)
   }
 
   undo() {
-    this.iocEditor._groupMgr.removeShapeFromGroup(this.node)
+    this.tinyFlowchart._groupMgr.removeShapeFromGroup(this.node)
   }
 
   redo() {

@@ -283,8 +283,7 @@ export const shapeConfig: IShapeConfig = {
       x: 0,
       y: 0,
       width: 80,
-      height: 40,
-      r: 4
+      height: 40
     }
   },
   rectangle: {
@@ -398,7 +397,7 @@ export const shapeConfig: IShapeConfig = {
     }
   },
   arrowRight: {
-    textConfig: undefined
+    textContent: undefined
   },
   card: {
     shape: {
@@ -464,7 +463,7 @@ export const shapeConfig: IShapeConfig = {
       width: 80,
       height: 30
     },
-    textConfig: undefined
+    textContent: undefined
   },
   annotation: {
     shape: {
@@ -473,7 +472,7 @@ export const shapeConfig: IShapeConfig = {
       width: 50,
       height: 80
     },
-    textConfig: undefined
+    textContent: undefined
   },
   induce: {
     shape: {
@@ -483,7 +482,7 @@ export const shapeConfig: IShapeConfig = {
       height: 80,
       direct: 'right'
     },
-    textConfig: undefined
+    textContent: undefined
   }
 }
 

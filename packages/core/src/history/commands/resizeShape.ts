@@ -1,9 +1,9 @@
 import { BoundingRect } from '@/index'
 
-import type { INode, ICommand, IIocEditor } from '@/index'
+import type { INode, ICommand, ITinyFlowchart } from '@/index'
 
 export interface IResizeShapeCommandOpts {
-  iocEditor: IIocEditor
+  tinyFlowchart: ITinyFlowchart
   node: INode
   oldBoundingBox: BoundingRect
   boundingBox: BoundingRect
@@ -11,17 +11,17 @@ export interface IResizeShapeCommandOpts {
 
 class ResizeShapeCommand implements ICommand {
   private node: INode
-  private _iocEditor: IIocEditor
+  private _iocEditor: ITinyFlowchart
   private oldBoundingBox: BoundingRect
   private boundingBox: BoundingRect
 
   constructor(
-    iocEditor: IIocEditor,
+    tinyFlowchart: ITinyFlowchart,
     node: INode,
     oldBoundingBox: BoundingRect,
     boundingBox: BoundingRect
   ) {
-    this._iocEditor = iocEditor
+    this._iocEditor = tinyFlowchart
     this.node = node
     this.oldBoundingBox = oldBoundingBox
     this.boundingBox = boundingBox

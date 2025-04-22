@@ -1,6 +1,6 @@
 import { Disposable } from './disposable'
 
-import type { IIocEditor, IViewPortManage, ISettingManage, IDisposable } from '@/index'
+import type { ITinyFlowchart, IViewPortManage, ISettingManage, IDisposable } from '@/index'
 
 export interface IZoomManage extends IDisposable {
   zoomIn(): void
@@ -13,15 +13,15 @@ class ZoomManage extends Disposable {
   private _maxZoom: number
   private _viewPortMgr: IViewPortManage
   private _settingMgr: ISettingManage
-  private _iocMgr: IIocEditor
+  private _iocMgr: ITinyFlowchart
   private _zoomScale: number
   private _currentZoom = 1
 
-  constructor(iocEditor: IIocEditor) {
+  constructor(tinyFlowchart: ITinyFlowchart) {
     super()
-    this._iocMgr = iocEditor
-    this._settingMgr = iocEditor._settingMgr
-    this._viewPortMgr = iocEditor._viewPortMgr
+    this._iocMgr = tinyFlowchart
+    this._settingMgr = tinyFlowchart._settingMgr
+    this._viewPortMgr = tinyFlowchart._viewPortMgr
     this._minZoom = this._settingMgr.get('zoomMin')
     this._maxZoom = this._settingMgr.get('zoomMax')
     this._zoomScale = 1 + this._settingMgr.get('zoomStep')

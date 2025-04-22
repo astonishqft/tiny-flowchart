@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { NodeType, IocEditor } from '@ioceditor/core'
+import { NodeType, TinyFlowchart } from '@tiny-flowchart/core'
 import ShapeProperty from './elementProperty/ShapeProperty.vue'
 import ConnectionProperty from './elementProperty/ConnectionProperty.vue'
 import GroupProperty from './elementProperty/GroupProperty.vue'
 
-import type { IConnection, INodeGroup, IShape, INodeMouseDown } from '@ioceditor/core'
+import type { IConnection, INodeGroup, IShape, INodeMouseDown } from '@tiny-flowchart/core'
 
 const props = defineProps<{
-  iocEditor: IocEditor
+  tinyFlowchart: TinyFlowchart
 }>()
 
 const type = ref('scene')
@@ -16,8 +16,8 @@ const activeShape = ref<IShape>()
 const activeConnection = ref<IConnection>()
 const activeGroup = ref<INodeGroup>()
 
-if (props.iocEditor) {
-  props.iocEditor._nodeEventMgr.updateNodeClick$.subscribe(({ node }: INodeMouseDown) => {
+if (props.tinyFlowchart) {
+  props.tinyFlowchart._nodeEventMgr.updateNodeClick$.subscribe(({ node }: INodeMouseDown) => {
     console.log('选中节点', node)
     if (node?.nodeType === NodeType.Shape) {
       type.value = 'shape'
@@ -30,11 +30,13 @@ if (props.iocEditor) {
     }
   })
 
-  props.iocEditor._connectionMgr.updateSelectConnection$.subscribe((connection: IConnection) => {
-    console.log('选中连线')
-    type.value = 'connection'
-    activeConnection.value = connection
-  })
+  props.tinyFlowchart._connectionMgr.updateSelectConnection$.subscribe(
+    (connection: IConnection) => {
+      console.log('选中连线')
+      type.value = 'connection'
+      activeConnection.value = connection
+    }
+  )
 }
 
 const selectNameMap: Record<string, string> = {
@@ -49,9 +51,9 @@ const selectNameMap: Record<string, string> = {
   <div class="property" v-show="type !== 'scene'">
     <div class="property-title">{{ selectNameMap[type] }}</div>
     <div class="property-content">
-      <ShapeProperty v-show="type === 'shape'" :ioc-editor="iocEditor" />
-      <ConnectionProperty v-show="type === 'connection'" :ioc-editor="iocEditor" />
-      <GroupProperty v-show="type === 'group'" :ioc-editor="iocEditor" />
+      <ShapeProperty v-show="type === 'shape'" :tiny-flowchart="tinyFlowchart" />
+      <ConnectionProperty v-show="type === 'connection'" :tiny-flowchart="tinyFlowchart" />
+      <GroupProperty v-show="type === 'group'" :tiny-flowchart="tinyFlowchart" />
     </div>
   </div>
 </template>

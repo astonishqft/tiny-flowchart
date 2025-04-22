@@ -6,7 +6,7 @@ import { NodeType } from '@/index'
 import type { IDisposable } from '@/disposable'
 import type {
   ElementEvent,
-  IIocEditor,
+  ITinyFlowchart,
   IShape,
   INode,
   INodeGroup,
@@ -30,7 +30,7 @@ export interface INodeEventManage extends IDisposable {
 
 class NodeEventManage extends Disposable {
   private _node?: INode
-  private _iocEditor: IIocEditor
+  private _iocEditor: ITinyFlowchart
   private _dragFrameMgr: IDragFrameManage
   private _refLineMgr: IRefLineManage
   private _connectionMgr: IConnectionManage
@@ -53,16 +53,16 @@ class NodeEventManage extends Disposable {
   private _onMouseMove: (e: MouseEvent) => void
   private _onMouseUp: (e: MouseEvent) => void
 
-  constructor(iocEditor: IIocEditor) {
+  constructor(tinyFlowchart: ITinyFlowchart) {
     super()
-    this._iocEditor = iocEditor
-    this._zoomMgr = iocEditor._zoomMgr
-    this._storageMgr = iocEditor._storageMgr
-    this._dragFrameMgr = iocEditor._dragFrameMgr
-    this._refLineMgr = iocEditor._refLineMgr
-    this._connectionMgr = iocEditor._connectionMgr
-    this._settingMgr = iocEditor._settingMgr
-    this._controlFrameMgr = iocEditor._controlFrameMgr
+    this._iocEditor = tinyFlowchart
+    this._zoomMgr = tinyFlowchart._zoomMgr
+    this._storageMgr = tinyFlowchart._storageMgr
+    this._dragFrameMgr = tinyFlowchart._dragFrameMgr
+    this._refLineMgr = tinyFlowchart._refLineMgr
+    this._connectionMgr = tinyFlowchart._connectionMgr
+    this._settingMgr = tinyFlowchart._settingMgr
+    this._controlFrameMgr = tinyFlowchart._controlFrameMgr
     this._onMouseUp = this.onMouseUp.bind(this)
     this._onMouseMove = this.onMouseMove.bind(this)
     this._disposables.push(this.updateNodeMouseDown$)

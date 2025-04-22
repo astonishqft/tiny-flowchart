@@ -1,14 +1,14 @@
 import hotkeys from 'hotkeys-js'
 import { Disposable } from '@/disposable'
 
-import type { IIocEditor } from '@/index'
+import type { ITinyFlowchart } from '@/index'
 
 class HotKeysManager extends Disposable {
-  private _iocEditor: IIocEditor
+  private _iocEditor: ITinyFlowchart
 
-  constructor(iocEditor: IIocEditor) {
+  constructor(tinyFlowchart: ITinyFlowchart) {
     super()
-    this._iocEditor = iocEditor
+    this._iocEditor = tinyFlowchart
     this.init()
   }
 

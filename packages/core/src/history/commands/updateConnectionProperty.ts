@@ -1,4 +1,4 @@
-import type { IConnection, IExportConnectionStyle, ICommand, IIocEditor } from '@/index'
+import type { IConnection, IExportConnectionStyle, ICommand, ITinyFlowchart } from '@/index'
 
 export interface IUpdateConnectionPropertyCommandOpts {
   connection: IConnection
@@ -7,17 +7,17 @@ export interface IUpdateConnectionPropertyCommandOpts {
 }
 
 class UpdateConnectionPropertyCommand implements ICommand {
-  private iocEditor: IIocEditor
+  private tinyFlowchart: ITinyFlowchart
   private connection: IConnection
   private connectionConfig: IExportConnectionStyle
   private oldConnectionConfig: IExportConnectionStyle
   constructor(
-    iocEditor: IIocEditor,
+    tinyFlowchart: ITinyFlowchart,
     connection: IConnection,
     connectionConfig: IExportConnectionStyle,
     oldConnectionConfig: IExportConnectionStyle
   ) {
-    this.iocEditor = iocEditor
+    this.tinyFlowchart = tinyFlowchart
     this.connection = connection
     this.connectionConfig = connectionConfig
     this.oldConnectionConfig = oldConnectionConfig

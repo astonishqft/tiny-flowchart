@@ -1,4 +1,4 @@
-import type { IExportShapeStyle, INodeGroup, ICommand, IIocEditor } from '@/index'
+import type { IExportShapeStyle, INodeGroup, ICommand, ITinyFlowchart } from '@/index'
 
 export interface IUpdateGroupPropertyCommandOpts {
   group: INodeGroup
@@ -7,17 +7,17 @@ export interface IUpdateGroupPropertyCommandOpts {
 }
 
 class UpdateGroupPropertyCommand implements ICommand {
-  private iocEditor: IIocEditor
+  private tinyFlowchart: ITinyFlowchart
   private group: INodeGroup
   private groupConfig: IExportShapeStyle
   private oldGroupConfig: IExportShapeStyle
   constructor(
-    iocEditor: IIocEditor,
+    tinyFlowchart: ITinyFlowchart,
     group: INodeGroup,
     groupConfig: IExportShapeStyle,
     oldGroupConfig: IExportShapeStyle
   ) {
-    this.iocEditor = iocEditor
+    this.tinyFlowchart = tinyFlowchart
     this.group = group
     this.groupConfig = groupConfig
     this.oldGroupConfig = oldGroupConfig

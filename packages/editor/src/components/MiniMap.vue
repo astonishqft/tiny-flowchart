@@ -1,29 +1,29 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { IocEditor, MiniMapManage } from '@ioceditor/core'
+import { TinyFlowchart, MiniMapManage } from '@tiny-flowchart/core'
 
-import type { IMiniMapManage } from '@ioceditor/core'
+import type { IMiniMapManage } from '@tiny-flowchart/core'
 
-const miniMapIoc = ref<IocEditor>()
+const miniMapIoc = ref<TinyFlowchart>()
 const miniMapMgr = ref<IMiniMapManage>()
 
-const { iocEditor } = defineProps<{
-  iocEditor: IocEditor
+const { tinyFlowchart } = defineProps<{
+  tinyFlowchart: TinyFlowchart
 }>()
 
 onMounted(() => {
   const miniMapContainer = document.getElementById('mini-map') as HTMLElement
 
-  miniMapIoc.value = new IocEditor(miniMapContainer, { enableMiniMap: true, enableGrid: false })
+  miniMapIoc.value = new TinyFlowchart(miniMapContainer, { enableMiniMap: true, enableGrid: false })
   miniMapIoc.value.offEvent()
 
-  miniMapMgr.value = new MiniMapManage(miniMapIoc.value, iocEditor)
+  miniMapMgr.value = new MiniMapManage(miniMapIoc.value, tinyFlowchart)
 
-  iocEditor.updateMiniMap$.subscribe(() => {
-    miniMapMgr.value?.refreshMap(iocEditor.getExportData())
+  tinyFlowchart.updateMiniMap$.subscribe(() => {
+    miniMapMgr.value?.refreshMap(tinyFlowchart.getExportData())
   })
 
-  iocEditor.updateMiniMapVisible$.subscribe(visible => {
+  tinyFlowchart.updateMiniMapVisible$.subscribe(visible => {
     miniMapMgr.value?.setVisible(visible)
   })
 })
@@ -40,8 +40,8 @@ const handleMouseDown = (e: MouseEvent) => {
   startX.value = e.offsetX
   startY.value = e.offsetY
   isDragging.value = true
-  oldViewPortX.value = iocEditor._viewPortMgr.getPosition()[0]
-  oldViewPortY.value = iocEditor._viewPortMgr.getPosition()[1]
+  oldViewPortX.value = tinyFlowchart._viewPortMgr.getPosition()[0]
+  oldViewPortY.value = tinyFlowchart._viewPortMgr.getPosition()[1]
   oldMiniMapFrameX.value = miniMapMgr.value?.getMiniMapFramePosition()[0] as number
   oldMiniMapFrameY.value = miniMapMgr.value?.getMiniMapFramePosition()[1] as number
 }
@@ -62,7 +62,7 @@ const handleMouseMove = (e: MouseEvent) => {
     oldMiniMapFrameX.value + deltaX,
     oldMiniMapFrameY.value + deltaY
   )
-  iocEditor._viewPortMgr.setPosition(oldViewPortX.value + offsetX, oldViewPortY.value + offsetY)
+  tinyFlowchart._viewPortMgr.setPosition(oldViewPortX.value + offsetX, oldViewPortY.value + offsetY)
 }
 
 const handleMouseUp = (e: MouseEvent) => {

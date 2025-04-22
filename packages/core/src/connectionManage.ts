@@ -10,7 +10,7 @@ import type {
   IDisposable,
   IViewPortManage,
   IStorageManage,
-  IIocEditor
+  ITinyFlowchart
 } from '@/index'
 
 export interface IConnectionManage extends IDisposable {
@@ -40,16 +40,16 @@ export interface IConnectionManage extends IDisposable {
 class ConnectionManage extends Disposable {
   private _viewPortMgr: IViewPortManage
   private _storageMgr: IStorageManage
-  private _iocEditor: IIocEditor
+  private _iocEditor: ITinyFlowchart
   private _tempConnection: Line | null = null
   private _connectionType: ConnectionType = ConnectionType.OrtogonalLine
   updateConnectionType$ = new Subject<ConnectionType>()
   updateSelectConnection$ = new Subject<IConnection>()
-  constructor(iocEditor: IIocEditor) {
+  constructor(tinyFlowchart: ITinyFlowchart) {
     super()
-    this._iocEditor = iocEditor
-    this._viewPortMgr = iocEditor._viewPortMgr
-    this._storageMgr = iocEditor._storageMgr
+    this._iocEditor = tinyFlowchart
+    this._viewPortMgr = tinyFlowchart._viewPortMgr
+    this._storageMgr = tinyFlowchart._storageMgr
     this._disposables.push(this.updateConnectionType$, this.updateSelectConnection$)
   }
 

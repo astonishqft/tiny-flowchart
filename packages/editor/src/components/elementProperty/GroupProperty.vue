@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { NodeType } from '@ioceditor/core'
+import { NodeType } from '@tiny-flowchart/core'
 import { ElColorPicker, ElDivider, ElInput, ElInputNumber, ElOption, ElSelect } from 'element-plus'
 import { bgColorList, strokeColorList, lineWidthOpts, lineTypeOpt } from './config'
 
@@ -10,12 +10,12 @@ import type {
   LineDashStyle,
   INodeGroup,
   IExportGroupStyle,
-  IIocEditor,
+  ITinyFlowchart,
   INodeMouseDown
-} from '@ioceditor/core'
+} from '@tiny-flowchart/core'
 
-const { iocEditor } = defineProps<{
-  iocEditor: IIocEditor
+const { tinyFlowchart } = defineProps<{
+  tinyFlowchart: ITinyFlowchart
 }>()
 
 const textPositionList: ITextPosition[] = [
@@ -51,7 +51,7 @@ const groupConfig = ref<IExportGroupStyle>({
   textPosition: 'insideLeft'
 })
 
-iocEditor._nodeEventMgr.updateNodeClick$.subscribe(({ node }: INodeMouseDown) => {
+tinyFlowchart._nodeEventMgr.updateNodeClick$.subscribe(({ node }: INodeMouseDown) => {
   if (node?.nodeType === NodeType.Group) {
     activeGroup.value = node as INodeGroup
     groupConfig.value.fill = activeGroup.value.groupRect?.style.fill as string
@@ -74,7 +74,7 @@ iocEditor._nodeEventMgr.updateNodeClick$.subscribe(({ node }: INodeMouseDown) =>
 const changeGroupBgColor = (color: string | null) => {
   const oldGroupConfig = { ...activeGroup.value!.getExportData().style }
   groupConfig.value.fill = color as string
-  iocEditor.execute('updateGroupProperty', {
+  tinyFlowchart.execute('updateGroupProperty', {
     group: activeGroup.value as INodeGroup,
     groupConfig: { ...groupConfig.value },
     oldGroupConfig
@@ -84,7 +84,7 @@ const changeGroupBgColor = (color: string | null) => {
 const changeGroupStrokeColor = (color: string | null) => {
   const oldGroupConfig = { ...activeGroup.value!.getExportData().style }
   groupConfig.value.stroke = color as string
-  iocEditor.execute('updateGroupProperty', {
+  tinyFlowchart.execute('updateGroupProperty', {
     group: activeGroup.value as INodeGroup,
     groupConfig: { ...groupConfig.value },
     oldGroupConfig
@@ -94,7 +94,7 @@ const changeGroupStrokeColor = (color: string | null) => {
 const changeGroupHeadFontColor = (color: string | null) => {
   const oldGroupConfig = { ...activeGroup.value!.getExportData().style }
   groupConfig.value.fontColor = color as string
-  iocEditor.execute('updateGroupProperty', {
+  tinyFlowchart.execute('updateGroupProperty', {
     group: activeGroup.value as INodeGroup,
     groupConfig: { ...groupConfig.value },
     oldGroupConfig
@@ -104,7 +104,7 @@ const changeGroupHeadFontColor = (color: string | null) => {
 const changeGroupFontSize = (size: number | undefined) => {
   const oldGroupConfig = { ...activeGroup.value!.getExportData().style }
   groupConfig.value.fontSize = size
-  iocEditor.execute('updateGroupProperty', {
+  tinyFlowchart.execute('updateGroupProperty', {
     group: activeGroup.value as INodeGroup,
     groupConfig: { ...groupConfig.value },
     oldGroupConfig
@@ -114,7 +114,7 @@ const changeGroupFontSize = (size: number | undefined) => {
 const changeGroupLineWidth = (width: number) => {
   const oldGroupConfig = { ...activeGroup.value!.getExportData().style }
   groupConfig.value.lineWidth = width
-  iocEditor.execute('updateGroupProperty', {
+  tinyFlowchart.execute('updateGroupProperty', {
     group: activeGroup.value as INodeGroup,
     groupConfig: { ...groupConfig.value },
     oldGroupConfig
@@ -124,7 +124,7 @@ const changeGroupLineWidth = (width: number) => {
 const changeGroupStrokeType = (type: string) => {
   const oldGroupConfig = { ...activeGroup.value!.getExportData().style }
   groupConfig.value.lineDash = type as LineDashStyle
-  iocEditor.execute('updateGroupProperty', {
+  tinyFlowchart.execute('updateGroupProperty', {
     group: activeGroup.value as INodeGroup,
     groupConfig: { ...groupConfig.value },
     oldGroupConfig
@@ -134,7 +134,7 @@ const changeGroupStrokeType = (type: string) => {
 const changeGroupTextPosition = (position: BuiltinTextPosition) => {
   const oldGroupConfig = { ...activeGroup.value!.getExportData().style }
   groupConfig.value.textPosition = position
-  iocEditor.execute('updateGroupProperty', {
+  tinyFlowchart.execute('updateGroupProperty', {
     group: activeGroup.value as INodeGroup,
     groupConfig: { ...groupConfig.value },
     oldGroupConfig
@@ -150,7 +150,7 @@ const changeGroupFontStyle = (style: string) => {
   } else {
     groupConfig.value.fontStyle = fStyle === 'normal' ? 'italic' : 'normal'
   }
-  iocEditor.execute('updateGroupProperty', {
+  tinyFlowchart.execute('updateGroupProperty', {
     group: activeGroup.value as INodeGroup,
     groupConfig: { ...groupConfig.value },
     oldGroupConfig
@@ -160,7 +160,7 @@ const changeGroupFontStyle = (style: string) => {
 const changeGroupText = (text: string) => {
   const oldGroupConfig = { ...activeGroup.value!.getExportData().style }
   groupConfig.value.text = text
-  iocEditor.execute('updateGroupProperty', {
+  tinyFlowchart.execute('updateGroupProperty', {
     group: activeGroup.value as INodeGroup,
     groupConfig: { ...groupConfig.value },
     oldGroupConfig

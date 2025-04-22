@@ -3,7 +3,7 @@ import { Rect, BoundingRect } from '@/index'
 import { getTopGroup, isEnter } from '@/utils'
 
 import type {
-  IIocEditor,
+  ITinyFlowchart,
   IDisposable,
   IViewPortManage,
   IStorageManage,
@@ -34,10 +34,10 @@ class DragFrameManage extends Disposable {
   private _viewPortMgr: IViewPortManage
   private _storageMgr: IStorageManage
 
-  constructor(iocEditor: IIocEditor) {
+  constructor(tinyFlowchart: ITinyFlowchart) {
     super()
-    this._viewPortMgr = iocEditor._viewPortMgr
-    this._storageMgr = iocEditor._storageMgr
+    this._viewPortMgr = tinyFlowchart._viewPortMgr
+    this._storageMgr = tinyFlowchart._storageMgr
     this._frame = new Rect({
       shape: { x: 0, y: 0, width: 0, height: 0, r: [3] },
       style: {

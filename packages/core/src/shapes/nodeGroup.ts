@@ -9,7 +9,7 @@ import type {
   IShape,
   StrokeStyle,
   INode,
-  IIocEditor,
+  ITinyFlowchart,
   IViewPortManage,
   ISettingManage,
   IWidthActivate,
@@ -72,10 +72,10 @@ class NodeGroup extends Group implements INodeGroup {
   groupActiveColor: string
   parentGroup?: INodeGroup
 
-  constructor(shapes: INode[], iocEditor: IIocEditor) {
+  constructor(shapes: INode[], tinyFlowchart: ITinyFlowchart) {
     super()
-    this._settingMgr = iocEditor._settingMgr
-    this._viewPortMgr = iocEditor._viewPortMgr
+    this._settingMgr = tinyFlowchart._settingMgr
+    this._viewPortMgr = tinyFlowchart._viewPortMgr
     this.shapes = shapes
     const [x, y] = getMinPosition(this.shapes)
     const { width, height } = this.getBoundingRect(this.shapes)

@@ -1,5 +1,5 @@
 {
-  "name": "@ioceditor/editor",
+  "name": "@tiny-flowchart/editor",
   "private": false,
   "version": "1.0.0",
   "author": "qi.futao",
@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.1",
-    "@ioceditor/core": "workspace:^",
+    "@tiny-flowchart/core": "workspace:^",
     "element-plus": "^2.7.4"
   }
 }

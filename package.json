@@ -1,5 +1,5 @@
 {
-  "name": "ioc-editor",
+  "name": "tiny-flowchart",
   "version": "1.0.0",
   "description": "",
   "private": true,
@@ -10,10 +10,10 @@
   "scripts": {
     "dev": "run-p dev:orthogonal dev:core dev:editor dev:example",
     "build": "pnpm -r exec pnpm run build",
-    "dev:orthogonal": "pnpm -F @ioceditor/orthogonal-connector dev",
-    "dev:core": "pnpm -F @ioceditor/core dev",
-    "dev:editor": "pnpm -F @ioceditor/editor dev",
-    "dev:example": "pnpm -F @ioceditor/example dev",
+    "dev:orthogonal": "pnpm -F @tiny-flowchart/orthogonal-connector dev",
+    "dev:core": "pnpm -F @tiny-flowchart/core dev",
+    "dev:editor": "pnpm -F @tiny-flowchart/editor dev",
+    "dev:example": "pnpm -F @tiny-flowchart/example dev",
     "pre-commit": "lint-staged",
     "prepare": "husky install",
     "commitlint": "commitlint --config commitlint.config.js -e -V",

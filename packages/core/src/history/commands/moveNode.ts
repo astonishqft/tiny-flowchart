@@ -1,7 +1,7 @@
-import type { ICommand, INode, IIocEditor } from '@/index'
+import type { ICommand, INode, ITinyFlowchart } from '@/index'
 
 export interface IMoveNodeCommandOpts {
-  iocEditor: IIocEditor
+  tinyFlowchart: ITinyFlowchart
   nodes: INode[]
   offsetX: number
   offsetY: number
@@ -9,14 +9,14 @@ export interface IMoveNodeCommandOpts {
 
 class MoveNodeCommand implements ICommand {
   private node: INode
-  private _iocEditor: IIocEditor
+  private _iocEditor: ITinyFlowchart
   private oldX: number
   private oldY: number
   private offsetX: number
   private offsetY: number
 
-  constructor(iocEditor: IIocEditor, node: INode, offsetX: number, offsetY: number) {
-    this._iocEditor = iocEditor
+  constructor(tinyFlowchart: ITinyFlowchart, node: INode, offsetX: number, offsetY: number) {
+    this._iocEditor = tinyFlowchart
     this.node = node
     this.oldX = this.node.oldX
     this.oldY = this.node.oldY

@@ -1,5 +1,5 @@
 {
-  "name": "@ioceditor/example",
+  "name": "@tiny-flowchart/example",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -14,7 +14,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
-    "@ioceditor/editor": "workspace:^",
+    "@tiny-flowchart/editor": "workspace:^",
     "vue": "^3.4.21",
     "vue-router": "^4.3.0"
   },

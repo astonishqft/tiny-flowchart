@@ -9,7 +9,7 @@ import {
   vector,
   ConnectionType
 } from '@/index'
-import OrthogonalConnector from '@ioceditor/orthogonal-connector'
+import OrthogonalConnector from '@tiny-flowchart/orthogonal-connector'
 import { getPolylinePath } from '@/utils'
 
 import type {
@@ -24,7 +24,7 @@ import type {
   FontStyle,
   FontWeight,
   ElementEvent,
-  IIocEditor,
+  ITinyFlowchart,
   ISettingManage
 } from '@/index'
 import type { PathArray, Point } from '@/utils'
@@ -85,7 +85,7 @@ class Connection extends Group implements IConnection {
   private _lineTextFontColor: string = '#333'
   private _lineTextFontStyle: FontStyle = 'normal'
   private _lineTextFontWeight: FontWeight = 'normal'
-  private _iocEditor: IIocEditor
+  private _iocEditor: ITinyFlowchart
   private _settingMgr: ISettingManage
   private _enableMiniMap: boolean
   private _connectionSelectColor: string
@@ -105,14 +105,14 @@ class Connection extends Group implements IConnection {
   selected: boolean = false
   mark = 'connection'
   constructor(
-    iocEditor: IIocEditor,
+    tinyFlowchart: ITinyFlowchart,
     fromAnchorPoint: IAnchorPoint,
     toAnchorPoint: IAnchorPoint,
     type: ConnectionType
   ) {
     super()
-    this._iocEditor = iocEditor
-    this._settingMgr = iocEditor._settingMgr
+    this._iocEditor = tinyFlowchart
+    this._settingMgr = tinyFlowchart._settingMgr
     this._connectionSelectColor = this._settingMgr.get('connectionSelectColor')
     this._stroke = this._settingMgr.get('connectionColor')
     this.fromAnchorPoint = fromAnchorPoint

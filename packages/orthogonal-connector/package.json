@@ -1,5 +1,5 @@
 {
-  "name": "@ioceditor/orthogonal-connector",
+  "name": "@tiny-flowchart/orthogonal-connector",
   "version": "1.0.0",
   "description": "Orthogonal connector",
   "type": "module",

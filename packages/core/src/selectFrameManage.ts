@@ -1,6 +1,6 @@
 import { Rect, BoundingRect } from '@/index'
 
-import type { IViewPortManage, ISettingManage, IStorageManage, IIocEditor } from '@/index'
+import type { IViewPortManage, ISettingManage, IStorageManage, ITinyFlowchart } from '@/index'
 
 export interface ISelectFrameManage {
   getSelectFrame(): Rect
@@ -22,10 +22,10 @@ class SelectFrameManage implements ISelectFrameManage {
   private _viewPortMgr: IViewPortManage
   private _storageMgr: IStorageManage
 
-  constructor(iocEditor: IIocEditor) {
-    this._viewPortMgr = iocEditor._viewPortMgr
-    this._settingMgr = iocEditor._settingMgr
-    this._storageMgr = iocEditor._storageMgr
+  constructor(tinyFlowchart: ITinyFlowchart) {
+    this._viewPortMgr = tinyFlowchart._viewPortMgr
+    this._settingMgr = tinyFlowchart._settingMgr
+    this._storageMgr = tinyFlowchart._storageMgr
     this._selectFrame = new Rect({
       shape: {
         x: 0,

@@ -1,11 +1,11 @@
-import type { INode, ICommand, IIocEditor } from '@/index'
+import type { INode, ICommand, ITinyFlowchart } from '@/index'
 
 class SetBottomCommand implements ICommand {
   private activeNodes: INode[]
-  private iocEditor: IIocEditor
+  private tinyFlowchart: ITinyFlowchart
   private level: number
-  constructor(iocEditor: IIocEditor, activeNodes: INode[], level: number) {
-    this.iocEditor = iocEditor
+  constructor(tinyFlowchart: ITinyFlowchart, activeNodes: INode[], level: number) {
+    this.tinyFlowchart = tinyFlowchart
     this.activeNodes = activeNodes
     this.level = level
   }

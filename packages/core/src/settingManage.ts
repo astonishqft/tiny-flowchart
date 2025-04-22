@@ -1,7 +1,7 @@
 import { Subject } from 'rxjs'
 import { Disposable } from '@/disposable'
 
-import type { IDisposable, IIocEditor } from '@/index'
+import type { IDisposable, ITinyFlowchart } from '@/index'
 
 export interface IIocEditorConfig {
   zoomStep: number
@@ -20,7 +20,7 @@ export interface IIocEditorConfig {
   pasteOffset: number // 粘贴偏移量
   enableMiniMap?: boolean
   enableGrid?: boolean
-  parent?: IIocEditor
+  parent?: ITinyFlowchart
 }
 
 export interface ISettingManage extends IDisposable {
