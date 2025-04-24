@@ -415,6 +415,7 @@ const elementCategory = ref(['0', '1', '2'])
 
 <style lang="less">
 .element-panel {
+  overflow-y: scroll;
   ul {
     list-style-type: none;
     padding: 0;
