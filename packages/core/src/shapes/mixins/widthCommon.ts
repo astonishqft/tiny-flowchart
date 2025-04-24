@@ -5,6 +5,7 @@ import type { Element, FontStyle, FontWeight } from '@/index'
 import type { IExportShape, IExportShapeStyle } from '@/shapes'
 import type { INodeGroup } from '@/shapes/nodeGroup'
 import type { Constructor, Dictionary, SafeDisplayable } from '@/types'
+import { text } from 'zrender/lib/svg-legacy/graphic.js'
 
 export type CommonConstructor = Constructor<SafeDisplayable>
 
@@ -111,20 +112,25 @@ function WidthCommon<TBase extends CommonConstructor>(Base: TBase) {
           textPosition: this.textConfig!.position
         }
       } else {
-        const textContent = this.getTextContent().style
+        const textContent = this.getTextContent()
 
-        return {
+        const config: IExportShapeStyle = {
           fill: this.style.fill,
           stroke: this.style.stroke,
           lineWidth: this.style.lineWidth,
-          lineDash: this.style.lineDash,
-          fontColor: textContent.fill as string,
-          text: textContent.text as string,
-          fontSize: textContent.fontSize as number,
-          fontWeight: textContent.fontWeight as FontWeight,
-          fontStyle: textContent.fontStyle as FontStyle,
-          textPosition: this.textConfig!.position
+          lineDash: this.style.lineDash
         }
+
+        if (textContent) {
+          config.fontColor = textContent.style.fill as string
+          config.text = textContent.style.text as string
+          config.fontSize = textContent.style.fontSize as number
+          config.fontWeight = textContent.style.fontWeight as FontWeight
+          config.fontStyle = textContent.style.fontStyle as FontStyle
+          config.textPosition = this.textConfig!.position
+        }
+
+        return config
       }
     }
 
@@ -132,9 +138,10 @@ function WidthCommon<TBase extends CommonConstructor>(Base: TBase) {
       if (this.type === 'text') {
         this.setShapeStyle(config)
       } else {
-        this.getTextContent().setStyle(this.getTextStyle(config))
+        this.getTextContent() &&
+          this.getTextContent().setStyle(this.getTextStyle(config)) &&
+          this.setTextConfig({ position: config.textPosition })
         this.setShapeStyle(config)
-        this.setTextConfig({ position: config.textPosition })
       }
     }
 

@@ -54,12 +54,12 @@ tinyFlowchart._nodeEventMgr.updateNodeClick$.subscribe(({ node }: INodeMouseDown
       shapeConfig.value.stroke = activeShape.value.style.stroke
       shapeConfig.value.lineWidth = activeShape.value.style.lineWidth
       shapeConfig.value.lineDash = activeShape.value.style.lineDash || 'solid'
-      shapeConfig.value.text = activeShape.value.getTextContent().style.text || ''
-      shapeConfig.value.fontColor = activeShape.value.getTextContent().style.fill || '#333'
-      shapeConfig.value.fontSize = activeShape.value.getTextContent().style.fontSize as number
-      shapeConfig.value.fontStyle = activeShape.value.getTextContent().style.fontStyle || 'normal'
-      shapeConfig.value.fontWeight = activeShape.value.getTextContent().style.fontWeight || 'normal'
-      shapeConfig.value.textPosition = activeShape.value.textConfig?.position || 'inside'
+      shapeConfig.value.text = activeShape.value.getTextContent()?.style.text
+      shapeConfig.value.fontColor = activeShape.value.getTextContent()?.style.fill
+      shapeConfig.value.fontSize = activeShape.value.getTextContent()?.style.fontSize as number
+      shapeConfig.value.fontStyle = activeShape.value.getTextContent()?.style.fontStyle
+      shapeConfig.value.fontWeight = activeShape.value.getTextContent()?.style.fontWeight
+      shapeConfig.value.textPosition = activeShape.value.textConfig?.position
     }
   }
 })
@@ -340,7 +340,7 @@ const changeShapeText = (text: string) => {
         </el-select>
       </div>
     </div>
-    <div class="property-item" v-if="activeShape?.type !== 'text'">
+    <div class="property-item" v-if="activeShape?.type !== 'text' && shapeConfig.fontColor">
       <div class="property-name">文本颜色</div>
       <div class="property-value color-wrapper">
         <span
@@ -376,7 +376,7 @@ const changeShapeText = (text: string) => {
         />
       </div>
     </div>
-    <div class="property-item">
+    <div class="property-item" v-if="shapeConfig.text">
       <div class="property-name">文本内容</div>
       <div class="property-value">
         <el-input
@@ -387,7 +387,7 @@ const changeShapeText = (text: string) => {
         />
       </div>
     </div>
-    <div class="property-item">
+    <div class="property-item" v-if="shapeConfig.fontSize">
       <div class="property-name">文本大小</div>
       <div class="property-value">
         <el-input-number
@@ -404,7 +404,7 @@ const changeShapeText = (text: string) => {
         />
       </div>
     </div>
-    <div class="property-item">
+    <div class="property-item" v-if="shapeConfig.fontWeight">
       <div class="property-name">文本样式</div>
       <div class="property-value">
         <span
@@ -432,7 +432,7 @@ const changeShapeText = (text: string) => {
         />
       </div>
     </div>
-    <div class="property-item" v-if="activeShape?.type !== 'text'">
+    <div class="property-item" v-if="activeShape?.type !== 'text' && shapeConfig.text">
       <div class="property-name">文本位置</div>
       <div class="property-value">
         <span
