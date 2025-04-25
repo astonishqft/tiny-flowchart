@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ElMessage } from 'element-plus'
 import HeaderTools from './components/HeaderTools.vue'
 import ElementPanel from './components/ElementPanel.vue'
 import EditorPanel from './components/EditorPanel.vue'
@@ -13,6 +14,10 @@ onMounted(() => {
   editor.value = new TinyFlowchart(document.getElementById('tiny-flowchart') as HTMLElement, {
     zoomStep: 0.2325,
     enableGrid: true
+  })
+
+  editor.value.updateMessage$.subscribe(({ info, type }) => {
+    ElMessage[type](info)
   })
 })
 </script>

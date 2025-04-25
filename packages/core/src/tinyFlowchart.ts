@@ -115,6 +115,7 @@ export interface ITinyFlowchart {
   _zr: ZRenderType
   _dom: HTMLElement
   _pasteOffset: number
+  updateMessage$: Subject<{ info: string; type: string }>
   updateZoom$: Subject<IUpdateZoomOpts>
   updateMiniMap$: Subject<void>
   updateMiniMapVisible$: Subject<boolean>
@@ -170,6 +171,7 @@ export class TinyFlowchart implements ITinyFlowchart {
     groups: []
   }
   _pasteOffset: number
+  updateMessage$ = new Subject<{ info: string; type: string }>()
   updateZoom$ = new Subject<IUpdateZoomOpts>()
   updateMiniMap$ = new Subject<void>()
   updateMiniMapVisible$ = new Subject<boolean>()
@@ -265,6 +267,7 @@ export class TinyFlowchart implements ITinyFlowchart {
   save() {
     const exportData = this.getExportData()
     localStorage.setItem('ioc-chart-flow', JSON.stringify(exportData))
+    this.updateMessage$.next({ info: '保存成功', type: 'success' })
   }
 
   exportPicture() {

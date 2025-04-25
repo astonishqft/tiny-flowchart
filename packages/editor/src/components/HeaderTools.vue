@@ -189,6 +189,7 @@ const command = (name: string) => {
       break
     case 'clear':
       props.tinyFlowchart.clear()
+      props.tinyFlowchart.updateMessage$.next({ info: '画布清除成功', type: 'success' })
       break
     case 'select':
       props.tinyFlowchart._selectFrameMgr.setSelectFrameStatus(true)
@@ -210,9 +211,11 @@ const command = (name: string) => {
       break
     case 'saveToFile':
       props.tinyFlowchart.exportFile()
+      props.tinyFlowchart.updateMessage$.next({ info: '文件保存成功', type: 'success' })
       break
     case 'saveToPicture':
       props.tinyFlowchart.exportPicture()
+      props.tinyFlowchart.updateMessage$.next({ info: '图片保存成功', type: 'success' })
       break
     case 'openFile':
       props.tinyFlowchart.openFile()
@@ -225,6 +228,7 @@ const command = (name: string) => {
       break
     case 'delete':
       props.tinyFlowchart.delete()
+      props.tinyFlowchart.updateMessage$.next({ info: '节点删除成功', type: 'success' })
       break
     default:
       break
