@@ -1,6 +1,6 @@
 {
   "name": "@tiny-flowchart/orthogonal-connector",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Orthogonal connector",
   "type": "module",
   "module": "dist/index.js",
