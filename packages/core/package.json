@@ -1,6 +1,6 @@
 {
   "name": "@tiny-flowchart/core",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "author": "qi.futao",
   "description": "Core library for Tiny Flowchart",
   "module": "dist/index.js",
