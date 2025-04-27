@@ -17,6 +17,7 @@ onMounted(() => {
   })
 
   editor.value.updateMessage$.subscribe(({ info, type }) => {
+    // @ts-ignore
     ElMessage[type](info)
   })
 })
