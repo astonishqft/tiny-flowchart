@@ -1,7 +1,7 @@
 {
   "name": "@tiny-flowchart/editor",
   "private": false,
-  "version": "1.0.7",
+  "version": "1.0.8",
   "author": "qi.futao",
   "type": "module",
   "scripts": {
