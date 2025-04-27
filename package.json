@@ -1,6 +1,6 @@
 {
   "name": "tiny-flowchart",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "private": true,
   "main": "index.js",
@@ -10,6 +10,7 @@
   "scripts": {
     "dev": "run-p dev:orthogonal dev:core dev:editor dev:example",
     "build": "pnpm -r exec pnpm run build",
+    "release": "bumpp package.json packages/**/package.json",
     "dev:orthogonal": "pnpm -F @tiny-flowchart/orthogonal-connector dev",
     "dev:core": "pnpm -F @tiny-flowchart/core dev",
     "dev:editor": "pnpm -F @tiny-flowchart/editor dev",
@@ -40,6 +41,7 @@
     "@vitejs/plugin-vue": "^5.0.4",
     "@vue/eslint-config-prettier": "^9.0.0",
     "@vue/eslint-config-typescript": "^13.0.0",
+    "bumpp": "^10.1.0",
     "eslint": "^8.57.0",
     "eslint-plugin-vue": "^9.23.0",
     "husky": "^8.0.3",
