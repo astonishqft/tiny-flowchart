@@ -8,8 +8,8 @@
   "author": "qi.futao",
   "license": "ISC",
   "scripts": {
-    "dev": "run-p dev:orthogonal dev:core dev:editor dev:example",
-    "build": "pnpm -r exec pnpm run build",
+    "dev": "pnpm -r --parallel exec pnpm run dev",
+    "build": "pnpm -r --sort exec pnpm run build",
     "release": "bumpp package.json packages/**/package.json examples/package.json",
     "dev:orthogonal": "pnpm -F @tiny-flowchart/orthogonal-connector dev",
     "dev:core": "pnpm -F @tiny-flowchart/core dev",
@@ -50,7 +50,6 @@
     "eslint-plugin-vue": "^9.23.0",
     "husky": "^8.0.3",
     "lint-staged": "^15.2.10",
-    "npm-run-all": "^4.1.5",
     "prettier": "^3.2.5",
     "tslib": "^2.6.2",
     "typescript": "^5.2.2",

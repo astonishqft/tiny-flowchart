@@ -5,7 +5,6 @@ import type { Element, FontStyle, FontWeight } from '@/index'
 import type { IExportShape, IExportShapeStyle } from '@/shapes'
 import type { INodeGroup } from '@/shapes/nodeGroup'
 import type { Constructor, Dictionary, SafeDisplayable } from '@/types'
-import { text } from 'zrender/lib/svg-legacy/graphic.js'
 
 export type CommonConstructor = Constructor<SafeDisplayable>
 
@@ -87,7 +86,7 @@ function WidthCommon<TBase extends CommonConstructor>(Base: TBase) {
       return exportData
     }
 
-    private getStyleData() {
+    getStyleData() {
       if (this.type === 'text') {
         return {
           fill: this.style.fill,
@@ -145,13 +144,13 @@ function WidthCommon<TBase extends CommonConstructor>(Base: TBase) {
       }
     }
 
-    private getTextStyle(config: IExportShapeStyle) {
+    getTextStyle(config: IExportShapeStyle) {
       const { text, fontColor, fontSize, fontStyle, fontWeight } = config
 
       return { text, fill: fontColor, fontSize, fontStyle, fontWeight }
     }
 
-    private setShapeStyle(config: IExportShapeStyle) {
+    setShapeStyle(config: IExportShapeStyle) {
       const {
         fill,
         stroke,

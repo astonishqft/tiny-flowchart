@@ -37,7 +37,7 @@ function WidthActivate<TBase extends ActivatableConstructor>(Base: TBase) {
       })
     }
 
-    private setActiveState(state: boolean) {
+    setActiveState(state: boolean) {
       this.selected = state
       state ? this.anchor.show() : this.anchor.hide()
     }

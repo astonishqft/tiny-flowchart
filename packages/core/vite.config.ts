@@ -12,7 +12,6 @@ export default defineConfig({
     dts({
       outDir: ['dist'],
       staticImport: true,
-      // insertTypesEntry: true,
       rollupTypes: true,
       declarationOnly: false,
       compilerOptions: {
