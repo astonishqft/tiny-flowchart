@@ -1,5 +1,3 @@
 packages:
-  - packages/orthogonal-connector
-  - packages/core
-  - packages/editor
+  - packages/*
   - examples
