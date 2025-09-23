@@ -23,6 +23,9 @@ import IconTrapezoid from './icons/Trapezoid.vue'
 import IconTriangle from './icons/Triangle.vue'
 import IconSeptagon from './icons/Septagon.vue'
 import IconArrowRight from './icons/ArrowRight.vue'
+import IconArrowLeft from './icons/ArrowLeft.vue'
+import IconArrowTop from './icons/ArrowTop.vue'
+import IconArrowBottom from './icons/ArrowBottom.vue'
 import IconTerminator from './icons/Terminator.vue'
 import IconProcess from './icons/Process.vue'
 import IconDocument from './icons/Document.vue'
@@ -215,6 +218,21 @@ const elementList = [
         component: IconArrowRight,
         nodeType: 'arrowRight',
         title: '右箭头'
+      },
+      {
+        component: IconArrowLeft,
+        nodeType: 'arrowLeft',
+        title: '左箭头'
+      },
+      {
+        component: IconArrowTop,
+        nodeType: 'arrowTop',
+        title: '上箭头'
+      },
+      {
+        component: IconArrowBottom,
+        nodeType: 'arrowBottom',
+        title: '下箭头'
       },
       {
         component: IconTerminator,

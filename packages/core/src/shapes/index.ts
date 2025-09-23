@@ -17,6 +17,9 @@ import { Diamond } from './diamond'
 import { Triangle } from './triangle'
 import { Cloud } from './cloud'
 import { ArrowRight } from './arrowRight'
+import { ArrowLeft } from './arrowLeft'
+import { ArrowTop } from './arrowTop'
+import { ArrowBottom } from './arrowBottom'
 import { RoundRect } from './aroundRect'
 import { PreRect } from './preRect'
 import { Document } from './document'
@@ -267,7 +270,8 @@ export const shapeConfig: IShapeConfig = {
       fontSize: 16,
       fontWeight: 'normal',
       fontStyle: 'normal'
-    }
+    },
+    z: 2
   },
   square: {
     shape: {
@@ -399,6 +403,27 @@ export const shapeConfig: IShapeConfig = {
   arrowRight: {
     textContent: undefined
   },
+  arrowLeft: {
+    textContent: undefined
+  },
+  arrowTop: {
+    textContent: undefined,
+    shape: {
+      x: 0,
+      y: 0,
+      width: 40,
+      height: 80
+    }
+  },
+  arrowBottom: {
+    textContent: undefined,
+    shape: {
+      x: 0,
+      y: 0,
+      width: 40,
+      height: 80
+    }
+  },
   card: {
     shape: {
       x: 0,
@@ -522,6 +547,9 @@ export const shapes: IShapeMap = {
   rectangle: Rect,
   cloud: Cloud,
   arrowRight: ArrowRight,
+  arrowLeft: ArrowLeft,
+  arrowTop: ArrowTop,
+  arrowBottom: ArrowBottom,
   roundRect: RoundRect,
   preRect: PreRect,
   document: Document,

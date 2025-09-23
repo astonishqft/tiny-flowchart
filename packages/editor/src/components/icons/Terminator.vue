@@ -3,8 +3,8 @@
     style="
       left: 1px;
       top: 1px;
-      width: 32px;
-      height: 30px;
+      width: 37px;
+      height: 37px;
       display: block;
       position: relative;
       overflow: hidden;

@@ -376,7 +376,7 @@ const changeShapeText = (text: string) => {
         />
       </div>
     </div>
-    <div class="property-item" v-if="shapeConfig.text">
+    <div class="property-item" v-if="shapeConfig.text || shapeConfig.text === ''">
       <div class="property-name">文本内容</div>
       <div class="property-value">
         <el-input
