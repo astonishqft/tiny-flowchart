@@ -101,20 +101,21 @@ const changeLineFontStyle = (style: string) => {
   const fStyle = activeConnection.value?.getLineFontStyle() || 'normal'
   const oldConnectionConfig = { ...activeConnection.value?.getExportData().style }
   if (style === 'fontWeight') {
-    tinyFlowchart.execute('updateConnectionProperty', {
-      connection: activeConnection.value as IConnection,
-      connectionConfig: { ...connectionConfig.value },
-      oldConnectionConfig
-    })
     connectionConfig.value.fontWeight = fWeight === 'normal' ? 'bold' : 'normal'
-  } else {
+
     tinyFlowchart.execute('updateConnectionProperty', {
       connection: activeConnection.value as IConnection,
       connectionConfig: { ...connectionConfig.value },
       oldConnectionConfig
     })
-
+  } else {
     connectionConfig.value.fontStyle = fStyle === 'normal' ? 'italic' : 'normal'
+
+    tinyFlowchart.execute('updateConnectionProperty', {
+      connection: activeConnection.value as IConnection,
+      connectionConfig: { ...connectionConfig.value },
+      oldConnectionConfig
+    })
   }
 }
 
