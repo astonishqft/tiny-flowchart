@@ -117,7 +117,7 @@ class SceneManage extends Disposable {
         n.anchor.show()
         n.setCursor('move')
       } else {
-        n.anchor.hide()
+        // n.anchor.hide()
       }
     })
   }

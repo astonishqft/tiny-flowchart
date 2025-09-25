@@ -74,8 +74,6 @@ class SelectFrameManage implements ISelectFrameManage {
       const { x, y, width, height } = shape.getBoundingBox()
       if (selectFrameBoundingBox.intersect(new BoundingRect(x, y, width, height))) {
         shape.active()
-      } else {
-        shape.unActive()
       }
     })
   }
