@@ -85,7 +85,7 @@ class Connection extends Group implements IConnection {
   private _lineTextFontColor: string = '#333'
   private _lineTextFontStyle: FontStyle = 'normal'
   private _lineTextFontWeight: FontWeight = 'normal'
-  private _iocEditor: ITinyFlowchart
+  private _tinyFlowchart: ITinyFlowchart
   private _settingMgr: ISettingManage
   private _enableMiniMap: boolean
   private _connectionSelectColor: string
@@ -111,7 +111,7 @@ class Connection extends Group implements IConnection {
     type: ConnectionType
   ) {
     super()
-    this._iocEditor = tinyFlowchart
+    this._tinyFlowchart = tinyFlowchart
     this._settingMgr = tinyFlowchart._settingMgr
     this._connectionSelectColor = this._settingMgr.get('connectionSelectColor')
     this._stroke = this._settingMgr.get('connectionColor')
@@ -328,7 +328,7 @@ class Connection extends Group implements IConnection {
     })
 
     controlPoint.on('dragend', () => {
-      this._iocEditor.execute('updateControlPoint', {
+      this._tinyFlowchart.execute('updateControlPoint', {
         connection: this,
         controlPoint1: [this.controlPoint1!.x, this.controlPoint1!.y],
         controlPoint2: [this.controlPoint2!.x, this.controlPoint2!.y],

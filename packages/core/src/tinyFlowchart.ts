@@ -70,7 +70,7 @@ import type {
   IExportGroup,
   INodeGroup
 } from '@/index'
-import type { IIocEditorConfig } from './settingManage'
+import type { ITinyFlowchartConfig } from './settingManage'
 import type {
   IAddShapeCommandOpts,
   IAddConnectionCommandOpts,
@@ -181,7 +181,7 @@ export class TinyFlowchart implements ITinyFlowchart {
   sceneDragMove$ = new Subject<ISceneDragMoveOpts>()
   sceneDragEnd$ = new Subject<void>()
 
-  constructor(dom: HTMLElement, config?: Partial<IIocEditorConfig>) {
+  constructor(dom: HTMLElement, config?: Partial<ITinyFlowchartConfig>) {
     this._dom = dom
     this._settingMgr = new SettingManage()
     if (config) {
@@ -209,7 +209,7 @@ export class TinyFlowchart implements ITinyFlowchart {
   private initializeHotKeysAndFlowChart() {
     if (!this._settingMgr.get('enableMiniMap')) {
       new HotKeysManager(this)
-      const savedFlow = localStorage.getItem('ioc-chart-flow')
+      const savedFlow = localStorage.getItem('tiny-flowchart')
       if (savedFlow) {
         setTimeout(() => {
           this.initFlowChart(JSON.parse(savedFlow))
@@ -266,14 +266,16 @@ export class TinyFlowchart implements ITinyFlowchart {
 
   save() {
     const exportData = this.getExportData()
-    localStorage.setItem('ioc-chart-flow', JSON.stringify(exportData))
+    localStorage.setItem('tiny-flowchart', JSON.stringify(exportData))
     this.updateMessage$.next({ info: '保存成功', type: 'success' })
   }
 
   exportPicture() {
     const sceneWidth = this._viewPortMgr.getSceneWidth() || window.innerWidth
     const sceneHeight = this._viewPortMgr.getSceneHeight() || window.innerHeight
-    const imageCanvasContainer = document.createElement('ioc-image-canvas') as HTMLCanvasElement
+    const imageCanvasContainer = document.createElement(
+      'tiny-flowchart-image-canvas'
+    ) as HTMLCanvasElement
     imageCanvasContainer.style.width = sceneWidth + 'px'
     imageCanvasContainer.style.height = sceneHeight + 'px'
 
@@ -307,7 +309,7 @@ export class TinyFlowchart implements ITinyFlowchart {
         const url = window.URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = url
-        a.download = 'ioc-chart-flow.png'
+        a.download = 'tiny-flowchart.png'
         document.body.appendChild(a)
         a.click()
         document.body.removeChild(a)
@@ -883,7 +885,7 @@ export class TinyFlowchart implements ITinyFlowchart {
   exportFile() {
     const exportData = this.getExportData()
     console.log('导出的数据为：', exportData)
-    downloadFile(JSON.stringify(exportData, null, 2), 'ioc-chart-flow.json')
+    downloadFile(JSON.stringify(exportData, null, 2), 'tiny-flowchart.json')
   }
 
   openFile() {

@@ -494,10 +494,9 @@ export const shapeConfig: IShapeConfig = {
     shape: {
       x: 0,
       y: 0,
-      width: 50,
+      width: 60,
       height: 80
-    },
-    textContent: undefined
+    }
   },
   induce: {
     shape: {

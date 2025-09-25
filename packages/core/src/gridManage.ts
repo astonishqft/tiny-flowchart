@@ -16,11 +16,11 @@ class PointsPool {
   private _points: Circle[] = []
   private _size: number
   private _layer: Group
-  private _iocEditor: ITinyFlowchart
+  private _tinyFlowchart: ITinyFlowchart
   private _settingMgr: ISettingManage
   private _viewPortMgr: IViewPortManage
   constructor(tinyFlowchart: ITinyFlowchart, layer: Group) {
-    this._iocEditor = tinyFlowchart
+    this._tinyFlowchart = tinyFlowchart
     this._settingMgr = tinyFlowchart._settingMgr
     this._viewPortMgr = tinyFlowchart._viewPortMgr
     this._size = this.getPointsSize()
@@ -57,8 +57,8 @@ class PointsPool {
 
   getPointsSize() {
     const zoom = this._viewPortMgr.getZoom()
-    const width = (this._iocEditor._zr.getWidth() || 0) / zoom
-    const height = (this._iocEditor._zr.getHeight() || 0) / zoom
+    const width = (this._tinyFlowchart._zr.getWidth() || 0) / zoom
+    const height = (this._tinyFlowchart._zr.getHeight() || 0) / zoom
     const step = this._settingMgr.get('gridStep')
 
     const xSize = Math.ceil(width / step) + 1
@@ -112,12 +112,12 @@ class GridManage implements IGridManage {
   private _gridZr: ZRenderType | null = null
   private _settingMgr: ISettingManage
   private _viewPortMgr: IViewPortManage
-  private _iocEditor: ITinyFlowchart
+  private _tinyFlowchart: ITinyFlowchart
 
   constructor(tinyFlowchart: ITinyFlowchart, viewPortMgr: IViewPortManage) {
     this._settingMgr = tinyFlowchart._settingMgr
     this._viewPortMgr = viewPortMgr
-    this._iocEditor = tinyFlowchart
+    this._tinyFlowchart = tinyFlowchart
 
     setTimeout(() => {
       const container = document.createElement('div')
@@ -127,11 +127,11 @@ class GridManage implements IGridManage {
       container.style.zIndex = '-1'
       container.style.width = '100%'
       container.style.height = '100%'
-      this._iocEditor._dom.appendChild(container)
+      this._tinyFlowchart._dom.appendChild(container)
       this._gridZr = init(container)
       this._gridLayer = new Group()
       this._gridZr.add(this._gridLayer)
-      this._pointsPool = new PointsPool(this._iocEditor, this._gridLayer)
+      this._pointsPool = new PointsPool(this._tinyFlowchart, this._gridLayer)
       this._width = this._gridZr.getWidth() as number
       this._height = this._gridZr.getHeight() as number
       this.drawGrid()

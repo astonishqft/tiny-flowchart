@@ -40,14 +40,14 @@ export interface IConnectionManage extends IDisposable {
 class ConnectionManage extends Disposable {
   private _viewPortMgr: IViewPortManage
   private _storageMgr: IStorageManage
-  private _iocEditor: ITinyFlowchart
+  private _tinyFlowchart: ITinyFlowchart
   private _tempConnection: Line | null = null
   private _connectionType: ConnectionType = ConnectionType.OrtogonalLine
   updateConnectionType$ = new Subject<ConnectionType>()
   updateSelectConnection$ = new Subject<IConnection>()
   constructor(tinyFlowchart: ITinyFlowchart) {
     super()
-    this._iocEditor = tinyFlowchart
+    this._tinyFlowchart = tinyFlowchart
     this._viewPortMgr = tinyFlowchart._viewPortMgr
     this._storageMgr = tinyFlowchart._storageMgr
     this._disposables.push(this.updateConnectionType$, this.updateSelectConnection$)
@@ -101,7 +101,7 @@ class ConnectionManage extends Disposable {
     connectionType: ConnectionType
   ): IConnection {
     const connection = new Connection(
-      this._iocEditor,
+      this._tinyFlowchart,
       fromAnchorPoint,
       toAnchorPoint,
       connectionType
@@ -125,7 +125,7 @@ class ConnectionManage extends Disposable {
 
   initEvent(conn: IConnection) {
     conn.on('click', () => {
-      this._iocEditor.unActive()
+      this._tinyFlowchart.unActive()
       this.updateSelectConnection$.next(conn)
       conn.active()
     })

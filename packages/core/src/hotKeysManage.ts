@@ -4,23 +4,23 @@ import { Disposable } from '@/disposable'
 import type { ITinyFlowchart } from '@/index'
 
 class HotKeysManager extends Disposable {
-  private _iocEditor: ITinyFlowchart
+  private _tinyFlowchart: ITinyFlowchart
 
   constructor(tinyFlowchart: ITinyFlowchart) {
     super()
-    this._iocEditor = tinyFlowchart
+    this._tinyFlowchart = tinyFlowchart
     this.init()
   }
 
   private init() {
     const keyBindings: { [key: string]: () => void } = {
-      '⌘+z, ctrl+z': () => this._iocEditor.undo(),
-      '⌘+y, ctrl+y': () => this._iocEditor.redo(),
-      '⌘+s, ctrl+s': () => this._iocEditor.save(),
-      '⌘+c, ctrl+c': () => this._iocEditor.copy(),
-      '⌘+v, ctrl+v': () => this._iocEditor.paste(),
-      '⌘+a, ctrl+a': () => this._iocEditor.selectAll(),
-      '⌘+Backspace, ctrl+Backspace, delete': () => this._iocEditor.delete()
+      '⌘+z, ctrl+z': () => this._tinyFlowchart.undo(),
+      '⌘+y, ctrl+y': () => this._tinyFlowchart.redo(),
+      '⌘+s, ctrl+s': () => this._tinyFlowchart.save(),
+      '⌘+c, ctrl+c': () => this._tinyFlowchart.copy(),
+      '⌘+v, ctrl+v': () => this._tinyFlowchart.paste(),
+      '⌘+a, ctrl+a': () => this._tinyFlowchart.selectAll(),
+      '⌘+Backspace, ctrl+Backspace, delete': () => this._tinyFlowchart.delete()
     }
 
     Object.keys(keyBindings).forEach(key => {

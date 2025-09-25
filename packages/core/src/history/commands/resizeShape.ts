@@ -11,7 +11,7 @@ export interface IResizeShapeCommandOpts {
 
 class ResizeShapeCommand implements ICommand {
   private node: INode
-  private _iocEditor: ITinyFlowchart
+  private _tinyFlowchart: ITinyFlowchart
   private oldBoundingBox: BoundingRect
   private boundingBox: BoundingRect
 
@@ -21,19 +21,19 @@ class ResizeShapeCommand implements ICommand {
     oldBoundingBox: BoundingRect,
     boundingBox: BoundingRect
   ) {
-    this._iocEditor = tinyFlowchart
+    this._tinyFlowchart = tinyFlowchart
     this.node = node
     this.oldBoundingBox = oldBoundingBox
     this.boundingBox = boundingBox
   }
 
   execute() {
-    this._iocEditor._controlFrameMgr.reSizeNode(this.boundingBox)
+    this._tinyFlowchart._controlFrameMgr.reSizeNode(this.boundingBox)
     this.refreshConnections()
   }
 
   undo() {
-    this._iocEditor._controlFrameMgr.reSizeNode(this.oldBoundingBox)
+    this._tinyFlowchart._controlFrameMgr.reSizeNode(this.oldBoundingBox)
     this.refreshConnections()
   }
 
@@ -42,7 +42,7 @@ class ResizeShapeCommand implements ICommand {
   }
 
   refreshConnections() {
-    this._iocEditor._connectionMgr.refreshConnection(this.node)
+    this._tinyFlowchart._connectionMgr.refreshConnection(this.node)
   }
 }
 

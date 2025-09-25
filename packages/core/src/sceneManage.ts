@@ -33,7 +33,7 @@ export interface ISceneManage extends IDisposable {
 export type IMouseEvent = Element & { nodeType?: string }
 
 class SceneManage extends Disposable {
-  private _iocEditor: ITinyFlowchart
+  private _tinyFlowchart: ITinyFlowchart
   private _viewPortMgr: IViewPortManage
   private _shapeMgr: IShapeManage
   private _connectionMgr: IConnectionManage
@@ -58,7 +58,7 @@ class SceneManage extends Disposable {
   constructor(tinyFlowchart: ITinyFlowchart) {
     super()
     this._zr = tinyFlowchart._zr
-    this._iocEditor = tinyFlowchart
+    this._tinyFlowchart = tinyFlowchart
     this._connectionMgr = tinyFlowchart._connectionMgr
     this._storageMgr = tinyFlowchart._storageMgr
     this._zoomMgr = tinyFlowchart._zoomMgr
@@ -173,7 +173,7 @@ class SceneManage extends Disposable {
         return
       }
 
-      this._iocEditor.sceneDragStart$.next({
+      this._tinyFlowchart.sceneDragStart$.next({
         startX: this._mouseDownX,
         startY: this._mouseDownY,
         oldViewPortX: this._oldViewPortX,
@@ -200,7 +200,7 @@ class SceneManage extends Disposable {
 
       if (!e.target) {
         // 如果什么都没选中的话
-        this._iocEditor.unActive()
+        this._tinyFlowchart.unActive()
         this._eventModel = 'scene'
       }
     })
@@ -218,7 +218,7 @@ class SceneManage extends Disposable {
 
       // 拖拽画布(利用的原理是改变Group的 position 坐标)
       if (this._isDragging && this._eventModel === 'scene' && !selectFrameStatus) {
-        this._iocEditor.sceneDragMove$.next({
+        this._tinyFlowchart.sceneDragMove$.next({
           x: this._mouseMoveOffsetX + this._oldViewPortX,
           y: this._mouseMoveOffsetY + this._oldViewPortY,
           offsetX: this._mouseMoveOffsetX,
@@ -255,7 +255,7 @@ class SceneManage extends Disposable {
           e.target as IAnchorPoint,
           this._connectionMgr.getConnectionType()
         )
-        this._iocEditor.execute('addConnection', { connection })
+        this._tinyFlowchart.execute('addConnection', { connection })
       }
 
       if (this._eventModel === 'anchor') {
@@ -268,7 +268,7 @@ class SceneManage extends Disposable {
         this._selectFrameMgr.hide()
       }
 
-      this._iocEditor.sceneDragEnd$.next()
+      this._tinyFlowchart.sceneDragEnd$.next()
 
       this._eventModel = 'scene'
     })

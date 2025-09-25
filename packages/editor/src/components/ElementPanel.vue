@@ -66,7 +66,7 @@ interface RuleForm {
 const imageList = ref<string[]>([])
 
 onMounted(() => {
-  const imgs = localStorage.getItem('iocCustomImgs')
+  const imgs = localStorage.getItem('tinyFlowchartCustomImgs')
   if (imgs) {
     imageList.value = JSON.parse(imgs)
   }
@@ -74,7 +74,7 @@ onMounted(() => {
 
 const addImage = (url: string) => {
   imageList.value.push(url)
-  localStorage.setItem('iocCustomImgs', JSON.stringify(imageList.value))
+  localStorage.setItem('tinyFlowchartCustomImgs', JSON.stringify(imageList.value))
 }
 
 const dragStart = (event: DragEvent, element: { nodeType: string; url?: string }) => {

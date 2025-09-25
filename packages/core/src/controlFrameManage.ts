@@ -27,12 +27,12 @@ class ControlFrameManage implements IControlFrameManage {
   private _controlBox: Rect
   private _connectionMgr: IConnectionManage
   private _viewPortMgr: IViewPortManage
-  private _iocEditor: ITinyFlowchart
+  private _tinyFlowchart: ITinyFlowchart
   private _settingMgr: ISettingManage
   private _node: IShape | null = null
   private _controlFrameColor: string
   constructor(tinyFlowchart: ITinyFlowchart) {
-    this._iocEditor = tinyFlowchart
+    this._tinyFlowchart = tinyFlowchart
     this._connectionMgr = tinyFlowchart._connectionMgr
     this._viewPortMgr = tinyFlowchart._viewPortMgr
     this._settingMgr = tinyFlowchart._settingMgr
@@ -184,7 +184,7 @@ class ControlFrameManage implements IControlFrameManage {
 
       point.on('dragend', () => {
         isDragging = false
-        this._iocEditor.execute('resizeShape', {
+        this._tinyFlowchart.execute('resizeShape', {
           node: this._node,
           oldBoundingBox: oldBoundingBox,
           boundingBox: new BoundingRect(x, y, width, height)

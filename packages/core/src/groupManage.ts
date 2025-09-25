@@ -26,11 +26,11 @@ export interface IGroupManage extends IDisposable {
 class GroupManage extends Disposable {
   private _viewPortMgr: IViewPortManage
   private _storageMgr: IStorageManage
-  private _iocEditor: ITinyFlowchart
+  private _tinyFlowchart: ITinyFlowchart
   private _connectionMgr: IConnectionManage
   constructor(tinyFlowchart: ITinyFlowchart) {
     super()
-    this._iocEditor = tinyFlowchart
+    this._tinyFlowchart = tinyFlowchart
     this._viewPortMgr = tinyFlowchart._viewPortMgr
     this._storageMgr = tinyFlowchart._storageMgr
     this._connectionMgr = tinyFlowchart._connectionMgr
@@ -39,7 +39,7 @@ class GroupManage extends Disposable {
   createGroup(nodes: INode[], groupId?: number) {
     nodes.forEach(shape => shape.unActive())
     const minZLevel = getMinZLevel(nodes)
-    const groupNode = new NodeGroup(nodes, this._iocEditor)
+    const groupNode = new NodeGroup(nodes, this._tinyFlowchart)
     groupNode.setZ(minZLevel - 1)
 
     if (groupId) {

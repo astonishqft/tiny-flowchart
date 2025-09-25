@@ -32,14 +32,14 @@ export interface IViewPortManage extends IDisposable {
 
 class ViewPortManage extends Disposable {
   private _viewPort: Group = new Group()
-  private _iocEditor: ITinyFlowchart
+  private _tinyFlowchart: ITinyFlowchart
   private _settingMgr: ISettingManage
   private _currentZoom = 1
   _gridMgr?: IGridManage
 
   constructor(tinyFlowchart: ITinyFlowchart) {
     super()
-    this._iocEditor = tinyFlowchart
+    this._tinyFlowchart = tinyFlowchart
     this._settingMgr = tinyFlowchart._settingMgr
 
     const enableMiniMap = this._settingMgr.get('enableMiniMap')
@@ -49,11 +49,11 @@ class ViewPortManage extends Disposable {
       this._gridMgr = new GridManage(tinyFlowchart, this)
     }
 
-    this._iocEditor.sceneDragMove$.subscribe(({ x, y }: ISceneDragMoveOpts) => {
+    this._tinyFlowchart.sceneDragMove$.subscribe(({ x, y }: ISceneDragMoveOpts) => {
       this.setPosition(x, y)
     })
 
-    this._iocEditor.updateZoom$.subscribe(
+    this._tinyFlowchart.updateZoom$.subscribe(
       ({ zoom, offsetX, offsetY, currentZoom }: IUpdateZoomOpts) => {
         this._currentZoom = currentZoom
         this.setZoom(zoom, offsetX, offsetY)
@@ -115,11 +115,11 @@ class ViewPortManage extends Disposable {
   }
 
   getSceneWidth() {
-    return this._iocEditor._zr.getWidth()
+    return this._tinyFlowchart._zr.getWidth()
   }
 
   getSceneHeight() {
-    return this._iocEditor._zr.getHeight()
+    return this._tinyFlowchart._zr.getHeight()
   }
 
   /**

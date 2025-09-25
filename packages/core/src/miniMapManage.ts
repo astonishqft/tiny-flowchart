@@ -22,8 +22,8 @@ export interface IMiniMapManage extends IDisposable {
 }
 
 class MiniMapManage extends Disposable implements IMiniMapManage {
-  private _iocEditor: ITinyFlowchart
-  private _parentIocEditor: ITinyFlowchart
+  private _tinyFlowchart: ITinyFlowchart
+  private _parentTinyFlowchart: ITinyFlowchart
   private _storageMgr: IStorageManage
   private _viewPortMgr: IViewPortManage
   private _containerWidth: number
@@ -39,10 +39,10 @@ class MiniMapManage extends Disposable implements IMiniMapManage {
 
   private _miniMapFrame: Rect
 
-  constructor(tinyFlowchart: ITinyFlowchart, parentIocEditor: ITinyFlowchart) {
+  constructor(tinyFlowchart: ITinyFlowchart, parentTinyFlowchart: ITinyFlowchart) {
     super()
-    this._iocEditor = tinyFlowchart
-    this._parentIocEditor = parentIocEditor
+    this._tinyFlowchart = tinyFlowchart
+    this._parentTinyFlowchart = parentTinyFlowchart
     this._storageMgr = tinyFlowchart._storageMgr
     this._viewPortMgr = tinyFlowchart._viewPortMgr
 
@@ -62,25 +62,27 @@ class MiniMapManage extends Disposable implements IMiniMapManage {
       z: 10000
     })
 
-    this._iocEditor._zr.add(this._miniMapFrame)
+    this._tinyFlowchart._zr.add(this._miniMapFrame)
 
     this.initEventSubscriptions()
   }
 
   private initEventSubscriptions() {
-    this._parentIocEditor.sceneDragMove$.subscribe(({ offsetX, offsetY }: ISceneDragMoveOpts) => {
-      const scale = this.getMiniMapFrameScale()
-      this.updateMiniMapFramePosition(
-        this._oldMapFrameLeft - offsetX * this._scaleRatio * scale,
-        this._oldMapFrameTop - offsetY * this._scaleRatio * scale
-      )
-    })
+    this._parentTinyFlowchart.sceneDragMove$.subscribe(
+      ({ offsetX, offsetY }: ISceneDragMoveOpts) => {
+        const scale = this.getMiniMapFrameScale()
+        this.updateMiniMapFramePosition(
+          this._oldMapFrameLeft - offsetX * this._scaleRatio * scale,
+          this._oldMapFrameTop - offsetY * this._scaleRatio * scale
+        )
+      }
+    )
 
-    this._parentIocEditor.sceneDragEnd$.subscribe(() => {
+    this._parentTinyFlowchart.sceneDragEnd$.subscribe(() => {
       this.updateOldPosition()
     })
 
-    this._parentIocEditor.updateZoom$.subscribe(({ zoom }: IUpdateZoomOpts) => {
+    this._parentTinyFlowchart.updateZoom$.subscribe(({ zoom }: IUpdateZoomOpts) => {
       const offsetX = this._centerX * (1 - zoom)
       const offsetY = this._centerY * (1 - zoom)
 
@@ -123,7 +125,7 @@ class MiniMapManage extends Disposable implements IMiniMapManage {
   }
 
   refreshMap(data: IExportData) {
-    this._iocEditor.initFlowChart(data)
+    this._tinyFlowchart.initFlowChart(data)
     const { x, y, width, height } = this._viewPortMgr.getBoundingRect([
       ...this._storageMgr.getNodes(),
       ...this._storageMgr.getConnections()
@@ -137,8 +139,8 @@ class MiniMapManage extends Disposable implements IMiniMapManage {
       this._scaleRatio = this._containerHeight / height
     }
 
-    const sceneWidth = this._parentIocEditor!._viewPortMgr.getSceneWidth() as number
-    const sceneHeight = this._parentIocEditor!._viewPortMgr.getSceneHeight() as number
+    const sceneWidth = this._parentTinyFlowchart._viewPortMgr.getSceneWidth() as number
+    const sceneHeight = this._parentTinyFlowchart._viewPortMgr.getSceneHeight() as number
 
     const left = -x * this._scaleRatio
     const top = -y * this._scaleRatio
@@ -148,7 +150,7 @@ class MiniMapManage extends Disposable implements IMiniMapManage {
     this._viewPortMgr.getViewPort().attr('scaleX', this._scaleRatio)
     this._viewPortMgr.getViewPort().attr('scaleY', this._scaleRatio)
 
-    const { x: pX, y: pY } = this._parentIocEditor._viewPortMgr.getViewPort()
+    const { x: pX, y: pY } = this._parentTinyFlowchart._viewPortMgr.getViewPort()
 
     this.setMiniMapFrameSize(sceneWidth * this._scaleRatio, sceneHeight * this._scaleRatio)
     this.updateMiniMapFramePosition(
@@ -182,8 +184,9 @@ class MiniMapManage extends Disposable implements IMiniMapManage {
   }
 
   updateOldPosition() {
-    const sceneWidth = this._parentIocEditor._viewPortMgr.getSceneWidth() || window.innerWidth
-    const sceneHeight = this._parentIocEditor._viewPortMgr.getSceneHeight() || window.innerHeight
+    const sceneWidth = this._parentTinyFlowchart._viewPortMgr.getSceneWidth() || window.innerWidth
+    const sceneHeight =
+      this._parentTinyFlowchart._viewPortMgr.getSceneHeight() || window.innerHeight
     const scale = this.getMiniMapFrameScale() || 1
     this._oldMapFrameLeft = this.getMiniMapFramePosition()[0]
     this._oldMapFrameTop = this.getMiniMapFramePosition()[1]
@@ -192,7 +195,7 @@ class MiniMapManage extends Disposable implements IMiniMapManage {
   }
 
   setVisible(visible: boolean) {
-    this._iocEditor._dom.parentElement!.style.display = visible ? 'block' : 'none'
+    this._tinyFlowchart._dom.parentElement!.style.display = visible ? 'block' : 'none'
   }
 }
 

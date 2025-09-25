@@ -4,7 +4,7 @@ import { TinyFlowchart, MiniMapManage } from '@tiny-flowchart/core'
 
 import type { IMiniMapManage } from '@tiny-flowchart/core'
 
-const miniMapIoc = ref<TinyFlowchart>()
+const miniMapTinyFlowchart = ref<TinyFlowchart>()
 const miniMapMgr = ref<IMiniMapManage>()
 
 const { tinyFlowchart } = defineProps<{
@@ -14,10 +14,13 @@ const { tinyFlowchart } = defineProps<{
 onMounted(() => {
   const miniMapContainer = document.getElementById('mini-map') as HTMLElement
 
-  miniMapIoc.value = new TinyFlowchart(miniMapContainer, { enableMiniMap: true, enableGrid: false })
-  miniMapIoc.value.offEvent()
+  miniMapTinyFlowchart.value = new TinyFlowchart(miniMapContainer, {
+    enableMiniMap: true,
+    enableGrid: false
+  })
+  miniMapTinyFlowchart.value.offEvent()
 
-  miniMapMgr.value = new MiniMapManage(miniMapIoc.value, tinyFlowchart)
+  miniMapMgr.value = new MiniMapManage(miniMapTinyFlowchart.value, tinyFlowchart)
 
   tinyFlowchart.updateMiniMap$.subscribe(() => {
     miniMapMgr.value?.refreshMap(tinyFlowchart.getExportData())

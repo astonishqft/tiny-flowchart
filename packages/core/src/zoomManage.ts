@@ -13,13 +13,13 @@ class ZoomManage extends Disposable {
   private _maxZoom: number
   private _viewPortMgr: IViewPortManage
   private _settingMgr: ISettingManage
-  private _iocMgr: ITinyFlowchart
+  private _tinyFlowchart: ITinyFlowchart
   private _zoomScale: number
   private _currentZoom = 1
 
   constructor(tinyFlowchart: ITinyFlowchart) {
     super()
-    this._iocMgr = tinyFlowchart
+    this._tinyFlowchart = tinyFlowchart
     this._settingMgr = tinyFlowchart._settingMgr
     this._viewPortMgr = tinyFlowchart._viewPortMgr
     this._minZoom = this._settingMgr.get('zoomMin')
@@ -51,7 +51,7 @@ class ZoomManage extends Disposable {
       return
     }
     this._currentZoom = newZoom
-    this._iocMgr.updateZoom$.next({ zoom, offsetX, offsetY, currentZoom: this._currentZoom })
+    this._tinyFlowchart.updateZoom$.next({ zoom, offsetX, offsetY, currentZoom: this._currentZoom })
   }
 
   getZoom() {

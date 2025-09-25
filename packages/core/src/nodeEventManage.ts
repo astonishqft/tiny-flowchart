@@ -30,7 +30,7 @@ export interface INodeEventManage extends IDisposable {
 
 class NodeEventManage extends Disposable {
   private _node?: INode
-  private _iocEditor: ITinyFlowchart
+  private _tinyFlowchart: ITinyFlowchart
   private _dragFrameMgr: IDragFrameManage
   private _refLineMgr: IRefLineManage
   private _connectionMgr: IConnectionManage
@@ -55,7 +55,7 @@ class NodeEventManage extends Disposable {
 
   constructor(tinyFlowchart: ITinyFlowchart) {
     super()
-    this._iocEditor = tinyFlowchart
+    this._tinyFlowchart = tinyFlowchart
     this._zoomMgr = tinyFlowchart._zoomMgr
     this._storageMgr = tinyFlowchart._storageMgr
     this._dragFrameMgr = tinyFlowchart._dragFrameMgr
@@ -103,7 +103,7 @@ class NodeEventManage extends Disposable {
     if (isNodeInActive) {
       this._activeNodes.forEach(n => n.setOldPosition())
     } else {
-      this._iocEditor.unActive()
+      this._tinyFlowchart.unActive()
       node.active()
       node.setOldPosition()
       this._activeNodes = this._storageMgr.getActiveNodes()
@@ -124,7 +124,7 @@ class NodeEventManage extends Disposable {
 
   private handleClick(node: INode) {
     console.log('shape click', node)
-    this._iocEditor.unActive()
+    this._tinyFlowchart.unActive()
     this._connectionMgr.unActive()
     node.active()
     if (node.nodeType === NodeType.Shape) {
@@ -170,7 +170,7 @@ class NodeEventManage extends Disposable {
 
     if (this._isDragOutFromGroup && this._dragTargetGroup) {
       // 将一个节点从一个组拖到另一个组
-      this._iocEditor.execute('dragOutToGroup', {
+      this._tinyFlowchart.execute('dragOutToGroup', {
         targetGroup: this._dragTargetGroup,
         node: this._node,
         offsetX,
@@ -178,21 +178,21 @@ class NodeEventManage extends Disposable {
       })
     } else if (this._isRemoveFromGroup) {
       // 将一个节点从一个组移除
-      this._iocEditor.execute('removeNodeFromGroup', {
+      this._tinyFlowchart.execute('removeNodeFromGroup', {
         node: this._node,
         offsetX,
         offsetY
       })
     } else if (this._isDragEnterToGroup && this._dragTargetGroup) {
       // 将一个节点从外部拖入一个组
-      this._iocEditor.execute('dragEnterToGroup', {
+      this._tinyFlowchart.execute('dragEnterToGroup', {
         targetGroup: this._dragTargetGroup,
         node: this._node,
         offsetX,
         offsetY
       })
     } else if (offsetX !== 0 || offsetY !== 0) {
-      this._iocEditor.execute('moveNodes', { nodes: this._activeNodes, offsetX, offsetY })
+      this._tinyFlowchart.execute('moveNodes', { nodes: this._activeNodes, offsetX, offsetY })
     }
 
     this._controlFrameMgr.unActive()

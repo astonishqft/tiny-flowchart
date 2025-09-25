@@ -3,7 +3,7 @@ import { Disposable } from '@/disposable'
 
 import type { IDisposable, ITinyFlowchart } from '@/index'
 
-export interface IIocEditorConfig {
+export interface ITinyFlowchartConfig {
   zoomStep: number
   zoomMax: number
   zoomMin: number
@@ -24,14 +24,14 @@ export interface IIocEditorConfig {
 }
 
 export interface ISettingManage extends IDisposable {
-  setDefaultConfig(config: Partial<IIocEditorConfig>): void
-  updatedSetting$: Subject<Partial<IIocEditorConfig>>
-  set<K extends keyof IIocEditorConfig>(key: K, value: IIocEditorConfig[K]): void
-  get<K extends keyof IIocEditorConfig>(key: K): IIocEditorConfig[K]
+  setDefaultConfig(config: Partial<ITinyFlowchartConfig>): void
+  updatedSetting$: Subject<Partial<ITinyFlowchartConfig>>
+  set<K extends keyof ITinyFlowchartConfig>(key: K, value: ITinyFlowchartConfig[K]): void
+  get<K extends keyof ITinyFlowchartConfig>(key: K): ITinyFlowchartConfig[K]
 }
 
 class SettingManage extends Disposable {
-  private config: IIocEditorConfig = {
+  private config: ITinyFlowchartConfig = {
     zoomStep: 0.07,
     zoomMin: 0.3,
     zoomMax: 4,
@@ -49,23 +49,23 @@ class SettingManage extends Disposable {
     pasteOffset: 40
   }
 
-  updatedSetting$ = new Subject<Partial<IIocEditorConfig>>()
+  updatedSetting$ = new Subject<Partial<ITinyFlowchartConfig>>()
 
   constructor() {
     super()
     this._disposables.push(this.updatedSetting$)
   }
 
-  setDefaultConfig(config: Partial<IIocEditorConfig>) {
+  setDefaultConfig(config: Partial<ITinyFlowchartConfig>) {
     this.config = { ...this.config, ...config }
   }
 
-  set<K extends keyof IIocEditorConfig>(key: K, value: IIocEditorConfig[K]) {
+  set<K extends keyof ITinyFlowchartConfig>(key: K, value: ITinyFlowchartConfig[K]) {
     this.config[key] = value
     this.updatedSetting$.next({ [key]: value })
   }
 
-  get<K extends keyof IIocEditorConfig>(key: K): IIocEditorConfig[K] {
+  get<K extends keyof ITinyFlowchartConfig>(key: K): ITinyFlowchartConfig[K] {
     return this.config[key]
   }
 }
