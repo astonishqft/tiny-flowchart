@@ -112,14 +112,18 @@ class SceneManage extends Disposable {
 
   showAnch(x: number, y: number) {
     const [vX, vY] = this._viewPortMgr.mapSceneToViewPort(x, y)
-    this._storageMgr.getNodes().forEach(n => {
-      if (n.getBoundingBox().contain(vX, vY)) {
-        n.anchor.show()
-        n.setCursor('move')
-      } else {
-        // n.anchor.hide()
-      }
-    })
+    // 需要过滤掉选中状态的节点(节点选中状态下，锚点也必显示，因此在mousemove的时候需要排除掉已经选中的节点)
+    this._storageMgr
+      .getNodes()
+      .filter(n => !n.selected)
+      .forEach(n => {
+        if (n.getBoundingBox().contain(vX, vY)) {
+          n.anchor.show()
+          n.setCursor('move')
+        } else {
+          n.anchor.hide()
+        }
+      })
   }
 
   initEvent() {
@@ -184,7 +188,12 @@ class SceneManage extends Disposable {
 
       // 选中节点
       if (shapes.length > 0) {
-        this._nodeEventMgr.updateNodeMouseDown$.next({ node: shapes[0], e })
+        // 按z值从小到大排序，然后取最后一项（z值最大的）
+        const sortedShapes = [...shapes].sort((a, b) => a.z - b.z)
+        this._nodeEventMgr.updateNodeMouseDown$.next({
+          node: sortedShapes[sortedShapes.length - 1],
+          e
+        })
         this._eventModel = 'shape'
 
         return
@@ -192,7 +201,12 @@ class SceneManage extends Disposable {
 
       // 选中节点组
       if (groups.length > 0 && shapes.length === 0) {
-        this._nodeEventMgr.updateNodeMouseDown$.next({ node: groups[0], e })
+        // 按z值从小到大排序，然后取最后一项（z值最大的）
+        const sortedGroups = [...groups].sort((a, b) => a.z - b.z)
+        this._nodeEventMgr.updateNodeMouseDown$.next({
+          node: sortedGroups[sortedGroups.length - 1],
+          e
+        })
         this._eventModel = 'group'
 
         return
