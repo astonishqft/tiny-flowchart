@@ -197,7 +197,11 @@ export class TinyFlowchart implements ITinyFlowchart {
     this._controlFrameMgr = new ControlFrameManage(this)
     this._groupMgr = new GroupManage(this)
     this._shapeMgr = new ShapeManage(this)
-    this._zr = init(dom)
+    // 添加 pixelRatio 参数以调整画面清晰度
+    // 使用 window.devicePixelRatio 以适应不同屏幕分辨率，也可以设置为固定值如 2 或 3 来提高清晰度
+    this._zr = init(dom, {
+      devicePixelRatio: 1.5
+    })
     this._nodeEventMgr = new NodeEventManage(this)
     this._sceneMgr = new SceneManage(this)
     this._historyMgr = new HistoryManage()

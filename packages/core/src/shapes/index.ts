@@ -2,6 +2,7 @@ import { Group, Text as ZText, Circle as ZCircle } from '../'
 import { WidthActivate } from './mixins/widthActivate'
 import { WidthAnchor } from './mixins/widthAnchor'
 import { WidthCommon } from './mixins/widthCommon'
+import { defaultSettingConfig } from '../settingManage'
 import { Circle } from './circle'
 import { Text } from './text'
 import { Image } from './image'
@@ -247,9 +248,9 @@ export interface IExportData {
 const getDefaultShapeConfig = (): IShapeProps => {
   return {
     style: {
-      fill: '#fff',
-      stroke: '#333',
-      lineWidth: 1
+      fill: defaultSettingConfig.nodeFillColor,
+      stroke: defaultSettingConfig.nodeStrokeColor,
+      lineWidth: defaultSettingConfig.nodeStrokeWidth
     },
     shape: {
       x: 0,

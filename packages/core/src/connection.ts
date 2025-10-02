@@ -115,6 +115,9 @@ class Connection extends Group implements IConnection {
     this._settingMgr = tinyFlowchart._settingMgr
     this._connectionSelectColor = this._settingMgr.get('connectionSelectColor')
     this._stroke = this._settingMgr.get('connectionColor')
+    this._oldStroke = this._stroke
+    this._lineWidth = this._settingMgr.get('connectionWidth')
+    this._oldConnectionWidth = this._lineWidth
     this.fromAnchorPoint = fromAnchorPoint
     this.toAnchorPoint = toAnchorPoint
     this.fromNode = fromAnchorPoint.node
