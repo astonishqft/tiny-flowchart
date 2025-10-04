@@ -434,6 +434,30 @@ const elementCategory = ref(['0', '1', '2'])
 <style lang="less">
 .element-panel {
   overflow-y: scroll;
+
+  /* 滚动条样式优化 - WebKit浏览器 */
+  &::-webkit-scrollbar {
+    width: 6px; /* 滚动条宽度 */
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent; /* 滚动条轨道背景透明 */
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #ccc; /* 滚动条滑块颜色 */
+    border-radius: 3px; /* 滑块圆角 */
+    transition: background 0.3s; /* 过渡动画 */
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: #999; /* 悬停时滑块颜色变深 */
+  }
+
+  /* Firefox滚动条样式 */
+  scrollbar-width: thin;
+  scrollbar-color: #ccc transparent;
+
   ul {
     list-style-type: none;
     padding: 0;
