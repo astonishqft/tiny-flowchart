@@ -515,10 +515,10 @@ const getDefaultShapeTextConfig = (): IShapeTextConfig => {
   return {
     textContent: new ZText({
       style: {
-        text: 'title',
-        fill: '#333',
-        fontSize: 12,
-        fontFamily: 'Arial'
+        text: defaultSettingConfig.shapeDefaultTextTitle,
+        fill: defaultSettingConfig.shapeDefaultTextFill,
+        fontSize: defaultSettingConfig.shapeDefaultTextFontSize,
+        fontFamily: defaultSettingConfig.shapeDefaultTextFontFamily
       },
       z: 11,
       silent: true

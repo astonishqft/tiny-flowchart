@@ -770,6 +770,8 @@ export class TinyFlowchart implements ITinyFlowchart {
       connection && patchCommands.push(new AddConnectionCommand(this, connection))
     })
 
+    this._nodeEventMgr.updateNodeClick$.next({ node: null, e: null })
+
     this._historyMgr.execute(new PatchCommand(patchCommands))
   }
 

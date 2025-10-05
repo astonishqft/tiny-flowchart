@@ -21,7 +21,7 @@ import type {
 
 export interface INodeMouseDown {
   node: INode | null
-  e: ElementEvent
+  e: ElementEvent | null
 }
 export interface INodeEventManage extends IDisposable {
   updateNodeMouseDown$: Subject<INodeMouseDown>
@@ -76,7 +76,7 @@ class NodeEventManage extends Disposable {
     this.updateNodeMouseDown$.subscribe((target: INodeMouseDown) => {
       if (target.node) {
         this._node = target.node
-        this.handleMouseDown(target.node, target.e)
+        this.handleMouseDown(target.node, target.e as ElementEvent)
       }
     })
 

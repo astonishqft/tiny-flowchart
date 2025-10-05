@@ -22,6 +22,10 @@ export interface ITinyFlowchartConfig {
   groupActiveColor: string // 组选中框的颜色
   showGrid: boolean
   pasteOffset: number // 粘贴偏移量
+  shapeDefaultTextTitle: string // 节点默认文本标题
+  shapeDefaultTextFill: string // 节点默认文本填充颜色
+  shapeDefaultTextFontSize: number // 节点默认文本字体大小
+  shapeDefaultTextFontFamily: string // 节点默认文本字体
   enableMiniMap?: boolean
   enableGrid?: boolean
   parent?: ITinyFlowchart
@@ -45,6 +49,10 @@ export const defaultSettingConfig: ITinyFlowchartConfig = {
   groupActiveColor: '#29b7f3',
   nodeStrokeWidth: 1,
   connectionWidth: 1,
+  shapeDefaultTextTitle: '标题',
+  shapeDefaultTextFill: '#333',
+  shapeDefaultTextFontSize: 12,
+  shapeDefaultTextFontFamily: 'Arial',
   enableGrid: true,
   pasteOffset: 40
 }
