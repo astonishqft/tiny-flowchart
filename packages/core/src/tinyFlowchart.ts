@@ -12,7 +12,6 @@ import { DragFrameManage } from '@/dragFrameManage'
 import { RefLineManage } from '@/refLineManage'
 import { SelectFrameManage } from '@/selectFrameManage'
 import { SettingManage } from '@/settingManage'
-import { ControlFrameManage } from '@/controlFrameManage'
 import { HistoryManage } from '@/history/historyManage'
 import { HotKeysManager } from '@/hotKeysManage'
 import { NodeEventManage } from '@/nodeEventManage'
@@ -60,7 +59,6 @@ import type {
   ISelectFrameManage,
   ISettingManage,
   IHistoryManage,
-  IControlFrameManage,
   IExportShape,
   IShape,
   INode,
@@ -109,7 +107,6 @@ export interface ITinyFlowchart {
   _groupMgr: IGroupManage
   _refLineMgr: IRefLineManage
   _selectFrameMgr: ISelectFrameManage
-  _controlFrameMgr: IControlFrameManage
   _nodeEventMgr: INodeEventManage
   _zoomMgr: IZoomManage
   _zr: ZRenderType
@@ -162,7 +159,6 @@ export class TinyFlowchart implements ITinyFlowchart {
   _groupMgr: IGroupManage
   _refLineMgr: IRefLineManage
   _selectFrameMgr: ISelectFrameManage
-  _controlFrameMgr: IControlFrameManage
   _historyMgr: IHistoryManage
   _nodeEventMgr: INodeEventManage
   _copyData: IExportData = {
@@ -194,7 +190,6 @@ export class TinyFlowchart implements ITinyFlowchart {
     this._refLineMgr = new RefLineManage(this)
     this._zoomMgr = new ZoomManage(this)
     this._connectionMgr = new ConnectionManage(this)
-    this._controlFrameMgr = new ControlFrameManage(this)
     this._groupMgr = new GroupManage(this)
     this._shapeMgr = new ShapeManage(this)
     // 添加 pixelRatio 参数以调整画面清晰度
@@ -637,7 +632,7 @@ export class TinyFlowchart implements ITinyFlowchart {
 
   private handleResizeShape(options: IResizeShapeCommandOpts) {
     this._historyMgr.execute(
-      new ResizeShapeCommand(this, options.node, options.oldBoundingBox, options.boundingBox)
+      new ResizeShapeCommand(this, options.shape, options.oldBoundingBox, options.boundingBox)
     )
   }
 
@@ -925,7 +920,6 @@ export class TinyFlowchart implements ITinyFlowchart {
       node.unActive()
     })
     this._connectionMgr.unActive()
-    this._controlFrameMgr.unActive()
   }
 
   destroy() {

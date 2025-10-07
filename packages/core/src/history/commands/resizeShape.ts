@@ -1,39 +1,39 @@
 import { BoundingRect } from '@/index'
 
-import type { INode, ICommand, ITinyFlowchart } from '@/index'
+import type { IShape, ICommand, ITinyFlowchart } from '@/index'
 
 export interface IResizeShapeCommandOpts {
   tinyFlowchart: ITinyFlowchart
-  node: INode
+  shape: IShape
   oldBoundingBox: BoundingRect
   boundingBox: BoundingRect
 }
 
 class ResizeShapeCommand implements ICommand {
-  private node: INode
+  private shape: IShape
   private _tinyFlowchart: ITinyFlowchart
   private oldBoundingBox: BoundingRect
   private boundingBox: BoundingRect
 
   constructor(
     tinyFlowchart: ITinyFlowchart,
-    node: INode,
+    shape: IShape,
     oldBoundingBox: BoundingRect,
     boundingBox: BoundingRect
   ) {
     this._tinyFlowchart = tinyFlowchart
-    this.node = node
+    this.shape = shape
     this.oldBoundingBox = oldBoundingBox
     this.boundingBox = boundingBox
   }
 
   execute() {
-    this._tinyFlowchart._controlFrameMgr.reSizeNode(this.boundingBox)
+    this.shape.controlFrame.reSizeNode(this.boundingBox)
     this.refreshConnections()
   }
 
   undo() {
-    this._tinyFlowchart._controlFrameMgr.reSizeNode(this.oldBoundingBox)
+    this.shape.controlFrame.reSizeNode(this.oldBoundingBox)
     this.refreshConnections()
   }
 
@@ -42,7 +42,7 @@ class ResizeShapeCommand implements ICommand {
   }
 
   refreshConnections() {
-    this._tinyFlowchart._connectionMgr.refreshConnection(this.node)
+    this._tinyFlowchart._connectionMgr.refreshConnection(this.shape)
   }
 }
 

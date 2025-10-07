@@ -34,7 +34,6 @@ import type { ISettingManage } from '@/settingManage'
 import type { IGridManage } from '@/gridManage'
 import type { IViewPortManage } from '@/viewPortManage'
 import type { IStorageManage } from '@/storageManage'
-import type { IControlFrameManage } from '@/controlFrameManage'
 import type { IDragFrameManage } from '@/dragFrameManage'
 import type { IRefLineManage } from '@/refLineManage'
 import type { IDisposable } from '@/disposable'
@@ -134,7 +133,6 @@ export type {
   IRefLineManage,
   IDragFrameManage,
   IStorageManage,
-  IControlFrameManage,
   IDisposable,
   IGroupManage,
   IAnchorPoint,

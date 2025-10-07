@@ -22,7 +22,7 @@ import type {
   IControlPoint
 } from '@/index'
 import type { INodeEventManage } from '@/nodeEventManage'
-import type { IResizePoint } from '@/controlFrameManage'
+import type { IResizePoint } from '@/controlFrame'
 
 export interface ISceneManage extends IDisposable {
   setCursorStyle(type: string): void

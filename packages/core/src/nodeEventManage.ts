@@ -1,18 +1,15 @@
 import { Subject } from 'rxjs'
 import { getBoundingBox, getMinPosition } from './utils'
 import { Disposable } from '@/disposable'
-import { NodeType } from '@/index'
 
 import type { IDisposable } from '@/disposable'
 import type {
   ElementEvent,
   ITinyFlowchart,
-  IShape,
   INode,
   INodeGroup,
   ISettingManage,
   IZoomManage,
-  IControlFrameManage,
   IStorageManage,
   IDragFrameManage,
   IRefLineManage,
@@ -37,7 +34,6 @@ class NodeEventManage extends Disposable {
   private _settingMgr: ISettingManage
   private _zoomMgr: IZoomManage
   private _storageMgr: IStorageManage
-  private _controlFrameMgr: IControlFrameManage
   private _zoom: number = 1
   private _mouseDownX: number = 0
   private _mouseDownY: number = 0
@@ -62,7 +58,6 @@ class NodeEventManage extends Disposable {
     this._refLineMgr = tinyFlowchart._refLineMgr
     this._connectionMgr = tinyFlowchart._connectionMgr
     this._settingMgr = tinyFlowchart._settingMgr
-    this._controlFrameMgr = tinyFlowchart._controlFrameMgr
     this._onMouseUp = this.onMouseUp.bind(this)
     this._onMouseMove = this.onMouseMove.bind(this)
     this._disposables.push(this.updateNodeMouseDown$)
@@ -127,9 +122,6 @@ class NodeEventManage extends Disposable {
     this._tinyFlowchart.unActive()
     this._connectionMgr.unActive()
     node.active()
-    if (node.nodeType === NodeType.Shape) {
-      this._controlFrameMgr.active(this._node as IShape)
-    }
   }
 
   onMouseMove(e: MouseEvent) {
@@ -195,7 +187,6 @@ class NodeEventManage extends Disposable {
       this._tinyFlowchart.execute('moveNodes', { nodes: this._activeNodes, offsetX, offsetY })
     }
 
-    this._controlFrameMgr.unActive()
     this._magneticOffsetX = 0
     this._magneticOffsetY = 0
   }

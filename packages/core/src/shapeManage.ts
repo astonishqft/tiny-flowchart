@@ -1,5 +1,6 @@
 import { getShape } from './shapes'
 import { Anchor } from './anchor'
+import { ControlFrame } from './controlFrame'
 import { Disposable } from './disposable'
 
 import type {
@@ -9,7 +10,6 @@ import type {
   IDisposable,
   IStorageManage,
   ITinyFlowchart,
-  IControlFrameManage,
   INodeGroup
 } from '@/index'
 import type { IWidthAnchor } from './shapes/mixins/widthAnchor'
@@ -26,12 +26,12 @@ export interface IShapeManage extends IDisposable {
 class ShapeManage extends Disposable {
   private _viewPortMgr: IViewPortManage
   private _storageMgr: IStorageManage
-  private _controlFrameMgr: IControlFrameManage
+  private _tinyFlowchart: ITinyFlowchart
   constructor(tinyFlowchart: ITinyFlowchart) {
     super()
     this._viewPortMgr = tinyFlowchart._viewPortMgr
     this._storageMgr = tinyFlowchart._storageMgr
-    this._controlFrameMgr = tinyFlowchart._controlFrameMgr
+    this._tinyFlowchart = tinyFlowchart
   }
 
   createShape(type: string, { x, y, url }: { x: number; y: number; url?: string }): IShape {
@@ -46,6 +46,7 @@ class ShapeManage extends Disposable {
 
     shape.setType(type)
     shape.anchor = new Anchor(shape)
+    shape.controlFrame = new ControlFrame(this._tinyFlowchart, shape)
     shape.anchor.refresh()
 
     return shape
@@ -58,7 +59,7 @@ class ShapeManage extends Disposable {
   }
 
   removeShapeFromEditor(shape: IShape) {
-    this._controlFrameMgr.unActive()
+    shape.controlFrame.unActive()
     shape.unActive()
     this._storageMgr.removeShape(shape)
     this.removeBarsFromViewPort(shape.anchor.bars)

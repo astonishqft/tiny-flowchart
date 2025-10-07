@@ -1,7 +1,10 @@
 import type { IAnchorPoint } from '..'
+import type { IControlFrame } from '../../controlFrame'
 import type { Constructor, SafeDisplayable } from '../../types'
 
-export type ActivatableConstructor = Constructor<SafeDisplayable & { anchor: IAnchorPoint }>
+export type ActivatableConstructor = Constructor<
+  SafeDisplayable & { anchor: IAnchorPoint; controlFrame: IControlFrame }
+>
 
 export interface IWidthActivate {
   selected: boolean
@@ -27,7 +30,13 @@ function WidthActivate<TBase extends ActivatableConstructor>(Base: TBase) {
 
     setActiveState(state: boolean) {
       this.selected = state
-      state ? this.anchor.show() : this.anchor.hide()
+      if (state) {
+        this.anchor.show()
+        this.controlFrame.active()
+      } else {
+        this.anchor.hide()
+        this.controlFrame.unActive()
+      }
     }
   }
 }

@@ -9,8 +9,8 @@ import type {
   ISettingManage
 } from '@/index'
 
-export interface IControlFrameManage {
-  active(node: IShape): void
+export interface IControlFrame {
+  active(): void
   unActive(): void
   reSizeNode(boundingBox: BoundingRect): void
 }
@@ -22,22 +22,22 @@ interface IPointCursor {
   z: number
 }
 
-class ControlFrameManage implements IControlFrameManage {
+class ControlFrame {
   private _controlPoints: IResizePoint[] = []
   private _controlBox: Rect
   private _connectionMgr: IConnectionManage
   private _viewPortMgr: IViewPortManage
   private _tinyFlowchart: ITinyFlowchart
   private _settingMgr: ISettingManage
-  private _node: IShape | null = null
+  private _shape: IShape
   private _controlFrameColor: string
-  constructor(tinyFlowchart: ITinyFlowchart) {
+  constructor(tinyFlowchart: ITinyFlowchart, shape: IShape) {
     this._tinyFlowchart = tinyFlowchart
     this._connectionMgr = tinyFlowchart._connectionMgr
     this._viewPortMgr = tinyFlowchart._viewPortMgr
     this._settingMgr = tinyFlowchart._settingMgr
     this._controlFrameColor = this._settingMgr.get('controlFrameColor')
-
+    this._shape = shape
     this._controlBox = new Rect({
       shape: {
         x: 0,
@@ -87,12 +87,11 @@ class ControlFrameManage implements IControlFrameManage {
     })
   }
 
-  active(node: IShape) {
-    this._node = node
+  active() {
     this._controlBox.show()
     this._controlPoints.forEach(point => point.show())
-    const { width, height, x, y } = node.getBoundingBox()
-    const lineWidth = node.style.lineWidth || 1
+    const { width, height, x, y } = this._shape.getBoundingBox()
+    const lineWidth = this._shape.style.lineWidth || 1
     this.reSizeControlFrame(new BoundingRect(x, y, width - lineWidth, height - lineWidth))
   }
 
@@ -108,23 +107,23 @@ class ControlFrameManage implements IControlFrameManage {
 
   reSizeNode(boundingBox: BoundingRect) {
     const { x, y, width, height } = boundingBox
-    const { type } = this._node as IShape
+    const { type } = this._shape
 
     if (type === 'image') {
-      ;(this._node as unknown as Image).attr('style', { width, height })
+      ;(this._shape as unknown as Image).attr('style', { width, height })
     } else if (type === 'circle') {
-      ;(this._node as unknown as Ellipse).attr('shape', {
+      ;(this._shape as unknown as Ellipse).attr('shape', {
         cx: width / 2,
         cy: height / 2,
         rx: width / 2,
         ry: height / 2
       })
     } else {
-      ;(this._node as unknown as Rect).attr('shape', { width, height })
+      ;(this._shape as unknown as Rect).attr('shape', { width, height })
     }
-    this._node?.attr('x', x)
-    this._node?.attr('y', y)
-    this._connectionMgr.refreshConnection(this._node as IShape)
+    this._shape.attr('x', x)
+    this._shape.attr('y', y)
+    this._connectionMgr.refreshConnection(this._shape)
     this.reSizeControlFrame(boundingBox)
   }
 
@@ -195,7 +194,7 @@ class ControlFrameManage implements IControlFrameManage {
       point.on('dragend', () => {
         isDragging = false
         this._tinyFlowchart.execute('resizeShape', {
-          node: this._node,
+          shape: this._shape,
           oldBoundingBox: oldBoundingBox,
           boundingBox: new BoundingRect(x, y, width, height)
         })
@@ -209,4 +208,4 @@ class ControlFrameManage implements IControlFrameManage {
   }
 }
 
-export { ControlFrameManage }
+export { ControlFrame }

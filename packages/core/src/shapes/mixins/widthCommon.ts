@@ -5,6 +5,7 @@ import type { Element, FontStyle, FontWeight } from '@/index'
 import type { IExportShape, IExportShapeStyle } from '@/shapes'
 import type { INodeGroup } from '@/shapes/nodeGroup'
 import type { Constructor, Dictionary, SafeDisplayable } from '@/types'
+import type { IControlFrame } from '../../controlFrame'
 
 export type CommonConstructor = Constructor<SafeDisplayable>
 
@@ -13,6 +14,7 @@ export interface IWidthCommon {
   oldX: number
   oldY: number
   nodeType: NodeType
+  controlFrame: IControlFrame
   getPosition(): number[]
   setOldPosition(): void
   getBoundingBox(): BoundingRect

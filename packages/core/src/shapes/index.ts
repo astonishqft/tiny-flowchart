@@ -47,6 +47,7 @@ import { MultiDocument } from './multiDocument'
 import { ProcessBar } from './processBar'
 
 import type { INodeGroup } from './nodeGroup'
+import type { IControlFrame } from '../controlFrame'
 import type {
   BuiltinTextPosition,
   FontStyle,
@@ -201,6 +202,7 @@ export type IControlPoint = ZCircle & {
 
 export interface IShape extends Displayable, IWidthActivate, IWidthAnchor, IWidthCommon {
   anchors: IAnchor[]
+  controlFrame: IControlFrame
   parentGroup?: INodeGroup
   nodeType: NodeType
   createAnchors(): void
@@ -576,7 +578,10 @@ export const shapes: IShapeMap = {
   induce: Induce
 }
 
-export const getShape = (type: string, option: { x: number; y: number; image?: string }) => {
+export const getShape = (
+  type: string,
+  option: { x: number; y: number; image?: string }
+): IShape => {
   const config: IShapeProps = {
     ...getDefaultShapeTextConfig(),
     ...getDefaultShapeConfig(),
