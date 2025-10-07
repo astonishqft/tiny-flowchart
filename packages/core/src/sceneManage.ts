@@ -120,7 +120,7 @@ class SceneManage extends Disposable {
 
     // 隐藏所有非选中节点的锚点
     nodes.forEach(n => {
-      n.anchor.hide()
+      !n.selected && n.anchor.hide()
       if (!n.selected) {
         n.setCursor('default')
       }
@@ -198,10 +198,8 @@ class SceneManage extends Disposable {
 
       // 选中节点
       if (shapes.length > 0) {
-        // 按z值从小到大排序，然后取最后一项（z值最大的）
-        const sortedShapes = [...shapes].sort((a, b) => a.z - b.z)
         this._nodeEventMgr.updateNodeMouseDown$.next({
-          node: sortedShapes[sortedShapes.length - 1],
+          node: getTopPriorityNode(shapes),
           e
         })
         this._eventModel = 'shape'

@@ -39,9 +39,19 @@ class ControlFrameManage implements IControlFrameManage {
     this._controlFrameColor = this._settingMgr.get('controlFrameColor')
 
     this._controlBox = new Rect({
-      shape: { x: 0, y: 0, width: 0, height: 0 },
-      style: { fill: 'transparent', stroke: this._controlFrameColor, lineDash: 'dashed' },
-      silent: true
+      shape: {
+        x: 0,
+        y: 0,
+        width: 0,
+        height: 0
+      },
+      style: {
+        fill: 'transparent',
+        stroke: this._controlFrameColor,
+        lineDash: 'dashed'
+      },
+      silent: true,
+      z: 99
     })
 
     this.createControlPoints()

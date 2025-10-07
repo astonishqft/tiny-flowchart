@@ -19,22 +19,10 @@ function WidthActivate<TBase extends ActivatableConstructor>(Base: TBase) {
 
     active() {
       this.setActiveState(true)
-      this.attr({
-        style: {
-          shadowColor: '#29b7f3',
-          shadowBlur: 2
-        }
-      })
     }
 
     unActive() {
       this.setActiveState(false)
-      this.attr({
-        style: {
-          shadowColor: 'none',
-          shadowBlur: 0
-        }
-      })
     }
 
     setActiveState(state: boolean) {
