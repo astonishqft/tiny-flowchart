@@ -4,6 +4,13 @@ import type { BoundingRect, Element } from '@/index'
 import type { INodeGroup } from '@/shapes/nodeGroup'
 import type { IExportGroup, IExportGroupStyle, IExportShape, INode } from '@/shapes'
 
+/**
+ * 获取有序数组中最接近目标值的元素
+ *
+ * @param sortedArr - 有序数组
+ * @param target - 目标值
+ * @returns 有序数组中最接近目标值的元素
+ */
 export const getClosestLine = (sortedArr: number[], target: number) => {
   if (sortedArr.length === 0) {
     throw new Error('sortedArr can not be empty')
@@ -48,6 +55,12 @@ export const isEqualNum = (num1: number, num2: number) => {
   return Math.abs(num1 - num2) <= 1.5
 }
 
+/**
+ * 获取形状数组中最小的位置坐标
+ *
+ * @param shapes - 形状数组
+ * @returns 包含最小x和最小y坐标的数组
+ */
 export const getMinPosition = (shapes: INode[]): number[] => {
   let minX = Infinity
   let minY = Infinity
@@ -63,6 +76,12 @@ export const getMinPosition = (shapes: INode[]): number[] => {
   return [minX, minY]
 }
 
+/**
+ * 获取形状数组中最低层级的层级值
+ *
+ * @param shapes - 形状数组
+ * @returns 最低层级的层级值
+ */
 export const getMinZLevel = (shapes: INode[]) => {
   let minZLevel = Infinity
   shapes.forEach(shape => {
@@ -74,6 +93,12 @@ export const getMinZLevel = (shapes: INode[]) => {
   return minZLevel
 }
 
+/**
+ * 获取分组数组中最高层级的分组的层级值
+ *
+ * @param groups - 分组数组
+ * @returns 最高层级的分组的层级值
+ */
 export const getGroupMaxZLevel = (groups: INodeGroup[]) => {
   let maxZLevel = -Infinity
   groups.forEach(g => {
@@ -85,6 +110,13 @@ export const getGroupMaxZLevel = (groups: INodeGroup[]) => {
   return maxZLevel
 }
 
+/**
+ * 判断一个矩形是否完全进入另一个矩形
+ *
+ * @param a - 第一个矩形
+ * @param b - 第二个矩形
+ * @returns 如果第一个矩形完全进入第二个矩形，则返回true；否则返回false
+ */
 export const isEnter = (a: BoundingRect, b: BoundingRect) => {
   const centerX = a.x + a.width / 2
   const centerY = a.y + a.height / 2
@@ -96,6 +128,12 @@ export const isEnter = (a: BoundingRect, b: BoundingRect) => {
   return centerX >= b.x && centerX <= b.x + b.width && centerY >= b.y && centerY <= b.y + b.height
 }
 
+/**
+ * 获取最高层级的分组
+ *
+ * @param groups - 分组数组
+ * @returns 最高层级的分组
+ */
 export const getTopGroup = (groups: INodeGroup[]): INodeGroup => {
   if (groups.length === 1) {
     return groups[0]
@@ -110,6 +148,12 @@ export const getTopGroup = (groups: INodeGroup[]): INodeGroup => {
   return maxGroup
 }
 
+/**
+ * 下载文件
+ *
+ * @param content - 文件内容
+ * @param filename - 文件名
+ */
 export const downloadFile = (content: string, filename: string) => {
   const a = document.createElement('a')
   const blob = new Blob([content])
@@ -127,6 +171,12 @@ export interface IGroupTreeNode {
   z: number
 }
 
+/**
+ * 将分组数组转换为分组树
+ *
+ * @param flatArray - 分组数组
+ * @returns 分组树对象，包含分组树节点数组和分组映射
+ */
 export const groupArray2Tree = (flatArray: IExportGroup[]) => {
   const map = new Map()
   flatArray.forEach(item => {
@@ -154,6 +204,12 @@ export const groupArray2Tree = (flatArray: IExportGroup[]) => {
   }
 }
 
+/**
+ * 将分组树转换为分组数组
+ *
+ * @param treeNode - 分组树节点数组
+ * @returns 分组数组
+ */
 export const groupTree2Array = (treeNode: IGroupTreeNode[]) => {
   const result: number[] = []
   function traverse(node: IGroupTreeNode) {
@@ -179,6 +235,13 @@ export const getBoundingBox = <T extends Element>(nodes: T[]): BoundingRect => {
   return g.getBoundingRect(nodes)
 }
 
+/**
+ * 获取所有相关的分组（包括子分组）
+ *
+ * @param targetGroup - 目标分组数组
+ * @param allGroups - 所有分组数组
+ * @returns 所有相关的分组数组
+ */
 export const getAllRelatedGroups = (targetGroup: IExportGroup[], allGroups: IExportGroup[]) => {
   const relatedGroups: IExportGroup[] = []
 
@@ -243,6 +306,14 @@ export function getBorderRadiusPoints(
 }
 
 export type PathArray = [string, number?, number?, number?, number?][]
+/**
+ * 生成折线路径
+ *
+ * @param points - 折线的点数组
+ * @param radius - 圆角半径，默认值为 0
+ * @param z - 是否闭合路径，默认值为 false
+ * @returns 折线路径数组
+ */
 export function getPolylinePath(points: Point[], radius = 0, z = false): PathArray {
   if (points.length === 0) return []
   const sourcePoint = points[0]
@@ -324,6 +395,12 @@ export function cross(a: Vector, b: Vector): number {
   return a[0] * b[1] - a[1] * b[0]
 }
 
+/**
+ * 构建圆角矩形路径
+ *
+ * @param ctx - 画布上下文
+ * @param shape - 矩形参数，包含 x、y、width、height、r 四个属性
+ */
 export function buildRoundRectPath(
   ctx: CanvasRenderingContext2D,
   shape: { x: number; y: number; width: number; height: number; r: number }
@@ -383,4 +460,27 @@ export function buildRoundRectPath(
   r4 !== 0 && ctx.arc(x + r4, y + height - r4, r4, Math.PI / 2, Math.PI)
   ctx.lineTo(x, y + r1)
   r1 !== 0 && ctx.arc(x + r1, y + r1, r1, Math.PI, Math.PI * 1.5)
+}
+
+/**
+ * 获取优先级最高的节点（z值最大，z值相同时取原数组最后一个）
+ * @param nodes 节点数组
+ * @returns 优先级最高的节点
+ */
+export const getTopPriorityNode = (nodes: INode[]): INode => {
+  // 按z值降序排序
+  const sortedNodes = [...nodes].sort((a, b) => {
+    return (b.z || 0) - (a.z || 0)
+  })
+
+  // 如果只有一个节点或第一个和第二个节点z值不同，直接返回第一个
+  if (nodes.length === 1 || sortedNodes[0].z !== sortedNodes[1]?.z) {
+    return sortedNodes[0]
+  }
+
+  // z值相同的情况，从原始数组中找出所有z值等于最大值的节点，并返回最后一个
+  const maxZ = sortedNodes[0].z || 0
+  const sameZNodes = nodes.filter(node => (node.z || 0) === maxZ)
+
+  return sameZNodes[sameZNodes.length - 1]
 }

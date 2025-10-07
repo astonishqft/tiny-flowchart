@@ -1,6 +1,6 @@
 import { Disposable } from '@/disposable'
-
 import { NodeType } from '@/index'
+import { getTopPriorityNode } from '@/utils'
 
 import type {
   ZRenderType,
@@ -113,17 +113,27 @@ class SceneManage extends Disposable {
   showAnch(x: number, y: number) {
     const [vX, vY] = this._viewPortMgr.mapSceneToViewPort(x, y)
     // 需要过滤掉选中状态的节点(节点选中状态下，锚点也必显示，因此在mousemove的时候需要排除掉已经选中的节点)
-    this._storageMgr
-      .getNodes()
-      .filter(n => !n.selected)
-      .forEach(n => {
-        if (n.getBoundingBox().contain(vX, vY)) {
-          n.anchor.show()
-          n.setCursor('move')
-        } else {
-          n.anchor.hide()
-        }
-      })
+    const nodes = this._storageMgr.getNodes()
+
+    // 找出所有包含当前鼠标位置的节点
+    const hoveredNodes = nodes.filter(n => n.getBoundingBox().contain(vX, vY))
+
+    // 隐藏所有非选中节点的锚点
+    nodes.forEach(n => {
+      n.anchor.hide()
+      if (!n.selected) {
+        n.setCursor('default')
+      }
+    })
+
+    // 如果有多个节点重合，获取优先级最高的节点并显示其锚点
+    if (hoveredNodes.length > 0) {
+      const topNode = getTopPriorityNode(hoveredNodes)
+      if (topNode) {
+        topNode.anchor.show()
+        topNode.setCursor('move')
+      }
+    }
   }
 
   initEvent() {
@@ -295,13 +305,15 @@ class SceneManage extends Disposable {
       }
 
       if (shapes.length > 0) {
-        this._nodeEventMgr.updateNodeClick$.next({ node: shapes[0], e })
+        const topNode = getTopPriorityNode(shapes)
+        this._nodeEventMgr.updateNodeClick$.next({ node: topNode, e })
 
         return
       }
 
       if (groups.length > 0 && shapes.length === 0) {
-        this._nodeEventMgr.updateNodeClick$.next({ node: groups[0], e })
+        const topGroup = getTopPriorityNode(groups)
+        this._nodeEventMgr.updateNodeClick$.next({ node: topGroup, e })
 
         return
       }
