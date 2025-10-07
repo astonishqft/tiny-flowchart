@@ -161,7 +161,7 @@ const changeTextFontStyle = (style: string) => {
 const updateTextAnchorAndCtrFrame = () => {
   const { width, height } = activeShape.value!.getBoundingRect()
   const { x, y } = activeShape.value!
-  tinyFlowchart._controlFrameMgr.reSizeNode(new BoundingRect(x, y, width, height))
+  activeShape.value!.controlFrame.reSizeNode(new BoundingRect(x, y, width, height))
   activeShape.value?.anchor.refresh()
 }
 
