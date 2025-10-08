@@ -1,12 +1,14 @@
 import { Subject } from 'rxjs'
 import { getBoundingBox, getMinPosition } from './utils'
 import { Disposable } from '@/disposable'
+import { NodeType } from '@/index'
 
 import type { IDisposable } from '@/disposable'
 import type {
   ElementEvent,
   ITinyFlowchart,
   INode,
+  IShape,
   INodeGroup,
   ISettingManage,
   IZoomManage,
@@ -189,6 +191,12 @@ class NodeEventManage extends Disposable {
 
     this._magneticOffsetX = 0
     this._magneticOffsetY = 0
+
+    this._activeNodes.forEach(n => {
+      if (n.nodeType === NodeType.Shape) {
+        ;(n as IShape).controlFrame.active()
+      }
+    })
   }
 }
 
