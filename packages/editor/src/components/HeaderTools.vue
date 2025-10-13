@@ -5,6 +5,7 @@ import {
   ElSelect,
   ElDropdown,
   ElIcon,
+  ElButton,
   ElDropdownMenu,
   ElDropdownItem,
   ElCheckbox,
@@ -17,6 +18,7 @@ import type { CheckboxValueType } from 'element-plus'
 import type { ITinyFlowchart } from '@tiny-flowchart/core'
 
 const dialogVisible = ref(false)
+const clearConfirmVisible = ref(false)
 const version = ref(__TINY_FLOWCHART_VERSION__)
 
 const props = defineProps<{
@@ -188,8 +190,7 @@ const command = (name: string) => {
       props.tinyFlowchart._connectionMgr.setConnectionType(currentLineType.value)
       break
     case 'clear':
-      props.tinyFlowchart.clear()
-      props.tinyFlowchart.updateMessage$.next({ info: '画布清除成功', type: 'success' })
+      clearConfirmVisible.value = true
       break
     case 'select':
       props.tinyFlowchart._selectFrameMgr.setSelectFrameStatus(true)
@@ -251,6 +252,18 @@ const showGrid = (show: CheckboxValueType) => {
 const showMiniMap = (show: CheckboxValueType) => {
   isShowMiniMap.value = show as boolean
   props.tinyFlowchart.updateMiniMapVisible$.next(show as boolean)
+}
+
+// 确认清除画布
+const confirmClear = () => {
+  props.tinyFlowchart.clear()
+  props.tinyFlowchart.updateMessage$.next({ info: '画布清除成功', type: 'success' })
+  clearConfirmVisible.value = false
+}
+
+// 取消清除画布
+const cancelClear = () => {
+  clearConfirmVisible.value = false
 }
 </script>
 
@@ -350,6 +363,17 @@ const showMiniMap = (show: CheckboxValueType) => {
           </div>
         </div>
       </div>
+    </el-dialog>
+
+    <!-- 清除画布确认对话框 -->
+    <el-dialog v-model="clearConfirmVisible" title="确认清除" width="30%">
+      <span>确定要清除画布上的所有内容吗？此操作不可撤销。</span>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="cancelClear">取消</el-button>
+          <el-button type="primary" @click="confirmClear">确定</el-button>
+        </span>
+      </template>
     </el-dialog>
   </div>
 </template>
