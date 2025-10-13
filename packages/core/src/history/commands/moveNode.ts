@@ -1,4 +1,5 @@
-import type { ICommand, INode, ITinyFlowchart } from '@/index'
+import { NodeType } from '@/index'
+import type { ICommand, INode, ITinyFlowchart, IShape } from '@/index'
 
 export interface IMoveNodeCommandOpts {
   tinyFlowchart: ITinyFlowchart
@@ -28,16 +29,24 @@ class MoveNodeCommand implements ICommand {
     this.node.updatePosition([this.oldX + this.offsetX, this.oldY + this.offsetY])
     this.refreshConnections()
     this.updateGroupSize(this.node)
+    this.updateNodeControlFrame()
   }
 
   undo() {
     this.node.updatePosition([this.oldX, this.oldY])
+    this.updateNodeControlFrame()
     this.refreshConnections()
     this.updateGroupSize(this.node)
   }
 
   redo() {
     this.execute()
+  }
+
+  updateNodeControlFrame() {
+    if (this.node.nodeType === NodeType.Shape && this.node.selected) {
+      ;(this.node as IShape).controlFrame.active()
+    }
   }
 
   refreshConnections() {
